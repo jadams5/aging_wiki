@@ -32,7 +32,7 @@ Densely cross-linked **atomic pages** — one per protein, pathway, compound, pr
 
 ## Using it
 
-- **Browse it** as an [Obsidian](https://obsidian.md) vault — it's plain interlinked Markdown. Start at [`index.md`](index.md).
+- **Browse it** as an [Obsidian](https://obsidian.md) vault — it's plain interlinked Markdown. Start at [`index.md`](index.md). The repo ships no Obsidian config; for the live queries (knowledge-gap tracker, framework MOCs, lab-panel time-series) to render, install the [Dataview](https://github.com/blacksmithgu/obsidian-dataview) community plugin.
 - **Run an agent in it** — open the repo in Claude Code; `CLAUDE.md` tells the agent how the wiki is structured and how to maintain it. Ask it mechanistic questions, or have it seed and verify new entities.
 - **Apply it to a person** — the [`protocols-template/`](protocols-template/) directory is a fake-data skeleton showing how the research layer connects to personal health tracking. (Real personal data lives in a separate private repo; see that directory's README.)
 

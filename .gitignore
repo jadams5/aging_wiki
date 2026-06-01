@@ -9,11 +9,8 @@ protocols/
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
 
-# Obsidian: local UI/workspace state (per-machine, noisy)
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/cache
-.obsidian/plugins/*/data.json
+# Obsidian: entire local vault config (per-machine UI state, plugins, workspace)
+.obsidian/
 .obsidian-backup/
 
 # OS junk
