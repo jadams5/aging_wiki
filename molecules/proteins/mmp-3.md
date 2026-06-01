@@ -1,0 +1,181 @@
+---
+type: protein
+aliases: [MMP3, matrix metalloproteinase-3, stromelysin-1, transin-1]
+uniprot: P08254
+ncbi-gene: 4314
+hgnc: 7173
+ensembl: ENSG00000149968
+mouse-ortholog: Mmp3
+genage-id: null
+pathways: ["[[nf-kb]]", "[[ap-1-signaling]]"]
+hallmarks: ["[[loss-of-proteostasis]]", "[[chronic-inflammation]]"]
+sens-categories: []
+druggability-tier: 3
+gtex-aging-correlation: null
+mr-causal-evidence: not-tested
+caused-by: ["[[cellular-senescence]]", "[[ultraviolet-radiation]]"]
+causes: ["[[loss-of-proteostasis]]", "[[chronic-inflammation]]"]
+literature-checked-through: 2026-05-19
+verified: true
+verified-date: 2026-05-19
+verified-by: claude
+verified-scope: "Fisher 1996 claims cross-checked against verified studies/fisher-1996-photoaging-ap1-mmp.md (not re-read; R39-verified); Fisher 2009 claims cross-checked against verified studies/fisher-2009-collagen-fragmentation-mmp.md (not re-read; R39-verified). UniProt P08254 canonical fields verified via UniProt REST API 2026-05-19. Sumsuzzman 2022 DOI corrected (101730→101729) via PubMed efetch PMID 36087701. Mak 2025 full DOI resolved to 10.1016/j.brainres.2025.149954 via Crossref + PubMed efetch PMID 40998199; DOI-uncertainty gap tag removed. Catalytic domain boundary corrected 100–266→100–272 per UniProt P08254 feature table. MMP-3 sub-erythemogenic dose-threshold claim corrected: 0.01 MED threshold is for MMP-1 (not MMP-3) per Fisher 1996 Fig. 2 dose-response; MMP-3 dose-response not independently characterised in Fisher 1996. Mouse ortholog Mmp3 confirmed (UniProt P28862; 477 aa; same length as human). Druggability tier 3 retained; Open Targets API not reachable — tier consistent with absence of approved clinical drug for aging indication."
+---
+
+# MMP-3 (Stromelysin-1)
+
+MMP-3 (matrix metalloproteinase-3; stromelysin-1; transin-1) is a secreted zinc-metalloprotease with unusually broad substrate specificity and a pivotal role as an extracellular activator of other MMPs. In the aging context, MMP-3 is best understood as a **secondary amplifier** in collagen-degradation cascades: acutely induced by UV irradiation in human skin in vivo [^fisher1996], and a canonical component of the [[sasp|SASP]] secreted by senescent cells [^coppe2010]. Its primary physiological importance lies not in collagen-triple-helix cleavage (which is the [[mmp-1]] function) but in activating the inactive precursors proMMP-1 and proMMP-9, thereby amplifying the overall MMP cascade.
+
+**Naming precision:** Stromelysin-1 = MMP-3. Stromelysin-2 = MMP-10. These are distinct enzymes with overlapping but non-identical substrate profiles. Fisher 1996 used stromelysin-I-specific vs stromelysin-II-specific Northern blot probes to confirm that UV induces MMP-3, not MMP-10 [^fisher1996] — a distinction frequently lost in secondary literature.
+
+## Identity
+
+- **UniProt:** P08254 (MMP3_HUMAN)
+- **NCBI Gene:** 4314
+- **HGNC symbol:** MMP3
+- **Ensembl:** ENSG00000149968
+- **Mouse ortholog:** Mmp3 (well-conserved; similar substrate specificity and collagenase-activating function)
+- **Protein length:** 477 amino acids (canonical isoform; signal peptide residues 1–17; propeptide 18–99; catalytic domain 100–272; hemopexin-like domain 287–477)
+
+## Structure and activation
+
+MMP-3 shares the canonical MMP-family architecture: N-terminal signal peptide → propeptide containing the **cysteine-switch motif** → zinc-dependent catalytic domain → proline-rich hinge region → C-terminal hemopexin-like domain (four blade-like repeats).
+
+The protein is secreted as an inactive zymogen (proMMP-3). The **cysteine-switch mechanism** maintains latency: a conserved cysteine in the propeptide coordinates the catalytic zinc ion, preventing substrate access. Activation occurs when this Cys-Zn bond is disrupted — achieved extracellularly by serine proteases (notably HTRA2, which cleaves the propeptide directly; also plasmin and other extracellular proteases), by organomercurial compounds in vitro, or by other activated MMPs [^nagase1999].
+
+Two zinc ions (catalytic) and four calcium ions (structural) per subunit are required for activity [^uniprot-p08254].
+
+## Substrate spectrum
+
+MMP-3 has the broadest substrate portfolio of the classical stromelysin sub-family [^nagase1999]:
+
+| Substrate class | Examples |
+|---|---|
+| Non-fibrillar ECM | Fibronectin, laminin, tenascin |
+| Collagens | Types III, IV, V, IX, X (denatured/gelatin); **NOT native fibrillar type I collagen** |
+| Proteoglycans | Aggrecan, versican, perlecan |
+| Pro-enzymes (key cascade role) | proMMP-1 (interstitial collagenase), proMMP-9 (gelatinase-B) |
+| Other substrates | Plasminogen (generates angiostatin), α-synuclein (see neurological relevance below) |
+
+The inability to cleave native fibrillar collagen I distinguishes MMP-3 from MMP-1 and positions it as a **secondary processor**: it potentiates MMP-1 activity by activating its precursor, then processes the 3/4 + 1/4 collagen fragments generated by MMP-1 into smaller peptides, deepening matrix degradation. #gap/needs-replication — the precise in-vivo stoichiometric contribution of MMP-3 to proMMP-1 activation vs that of other activators (plasmin, MT1-MMP) has not been quantified in human aged dermis.
+
+## Role in photoaging and UV-induced skin damage
+
+In a landmark human in-vivo study (n=6–17 subjects; adult buttock skin), a single 2 MED UVB dose induced MMP-3 mRNA (stromelysin-I) within 8–24 h [^fisher1996]. The induction was mediated by rapid activation of AP-1 (Jun/Fos) and NF-κB within 15 min of UV exposure, with AP-1 activation detectable at sub-erythemogenic doses as low as 0.01 MED. Note: the dose-response for MMP-3 mRNA was not independently characterised in Fisher 1996; the published dose-response data (Fig. 2) are for MMP-1 and MMP-9 protein/activity specifically. MMP-1 induction was detected at 0.01 MED; MMP-9 threshold was 0.1 MED. #gap/needs-replication — MMP-3 sub-erythemogenic dose threshold has not been independently quantified.
+
+**MMP-3 (stromelysin-I) vs MMP-10 (stromelysin-II) disambiguation:** Fisher 1996 performed Northern blot hybridization with both a stromelysin-I-specific probe and a stromelysin-II-specific probe. Signal was detected with the stromelysin-I probe only; the stromelysin-II probe "yielded no signal" [^fisher1996]. This confirms that UV induces MMP-3, not MMP-10.
+
+**Topical t-RA (tretinoin) pretreatment** (0.1%, 48 h before 2 MED UVB) reduced UV-induced AP-1 binding by 70% and suppressed MMP-1 and MMP-9 mRNA/protein/activity by 50–80%; MMP-3 was included in the induction panel but the tretinoin suppression data cited in the text focus on MMP-1 and MMP-9 as the primary read-outs [^fisher1996]. #gap/unsourced — the precise magnitude of t-RA suppression of MMP-3 specifically is not text-stated in Fisher 1996; confirm from full paper before citing a precise figure.
+
+| Dimension | Status | Notes |
+|---|---|---|
+| Pathway conserved in humans? | yes | UV → AP-1/NF-κB → MMP-3 directly demonstrated in human skin in vivo |
+| Phenotype conserved in humans? | yes | Human skin biopsies used as primary model |
+| Replicated in humans? | yes | Fisher 1996 is direct human in-vivo data; multiple subsequent photoaging studies corroborate AP-1/MMP induction |
+
+## Role in intrinsic (non-UV) aging
+
+In Fisher 2009, MMP-3 and MMP-9 are discussed as potential secondary amplifiers of the collagen-fragmentation self-amplifying loop in intrinsically aged dermis, **but no new quantitative MMP-3 or MMP-9 data is presented in that paper** [^fisher2009]. The R39 verifier correction confirmed: MMP-3 in the intrinsic-aging context is mentioned only in Fisher 2009 discussion, citing prior Fisher-lab work. Fisher 2009 does not position MMP-3 as an independent feedback-loop driver.
+
+For intrinsic aging context, the primary MMP-3 claim is:
+- MMP-3 is part of the aged-dermis MMP secretome, elevated in aged vs young human skin (cited in prior Fisher-lab publications referenced as ref. 27 in Fisher 2009 [^fisher2009]).
+- Its primary mechanistic role is to amplify MMP-1-mediated collagen degradation by activating proMMP-1, not to independently fragment intact collagen I.
+
+## MMP-3 as a SASP component
+
+MMP-3 is a canonical member of the **senescence-associated secretory phenotype (SASP)** — the proinflammatory and matrix-remodeling secretome released by senescent cells [^coppe2010]. Senescent dermal fibroblasts, epithelial cells, and chondrocytes secrete MMP-3, contributing to:
+
+- Local ECM degradation in the tissue niche surrounding senescent cells
+- Paracrine spread of senescence-like phenotypes to neighbouring cells (via ECM remodeling and released growth factors)
+- Amplification of MMP-1-driven collagen degradation in aged dermis (by activating proMMP-1 secreted by non-senescent fibroblasts)
+
+The MMP-3-responsive nanoparticle approach (Escriche-Navarro et al. 2025; PMID 39835371) exploits elevated pericellular MMP-3 activity as a **senescence-location marker**, achieving 2-fold enhanced immune-cell recruitment to senescent cells in vitro — an emerging approach to targeted senolytic delivery using MMP-3 as a "gate-keeper" enzyme. This demonstrates translational interest in MMP-3 activity as a senescence read-out beyond skin biology.
+
+See [[processes/sasp]] for the full SASP component landscape.
+
+## Cross-tissue relevance
+
+### Osteoarthritis and cartilage degradation
+
+MMP-3 is a **primary catabolic enzyme** in articular cartilage, cleaving aggrecan (the major proteoglycan of cartilage) and activating proMMP-9, thereby amplifying matrix degradation in osteoarthritic joints [^sumsuzzman2022]. Integrin α5β1 activation in chondrocytes upregulates MMP-3 alongside IL-1β and TNF-α, linking mechanosensing in aged/degenerated cartilage to matrix catabolism. See [[phenotypes/osteoarthritis]].
+
+| Dimension | Status | Notes |
+|---|---|---|
+| Pathway conserved in humans? | yes | Human chondrocyte studies available |
+| Phenotype conserved in humans? | partial | OA animal models corroborate; human joint-fluid MMP-3 elevation confirmed observationally |
+| Replicated in humans? | partial | Observational (OA joint-fluid levels); no RCT of selective MMP-3 inhibition in human OA |
+
+### Cardiac and arterial remodeling
+
+A functional promoter polymorphism (5A/6A SNP, rs3025058) in the MMP-3 gene associates with extracellular matrix deposition in atherosclerotic plaques and myocardial infarction risk [^uniprot-p08254]. The 5A allele (associated with higher MMP-3 transcription) is correlated with more plaque rupture risk; the 6A allele (lower transcription) with increased matrix deposition. This is an observational association; MR causal evidence has not been established. See [[phenotypes/cardiac-fibrosis]].
+
+#gap/needs-replication — the MMP-3 5A/6A promoter-polymorphism/MI association is from GWAS-era observational data; effect estimates vary across cohorts.
+
+### Neurodegeneration
+
+MMP-3 cleaves α-synuclein in dopaminergic neurons; elevated MMP-3 has been proposed as a biomarker in Alzheimer's disease. A 2025 meta-analysis of 12 studies (n=1316; 806 AD, 510 controls) found significantly elevated MMP-3 levels in AD patients vs controls (SMD = 0.69, 95% CI 0.25–1.13), with effect size moderated by sex and specimen type [^mak2025] — though causality vs reaction to neurodegeneration is unclear. #gap/no-mechanism — the mechanistic pathway linking MMP-3 elevation to AD pathology has not been established.
+
+## Pharmacology and druggability
+
+**Druggability tier: 3** (predicted druggable; no aging-validated clinical drug exists).
+
+Broad-spectrum MMP inhibitors with hydroxamate scaffolds (marimastat, batimastat, ilomastat) inhibit MMP-3 along with most other MMPs, but clinical trials in oncology (1990s–2000s) failed due to musculoskeletal toxicity (dose-limiting joint pain and stiffness from non-selective MMP inhibition) and lack of efficacy [^coussens2002]. No selective MMP-3 inhibitor has reached Phase 3 trials.
+
+The **failed clinical MMP inhibitor experience** established that non-selective MMP inhibition at therapeutic doses is not tolerated and may paradoxically worsen some outcomes (MMP-dependent tumor-suppressive stromal remodeling disrupted). Selective MMP-3 inhibition in aging-specific contexts (skin photoprotection, OA, senescence-associated matrix degradation) has not been clinically validated.
+
+**Indirect suppression via AP-1:** Topical tretinoin (t-RA) reduces UV-induced MMP-3 transcription via AP-1 transrepression, but this is a broad upstream intervention affecting multiple MMPs simultaneously — it is not MMP-3-selective [^fisher1996].
+
+**TIMP-1** is the primary endogenous inhibitor of MMP-3 (tissue inhibitor of metalloproteinases 1); TIMP-1 declines with age in some tissue contexts. #gap/needs-replication — the magnitude and tissue-specificity of age-related TIMP-1 decline vs MMP-3 upregulation in humans has not been quantified in a large cohort study.
+
+## Pathway membership
+
+- [[nf-kb]] — NF-κB binds the MMP-3 promoter; UV-induced NF-κB activation precedes MMP-3 transcription in human skin
+- [[ap-1-signaling]] — AP-1 (Jun/Fos) is the primary transcriptional driver of UV-induced MMP-3 in skin; c-Jun/AP-1 drives MMP-3 in the collagen-fragmentation loop
+- Upstream of [[mmp-1]] and [[mmp-9]] — MMP-3 activates proMMP-1 and proMMP-9 extracellularly
+
+## Key interactors
+
+- **proMMP-1** (target) — MMP-3 cleaves the propeptide, generating active MMP-1 (interstitial collagenase)
+- **proMMP-9** (target) — MMP-3 activates gelatinase-B; Fisher 1996 showed MMP-3 and MMP-9 co-induced by UV
+- **TIMP-1** — primary endogenous inhibitor; complex formation blocks MMP-3 catalytic activity
+- **HTRA2** — activates proMMP-3 by propeptide cleavage [^uniprot-p08254]
+- **Plasminogen** — MMP-3 cleaves plasminogen to angiostatin; feedback loop with plasmin (which can in turn activate proMMPs)
+- **α2β1 integrin** — collagen-sensing integrin whose expression is upregulated in MMP-3-processed ECM environments; links ECM state back to AP-1-driven MMP transcription [^fisher2009]
+
+## Aging interventions that modulate MMP-3
+
+- **Topical tretinoin (tretinoin / t-RA)** — reduces UV-induced MMP-3 transcription via AP-1 transrepression; see [[phenotypes/skin-aging]] for clinical evidence
+- **Sunscreen / UV-protection** — prevents UV → AP-1 → MMP-3 induction at source; the most upstream intervention
+- **Senolytics** — remove SASP-secreting senescent cells, reducing the MMP-3 contribution to the extracellular senescence niche; see [[interventions/pharmacological/senolytics]]
+- **MitoQ / mitochondrial antioxidants** — reduce ROS-driven c-Jun/AP-1 activation in fragmented-collagen environments; MitoQ₁₀ at 1 nmol/L reduced MMP-1 mRNA ~30% in vitro [^fisher2009]; MMP-3 not independently quantified in that experiment but likely similarly affected given shared upstream AP-1 regulation #gap/unsourced
+
+## Limitations and gaps
+
+| Gap | Tag | Notes |
+|---|---|---|
+| In-vivo quantification of MMP-3 contribution to proMMP-1 activation vs other activators (plasmin, MT1-MMP) | #gap/needs-replication | Relative contributions in aged human dermis unknown |
+| Selective MMP-3 inhibition trial in aging indication | #gap/needs-human-replication | No clinical data for aging context; past broad MMP inhibitors failed |
+| Tretinoin suppression magnitude for MMP-3 specifically | #gap/unsourced | Fisher 1996 text-states 50–80% for MMP-1+MMP-9; MMP-3-specific figure requires direct paper read |
+| TIMP-1 / MMP-3 ratio across tissues in human aging | #gap/needs-replication | No large-n aging cohort quantification |
+| MR-validated causal evidence for MMP-3 in aging phenotypes | #gap/needs-replication | Promoter polymorphism associations exist (MI); formal MR not published |
+| MMP-3 5A/6A MI association effect size reproducibility | #gap/contradictory-evidence | Effect estimates vary; not consistently replicated across GWAS cohorts |
+| MMP-3 sub-erythemogenic dose threshold (MMP-3-specific dose-response not characterised in Fisher 1996) | #gap/needs-replication | Fisher 1996 Fig. 2 dose-response is for MMP-1 and MMP-9 only; MMP-3 mRNA dose-response was not independently measured |
+| MMP-3 as causal driver of neurodegeneration vs reactive biomarker | #gap/no-mechanism | 2025 meta-analysis (Mak; n=1316) shows elevation in AD; causality unresolved |
+
+## Footnotes
+
+[^fisher1996]: [[studies/fisher-1996-photoaging-ap1-mmp]] · n=6–17 (varies per experiment) · in-vivo (human) · P<0.05 · model: adult human buttock skin · UV-induced MMP-3 (stromelysin-I, not stromelysin-II confirmed by specific probes) mRNA and protein; AP-1 and NF-κB drivers; t-RA suppression via AP-1 transrepression
+
+[^fisher2009]: [[studies/fisher-2009-collagen-fragmentation-mmp]] · n=4 (in-vivo), n=3–5 (in-vitro) · in-vivo + in-vitro (human) · P<0.05 · model: aged (>80 yr) vs young (21–30 yr) buttock dermis + 3D collagen lattice cultures · MMP-3/MMP-9 mentioned in discussion only as secondary amplifiers; no new MMP-3/MMP-9 quantitative data presented in this paper
+
+[^coppe2010]: doi:10.1146/annurev-pathol-121808-102144 · Coppé JP, Desprez PY, Krtolica A, Campisi J · *Annual Review of Pathology* 2010;5:99–118 · review · model: human and mouse senescent cells · canonical description of SASP components including MMP-3; archive: available locally
+
+[^nagase1999]: doi:10.1074/jbc.274.31.21491 · Nagase H, Woessner JF Jr · *J Biol Chem* 1999;274(31):21491–21494 · review · model: biochemical characterisation · authoritative substrate specificity and domain structure review for MMP family; archive: available locally
+
+[^coussens2002]: doi:10.1038/nature01322 · Coussens LM, Fingleton B, Matrisian LM · *Science* 2002;295(5564):2387–2392 · review · model: clinical oncology trials · survey of failed MMP inhibitor clinical trials; musculoskeletal toxicity and efficacy limitations; archive: available locally
+
+[^sumsuzzman2022]: doi:10.1016/j.arr.2022.101729 · Sumsuzzman DM, Khan ZA, Choi J, Hong Y · *Ageing Res Rev* 2022;81:101729 · PMID:36087701 · meta-analysis + systematic review · model: preclinical OA studies · integrin α5β1 activates MMP-3, IL-1β, TNF-α in chondrocytes; cartilage degradation context
+
+[^mak2025]: doi:10.1016/j.brainres.2025.149954 · Mak KK, Nam JK, Chuang YF, Chen LK · *Brain Research* 2025;1869:149954 · PMID:40998199 · meta-analysis · 12 studies; n=1316 (806 AD, 510 controls) · model: human (AD patients vs controls) · elevated MMP-3 and MMP-9 associated with AD; SMD 0.69 (95% CI 0.25–1.13) for MMP-3; effect moderated by sex and specimen type
+
+[^uniprot-p08254]: UniProt P08254 (MMP3_HUMAN), accessed 2026-05-19 · substrate spectrum, domain structure, calcium/zinc cofactors, HTRA2 activation, 5A/6A promoter polymorphism/MI association

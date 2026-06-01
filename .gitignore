@@ -1,0 +1,34 @@
+# ============================================================================
+# PRIVACY: personal-application content is a SEPARATE PRIVATE git repo
+# (protocols/.git) sharing this working tree. It must NEVER be staged in this
+# public repo. See CLAUDE.md § "Privacy posture". Do not remove this line.
+# ============================================================================
+protocols/
+
+# Claude Code local/per-machine config (paths, permission allowlists)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+# Obsidian: local UI/workspace state (per-machine, noisy)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/plugins/*/data.json
+.obsidian-backup/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor swap/backup files
+*.swp
+*.swo
+*~
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Private operating layer (local paper-archive tooling, leak-gate) — auto-loaded by Claude Code, never public
+CLAUDE.local.md
