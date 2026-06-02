@@ -1,6 +1,6 @@
 ---
 type: sop
-aliases: [protein databases, UniProt, gene lookup]
+aliases: [protein databases, UniProt, gene lookup, CAZy, CAZyme]
 ---
 
 # SOP: finding protein and gene data online
@@ -76,14 +76,32 @@ For any protein/gene page, pull from these primary sources. Cross-reference UniP
 
 **Best for:** Protein domains and motifs.
 
+### CAZy — `https://www.cazy.org/`
+
+**Best for:** Carbohydrate-active enzyme (CAZyme) families and modules, especially when evaluating glycoside hydrolases (GHs), glycosyltransferases (GTs), polysaccharide lyases (PLs), carbohydrate esterases (CEs), auxiliary activities (AAs), and carbohydrate-binding modules (CBMs). Use for enzyme-family scouting when a hypothesis involves carbohydrate or glycoconjugate recognition/catalysis, such as engineered glucosepane-cleavage scaffolds.
+
+**What to extract:**
+- CAZy family or module class (e.g., GH, GT, PL, CE, AA, CBM)
+- Family number and clan where available
+- Known activities and EC numbers
+- Mechanism annotation if listed
+- Organism distribution and candidate microbial/fungal homologs
+- Cross-references to UniProt, GenBank, PDB, EC, and PubMed
+
+**Caveat:** CAZy family membership supports fold/function hypothesis generation, not proof that a specific enzyme cleaves a proposed substrate. For noncanonical substrates such as glucosepane, require direct biochemical validation on authentic substrate; do not infer activity from GH/CBM family membership alone.
+
+**Citation:** `CAZy family GHxx / CBMxx, accessed YYYY-MM-DD`
+
 ## Workflow for a new protein page
 
 1. UniProt → accession, function summary, domains, PTMs, disease associations.
 2. NCBI Gene → gene ID, HGNC symbol, mouse/rat orthologs.
-3. STRING (confidence ≥0.7, experimental evidence channel) → top interactors.
-4. List pathways the protein participates in → wikilink to pathway pages (run `sops/finding-pathway-data.md` if pathway pages don't exist yet).
-5. Map to relevant Hallmarks of Aging.
-6. Use `archive search` to find the 3–5 most-cited reviews of the protein's role in aging → create study pages.
+3. InterPro / GO → domains and controlled-vocabulary function.
+4. CAZy → enzyme-family/module annotations when the protein is a CAZyme or candidate carbohydrate/glycoconjugate-active enzyme.
+5. STRING (confidence ≥0.7, experimental evidence channel) → top interactors.
+6. List pathways the protein participates in → wikilink to pathway pages (run `sops/finding-pathway-data.md` if pathway pages don't exist yet).
+7. Map to relevant Hallmarks of Aging.
+8. Use `archive search` to find the 3–5 most-cited reviews of the protein's role in aging → create study pages.
 
 ## Frontmatter example
 

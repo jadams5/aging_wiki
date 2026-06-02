@@ -164,7 +164,7 @@ The research above is general knowledge; the *protocols layer* is where one pers
 - [[retrieving-papers]] — using a local paper archive
 - [[extracting-evidence]] — what to record from a primary source
 - [[finding-pathway-data]] — KEGG, Reactome, WikiPathways
-- [[finding-protein-data]] — UniProt, NCBI Gene, STRING
+- [[finding-protein-data]] — UniProt, NCBI Gene, STRING, CAZy
 - [[finding-compound-data]] — PubChem, DrugBank, ChEMBL
 - [[finding-aging-specific]] — GenAge, AgingAtlas, Open Targets
 - [[adding-a-claim]] — citation conventions
