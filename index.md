@@ -132,17 +132,6 @@ SORT year DESC
 LIMIT 25
 ```
 
-## Experiments (proposed / active / completed)
-
-User-authored wet-lab and clinical experiments, status-tracked. See [[experiments/README]] for lifecycle and schema. Connected to [[frameworks/causal-graph-data]] via `resolves-edges:` / `resolves-nodes:` (matrix-as-blocker-tracker).
-
-```dataview
-TABLE status, scale, status-changed
-FROM "experiments"
-WHERE type = "experiment"
-SORT status ASC, status-changed DESC
-```
-
 ## Methods reference
 
 Laboratory and analytical techniques cited frequently in `studies/`. Anchors recurring methodological caveats. R46 pilot scope; see CLAUDE.md § `type: method` for schema.

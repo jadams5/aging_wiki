@@ -79,12 +79,12 @@ aging_wiki/
 ├── interventions/                 # pharmacological / lifestyle / dietary / gene-therapy / stem-cell / blood-product / procedural
 ├── model-organisms/               # mouse, worm, fly, killifish, naked mole rat, human
 ├── studies/                       # one page per primary source extracted from
-├── experiments/                   # wet-lab or clinical experiments authored by the user; status-tracked (proposed → accepted → in-progress → complete → published); when complete, results may be promoted to a study page
-├── methods/                       # one page per laboratory or analytical technique whose limitations recur across studies; atomic content, distinct from sops/ (workflow guidance) and experiments/ (user protocols)
+├── methods/                       # one page per laboratory or analytical technique whose limitations recur across studies; atomic content, distinct from sops/ (workflow guidance) and protocols/experiments/ (user protocols)
 ├── hypotheses/                    # contested or open theories
 ├── gaps/                          # aggregated knowledge-gap tracker
 ├── sources/                       # raw media with no DOI (figures, videos, supplementary data)
-├── protocols/                     # personal application content (people, plans, labs, tracking, reviews)
+├── protocols/                     # personal application content (people, plans, labs, tracking, reviews, experiments) — PRIVATE nested repo
+│   └── experiments/               # wet-lab / clinical experiments authored by the user; status-tracked working drafts (private; moved here R51)
 ├── brainstorming/                 # conversation-derived working drafts; exempt from citation discipline; banner-flagged as non-wiki-quality; promote threads to atomic pages via standard seeder/verifier workflow
 └── sops/                          # standard operating procedures
 ```
@@ -433,9 +433,9 @@ last-updated: 2026-05-20
 ---
 ```
 
-`type: experiment` pages live in `experiments/` and capture wet-lab or clinical experiments authored by the user (distinct from `studies/`, which holds primary sources extracted FROM). Lifecycle: `proposed` (draft) → `accepted` (committed) → `in-progress` (data collection) → `complete` (data analyzed but not published) → `published` (results written up as a `type: study` page in `studies/`, linked via `published-as:`) → `abandoned` (with reason in body).
+`type: experiment` pages live in `protocols/experiments/` (the **private** nested repo — relocated from the public top-level `experiments/` in R51; they are user-authored working drafts, treated like `protocols/brainstorming/` rather than public research) and capture wet-lab or clinical experiments authored by the user (distinct from `studies/`, which holds primary sources extracted FROM). Lifecycle: `proposed` (draft) → `accepted` (committed) → `in-progress` (data collection) → `complete` (data analyzed but not published) → `published` (results written up as a `type: study` page in the public `studies/`, linked via `published-as:`) → `abandoned` (with reason in body).
 
-**Discipline:** no `verified:` (proposals/protocols are not facts; verification kicks in on the downstream studies/ page). Citation discipline DOES apply to biological claims in body. `resolves-edges:` and `resolves-nodes:` connect to [[frameworks/causal-graph-data]]. Populate `adds-nodes:` when proposing damage classes outside López-Otín (e.g., ECM crosslinks → GlycoSENS). Pre-registration (OSF or ClinicalTrials.gov) encouraged, required as status approaches `in-progress`.
+**Discipline:** no `verified:` (proposals/protocols are not facts; verification kicks in on the downstream studies/ page). Citation discipline DOES apply to biological claims in body. Because these pages are now private, the one-way link rule applies: experiment pages may link OUT to public research pages (incl. `[[frameworks/causal-graph-data]]` for `resolves-edges:`/`resolves-nodes:`), but **public research pages must NOT link back into the private experiments tree** (no wikilink with an `experiments/`-prefixed or `protocols/experiments/`-prefixed target) — reference the experimental gap in prose instead. Populate `adds-nodes:` when proposing damage classes outside López-Otín (e.g., ECM crosslinks → GlycoSENS). Pre-registration (OSF or ClinicalTrials.gov) encouraged, required as status approaches `in-progress`.
 
 ### type: hypothesis
 
@@ -523,7 +523,7 @@ For biological-age estimators and aging biomarkers (Horvath/Hannum/PhenoAge/Grim
 
 ### type: method
 
-Lives in `methods/`. One page per laboratory or analytical technique whose methodological details and limitations recur across multiple study or atomic pages. Methods pages are reference content for *how studies we cite produce their data* — distinct from `sops/` (workflow guidance for wiki maintenance) and `experiments/` (specific user-authored experimental protocols). Atomic content (originates technical claims); carries verification discipline.
+Lives in `methods/`. One page per laboratory or analytical technique whose methodological details and limitations recur across multiple study or atomic pages. Methods pages are reference content for *how studies we cite produce their data* — distinct from `sops/` (workflow guidance for wiki maintenance) and `protocols/experiments/` (specific user-authored experimental protocols, private). Atomic content (originates technical claims); carries verification discipline.
 
 ```yaml
 ---
@@ -783,6 +783,7 @@ Several aging-relevant external datasets are queried by the wiki for population-
 | ClinicalTrials.gov v2 | clinicaltrials.gov/api/v2 | trial status | `sops/integrating-clinical-trials.md` |
 | Tabula Muris Senis | figshare DOIs | single-cell aging atlas | `sops/finding-singlecell-aging.md` |
 | CellxGene Census | api.cellxgene.cziscience.com | multi-study scRNA | `sops/finding-singlecell-aging.md` |
+| CAZy | cazy.org | carbohydrate-active enzyme families + modules | `sops/finding-protein-data.md` |
 | MSigDB Hallmark | gsea-msigdb.org | pathway gene-sets cross-check | (no dedicated SOP yet) |
 | TRRUST / TFLink | grnpedia.org/trrust / tflink.net | TF→target | (no dedicated SOP yet) |
 | AgingAtlas | ngdc.cncb.ac.cn/aging | aging-specific multi-omic | `sops/finding-tissue-expression.md` |
@@ -846,7 +847,7 @@ The `protocols/` directory holds personal intervention protocols, baseline data,
 
 Git does not recurse into a nested repository, and the `.gitignore` entry makes the exclusion explicit — `git add -A` in the outer repo physically cannot stage `protocols/`. The single working tree means Obsidian sees one vault and `protocols/ → research` wikilinks still resolve.
 
-**Before any commit/push, the public-repo invariant is:** no file outside `protocols/` may contain a person handle (the filename slug of any `protocols/people/` page) or a wikilink whose target lies under the private `protocols/` tree (including `log/protocols`) or the `brainstorming/` tree. The lint pass enforces this; see "Lint pass extensions" below.
+**Before any commit/push, the public-repo invariant is:** no file outside `protocols/` may contain a person handle (the filename slug of any `protocols/people/` page) or a wikilink whose target lies under the private `protocols/` tree (including `log/protocols`, `protocols/experiments`, and the bare `experiments/`-prefixed wikilink alias that still resolves into it) or the `brainstorming/` tree. The lint pass enforces this; see "Lint pass extensions" below.
 
 **Adding a new person** (handle other than an existing one): the same invariant applies — research pages must never name them. Personal data for the new handle lives only under `protocols/`.
 
@@ -866,6 +867,7 @@ protocols/
 │   ├── cgm.csv
 │   └── subjective-log.md           # narrative; daily/weekly notes
 ├── brainstorming/                  # personal/strategy working drafts (not research-grade)
+├── experiments/{slug}.md           # type: experiment — user-authored wet-lab/clinical experiment drafts (private since R51)
 ├── log.md                          # PRIVATE personal-protocol log (see Parallel logs below)
 └── reviews/{YYYY-Q#}.md            # type: assessment — periodic protocol review
 ```
@@ -902,7 +904,7 @@ See "Page types and frontmatter" above for the full schema of `type: person`, `t
 
 The lint pass should additionally:
 - **Enforce the public-repo invariant** (HIGH priority): no tracked file may contain any of the following — all are privacy/infrastructure-leak blockers:
-  1. a person handle (the filename slug of any `protocols/people/` page), or a wikilink whose target lies under the private `protocols/` tree (including `log/protocols`) or the `brainstorming/` tree;
+  1. a person handle (the filename slug of any `protocols/people/` page), or a wikilink whose target lies under the private `protocols/` tree (including `log/protocols`, `protocols/experiments`, and the bare `experiments/`-prefixed wikilink alias) or the `brainstorming/` tree;
   2. the OS username, or any absolute home or external-mount filesystem path;
   3. references to the private paper-archive project — its name, or its CLI subcommands — anywhere. Papers are cited by DOI only; local full-text resolution lives in the git-ignored `CLAUDE.local.md`.
   The exact forbidden token list and the runnable one-line leak-gate are kept in `CLAUDE.local.md` (so this public file never contains the very strings it forbids). Run that gate before every commit; it must return nothing. (Structural directory names like `protocols/` and `brainstorming/` are *described* in this schema doc and in `.gitignore` — that is intentional documentation, not a leak.)
@@ -920,7 +922,7 @@ Standard operating procedures live in `sops/`. Index:
 - `sops/retrieving-papers.md` — DOI-based paper resolution (local full-text tooling is private; see `CLAUDE.local.md`)
 - `sops/extracting-evidence.md` — what to record from a primary source
 - `sops/finding-pathway-data.md` — KEGG, Reactome, WikiPathways
-- `sops/finding-protein-data.md` — UniProt, NCBI Gene, STRING, BioGRID
+- `sops/finding-protein-data.md` — UniProt, NCBI Gene, STRING, BioGRID, CAZy
 - `sops/finding-compound-data.md` — PubChem, DrugBank, ChEMBL, HMDB
 - `sops/finding-aging-specific.md` — GenAge, AgingAtlas, Open Targets, ClinicalTrials.gov
 - `sops/finding-population-evidence.md` — IEU OpenGWAS, GWAS Catalog, Mendelian randomization footnote format
