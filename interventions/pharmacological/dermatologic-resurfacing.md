@@ -188,6 +188,7 @@ Mechanism: volumetric tissue displacement and support via injection of HA, calci
 - [[col1a1]] — type I collagen alpha-1; primary neocollagenesis marker
 - [[col3a1]] — type III collagen alpha-1; co-deposited early in wound healing
 - [[wound-healing]] — process page; the shared mechanistic anchor
+- [[microneedling]] — dedicated granular page for mechanical + RF microneedling (collagen induction therapy); evidence appraisal for the aging indication
 - [[chemical-peels]] — R44 sister page; parallel controlled-wounding paradigm via chemical rather than physical vector
 - [[retinoids]] — R41; pre/post-procedure pairing; mechanism is orthogonal (RAR agonism) but synergistic clinically
 - [[uv-protection]] — R42; mandatory post-procedure (8–12 weeks); sunscreen prevents PIH and treatment failure
