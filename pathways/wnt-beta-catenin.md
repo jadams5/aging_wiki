@@ -217,8 +217,8 @@ Wnt pathway dysregulation has been implicated in:
 - [[vascular-calcification]] — Wnt/RUNX2 axis is a primary driver of VSMC osteogenic switch; cross-link sibling of romosozumab CV signal context.
 - [[matrix-gla-protein]] — anti-calcification factor; antagonizes BMP-2 downstream of Wnt-induced VSMC switch.
 - [[fgf23]] — bone-kidney axis; the FGF23-Klotho axis intersects Wnt antagonism via soluble Klotho.
-- [[sost]] — sclerostin gene product; osteocyte-secreted LRP5/6 antagonist; therapeutic target of romosozumab. #gap/needs-page
-- [[dkk1]] — Dickkopf-1; LRP5/6 antagonist; elevated in AD, CKD, aging. #gap/needs-page
+- [[sost]] — sclerostin gene product; osteocyte-secreted LRP5/6 antagonist; therapeutic target of romosozumab.
+- [[dkk1]] — Dickkopf-1; LRP5/6 antagonist; elevated in AD, CKD, aging.
 - [[arterial-stiffening]] — romosozumab CV signal may reflect vascular Wnt effects.
 - [[osteocytes]] — primary SOST source; mechanotransduction governs Wnt-bone-formation axis.
 

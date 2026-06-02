@@ -66,7 +66,7 @@ FGF23 mRNA and protein expression is highly restricted in healthy adults:
 - **Osteoblasts** — lower expression than osteocytes; relevant during active bone remodeling
 - Very low or absent expression in: kidney, liver, muscle, heart, brain under physiological conditions
 
-FGF23 acts exclusively as an **endocrine hormone** — synthesized in bone, secreted into the bloodstream, and acting distally on the kidney (primary target) and parathyroid gland. It is not a local paracrine factor in the canonical FGF sense. #gap/needs-page — no `[[bone]]` tissue page yet; a [[osteocytes]] cell-type page is also absent; both should be seeded.
+FGF23 acts exclusively as an **endocrine hormone** — synthesized in bone (by [[osteocytes]]), secreted into the bloodstream, and acting distally on the kidney (primary target) and parathyroid gland. It is not a local paracrine factor in the canonical FGF sense. See [[bone]] for the tissue context.
 
 ## Signaling mechanism: the Klotho-FGF23-FGFR1c axis
 
@@ -173,7 +173,6 @@ This discordance may reflect: (1) reverse causation in observational studies (wo
 - **ClinicalTrials.gov aging-context count:** Active trials for burosumab or FGF23 antagonists with an aging/CV endpoint not enumerated; ClinicalTrials.gov v2 API check recommended. `clinical-trials-active:` field not set.
 - **GTEx extraction:** Formal GTEx v8 aging-correlation for FGF23 in osteocyte/bone tissue not available (osteocyte-specific tissue not represented in GTEx); blood-tissue GTEx age-correlation not extracted. #gap/needs-gtex-extraction
 - **GenAge human entry:** FGF23 has no human GenAge entry; model-organism entry exists for mouse Fgf23 (pro-longevity via lifespan decrease on knockout). If new GenAge build includes FGF23 in human database, update `genage-id:`.
-- **Bone and osteocyte pages missing:** [[bone]] (tissue page) and [[osteocytes]] (cell-type page) are absent from the wiki. Both are structural gaps — FGF23 biology cannot be fully navigated without the primary secretory cell-type page. #gap/needs-page for both.
 - **Parker 2010 body claims unverified:** HR 2.15 (95% CI 1.43–3.24) for mortality and HR 1.83 (95% CI 1.15–2.91) for CVD events were reported at seeding from a secondary source; full text is closed-access and could not be verified. #gap/no-fulltext-access
 - **Kurosu 2006 mechanistic claims unverified:** The ternary complex binding affinity claims and related mechanism statements attributed to Kurosu 2006 could not be verified — download failed (hybrid OA, no candidate URLs). The overlapping Urakawa 2006 (Nature) was fully verified and confirms the core Klotho-FGFR1c-FGF23 ternary complex mechanism; Kurosu 2006 adds surface plasmon resonance binding quantification. #gap/no-fulltext-access
 

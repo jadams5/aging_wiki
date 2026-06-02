@@ -183,7 +183,7 @@ The triple conditional Foxo1/3/4 KO phenotype derives from two back-to-back Cell
 
 - [[foxo3]] — verified-partial — canonical longevity FOXO; 673 aa; human GWAS (rs2802292)
 - [[foxo1]] — verified-partial — gluconeogenic regulator; 655 aa; hepatic metabolic axis
-- [[foxo4]] — stub (not yet seeded — deferred in Round 7 per ROADMAP)
+- [[foxo4]] — stub (not yet seeded — deferred in Round 7; see [[log/R7]])
 - [[foxo6]] — stub (not yet seeded)
 - [[daf-16]] — verified-partial — single ancestral *C. elegans* FOXO; founding longevity TF
 - [[insulin-igf1]] — the pathway FOXOs gate

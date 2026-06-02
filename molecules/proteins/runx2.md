@@ -146,24 +146,24 @@ RUNX2 is a transcription factor without a well-defined small-molecule binding po
 - [[vascular-calcification]] — process; RUNX2 is the load-bearing TF for the VSMC phenotype switch
 - [[bmp-2]] — upstream activator; BMP-2 → SMAD1/5/8 → RUNX2 co-activation
 - [[osteopontin]] — direct downstream target of RUNX2 transcription; bridges osteogenic and calcification biology
-- [[matrix-gla-protein]] — functional antagonist; MGP is a mineralisation inhibitor whose expression is partly RUNX2-independent but whose loss amplifies RUNX2-driven calcification #gap/needs-page
+- [[matrix-gla-protein]] — functional antagonist; MGP is a mineralisation inhibitor whose expression is partly RUNX2-independent but whose loss amplifies RUNX2-driven calcification
 - [[fgf23]] — bone-mineral axis; FGF23 regulates Pi homeostasis upstream of the VSMC phosphate-sensing mechanism; serum Pi is RUNX2's dominant trigger in CKD
 - [[klotho]] — FGF23 co-receptor; Klotho deficiency → hyperphosphatemia → RUNX2-driven vascular calcification
 - [[chronic-inflammation]] — hallmark; TNF-α/IL-6/NF-κB drives RUNX2 induction in VSMCs
 - [[deregulated-nutrient-sensing]] — hallmark; hyperphosphatemia is a nutrient-sensing derangement amplified in CKD and aging
-- [[osteoblasts]] — cell-type; RUNX2 is the master differentiation TF #gap/needs-page
+- [[osteoblasts]] — cell-type; RUNX2 is the master differentiation TF
 - [[osteocytes]] — terminal differentiation product of RUNX2-driven osteoblast lineage
 - [[mesenchymal-stem-cells]] — upstream progenitor; RUNX2 commits MSCs to osteoblast lineage
 - [[arterial-stiffening]] — downstream phenotype; medial calcification is a major determinant of arterial stiffness
-- [[osteoporosis]] — downstream phenotype; reduced RUNX2 activity in aged bone #gap/needs-page
-- [[bone]] — tissue; dominant site of RUNX2 function #gap/needs-page
+- [[osteoporosis]] — downstream phenotype; reduced RUNX2 activity in aged bone
+- [[bone]] — tissue; dominant site of RUNX2 function
 
 ## Gaps and open questions
 
 - `#gap/needs-human-replication` — MR instruments for RUNX2 have not been developed; causal role in human vascular calcification inferred from CKD observational data and murine models but not MR-validated.
 - `#gap/dose-response-unclear` — the quantitative RUNX2 expression threshold in VSMCs required to initiate vs sustain calcification is not established; relevant for therapeutic window.
 - `#gap/no-mechanism` — how intracellular Pi signals to RUNX2 transcription in VSMCs (between PiT-1/PiT-2 uptake and RUNX2 induction) remains incompletely defined.
-- `#gap/needs-page` — osteoblast cell-type page, bone tissue page, and osteoporosis phenotype page are referenced but not yet seeded. (BMP-2 protein page, osteopontin protein page, and osteocyte cell-type page now seeded as of 2026-05-23.)
+- All bone-cluster cross-reference pages now seeded (osteoblasts, osteoclasts, BMP-2, osteopontin, osteocyte, matrix-gla-protein, bone, osteoporosis).
 - `#gap/long-term-unknown` — whether pharmacological RUNX2 suppression in VSMCs causes clinically significant bone-loss adverse effects has not been tested in any long-term study.
 
 ## Footnotes

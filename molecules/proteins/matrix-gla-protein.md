@@ -121,13 +121,13 @@ These two axes constitute the two major pharmacological targets in the MK-7 / kl
 ## Pathway membership
 
 - [[vascular-calcification]] — MGP is the canonical process-level inhibitor; loss-of-function drives the phenotype
-- [[vitamin-k-cycle]] — MGP is the primary extrahepatic substrate of GGCX (stubs: [[ggcx]], [[vkor]])
+- [[vitamin-k-cycle]] — MGP is the primary extrahepatic substrate of GGCX (see [[ggcx]], [[vkorc1|VKOR]])
 
 ## Key interactors
 
-- [[ggcx]] (gamma-glutamyl carboxylase) — carboxylates MGP; requires vitamin K hydroquinone as cofactor #gap/needs-page
-- [[vkor]] (vitamin K epoxide reductase) — regenerates reduced vitamin K; target of warfarin #gap/needs-page
-- BMP-2 ([[bmp-2]]) — bound and neutralized by cMGP, preventing osteogenic VSMC transdifferentiation #gap/needs-page
+- [[ggcx]] (gamma-glutamyl carboxylase) — carboxylates MGP; requires vitamin K hydroquinone as cofactor
+- [[vkorc1|VKOR]] (vitamin K epoxide reductase) — regenerates reduced vitamin K; target of warfarin
+- BMP-2 ([[bmp-2]]) — bound and neutralized by cMGP, preventing osteogenic VSMC transdifferentiation
 - [[klotho]] — parallel anti-calcification system; both are suppressed in CKD
 
 ## Related pages
@@ -139,7 +139,7 @@ These two axes constitute the two major pharmacological targets in the MK-7 / kl
 - [[arterial-stiffening]] — downstream phenotype of calcification
 - [[atherosclerosis]] — partially overlapping phenotype; plaque calcification involves MGP insufficiency
 - [[heart]], [[myocardium]] — target tissues for valvular and coronary calcification
-- [[vitamin-k]] — substrate page #gap/needs-page
+- [[vitamin-k]] — substrate page
 
 ## Limitations and gaps
 
@@ -147,7 +147,7 @@ These two axes constitute the two major pharmacological targets in the MK-7 / kl
 - #gap/needs-longitudinal-aging-trajectory — no large longitudinal dataset charting dp-ucMGP across the full adult age range was identified.
 - #gap/contradictory-evidence — MESA cohort shows dp-ucMGP → CVD risk in midlife (45–53) but not in older adults; mechanism unclear (survivor bias? age-modulated biology?).
 - #gap/needs-human-replication — RCT evidence for MK-7 reducing hard CV outcomes (MI, CV death) in non-CKD adults does not yet exist; available evidence is biomarker-level (dp-ucMGP reduction) or arterial stiffness surrogate.
-- #gap/needs-page — [[ggcx]], [[vkor]], [[bmp-2]], [[vitamin-k]] all lack wiki pages; stubs to be created.
+- All key-interactor cross-reference pages now seeded (BMP-2, vitamin-k, GGCX, VKORC1).
 - `genage-id: null` — HGNC query ("Entry not found") indicates MGP is not currently in GenAge human aging gene database; this is structurally reasonable given MGP is not a longevity gene per se but an anti-calcification effector.
 
 ## Footnotes

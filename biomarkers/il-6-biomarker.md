@@ -22,7 +22,7 @@ verified-scope: "Sayed 2021, CANTOS Ridker 2017, Swerdlow 2012, and Cesari 2003 
 
 Serum or plasma interleukin-6 (IL-6) is the most consistently validated single cytokine predictor of all-cause mortality, cardiovascular events, frailty, and functional decline in older adults. Decades of large cohort data across independent populations establish it as the canonical inflammaging biomarker. Unlike methylation-based epigenetic clocks, it is a direct molecular readout of systemic chronic inflammation, measurable by standard clinical immunoassay. Its combination of mechanistic grounding, broad cohort replication, intervention-responsiveness, and Mendelian randomization evidence for causal relevance of the IL-6 axis makes it the single most actionable inflammatory aging biomarker in routine use.
 
-For protein-level biology (structure, signaling cascade, receptor biology, NCBI Gene ID, disease associations beyond aging) see the implicit stub [[molecules/proteins/il-6]] (not yet seeded; #gap/needs-protein-page).
+For protein-level biology (structure, signaling cascade, receptor biology, NCBI Gene ID, disease associations beyond aging) see [[molecules/proteins/il-6]].
 
 ## Identity and Molecular Context
 
@@ -214,8 +214,8 @@ See [[interventions/pharmacological/senolytics]] for the senolytic class page.
 - [[interventions/pharmacological/canakinumab]] — anti-IL-1β; reduces IL-6 indirectly (CANTOS)
 - [[interventions/pharmacological/senolytics]] — senolytic class; expected IL-6 reduction via SASP clearance
 - [[phenotypes/sarcopenia]] — IL-6 is a key mechanistic mediator (Ferrucci 2002 + InCHIANTI)
-- [[molecules/proteins/il-6]] — protein page (implicit stub; not yet seeded) #gap/needs-protein-page
-- [[molecules/compounds/tocilizumab]] — anti-IL-6R; implicit stub #gap/needs-compound-page
+- [[molecules/proteins/il-6]] — protein page
+- [[molecules/compounds/tocilizumab]] — anti-IL-6R monoclonal antibody
 
 ## Footnotes
 

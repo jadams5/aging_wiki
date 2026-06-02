@@ -176,7 +176,7 @@ GROUP BY mode
 SORT length(rows) DESC
 ```
 
-> Every canonical `mode:` value should return ≥1 row. As of R26 close (2026-05-06, post `mode:` audit): `lifestyle` (3 — exercise, sleep, heat-exposure), `dietary` (5 — caloric-restriction, intermittent-fasting, time-restricted-eating, methionine-restriction, ketogenic-diet), `pharmacological` (7), `gene-therapy` (5), `stem-cell-therapy` (4), `blood-product` (1). If a bucket drops to zero, it should be flagged on the ROADMAP.
+> Every canonical `mode:` value should return ≥1 row. As of R26 close (2026-05-06, post `mode:` audit): `lifestyle` (3 — exercise, sleep, heat-exposure), `dietary` (5 — caloric-restriction, intermittent-fasting, time-restricted-eating, methionine-restriction, ketogenic-diet), `pharmacological` (7), `gene-therapy` (5), `stem-cell-therapy` (4), `blood-product` (1). If a bucket drops to zero, it should be flagged as a coverage gap (see [[gaps/planned-coverage]]).
 
 ### Watchdog 2 — Missing modality
 

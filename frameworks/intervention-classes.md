@@ -1960,6 +1960,56 @@ WHERE contains(mechanisms, "glp1-receptor-agonist")
 
 ---
 
+### sclerostin-inhibition / wnt-pathway-activation
+
+**Added:** 2026-06-02 — first compound page: [[molecules/compounds/romosozumab]]
+
+**Definition:** Pharmacological neutralization of sclerostin (SOST), the osteocyte-secreted glycoprotein that inhibits Wnt/β-catenin signaling by binding to the LRP5/LRP6 co-receptor first propeller domain. Blocking SOST removes the Wnt inhibitory brake, allowing Wnt ligands to engage LRP5/6–Frizzled receptor complexes, stabilize β-catenin, and drive bone-forming gene programs in osteoblasts. The net pharmacodynamic effect is dual: increased bone formation (osteoanabolic) AND decreased bone resorption (reduced RANKL/OPG ratio downstream of Wnt). This combination is mechanistically unique among approved osteoporosis drugs — bisphosphonates and denosumab are purely anti-resorptive; teriparatide is predominantly anabolic with some resorption coupling; romosozumab achieves both effects simultaneously.
+
+**Sub-class: `wnt-pathway-activation`** — the downstream consequence of sclerostin inhibition; used as a secondary mechanism value to capture the Wnt/β-catenin pathway modulation in Dataview queries. Not synonymous with sclerostin inhibition per se: other Wnt-activating strategies (DKK1 inhibition, GSK-3β inhibition via lithium/small molecules, LRP6 agonism) are pharmacologically distinct entry points into the same pathway. Use `wnt-pathway-activation` alongside `sclerostin-inhibition` for romosozumab-class agents; use only `wnt-pathway-activation` alone for non-SOST-targeting Wnt activators when seeded.
+
+**Canonical values in use:** `sclerostin-inhibition`, `wnt-pathway-activation`, `osteoanabolic`
+
+**Note on class scope:** Currently a single-member class (romosozumab). `osteoanabolic` is a downstream pharmacodynamic descriptor (bone-forming effect); list alongside the mechanistic values. The class scope is extendable to future anti-SOST antibodies if developed. DKK1 inhibitors (blosozumab-adjacent pathway entry) would use `wnt-pathway-activation` but NOT `sclerostin-inhibition`.
+
+**Hallmarks primarily targeted:** [[stem-cell-exhaustion]] (SOST-driven Wnt suppression reduces osteoblast differentiation from mesenchymal progenitors — an osteoblast-lineage stem cell pool depletion mechanism); [[altered-intercellular-communication]] (sclerostin is a secreted osteocyte hormone whose age-related elevation constitutes an intercellular communication shift that suppresses anabolic bone signaling)
+
+**Secondary aging-context note:** The cardiovascular safety signal (ARCH trial) implicates SOST's role in vascular smooth muscle calcification biology; this potential off-target effect on the vascular niche may represent an unintended [[altered-intercellular-communication]] disruption outside the bone compartment.
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "sclerostin-inhibition")
+  OR contains(mechanisms, "wnt-pathway-activation")
+  OR contains(mechanisms, "osteoanabolic")
+```
+
+---
+
+### gamma-carboxylation-cofactor
+
+**Added:** 2026-06-02 — first compound page: [[molecules/compounds/vitamin-k]]
+
+**Definition:** Provides the reduced hydroquinone form of vitamin K (vitamin KH2) as an obligatory cofactor for gamma-glutamyl carboxylase (GGCX), the enzyme that converts specific glutamate residues on vitamin K-dependent proteins (VKDPs) to gamma-carboxyglutamate (Gla). Gla residues gain a second carboxyl group, enabling calcium coordination and protein activation. After cofactor oxidation, vitamin K epoxide is regenerated to the active hydroquinone by vitamin K epoxide reductase (VKOR), completing the vitamin K cycle. Without adequate vitamin K in this cycle, VKDPs — including coagulation factors II/VII/IX/X (hepatic) and extrahepatic anti-calcification factors (MGP, osteocalcin, Gas6) — remain uncarboxylated and functionally inactive. This mechanism class is entirely distinct from electron-transport-chain antioxidants or AMPK/mTOR modulation; it acts as a substrate/cofactor in a specific post-translational modification pathway.
+
+**Key distinction from `antioxidant`:** Vitamin K1 and K2 are not acting as ROS scavengers when classified under this mechanism. The quinone ring chemistry enables gamma-carboxylation cofactor activity; incidental antioxidant properties (hydroquinone radical quenching) are minor and not the aging-relevant mechanism.
+
+**Canonical values in use:** `gamma-carboxylation-cofactor`
+
+**Note on sub-form specificity:** Vitamin K1 (phylloquinone) primarily serves hepatic VKDPs (coagulation). Vitamin K2 (menaquinones, especially MK-7) has superior bioavailability in extrahepatic tissues and preferentially activates MGP in the vascular wall. Both operate via the same GGCX cofactor mechanism; the sub-form distinction is pharmacokinetic, not mechanistic. The compound page [[molecules/compounds/vitamin-k]] covers both as a family page.
+
+**Hallmarks primarily targeted:** [[altered-intercellular-communication]] (via MGP activation → vascular calcification suppression; calcification drives arterial stiffening that degrades the systemic intercellular communication milieu); cross-links to [[vascular-calcification]] process page
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "gamma-carboxylation-cofactor")
+```
+
+---
+
 ## See also
 
 - [[frameworks/interventions-by-hallmark]] — the matrix view (interventions × hallmarks)

@@ -132,15 +132,15 @@ SOST is assigned to **[[altered-intercellular-communication]]** and **[[stem-cel
 - [[wnt-beta-catenin]] — the pathway SOST antagonizes; romosozumab CV signal discussed there
 - [[lrp5-lrp6]] — direct SOST binding partners at the receptor level
 - [[osteocytes]] — primary cellular source (verified page)
-- [[osteoblasts]] — downstream bone-forming cells released when SOST is suppressed #gap/needs-page
+- [[osteoblasts]] — downstream bone-forming cells released when SOST is suppressed
 - [[bone]] — tissue-level context
 - [[osteoporosis]] — load-bearing aging phenotype driven in part by SOST elevation
 - [[vascular-calcification]] — VSMC-expressed SOST and the paradoxical vascular axis
 - [[arterial-stiffening]] — romosozumab CV signal connects here
 - [[klotho]] — co-declining aging-mineral-homeostasis regulator
 - [[fgf23]] — bone-kidney axis partner
-- [[dkk1]] — mechanistic parallel (also LRP5/6 antagonist) #gap/needs-page
-- [[romosozumab]] — the FDA-approved compound page #gap/needs-page
+- [[dkk1]] — mechanistic parallel (also LRP5/6 antagonist)
+- [[romosozumab]] — the FDA-approved compound page (seeded 2026-06-02)
 
 ## Limitations and gaps
 
@@ -159,7 +159,7 @@ SOST is assigned to **[[altered-intercellular-communication]]** and **[[stem-cel
 
 [^bhattoa2013]: doi:10.1007/s00774-013-0451-z · Bhattoa HP et al. · J Bone Miner Metab 2013 · observational · n=89 (healthy men >50 y) · serum SOST positively correlated with age, negatively with BMD at spine and hip
 
-[^cosman2016]: doi:10.1056/NEJMoa1607948 · Cosman F et al. · N Engl J Med 2016 · rct · n=7180 (3589 romosozumab, 3591 placebo) · model: postmenopausal women with T score −2.5 to −3.5, osteoporosis · romosozumab 210 mg SC monthly × 12 mo vs placebo; both → denosumab × 12 mo · vertebral fracture 73% lower risk at 12 mo (0.5% [16/3321] vs 1.8% [59/3322]; RR 0.27; 95% CI 0.16–0.47; P<0.001); clinical fracture 36% lower (1.6% vs 2.5%; HR 0.64; P=0.008); adverse events including CV events balanced between groups · PDF verified 2026-05-23 · 1617 citations
+[^cosman2016]: doi:10.1056/NEJMoa1607948 · Cosman F et al. · N Engl J Med 2016 · rct · n=7180 (3589 romosozumab, 3591 placebo) · model: postmenopausal women with T score −2.5 to −3.5 at total hip or femoral neck · romosozumab 210 mg SC monthly × 12 mo vs placebo; both → denosumab × 12 mo · vertebral fracture 73% lower risk at 12 mo (0.5% [16/3321] vs 1.8% [59/3322]; RR 0.27; 95% CI 0.16–0.47; P<0.001); clinical fracture 36% lower (1.6% vs 2.5%; HR 0.64; P=0.008); adverse events including CV events balanced between groups · PDF verified 2026-05-23 · 1617 citations
 
 [^saag2017]: doi:10.1056/NEJMoa1708322 · Saag KG et al. · N Engl J Med 2017 · rct · n=4093 (2046 romosozumab, 2047 alendronate) · model: postmenopausal women at high fracture risk with prior fragility fracture · romosozumab (210 mg SC monthly × 12 mo) → alendronate vs alendronate alone × 24 mo · vertebral fracture 48% lower risk (6.2% vs 11.9%; RR 0.52; 95% CI 0.40–0.66; P<0.001); clinical fracture 27% lower (HR 0.73; P<0.001); serious CV adverse events 2.5% vs 1.9% (50/2040 vs 38/2014; OR 1.31; 95% CI 0.85–2.00; NS) → FDA boxed warning · PDF verified 2026-05-23 · 1364 citations
 
@@ -167,6 +167,6 @@ SOST is assigned to **[[altered-intercellular-communication]]** and **[[stem-cel
 
 [^yeon2026]: doi:10.1007/s11883-025-01377-w · Yeon S, Seto SW, Bhuyan JD, Chang D, Li CG · Curr Atheroscler Rep 2026;28(1) · review · hypoxia-HIF-1α-driven SOST regulation in VSMCs; context-dependent pro- vs anti-calcific effects; natural product modulation reviewed · DOI confirmed via Crossref; full text not_oa #gap/no-fulltext-access
 
-[^zheng2023mr]: doi:10.1002/art.42592 · Zheng J et al. · Arthritis Rheumatol 2023 · GWAS meta-analysis + two-sample Mendelian randomization · n=33,961 European individuals · lower genetically predicted sclerostin causally associated with increased MI risk (OR 1.35), type 2 diabetes (OR 1.32), hypertension (OR 1.09), and coronary artery calcification; provides formal MR causal evidence for on-target CV risk of SOST inhibition · PMID 37096546
+[^zheng2023mr]: doi:10.1002/art.42538 · Zheng J et al. · Arthritis Rheumatol 2023 · GWAS meta-analysis + two-sample Mendelian randomization · n=33,961 European individuals · lower genetically predicted sclerostin causally associated with increased MI risk (OR 1.35), type 2 diabetes (OR 1.32), hypertension (OR 1.09), and coronary artery calcification; provides formal MR causal evidence for on-target CV risk of SOST inhibition · PMID 37096546
 
 [^chen2026meta]: doi:10.3389/fendo.2025.1526408 · Chen L, Wang Q, Gu M · Front Endocrinol (Lausanne) 2026 · systematic review + meta-analysis · n=12,384 across 10 RCTs · anti-sclerostin antibodies significantly increase BMD; no statistically significant increase in cardiovascular complications vs placebo or active comparator · PMID 41635538

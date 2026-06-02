@@ -44,7 +44,7 @@ import os, re, sys, yaml
 
 WIKI = "."
 EXCLUDE_DIRS = {".obsidian", "sops"}
-EXCLUDE_FILES = {"CLAUDE.md", "ROADMAP.md", "README.md"}
+EXCLUDE_FILES = {"CLAUDE.md", "README.md", "planned-coverage.md"}  # planned-coverage.md holds intentionally-uncited forward-intent (ex-ROADMAP.md, retired R50)
 
 # Step 1: build {slug → filepath} map from filenames AND frontmatter aliases
 slug_to_file = {}
@@ -408,7 +408,7 @@ grep -rohE "\[\[[^]|#]+" --include="*.md" \
   done | sort -rn
 ```
 
-Update [[ROADMAP]] § "Implicit stub queue" with the output, and prioritize Round-N seeding accordingly.
+This inbound-count ranking IS the canonical seeding-priority source — prioritize next seeding directly from it (static checklists decay; see [[schema-history]] R27/R50). Record only genuinely zero-inbound *proactive* intent (topics nothing links to yet) in [[gaps/planned-coverage]]; everything referenced-but-unseeded is already tracked here and by the missing-page check.
 
 **Truly missing concepts** — capitalized multi-word phrases referenced in prose but never linked. Look for patterns like "p21Ink4a" mentioned in body text without `[[p21]]` formatting. Manual review; no good automation yet.
 

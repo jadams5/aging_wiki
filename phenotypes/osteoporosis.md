@@ -70,7 +70,7 @@ Bone marrow stromal cells ([[bmsc|BMSCs]]) — the osteoblast precursor pool —
 
 ### Sclerostin / Wnt suppression
 
-[[Osteocytes]] elevate SOST (sclerostin) secretion with age and mechanical unloading. Sclerostin is a canonical Wnt/β-catenin antagonist — it binds LRP5/6 co-receptors, preventing Wnt ligand binding and suppressing osteoblast proliferation and survival. This is the pharmacological rationale for romosozumab (anti-SOST mAb). See [[wnt-beta-catenin]] for the signaling mechanics and [[sost]] for the protein page. #gap/needs-page for [[sost]]
+[[Osteocytes]] elevate SOST (sclerostin) secretion with age and mechanical unloading. Sclerostin is a canonical Wnt/β-catenin antagonist — it binds LRP5/6 co-receptors, preventing Wnt ligand binding and suppressing osteoblast proliferation and survival. This is the pharmacological rationale for romosozumab (anti-SOST mAb). See [[wnt-beta-catenin]] for the signaling mechanics and [[sost]] for the protein page.
 
 ### Remodeling uncoupling
 
@@ -122,17 +122,16 @@ The Farr 2024 phase 2 RCT represents a pivotal framing for bone senolytics: the 
 - **Senolytic stratification** — the Farr 2024 RCT leaves the patient-selection question open; T-cell p16 mRNA burden was the exploratory stratifier, not a validated biomarker. #gap/needs-replication
 - **Male osteoporosis** — most RCT data are in postmenopausal women; male-specific pathophysiology (testosterone contribution, later onset) and treatment efficacy are less well-characterized. #gap/unsourced for male-specific fracture-prevention RCT summary
 - **Bone-vascular axis intervention** — no trial has tested whether anti-osteoporosis drugs favorably affect vascular calcification simultaneously; cross-link [[processes/vascular-calcification]] and [[matrix-gla-protein]] for the mechanistic framing
-- #gap/needs-page — [[osteoblasts]], [[osteoclasts]], [[bmsc]], [[sost]]
 
 ## Cross-references
 
 - [[bone]] (verified 2026-05-23) — primary affected tissue; remodeling cycle, aging mechanisms, bone-vascular axis paradox
 - [[osteocytes]] (verified 2026-05-23) — mechanosensory hub; SOST source; senescence node; FGF23 source
-- [[osteoblasts]] (#gap/needs-page) — bone matrix secretion; coupling to resorption
-- [[osteoclasts]] (#gap/needs-page) — bone resorption; RANKL/OPG regulation
-- [[bmsc]] (#gap/needs-page) — osteoblast precursor; adipogenic lineage drift with age
+- [[osteoblasts]] — bone matrix secretion; coupling to resorption
+- [[osteoclasts]] — bone resorption; RANKL/OPG regulation
+- [[mesenchymal-stem-cells|BMSCs]] — osteoblast precursor; adipogenic lineage drift with age
 - [[runx2]] (verified 2026-05-23) — master osteoblast TF; ectopic VSMC expression in vascular calcification
-- [[sost]] (#gap/needs-page sibling-seeded context) — sclerostin; SOST/Wnt suppression axis; romosozumab target
+- [[sost]] — sclerostin; SOST/Wnt suppression axis; romosozumab target
 - [[wnt-beta-catenin]] (verified 2026-05-23) — pro-osteogenic signaling pathway suppressed by sclerostin and SASP
 - [[matrix-gla-protein]] (verified 2026-05-23) — bone-vascular axis; calcification inhibitor
 - [[osteopontin]] (verified 2026-05-23) — non-collagenous bone matrix protein; hydroxyapatite nucleation inhibitor

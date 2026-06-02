@@ -132,7 +132,7 @@ Druggability-tier 3 (predicted druggable). OPN is a secreted protein with access
 - [[chronic-inflammation]] — OPN produced by macrophages and senescent cells amplifies local and systemic inflammation
 - [[arterial-stiffening]] — downstream functional phenotype of vascular calcification to which OPN contributes indirectly
 - [[macrophages]] — major source of OPN in inflammatory contexts (#gap/needs-page)
-- [[bone]] — canonical tissue of OPN function; anti-mineralization role (#gap/needs-page)
+- [[bone]] — canonical tissue of OPN function; anti-mineralization role
 
 ## Limitations and gaps
 

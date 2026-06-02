@@ -166,7 +166,7 @@ MC4R agonism could theoretically address two contexts in aging:
 
 - **Mechanism class:** `melanocortin-receptor-agonism` (see `frameworks/intervention-classes.md` § melanocortin-receptor-agonist) — class already defined; no new class needed
 - **Hallmark target:** [[../../hallmarks/deregulated-nutrient-sensing]] (MC4R/POMC/leptin nutrient-sensing axis)
-- **Related intervention class:** [[../../interventions/pharmacological/peptide-therapeutics]] #gap/needs-stub — no page exists yet
+- **Related intervention class:** [[../../interventions/pharmacological/peptide-therapeutics]]
 - **SENS category:** none directly applicable
 
 ## Cross-references

@@ -274,8 +274,8 @@ This paper extends the JAIST Miyako lab's prior work on tumor-resident bacteria 
 
 ## Cross-References
 
-- [[microbiome/ewingella-americana]] — atomic microbe page for *Ewingella americana*; host this paper's characterization data; #gap/needs-seeding
-- [[interventions/pharmacological/bacterial-cancer-therapy]] — class page for live bacterial cancer therapeutics; #gap/needs-seeding
+- [[microbiome/ewingella-americana]] — atomic microbe page for *Ewingella americana*; hosts this paper's characterization data
+- [[interventions/pharmacological/bacterial-cancer-therapy]] — class page for live bacterial cancer therapeutics
 - [[phenotypes/cancer]] — canonical cancer phenotype page; add *E. americana* to bacterial intervention evidence
 - [[hallmarks/dysbiosis]] — gut microbiome hallmark; lower-vertebrate microbiome biodiscovery framing
 - [[microbiome/gut-microbiome-aging-shifts]] — aging shifts in microbiome composition; context for therapeutic potential of non-human microbiomes

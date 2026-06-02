@@ -6,7 +6,7 @@ type: index
 
 A research wiki on the cellular and molecular mechanisms of human aging.
 
-See [[CLAUDE]] for schema and conventions. See [[log]] for chronological history of changes. See [[ROADMAP]] for the planned-vs-actual coverage checklist. See [[acronyms]] for the abbreviations glossary.
+See [[CLAUDE]] for schema and conventions. See [[log]] for chronological history of changes. See [[gaps/planned-coverage]] for proactive coverage intent (priority ranking is driven by inbound-count discovery in [[lint-pass]] § Step 3, not a static checklist). See [[acronyms]] for the abbreviations glossary.
 
 ## Frameworks (navigational overlays)
 
@@ -16,6 +16,10 @@ Co-equal MOCs over the atomic-entity layer:
 - [[sens-damage-categories]] — SENS Research Foundation (7 damage categories)
 - [[frameworks/hallmark-causality-graph]] — opinionated wiki-internal upstream/downstream ordering of the 12 hallmarks (mechanistic, distinct from López-Otín's primary/antagonistic/integrative taxonomy)
 - [[frameworks/causal-graph-data]] — companion edge-list with evidence-strength ratings + per-edge wiki-page anchors
+
+Anatomical overlay (by body system):
+
+- [[by-organ-system]] — index of the 11 body-system MOCs; slices the atomic layer by anatomy rather than by molecular damage type
 
 Cross-cutting intervention slicers:
 
@@ -80,6 +84,28 @@ LIST FROM "processes" WHERE type = "process"
 
 ```dataview
 LIST FROM "phenotypes" WHERE type = "phenotype"
+```
+
+## Organ systems, tissues & cell types
+
+Body-system navigational overlays (`type: organ-system`, in `organ-systems/`) — see [[by-organ-system]] for the index and the cross-system rollup:
+
+- [[cardiovascular-system]] · [[musculoskeletal-system]] · [[integumentary-system]] · [[nervous-system]] · [[hematopoietic-system]] · [[immune-system]] · [[endocrine-system]] · [[digestive-system]] · [[urinary-system]] · [[respiratory-system]] · [[reproductive-system]]
+
+```dataview
+LIST FROM "organ-systems"
+```
+
+Atomic tissue/organ pages:
+
+```dataview
+LIST FROM "tissues" WHERE type = "tissue"
+```
+
+Cell types:
+
+```dataview
+LIST FROM "cell-types" WHERE type = "cell-type"
 ```
 
 ## Interventions

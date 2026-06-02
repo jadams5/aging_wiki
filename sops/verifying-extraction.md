@@ -141,6 +141,15 @@ Downstream pages updated:
 - Don't fabricate plausible numbers when the paper doesn't state them. Either find the actual value or remove the claim.
 - Don't skip propagation — a corrected study page that doesn't propagate to citing entity pages leaves stale claims live.
 
+### Known AI-extraction failure modes to check for explicitly
+
+These are recurring, high-cost errors that originate during AI seeding and must be caught at verification:
+
+- **Verify outcomes, not just targets.** The seeder reliably identifies a paper's correct topic/target/mechanism but sometimes fabricates the specific experimental *endpoints* (n's, effect sizes, p-values, fracture/event rates). Confirm every quantitative outcome against the figure/table that reports it, not just that the citation is on-topic.
+- **Abstract-only verification can invert an effect-size sign.** A value read from an abstract (or a review citing it) can carry the wrong direction — a reduction stated as an increase, or a CI/WMD with flipped sign. Reading the full PDF (methods + the actual figure/table) catches this; an abstract-level pass often does not. When a sign is corrected on an atomic page, **propagate the correction to any synthesis/MOC page** that restated it. (Precedents: escin/horse-chestnut WMD on [[chronic-venous-disease]]; the MK-7 aortic-valve-calcification effect on [[vitamin-k]].)
+- **A `verified: true` page can still carry the verifier's own error.** Verification reduces but does not eliminate error. When a later page cross-checks a claim about a paper that was "verified elsewhere," do not treat the prior page as ground truth — adjudicate against the primary PDF, and correct the earlier page if it is wrong (e.g., a stale/incorrect DOI or eligibility detail surviving on an already-verified page).
+- **Do not trust canonical identifiers (DOI, ChEMBL, UniProt, CAS, PubChem, ICD, Cell-Ontology) asserted from training memory** — they frequently resolve to an unrelated entity. Confirm every accession against the live database, and every DOI/year/journal against PubMed/Crossref, before flipping `verified`. (See [[schema-history]] R40/R41.)
+
 ## See also
 
 - [[CLAUDE]] § AI-extracted vs human-verified content

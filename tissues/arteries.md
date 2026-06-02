@@ -107,7 +107,7 @@ See [[vsmc]] (verified) for full detail. Key tissue-level consequences:
 
 ### Endothelial cells — reduced NO and barrier dysfunction
 
-**#gap/needs-page** — `[[endothelial-cells]]` page is an implicit stub. Key points for this tissue context:
+See [[endothelial-cells]] for the cell-type page. Key points for this tissue context:
 
 - Aged ECs show reduced **eNOS activity** and increased ROS scavenging of NO (via superoxide), lowering NO bioavailability and impairing VSMC relaxation.
 - **Endothelial senescence** (detected by p21/p53 markers) accumulates with age; senescent ECs express pro-inflammatory surface molecules (ICAM-1, VCAM-1) that facilitate leukocyte adhesion and monocyte infiltration — an early step in plaque initiation.
@@ -180,7 +180,7 @@ The kidney–bone–vessel axis mediated by [[klotho]] and [[fgf23]] is particul
 
 ## Limitations and gaps
 
-- `#gap/needs-page` — `[[endothelial-cells]]`, `[[adventitial-fibroblasts]]`, `[[aortic-aneurysm]]` are implicit stubs needed to complete the cross-reference network; `[[cardiovascular-system]]` MOC does not yet exist.
+- `#gap/needs-page` — `[[adventitial-fibroblasts]]` and `[[aortic-aneurysm]]` are implicit stubs needed to complete the cross-reference network; `[[cardiovascular-system]]` MOC does not yet exist. (Endothelial-cells cell-type page now seeded.)
 - `#gap/needs-human-replication` — senolytic reversal of arterial stiffness (all data from mouse models; no completed human RCT with cfPWV as primary endpoint).
 - `#gap/no-mechanism` — initiating trigger for medial calcification in normoglycemic non-CKD aging individuals not defined; elastin matrikine receptor atlas not characterized.
 - `#gap/needs-replication` — the ~74-year mean carbon residence time for elastin (Shapiro 1991) derives from human lung parenchyma (n=14 post-mortem specimens; ¹⁴C bomb-pulse + aspartate racemization); aortic elastin half-life has not been independently radiocarbon-dated. Aspartate racemization data from human aorta (Powell 1992) confirm minimal turnover without yielding a numeric half-life. Extrapolation from lung to aortic elastin is biologically supported but not formally quantified from a single large study.

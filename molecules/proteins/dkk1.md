@@ -123,7 +123,7 @@ The Dickkopf family includes DKK1, DKK2, DKK3, and DKK4. DKK1 and DKK2 both anta
 - #gap/needs-human-replication — DKK1's causal role in CKD-driven vascular calcification is mechanistically plausible but not established by RCT or MR in humans
 - #gap/needs-current-trial-status — BHQ880 clinical program status post-2022 is unclear; no completed phase 3
 - #gap/dose-response-unclear — circulating DKK1 levels in aging: no established reference range for "aging-relevant" elevation vs noise
-- #gap/needs-page — `[[osteoblasts]]` page does not yet exist; DKK1's most mechanistically documented target cell
+- `[[osteoblasts]]` page exists (seeded 2026-06-02; unverified); DKK1's most mechanistically documented target cell
 - `[[lrp5-lrp6]]` page exists (seeded 2026-05-23; unverified)
 - `[[sost]]` page exists (seeded 2026-05-23; unverified)
 

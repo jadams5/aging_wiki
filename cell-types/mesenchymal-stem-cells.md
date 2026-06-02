@@ -1,6 +1,6 @@
 ---
 type: cell-type
-aliases: [MSCs, mesenchymal stromal cells, multipotent mesenchymal stromal cells, MSC, BM-MSCs, AD-MSCs, UC-MSCs]
+aliases: [MSCs, mesenchymal stromal cells, multipotent mesenchymal stromal cells, MSC, BM-MSCs, AD-MSCs, UC-MSCs, bmsc, BMSC, BMSCs, bone marrow stromal cells, bone marrow mesenchymal stem cells]
 cell-ontology-id: CL:0000134
 tissue-of-origin: ["[[bone-marrow]]", "[[adipose-tissue]]", "[[umbilical-cord]]"]
 key-markers-mouse: [Sca-1+, CD29+, CD44+, CD90+]

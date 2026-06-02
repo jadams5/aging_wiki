@@ -103,7 +103,7 @@ The frame is tested at the level of specific cases. The most-relevant atomic pag
 - [[mus-musculus]] — per-organism failure-modes catalog
 - [[model-organisms/_extrapolation-guide]] — the three-dimension rubric and case-level pitfalls (the data-layer counterpart to this hypothesis page)
 
-A standing **Interventions Testing Program** entity page would be the natural home for cross-validating ITP-validated results against human trial outcomes. The wiki does not yet have one. #gap/missing-page — `interventions-testing-program.md`.
+The [[interventions-testing-program]] entity page is the natural home for cross-validating ITP-validated results against human trial outcomes.
 
 ## Related frameworks and hypotheses
 
@@ -143,7 +143,6 @@ The frame is not falsifiable in the Popperian sense (it is a Mode B conceptual o
 ## Limitations and gaps
 
 - #gap/unsourced — Lab-mouse-confound primary literature (Mattson "fat lazy mice," Garner mouse housing, Garland mouse exercise context) is referenced here but not yet cited from primary sources on the relevant wiki pages. Per-organism pass (planned next) should pull and integrate these.
-- #gap/missing-page — `interventions-testing-program.md` does not exist. ITP is the most-cited mouse-aging methodology in the wiki; it deserves a dedicated entity page documenting design, validated interventions, and a translation-tracking table.
 - #gap/needs-replication — Systematic meta-analysis of mouse-vs-human normalized effect sizes across the geroscience literature would directly test this frame's central magnitude-shrinkage claim. Ivimey-Cook 2025 provides a vertebrate-level lifespan analysis but does not separate mouse-vs-human or quantify shrinkage.
 - #gap/no-mechanism — The frame does not provide a quantitative translation rule. FDA HED scaling exists but is not aging-specific and is acknowledged to fail for CR-mimetics and senolytics.
 - ✓ Synthesis with hyperfunction-vs-damage developed 2026-05-14 — see [[hypotheses/hyperfunction-theory]] § Notes / open questions (Hyperfunction × translation-failure synthesis section). Open empirical question: does the age-stratified mTOR-inhibitor RCT prediction hold? No such trial published as of 2026.

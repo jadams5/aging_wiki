@@ -55,12 +55,12 @@ Healthy VSMCs in the media express the contractile marker repertoire: SM22-α (T
 
 Under elevated extracellular phosphate — transported into the VSMC cytoplasm via sodium-dependent phosphate cotransporters **PiT-1 (SLC20A1)** and **PiT-2 (SLC20A2)** — contractile markers are downregulated and osteoblastic markers are induced [^campos2025]:
 
-- **RUNX2** (runt-related transcription factor 2) — the master osteogenic transcription factor; required for bone formation in skeletal development; its ectopic expression in VSMCs is the central molecular event driving the phenotype switch [^liang2024] #gap/needs-page for [[runx2]]
+- **RUNX2** ([[runx2]]; runt-related transcription factor 2) — the master osteogenic transcription factor; required for bone formation in skeletal development; its ectopic expression in VSMCs is the central molecular event driving the phenotype switch [^liang2024]
 - **MSX2** (muscle segment homeobox 2) — upstream co-regulator of RUNX2 in the vascular context
 - **OSX/SP7** (osterix) — downstream RUNX2 target; required for osteoblast differentiation
 - **Alkaline phosphatase (ALPL/TNAP)** — cleaves pyrophosphate (PPi), a potent local calcification inhibitor, thereby tipping the PPi:phosphate ratio toward mineralization
-- **BMP-2** (bone morphogenetic protein 2) — secreted osteogenic ligand that amplifies RUNX2 expression via SMAD signaling; acts in an autocrine/paracrine loop to propagate the phenotype switch through the media [^liang2024] #gap/needs-page for [[bmp-2]]
-- **Osteopontin** — phosphoprotein expressed by osteoblast-like VSMCs; paradoxically has both pro- and anti-calcification roles depending on context #gap/needs-page for [[osteopontin]]
+- **BMP-2** ([[bmp-2]]; bone morphogenetic protein 2) — secreted osteogenic ligand that amplifies RUNX2 expression via SMAD signaling; acts in an autocrine/paracrine loop to propagate the phenotype switch through the media [^liang2024]
+- **Osteopontin** ([[osteopontin]]) — phosphoprotein expressed by osteoblast-like VSMCs; paradoxically has both pro- and anti-calcification roles depending on context
 
 ### Matrix vesicle and apoptotic body nucleation
 
@@ -76,11 +76,11 @@ The VSMC osteogenic phenotype switch is **partly reversible in cell culture** �
 
 ### 1. Elevated extracellular phosphate (primary driver)
 
-Elevated extracellular phosphate is **necessary and sufficient** to induce VSMC osteogenic transdifferentiation in vitro at concentrations ≥2 mM (vs. normal serum phosphate ~1.0–1.45 mmol/L) [^campos2025]. Phosphate enters the VSMC via PiT-1/PiT-2 and acts intracellularly to activate ERK1/2 signaling upstream of RUNX2 induction. In CKD, serum phosphate rises due to impaired renal phosphate excretion; in aging without CKD, phosphate homeostasis is subtly dysregulated via FGF23-Klotho axis dysfunction even when serum phosphate remains in the nominal normal range. Dietary phosphate-additive intake is an underappreciated modifiable driver — see sibling page [[phosphate-additive-reduction]] for the dietary intervention angle. #gap/needs-page for [[hyperphosphatemia]] as a node
+Elevated extracellular phosphate is **necessary and sufficient** to induce VSMC osteogenic transdifferentiation in vitro at concentrations ≥2 mM (vs. normal serum phosphate ~1.0–1.45 mmol/L) [^campos2025]. Phosphate enters the VSMC via PiT-1/PiT-2 and acts intracellularly to activate ERK1/2 signaling upstream of RUNX2 induction. In CKD, serum phosphate rises due to impaired renal phosphate excretion; in aging without CKD, phosphate homeostasis is subtly dysregulated via FGF23-Klotho axis dysfunction even when serum phosphate remains in the nominal normal range. Dietary phosphate-additive intake is an underappreciated modifiable driver — see sibling page [[phosphate-additive-reduction]] for the dietary intervention angle. See [[hyperphosphatemia]] for the phosphate-homeostasis node (ICD-10-CM E83.39; seeded 2026-06-02).
 
 ### 2. Klotho deficiency
 
-Klotho ([[klotho]]; UniProt Q9UEF7; verified page) provides direct anti-calcification protection through FGF23-independent mechanisms: binding to TRPC6 channels on VSMCs to reduce calcium influx; modulating Wnt/β-catenin signaling (which drives RUNX2 expression when activated); and maintaining phosphate homeostasis by enabling renal phosphate excretion. Age-related Klotho decline — serum soluble Klotho falls ~40–50% between young adulthood and age 65–70 — progressively removes this anti-calcification brake. Klotho-null mice develop extensive vascular and soft-tissue calcification resembling accelerated aging [^klotho-calcification-note]. Cross-link with sibling page [[fgf23]] for the FGF23-Klotho-phosphate axis. #gap/needs-page for [[wnt-signaling]] pathway
+Klotho ([[klotho]]; UniProt Q9UEF7; verified page) provides direct anti-calcification protection through FGF23-independent mechanisms: binding to TRPC6 channels on VSMCs to reduce calcium influx; modulating [[wnt-beta-catenin|Wnt/β-catenin signaling]] (which drives RUNX2 expression when activated); and maintaining phosphate homeostasis by enabling renal phosphate excretion. Age-related Klotho decline — serum soluble Klotho falls ~40–50% between young adulthood and age 65–70 — progressively removes this anti-calcification brake. Klotho-null mice develop extensive vascular and soft-tissue calcification resembling accelerated aging [^klotho-calcification-note]. Cross-link with sibling page [[fgf23]] for the FGF23-Klotho-phosphate axis.
 
 [^klotho-calcification-note]: Kuro-o M et al., extensive calcification phenotype in Klotho-deficient mice is documented in the founding 1997 *Nature* paper (doi:10.1038/44941) and subsequent conditional-knockout work — see [[klotho]] for verified citations and scope. Specific FGF23-independent VSMC mechanism (TRPC6 and Wnt modulation) is mechanistic extrapolation from cell-culture and mouse data; human-vascular-specific Klotho data are limited. #gap/needs-human-replication
 
@@ -88,7 +88,7 @@ Klotho ([[klotho]]; UniProt Q9UEF7; verified page) provides direct anti-calcific
 
 **Matrix Gla Protein (MGP)** is the principal local inhibitor of vascular calcification [^knapen2015]. It is synthesized by VSMCs and secreted into the vascular matrix, where it binds calcium ions and hydroxyapatite nuclei, blocking crystal growth. However, MGP requires **vitamin K-dependent γ-glutamyl carboxylase** to convert glutamic acid residues to γ-carboxyglutamic acid (Gla residues) — only the carboxylated form (cMGP) has calcium-binding affinity. The uncarboxylated form (ucMGP) is functionally inert as a calcification inhibitor.
 
-**This is the mechanistic basis for the vitamin K2 / MK-7 supplementation hypothesis:** adequate vitamin K2 (menaquinone-7) in the vascular wall specifically activates MGP carboxylation, restoring its anti-calcification function. Vitamin K1 (phylloquinone) is preferentially used by the liver (for coagulation factor carboxylation) and has limited vascular tissue availability; vitamin K2 MK-7 has superior bioavailability and half-life for extrahepatic tissues including vascular wall. #gap/needs-page for [[matrix-gla-protein]]
+**This is the mechanistic basis for the vitamin K2 / MK-7 supplementation hypothesis:** adequate vitamin K2 (menaquinone-7) in the vascular wall specifically activates MGP carboxylation, restoring its anti-calcification function. Vitamin K1 (phylloquinone) is preferentially used by the liver (for coagulation factor carboxylation) and has limited vascular tissue availability; vitamin K2 MK-7 has superior bioavailability and half-life for extrahepatic tissues including vascular wall. See [[matrix-gla-protein]] for the protein page.
 
 **dp-ucMGP** (dephospho-uncarboxylated MGP) is a validated circulating biomarker of vitamin K insufficiency in vascular tissue — elevated dp-ucMGP reflects poor MGP carboxylation and is associated with higher calcification burden and cardiovascular risk in multiple cohort studies.
 
@@ -155,9 +155,9 @@ Inhibits hydroxyapatite crystal growth by binding calcium in the extracellular s
 
 ### Phosphate management
 
-**Phosphate binders** (calcium carbonate, sevelamer, lanthanum carbonate): standard of care in CKD to reduce serum phosphate. Not indicated in non-CKD adults with normal serum phosphate; however, the dietary phosphate-additive hypothesis suggests that reducing inorganic phosphate consumption (from processed foods) may be relevant even in normal-range serum phosphate. See [[phosphate-additive-reduction]] for the evidence base. #gap/needs-page
+**Phosphate binders** (calcium carbonate, sevelamer, lanthanum carbonate): standard of care in CKD to reduce serum phosphate. Not indicated in non-CKD adults with normal serum phosphate; however, the dietary phosphate-additive hypothesis suggests that reducing inorganic phosphate consumption (from processed foods) may be relevant even in normal-range serum phosphate. See [[phosphate-additive-reduction]] for the evidence base.
 
-**Dietary phosphate-additive reduction:** The most accessible preventive lever for non-CKD adults. Inorganic phosphate additives in processed foods (E450, E338, etc.) are nearly 100% bioavailable vs ~50% from organic sources; they raise postprandial serum phosphate and stimulate FGF23 secretion. See sibling page [[phosphate-additive-reduction]]. #gap/needs-page
+**Dietary phosphate-additive reduction:** The most accessible preventive lever for non-CKD adults. Inorganic phosphate additives in processed foods (E450, E338, etc.) are nearly 100% bioavailable vs ~50% from organic sources; they raise postprandial serum phosphate and stimulate FGF23 secretion. See sibling page [[phosphate-additive-reduction]].
 
 ### Aerobic exercise
 

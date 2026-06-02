@@ -147,7 +147,7 @@ Anti-DKK1 monoclonal antibodies (e.g., blosozumab, BHQ880) activate bone formati
 **Pathway:** [[wnt-beta-catenin]]
 **Antagonists (sibling pages):** [[sost]] · [[dkk1]]
 **Downstream phenotype:** [[osteoporosis]]
-**Tissue context:** [[bone]] · [[osteocytes]] · [[osteoblasts]] (#gap/needs-page)
+**Tissue context:** [[bone]] · [[osteocytes]] · [[osteoblasts]]
 **Vascular:** [[vascular-calcification]]
 **Related aging context:** [[klotho]]
 **Downstream transcription:** [[ctnnb1]] (#gap/needs-page — β-catenin)

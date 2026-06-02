@@ -26,7 +26,7 @@ verified-scope: "Papaemmanuil 2011 (primary PDF verified), Obeng 2016 (primary P
 
 # SF3B1
 
-SF3B1 (splicing factor 3b subunit 1, also called SAP155 or SF3b155) is the largest and most clinically significant subunit of the SF3b complex within the [[U2 snRNP]] spliceosome. It directly contacts the pre-mRNA branch-point sequence to specify 3' splice-site selection during intron excision. Somatic mutations in SF3B1 cause aberrant splice-site usage, generating mis-spliced transcripts that drive myeloid malignancy. SF3B1 is a recurrent driver of [[clonal-hematopoiesis]] (CHIP), most strongly associated with **MDS with ring sideroblasts (MDS-RS)** — where SF3B1 mutations define a favorable-prognosis diagnostic entity. It is the sixth most commonly mutated CHIP driver gene in population cohorts (behind DNMT3A, TET2, ASXL1, TP53, and JAK2 in Jaiswal 2014), with mutations arising almost exclusively in individuals aged >70. No splicing-specific process or pathway page exists in this wiki; cross-linking deferred to the canonical somatic-mutation context. #gap/needs-process-page for `[[splicing-dysregulation]]` or `[[alternative-splicing]]`.
+SF3B1 (splicing factor 3b subunit 1, also called SAP155 or SF3b155) is the largest and most clinically significant subunit of the SF3b complex within the [[U2 snRNP]] spliceosome. It directly contacts the pre-mRNA branch-point sequence to specify 3' splice-site selection during intron excision. Somatic mutations in SF3B1 cause aberrant splice-site usage, generating mis-spliced transcripts that drive myeloid malignancy. SF3B1 is a recurrent driver of [[clonal-hematopoiesis]] (CHIP), most strongly associated with **MDS with ring sideroblasts (MDS-RS)** — where SF3B1 mutations define a favorable-prognosis diagnostic entity. It is the sixth most commonly mutated CHIP driver gene in population cohorts (behind DNMT3A, TET2, ASXL1, TP53, and JAK2 in Jaiswal 2014), with mutations arising almost exclusively in individuals aged >70. For the broader age-related spliceosome biology that contextualizes SF3B1, see the [[splicing-dysregulation]] process page.
 
 ## Identity
 
@@ -121,7 +121,7 @@ The divergent prognostic implications (favorable in MDS-RS, adverse in CLL) like
 
 SF3B1's relevance to aging biology extends beyond CHIP. Global splicing fidelity declines with age in multiple tissues — a phenotype captured by the [[loss-of-proteostasis]] hallmark (via accumulation of aberrant protein isoforms from mis-spliced transcripts). Whether somatic SF3B1 mutations in hematopoietic stem cells amplify or reflect a broader age-related splicing dysfunction is an open question.
 
-No `[[splicing-dysregulation]]` or `[[alternative-splicing]]` process page currently exists in this wiki. The connection between age-related global spliceosome regulation and the SF3B1-mutant CHIP phenotype is mechanistically unresolved. #gap/needs-process-page #gap/no-mechanism
+See [[splicing-dysregulation]] for the broader age-related spliceosome biology that contextualizes SF3B1. The connection between age-related global spliceosome regulation and the SF3B1-mutant CHIP phenotype is mechanistically unresolved. #gap/no-mechanism
 
 ## Mouse genetics
 
@@ -165,7 +165,7 @@ There is no tier-1 aging-context druggability (no approved drug for an aging-rel
 - [[u2-snrna]] — the SF3b complex is integral to U2 snRNP; implicit stub
 - [[phf5a]] — SF3B1 HEAT-repeat binding partner; implicit stub
 
-No `[[splicing-dysregulation]]` or `[[alternative-splicing]]` process page exists in this wiki. These would be the appropriate canonical home for the broader age-related spliceosome biology that contextualizes SF3B1. #gap/needs-process-page
+The [[splicing-dysregulation]] process page is the canonical home for the broader age-related spliceosome biology that contextualizes SF3B1.
 
 ## Limitations and gaps
 
@@ -175,7 +175,6 @@ No `[[splicing-dysregulation]]` or `[[alternative-splicing]]` process page exist
 - **CLL vs MDS-RS prognostic divergence unexplained.** The same K700E-region hotspot confers favorable prognosis in MDS-RS but adverse prognosis in CLL; the cell-type-specific mechanistic basis is not established. #gap/no-mechanism
 - **SF3B1-CHIP inflammation mechanism.** Unlike TET2 and DNMT3A, the inflammatory pathway connecting SF3B1-mutant macrophages to cardiovascular outcomes has not been characterized. Whether NLRP3 hyperactivation or other effectors mediate the Gumuser 2023 cardiovascular hazard is unknown. #gap/no-mechanism
 - **Mouse KI model vs human MDS-RS.** The *Sf3b1*-K700E conditional knock-in model (Obeng 2016) recapitulates core erythroid features but does NOT produce ring sideroblasts (ABCB7 cryptic splice site not conserved between mouse and human), limiting the model's utility for the full MDS-RS phenotype. #gap/needs-replication — whether other mouse strains or inducible systems can produce ring sideroblasts is under investigation.
-- **Splicing-dysregulation process page absent.** The broader age-related spliceosome biology that contextualizes SF3B1 has no canonical home in this wiki. #gap/needs-process-page
 
 ## Footnotes
 

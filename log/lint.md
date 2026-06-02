@@ -2,6 +2,58 @@
 
 Sub-file of [[log]] — see parent for index.
 
+## [2026-06-02] lint — stale page-existence gap sweep
+
+User-prompted: many `#gap/needs-page`/`#gap/needs-stub`/`#gap/needs-*-page`/`#gap/needs-seeding`/`#gap/missing-page` markers were placed before the referenced page was seeded and are now stale. Swept the full page-existence gap family (excluding the append-only `log/` audit trail), cross-checked every referenced wikilink target against the live file inventory, and removed/rewrote the markers whose target now exists (resolving by basename, so links already pointed to the right file regardless of folder).
+
+**Stale gaps resolved (target now exists) — 14 files edited:**
+- `biomarkers/il-6-biomarker.md` — [[molecules/proteins/il-6]] (needs-protein-page), [[molecules/compounds/tocilizumab]] (needs-compound-page)
+- `studies/iwata-2025-ewingella-americana-antitumor.md` — [[microbiome/ewingella-americana]], [[interventions/pharmacological/bacterial-cancer-therapy]] (both needs-seeding)
+- `molecules/compounds/setmelanotide.md` — [[interventions/pharmacological/peptide-therapeutics]] (needs-stub)
+- `molecules/compounds/tazarotene.md` — [[retinoids]] (needs-page, ×2)
+- `interventions/gene-therapy/crispr-base-editing-pcsk9.md` — [[pcsk9]] (needs-stub)
+- `hypotheses/translation-failure-of-aging-interventions.md` — [[interventions-testing-program]] (missing-page, ×2; reworded body + dropped Limitations bullet)
+- `molecules/proteins/fgf23.md` — [[bone]] + [[osteocytes]] (needs-page, ×2)
+- `molecules/proteins/osteopontin.md` — [[bone]] (needs-page)
+- `molecules/proteins/runx2.md` — [[matrix-gla-protein]], [[osteoporosis]], [[bone]] (needs-page)
+- `cell-types/osteocytes.md` — [[osteoporosis]], [[runx2]], [[bmp-2]], [[osteopontin]], [[bone]] (needs-page)
+- `phenotypes/osteoporosis.md` — [[sost]] (needs-page, ×3)
+- `molecules/proteins/matrix-gla-protein.md` — [[bmp-2]] (needs-page)
+- `molecules/proteins/sost.md` — [[dkk1]] (needs-page)
+- `pathways/wnt-beta-catenin.md` — [[sost]], [[dkk1]] (needs-page)
+- `molecules/proteins/lrp5-lrp6.md` — [[bone]], [[osteocytes]] (reworded so the gap attaches only to still-missing [[osteoblasts]])
+- `tissues/bone.md` — [[osteoporosis]] (needs-page, ×3)
+- `tissues/arteries.md` — [[endothelial-cells]] (needs-page, ×2)
+- `cell-types/vsmc.md` — [[arteries]] (needs-page, frontmatter comment + body + See-also)
+- `molecules/proteins/caspase-1.md` — [[ketogenic-diet]] (split from still-pending [[beta-hydroxybutyrate]])
+- `processes/vascular-calcification.md` — [[runx2]], [[bmp-2]], [[osteopontin]], [[wnt-beta-catenin]] (was `wnt-signaling`), [[matrix-gla-protein]], [[phosphate-additive-reduction]] (needs-page, 7 markers)
+
+**Remaining real page-existence gaps, ranked by inbound demand (distinct linking pages):**
+
+| Rank | Missing page | Inbound | Type / home | Notes |
+|---|---|---|---|---|
+| 1 | `osteoblasts` | 9 | cell-type | Highest-demand missing node; master bone-formation cell referenced from runx2/sost/dkk1/lrp5-lrp6/osteocytes/osteoporosis/bone. Seed first. |
+| 2 | `osteoclasts` | 4 | cell-type | RANKL/OPG resorption arm; pairs with osteoblasts. |
+| 2 | `hyperphosphatemia` | 4 | phenotype/node | Central driver node in vascular-calcification causal graph. |
+| 4 | `vitamin-k` | 4 | compound | Substrate for MGP carboxylation; ties to MK-7 supplementation hypothesis. |
+| 5 | `splicing-dysregulation` / `alternative-splicing` | 3 | process | Canonical home for age-related spliceosome biology contextualizing SF3B1 (3 markers on sf3b1.md). Pick one canonical slug. |
+| 6 | `bmsc` (marrow stromal) | 2 | cell-type | Osteoblast/adipocyte precursor; lineage-drift in bone aging. Partial overlap with existing [[mesenchymal-stem-cells]] — decide split vs alias. |
+| 6 | `ctnnb1` (β-catenin) | 2 | protein | Downstream Wnt effector; demanded by wnt-beta-catenin + lrp5-lrp6. |
+| 6 | `cardiovascular-system` | 2 | framework MOC | Organ-system overlay; arteries/heart/myocardium currently un-MOC'd. |
+| 6 | `beta-hydroxybutyrate` | 2 | compound | NLRP3-suppressing ketone body; ketogenic-diet sibling. |
+| 6 | `aim2` | 2 | protein | DNA-sensing inflammasome platform. |
+| 11 | `macrophages` | 2 | cell-type | Surprisingly low inbound — likely under-linked rather than truly low-priority; worth seeding given centrality to inflammaging. |
+| 12 | `romosozumab` | 1 | compound | FDA-approved anti-sclerostin mAb; osteoporosis cluster. |
+| 12 | `nlrc4` | 1 | protein | Alternative inflammasome platform. |
+| 12 | `ggcx`, `vkor` | 1 ea | protein | Vitamin-K cycle enzymes; MGP carboxylation pathway. |
+| 12 | `nitric-oxide` | 1 | process | eNOS→NO signaling; endothelial aging. |
+| 12 | `adventitial-fibroblasts`, `aortic-aneurysm` | 1 ea | cell-type / phenotype | Arteries-page cross-reference completion. |
+| 18 | `tocotrienols` | 0 | compound | No inbound demand yet; lowest priority (scope-note placeholder on alpha-tocopherol only). |
+
+**Class-seeding gaps (not single-page; in `frameworks/interventions-by-hallmark.md`)** — left in place, genuinely unseeded: partial-reprogrammer, HDAC-inhibitor, SIRT6-activator, chaperone-enhancer compound pages; TA-65 compound page; AAV-TERT intervention page. Plus a tagging review (spermidine/rapamycin → loss-of-proteostasis cross-link).
+
+`log/` audit-trail files were intentionally not edited (historical record).
+
 ## [2026-05-07] lint
 
 Structural + coverage lint pass run from a cold start; the focus was hallmark-causality coverage and mechanistic depth per hallmark.

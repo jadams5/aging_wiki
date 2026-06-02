@@ -50,9 +50,9 @@ With aging, advanced glycation end-products (AGEs) accumulate in the collagen sc
 | Cell type | Origin | Function | Aging notes |
 |---|---|---|---|
 | **[[osteocytes]]** | Osteoblast differentiation / entombment | Mechanosensing; SOST/sclerostin secretion (Wnt inhibitor); FGF23 secretion; LCN maintenance | 95% of bone cells; apoptosis accumulates; senescent subset drives SASP; micropetrosis (empty lacunae) increases — see [[osteocytes]] |
-| **Osteoblasts** | BMSCs via [[runx2]] + [[bmp-2]] signaling | Collagenous matrix secretion; mineralization; transition to osteocyte or bone-lining cell | Reduced number and activity with age; BMSC fate drift toward adipogenesis (see below) — `[[osteoblasts]]` #gap/needs-page |
-| **Osteoclasts** | Monocyte/macrophage lineage via RANKL signaling | Bone resorption; releases growth factors during resorption lacuna | Relative hyperactivity vs osteoblasts in aging — net resorption; regulated by RANKL/OPG ratio — `[[osteoclasts]]` #gap/needs-page |
-| **BMSCs** (marrow stromal) | Mesenchymal lineage | Osteoblast + adipocyte + chondrocyte precursors; niche support | Age-associated lineage drift: PPAR-γ elevation + Wnt/β-catenin decline → adipogenesis predominance → marrow fat expansion — `[[bmsc]]` #gap/needs-page; see [[mesenchymal-stem-cells]] |
+| **Osteoblasts** | BMSCs via [[runx2]] + [[bmp-2]] signaling | Collagenous matrix secretion; mineralization; transition to osteocyte or bone-lining cell | Reduced number and activity with age; BMSC fate drift toward adipogenesis (see below) — see [[osteoblasts]] |
+| **Osteoclasts** | Monocyte/macrophage lineage via RANKL signaling | Bone resorption; releases growth factors during resorption lacuna | Relative hyperactivity vs osteoblasts in aging — net resorption; regulated by RANKL/OPG ratio — see [[osteoclasts]] |
+| **BMSCs** (marrow stromal) | Mesenchymal lineage | Osteoblast + adipocyte + chondrocyte precursors; niche support | Age-associated lineage drift: PPAR-γ elevation + Wnt/β-catenin decline → adipogenesis predominance → marrow fat expansion — see [[mesenchymal-stem-cells|BMSCs]] |
 | **[[hematopoietic-stem-cells]]** | Hematopoietic niche in marrow | Blood cell production; reside in endosteal + perivascular niches | HSC pool aging documented on [[bone-marrow]] and [[hematopoietic-stem-cells]]; cross-link for full detail |
 
 ---
@@ -95,7 +95,7 @@ Peak BMD is attained in the late second to early third decade, varies substantia
 - Women: ~0.5–1%/yr loss; accelerates markedly in the first 5–10 years post-menopause (estrogen loss removes the osteoclast-suppressive effect of estrogen → OPG downregulation → RANKL-driven resorption surge)
 - Men: ~0.3–0.5%/yr loss, continuous but unaccelerated, driven partly by age-associated testosterone decline
 
-The clinical threshold for [[osteoporosis]] is T-score ≤ −2.5 (DXA, WHO criteria). #gap/needs-page — `[[osteoporosis]]` page needed.
+The clinical threshold for [[osteoporosis]] is T-score ≤ −2.5 (DXA, WHO criteria).
 
 ### 2. Osteocyte apoptosis and micropetrosis
 
@@ -144,7 +144,7 @@ For full discussion of the vascular side, see [[processes/vascular-calcification
 
 ## Key aging phenotypes
 
-- **[[osteoporosis]]** — T-score ≤ −2.5; clinically manifests as fragility fractures (hip > vertebral > wrist) #gap/needs-page
+- **[[osteoporosis]]** — T-score ≤ −2.5; clinically manifests as fragility fractures (hip > vertebral > wrist)
 - **Osteopenia** — T-score −1.0 to −2.5; subclinical bone loss; high population prevalence in 50–65 year olds
 - **Fragility fracture** — fracture from low-energy trauma (≤ fall from standing height); hip fractures carry ~20–30% one-year mortality in the elderly
 - **[[sarcopenia]]** — bone and muscle are mechanically coupled; bone loss and muscle loss co-occur in "osteosarcopenia"; mechanostimulus from muscle contraction is required to suppress osteocyte sclerostin and sustain Wnt-driven bone formation
@@ -180,7 +180,6 @@ For full discussion of the vascular side, see [[processes/vascular-calcification
 
 ## Limitations and gaps
 
-- `#gap/needs-page` — [[osteoporosis]] (phenotype), [[osteoblasts]] (cell type), [[osteoclasts]] (cell type), [[bmsc]] (cell type)
 - `#gap/needs-human-replication` — senolytic clearance of senescent osteocytes for fracture prevention; mitochondrial dysfunction role in human osteocyte biology
 - `#gap/needs-replication` — bone-derived extracellular vesicles as systemic calcification paradox messengers (single Nature Comms 2022 study); quantitative micropetrosis rates in human cortical aging
 - `#gap/unsourced` — BMSC adipogenic-shift quantitative data in humans; cortical vs trabecular longitudinal loss rates in humans

@@ -248,6 +248,10 @@ affected-tissues: ["[[skeletal-muscle]]"]
 underlying-hallmarks: ["[[stem-cell-exhaustion]]", "[[chronic-inflammation]]"]
 typical-onset: "60+ (clinically); biological onset earlier"
 prevalence-65plus: "~10–16% (varies by definition)"   # optional; community-dwelling 65+ if applicable
+verified: false              # required; phenotype pages originate quantitative claims (prevalence, ICD codes, effect sizes, mortality associations)
+verified-date: null
+verified-by: null
+verified-scope: null         # optional
 ---
 ```
 
@@ -333,6 +337,25 @@ verified-scope: null    # optional; free-text scope description for partial veri
 ```
 
 Tissue pages are atomic content (they originate quantitative claims about anatomy + cell composition + aging changes) and carry verification discipline like `type: protein`/`compound`/`study`. They are NOT navigational MOCs — those are `type: framework`.
+
+**Glands and organs** (thyroid, parathyroid, kidney, liver, lung, pancreas, etc.) live in `tissues/` as `type: tissue` — there is no separate `type: organ`. Set their `parent-system:` to the owning body system.
+
+### type: organ-system
+
+```yaml
+---
+type: organ-system
+aliases: [cardiovascular system, circulatory system]
+key-organs: ["[[heart]]"]                     # wikilinks to organ/tissue pages in this system
+key-tissues: ["[[arteries]]", "[[veins]]", "[[myocardium]]"]
+key-cell-types: ["[[cardiomyocytes]]", "[[endothelial-cells]]", "[[vsmc]]"]
+key-aging-phenotypes: ["[[atherosclerosis]]", "[[arterial-stiffening]]"]
+related-hallmarks: ["[[chronic-inflammation]]", "[[cellular-senescence]]"]
+parent-system: null                           # null for top-level systems; set for sub-systems (e.g., central-nervous-system → nervous-system)
+---
+```
+
+Organ-system pages live in `organ-systems/` and are **navigational overlays** (the anatomical counterpart to `type: framework`): they aggregate and link the tissue/organ/cell-type/phenotype atomic pages of one body system. Like frameworks, they do NOT originate primary claims and therefore do **NOT** carry the `verified` block — verifying one reduces to confirming cross-link integrity. The filename is the `parent-system:` slug used on member tissue pages (e.g., `organ-systems/cardiovascular-system.md` ← `parent-system: cardiovascular-system`), so those `[[cardiovascular-system]]` links resolve. A top-level index lives at `frameworks/by-organ-system.md`.
 
 ### type: model-organism
 
@@ -683,7 +706,7 @@ When Claude (or any agent) writes a page from training knowledge or summarized s
 
 **Frontmatter:**
 ```yaml
-verified: false             # required on atomic-content types (study, protein, compound, pathway, process, biomarker, cell-type, tissue, model-organism, hypothesis, method, microbe)
+verified: false             # required on atomic-content types (study, protein, compound, pathway, process, biomarker, cell-type, tissue, model-organism, hypothesis, method, microbe, phenotype)
 verified-date: null         # ISO date when flipped to true
 verified-by: null           # "claude" | "user" | "claude+user"
 verified-scope: null        # optional: free-text scope description if verification was partial

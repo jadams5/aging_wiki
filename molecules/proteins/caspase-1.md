@@ -109,7 +109,7 @@ The ketone body β-hydroxybutyrate (BHB), elevated during caloric restriction, f
 - **VX-765 (belnacasan)** — improved safety window over VX-740; Phase 2 completed in epilepsy (2013); no robust efficacy signal in that indication. No current aging-indication trial. #gap/long-term-unknown
 
 ### Indirect via BHB
-Dietary or exogenous β-hydroxybutyrate suppresses NLRP3 upstream of caspase-1; see [[ketogenic-diet]] and [[beta-hydroxybutyrate]] pages (pending). #gap/needs-stub
+Dietary or exogenous β-hydroxybutyrate suppresses NLRP3 upstream of caspase-1; see [[ketogenic-diet]] for the dietary intervention. The [[beta-hydroxybutyrate]] compound page is pending. #gap/needs-stub
 
 **Druggability — tier-2 (re-rated 2026-05-08).** Direct caspase-1 inhibitors (VX-740 pralnacasan, VX-765 belnacasan) reached Phase 2 for rheumatoid arthritis and epilepsy respectively but were discontinued (hepatotoxicity / no efficacy signal); no direct caspase-1 inhibitor is FDA-approved or active in clinical development for any indication. The earlier tier-1 assignment leaned on indirect support from upstream/downstream pharmacology — canakinumab (FDA-approved IL-1β mAb; CANTOS Phase 3 RCT validated the NLRP3 → caspase-1 → IL-1β axis) and broader inflammasome-pharmacology programs (MCC950, OLT1177) — but the strict Open Targets criterion is for caspase-1 itself, and there is no direct-acting drug. Tier-2 ("high-quality probe") accurately reflects the current state: discontinued clinical-stage chemistries plus active probe-grade research compounds. Aging relevance via the NLRP3-inflammasome / IL-1β axis is unchanged.
 

@@ -177,7 +177,7 @@ Tazarotene addresses photoaging-driven mechanisms that overlap with several hall
 
 - **Druggability tier:** 1 (FDA-approved topical agent for an on-label photoaging/aging-skin indication via Avage 2000)
 - **SENS strategy:** not directly applicable at the SENS-category level (tazarotene addresses extracellular matrix degradation in skin, most closely corresponding to [[sens-damage-categories|ExtraCellular Matrix cross-link / AmyloSENS]] context, but is primarily a functional ECM restorer rather than a SENS-damage remediator)
-- **Class page:** [[retinoids]] (R41; covers tretinoin, retinol, retinaldehyde, adapalene, bakuchiol, tazarotene as a class) #gap/needs-page — retinoids class MOC does not yet exist as a wiki page
+- **Class page:** [[retinoids]] (R41; covers tretinoin, retinol, retinaldehyde, adapalene, bakuchiol, tazarotene as a class)
 - **Mechanism class in intervention-classes.md:** `topical retinoid / RAR agonist` (added R41); mechanisms values on this page (`RAR-agonist`, `AP-1-transrepression`, `MMP-1-suppression`, `collagen-synthesis-stimulation`) are canonical for this class
 
 ---
@@ -200,7 +200,7 @@ Tazarotene addresses photoaging-driven mechanisms that overlap with several hall
 - [[retinol]] — OTC retinoid precursor; weaker efficacy, better tolerability
 - [[retinaldehyde]] — intermediate between retinol and tretinoin
 - [[bakuchiol]] — functional retinoid analog (non-RAR); used in pregnancy/sensitive-skin populations
-- [[retinoids]] — class MOC page (R41; stub) #gap/needs-page
+- [[retinoids]] — class MOC page (R41)
 - [[skin-aging]] — primary phenotype target
 - [[mmp-1]] — key downstream target of AP-1 transrepression
 - [[keratinocytes]] — epidermal cell type on which tazarotene acts to increase turnover

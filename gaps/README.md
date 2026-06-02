@@ -88,6 +88,7 @@ SORT file.name
 
 ## See also
 
-- [[lint-pass]] — periodic SOP that surfaces and triages these
+- [[gaps/planned-coverage]] — proactive *coverage* intent (pages we intend to write, zero-inbound); distinct from the `#gap/*` *research*-gap tags tracked above. Replaced the retired `ROADMAP.md` (see [[schema-history]] R50).
+- [[lint-pass]] — periodic SOP that surfaces and triages these (§ Step 3 inbound-count discovery is the canonical seeding-priority source)
 - [[adding-a-claim]] — when and how to apply gap tags
 - [[hypotheses]] — for fully-formed but contested theories (heavier than a gap)

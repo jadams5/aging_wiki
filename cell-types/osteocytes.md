@@ -110,18 +110,17 @@ Circulating FGF23 rises progressively with age, most prominently in the context 
 - **Single-cell aging data absent**: No osteocyte-specific single-cell aging atlas exists as of 2026-05-23. Tabula Muris Senis bone-marrow data captures stromal/osteoblastic cells but not embedded osteocytes. #gap/needs-sc-aging-data
 - **FGF23 source fractionation**: The relative contribution of stressed/senescent osteocytes vs. physiologically normal osteocytes to the age-related FGF23 elevation is not quantified. #gap/no-mechanism
 - **Romosozumab cardiovascular mechanism**: The cardiovascular safety signal (ARCH trial) may implicate osteocyte-derived sclerostin in vascular biology beyond bone, but mechanistic clarity is lacking. #gap/contradictory-evidence
-- **Osteoporosis page absent**: [[osteoporosis]] is a key aging phenotype involving osteocytes but no dedicated phenotype page exists. #gap/needs-page
 
 ## See also
 
 - [[fgf23]] — primary secreted hormone; systemic mineral-homeostasis axis
 - [[klotho]] — obligate FGF23 co-receptor; Klotho decline with age impairs FGF23 signaling
-- [[runx2]] — transcription factor upstream of osteoblast-to-osteocyte differentiation; regulates Fgf23/Galnt3 #gap/needs-page
-- [[bmp-2]] — upstream osteogenic signal driving the osteoblast pool from which osteocytes derive #gap/needs-page
-- [[osteopontin]] — matrix protein co-expressed in osteocytes; LCN structural role #gap/needs-page
+- [[runx2]] — transcription factor upstream of osteoblast-to-osteocyte differentiation; regulates Fgf23/Galnt3
+- [[bmp-2]] — upstream osteogenic signal driving the osteoblast pool from which osteocytes derive
+- [[osteopontin]] — matrix protein co-expressed in osteocytes; LCN structural role
 - [[matrix-gla-protein]] — bone-vascular axis calcification inhibitor; co-secreted in the periosteal/vascular context
-- [[osteoblasts]] — direct precursor cell type; terminally differentiate into osteocytes #gap/needs-page
-- [[bone]] — tissue context; no dedicated tissue page yet #gap/needs-page
+- [[osteoblasts]] — direct precursor cell type; terminally differentiate into osteocytes
+- [[bone]] — tissue context
 - [[cellular-senescence]] — hallmark; p16+ osteocyte senescence
 - [[mitochondrial-dysfunction]] — hallmark; osteocyte apoptosis and LCN hypoxia
 - [[arterial-stiffening]] — downstream phenotype via FGF23-Klotho axis

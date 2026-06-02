@@ -2,7 +2,7 @@
 type: cell-type
 aliases: [VSMCs, vascular smooth muscle cells, arterial smooth muscle cells, aortic smooth muscle cells, vascular-smooth-muscle-cells]
 cell-ontology-id: CL:0000359   # "vascular associated smooth muscle cell" — verified via OLS lookup 2026-05-23; covers all mural smooth muscle cells of blood vessels; for artery-specific work CL:0002590 ("smooth muscle cell of artery") is more precise but has lower cross-study representation in ontology-driven atlases — CL:0000359 retained as primary
-tissue-of-origin: ["[[arteries]]"]   # #gap/needs-page — arteries tissue page absent; see Limitations
+tissue-of-origin: ["[[arteries]]"]
 key-markers-mouse: [Acta2+ (αSMA), Tagln+ (SM22-α), Myh11+ (smooth muscle MHC), Cnn1+ (calponin), Smtn+ (smoothelin)]
 key-markers-human: [ACTA2+ (αSMA), TAGLN+ (SM22-α), MYH11+ (smooth muscle MHC), CNN1+ (calponin), SMTN+ (smoothelin)]
 self-renewal: limited
@@ -154,7 +154,6 @@ Navitoclax (ABT-263, a BCL-2/BCL-xL inhibitor with senolytic activity) is the be
 
 ## Limitations and gaps
 
-- `#gap/needs-page` — [[arteries]] tissue page is absent; tissue-of-origin cannot be cross-linked to an atomic page.
 - `#gap/needs-replication` — developmental-origin-specific aging responses (neural-crest vs lateral-plate VSMC) have not been characterized systematically in human aging studies; inference is from disease-specific genetic conditions.
 - `#gap/needs-human-replication` — navitoclax/senolytic data reversing arterial stiffness is from mouse studies (Clayton 2023: aged mice; Venkatasubramanian 2025: doxorubicin-treated young adult mice as a chemotherapy-induced vascular aging model); no powered human aging trial has been completed.
 - `#gap/needs-replication` — single-cell aging atlas data for human aortic VSMCs across multiple age decades is lacking; current scRNA evidence is from small-n or disease-context datasets (progeria, CKD).
@@ -174,7 +173,7 @@ Navitoclax (ABT-263, a BCL-2/BCL-xL inhibitor with senolytic activity) is the be
 - [[chronic-inflammation]] — hallmark; SASP and systemic inflammaging drive osteogenic switching
 - [[mitochondrial-dysfunction]] — hallmark; mtROS amplifies osteogenic susceptibility and senescence
 - [[sasp]] — the paracrine secretory program of senescent VSMCs
-- [[arteries]] — tissue page (implicit stub; #gap/needs-page)
+- [[arteries]] — tissue page
 - [[heart]] — downstream target of VSMC-driven arterial stiffness (coronary artery disease, diastolic dysfunction)
 - [[myocardium]] — affected by upstream changes in aortic impedance secondary to VSMC-driven stiffness
 - [[mediterranean-diet]] — dietary intervention targeting inflammatory VSMC osteogenic triggers

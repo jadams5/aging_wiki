@@ -23,7 +23,7 @@ verified-scope: "Cohen 2006, Komor 2016, Gaudelli 2017, Chadwick 2017 claims ver
 
 A single-administration in-vivo somatic-cell gene-editing therapy that permanently silences the hepatic *PCSK9* gene using adenine base-editing (ABE) delivered by lipid nanoparticles (LNPs), producing durable LDL cholesterol reduction without a double-strand DNA break. VERVE-101 (SaCas9-ABE8e + PCSK9-targeting guide RNA) entered Phase 1b (heart-1) in patients with heterozygous familial hypercholesterolemia (HeFH) and established cardiovascular disease, making it the first in-vivo base-editing therapeutic in human clinical trials. VERVE-102, a second-generation product using an engineered nuclease with improved precision, is currently recruiting (heart-2, Phase 1b). **Human evidence is limited to Phase 1b dose-escalation; no Phase 2 or hard cardiovascular endpoint data exist as of 2026-05-06.**
 
-See [[pcsk9]] for full PCSK9 protein biology. #gap/needs-stub — [[pcsk9]] does not yet have a page; seed as R24+ priority.
+See [[pcsk9]] for full PCSK9 protein biology.
 
 ---
 

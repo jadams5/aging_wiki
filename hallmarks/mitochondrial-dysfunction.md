@@ -230,7 +230,7 @@ Acute exercise transiently induces mitophagy (PINK1/Parkin + receptor arms), act
 
 ### NAD+ precursors (NMN, NR)
 
-Preclinical rationale: NAD+ decline with age reduces SIRT1/3 deacetylase activity, which activates PGC-1α and mitochondrial biogenesis, and reduces AMPK activity, which suppresses mitophagy induction. However, human trials have been largely null on canonical mitochondrial endpoints. See [[nmn]] and [[nr]] (both drafted) — Yoshino 2021 design crossover corrected to parallel-group, muscle NAD+ DID NOT change, mitochondrial respirometry DID NOT change (major corrections per ROADMAP round 9). The NAD+–mitochondrial axis in humans is contested. #gap/contradictory-evidence
+Preclinical rationale: NAD+ decline with age reduces SIRT1/3 deacetylase activity, which activates PGC-1α and mitochondrial biogenesis, and reduces AMPK activity, which suppresses mitophagy induction. However, human trials have been largely null on canonical mitochondrial endpoints. See [[nmn]] and [[nr]] (both drafted) — Yoshino 2021 design crossover corrected to parallel-group, muscle NAD+ DID NOT change, mitochondrial respirometry DID NOT change (major corrections from the R9 verification pass; see [[log/R9]]). The NAD+–mitochondrial axis in humans is contested. #gap/contradictory-evidence
 
 ### Mitochondria-targeted antioxidants (MitoQ, SkQ1)
 
