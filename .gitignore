@@ -5,6 +5,10 @@
 # ============================================================================
 protocols/
 
+# Agent config directories
+.agents
+.codex
+
 # Claude Code local/per-machine config (paths, permission allowlists)
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
