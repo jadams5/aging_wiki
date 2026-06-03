@@ -1,6 +1,6 @@
 ---
 type: process
-aliases: [mitochondrial DNA, mitochondrial genome, mtGenome, human mtDNA]
+aliases: [mitochondrial DNA, mitochondrial-dna, mitochondrial genome, mtGenome, human mtDNA, mtDNA]
 key-proteins: ["[[polg]]", "[[tfam]]", "[[twinkle-helicase]]", "[[ssbp1]]", "[[polg2]]"]
 pathways: ["[[oxphos]]", "[[cgas-sting]]", "[[mitochondrial-biogenesis]]"]
 hallmarks: ["[[mitochondrial-dysfunction]]", "[[genomic-instability]]"]

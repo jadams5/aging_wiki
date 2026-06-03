@@ -1578,6 +1578,59 @@ WHERE contains(mechanisms, "estrogen-receptor-agonist")
 
 ---
 
+### androgen-receptor-agonist
+
+**Added:** 2026-06-03 — first compound page: [[molecules/compounds/testosterone]]
+
+**Definition:** Compounds that bind and activate androgen receptors (AR / *NR3C4*), ligand-activated transcription factors of the nuclear receptor superfamily expressed in muscle, bone, bone marrow, liver, skin, prostate, brain, and cardiovascular tissue. AR ligand binding causes receptor dissociation from HSP90 chaperones, homodimerization, nuclear translocation, binding to androgen response elements (AREs), and recruitment of coactivator complexes — driving transcription of target genes including those controlling protein synthesis (muscle), IGF-1 production (liver), erythropoiesis (EPO/kidney axis), and reproductive function. In skeletal muscle, AR activation upregulates mTORC1 and satellite-cell proliferation, driving anabolic hypertrophy. In bone, testosterone has a bifurcated mechanism: direct AR agonism on osteoblasts supports periosteal bone formation, while aromatase-mediated conversion to 17β-estradiol (acting via ER-α encoded by *ESR1*) is the dominant driver of trabecular bone homeostasis and epiphyseal closure. This dual mechanism (AR direct + ER-α via aromatization) is a defining feature of testosterone that distinguishes it from synthetic androgens that resist aromatization (e.g., oxandrolone, DHT). 5α-reduction to dihydrotestosterone (DHT) by SRD5A1/SRD5A2 produces a more potent non-aromatizable AR agonist relevant in prostate, skin, and scalp.
+
+**Key distinction — testosterone vs synthetic androgens:**
+This class is specifically for **natural or bioidentical androgen receptor agonists** (testosterone and its ester prodrugs: testosterone enanthate, testosterone cypionate, testosterone undecanoate, testosterone propionate). Synthetic non-aromatizable androgens (oxandrolone, stanozolol, nandrolone) and selective androgen receptor modulators (SARMs — enobosarm/ostarine, ligandrol, RAD-140) are pharmacologically distinct sub-classes with different tissue selectivity, aromatization profiles, and safety signals. Use `synthetic-androgen` or `sarm-receptor-agonism` on their pages to enable disambiguation. **DHT-based compounds** (finasteride-targeted: 5α-reduced non-aromatizable) should note this in body prose.
+
+**Canonical values in use:** `androgen-receptor-agonist`, `ar-agonism`
+
+**Hallmarks primarily targeted:** [[altered-intercellular-communication]] (testosterone is a systemic endocrine hormone whose age-related decline constitutes a quantitative shift in intercellular communication), [[stem-cell-exhaustion]] (satellite cell and erythroid progenitor support), [[deregulated-nutrient-sensing]] (muscle AR × mTORC1 anabolic signaling axis)
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "androgen-receptor-agonist")
+  OR contains(mechanisms, "ar-agonism")
+```
+
+---
+
+### progesterone-receptor-agonist
+
+**Added:** 2026-06-03 — first compound page: [[molecules/compounds/progesterone]]
+
+**Definition:** Compounds that bind and activate progesterone receptors (PR-A and PR-B isoforms of *PGR*, and membrane progesterone receptors of the *PAQR* family), which are ligand-activated transcription factors of the nuclear receptor superfamily. PR-A and PR-B share a common ligand-binding domain but differ at the N-terminal A/B domain; PR-A acts primarily as a transcriptional repressor of ER-mediated gene programs, while PR-B drives classical progestational effects (endometrial secretory transformation, myometrial quiescence). Ligand binding causes receptor dimerization, binding to progesterone response elements (PREs) in gene promoters, and recruitment of coactivator/corepressor complexes. Endogenous progesterone also generates the neurosteroid allopregnanolone (3α,5α-tetrahydroprogesterone) via local neuronal 5α-reductase and 3α-hydroxysteroid dehydrogenase activity — allopregnanolone is a potent positive allosteric modulator of GABA-A receptors and operates independently of nuclear PR.
+
+**Critical class distinction — progesterone vs synthetic progestins:**
+This class is specifically for **bioidentical progesterone** (identical to the endogenous C-21 steroid *pregn-4-ene-3,20-dione*). Synthetic progestins (medroxyprogesterone acetate / MPA, norethisterone acetate / NETA, levonorgestrel, drospirenone, desogestrel, dienogest) are classified under `synthetic-progestin` — a **distinct sub-class** with different pharmacological profiles:
+- MPA activates glucocorticoid and androgen receptors in addition to PR; it does not generate allopregnanolone; it shows adverse cardiovascular and breast-cancer signals in WHI that are not observed with bioidentical progesterone.
+- Levonorgestrel and NETA are 19-norsteroids with significant androgenic receptor activity.
+The two sub-classes must not be conflated in Dataview queries or evidence claims. Pages for synthetic progestins should use `synthetic-progestin` to enable disambiguation.
+
+**Canonical values in use:** `progesterone-receptor-agonist`, `pr-a-pr-b-agonist`, `allopregnanolone-precursor`, `synthetic-progestin` (progestin sub-class, distinct)
+
+**Note on membrane progesterone receptors (mPR/PAQR):** Progesterone also binds membrane progesterone receptors (mPRα, mPRβ, mPRγ — products of the *PAQR* gene family) and the progesterone receptor membrane component 1 (PGRMC1), activating non-genomic signalling cascades. These non-genomic receptors contribute to rapid progesterone effects on sperm motility, neuroprotection, and cell survival signaling. Their contribution to aging-relevant biology is incompletely characterised. List `progesterone-receptor-agonist` as the umbrella value; note membrane-receptor biology in body prose.
+
+**Hallmarks primarily targeted:** [[altered-intercellular-communication]] (progesterone is a central endocrine-paracrine signal in the female reproductive axis; its perimenopausal decline is an intercellular communication shift with broad tissue consequences); [[cellular-senescence]] (endometrial protection — opposing estrogen-driven proliferative senescence risk); brain aging via [[altered-intercellular-communication]] (allopregnanolone GABA-A modulation)
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "progesterone-receptor-agonist")
+  OR contains(mechanisms, "pr-a-pr-b-agonist")
+  OR contains(mechanisms, "allopregnanolone-precursor")
+  OR contains(mechanisms, "synthetic-progestin")
+```
+
+---
+
 ### systemic-milieu-restoration
 
 **Added:** 2026-05-29 — first intervention page: [[interventions/blood-product/heterochronic-parabiosis]]
@@ -1606,6 +1659,43 @@ WHERE contains(mechanisms, "systemic-milieu-restoration")
   OR contains(mechanisms, "young-factor-introduction")
   OR contains(mechanisms, "aged-factor-removal")
   OR contains(mechanisms, "dilution-effect")
+```
+
+---
+
+### aromatase-inhibition
+
+**Added:** 2026-06-03 — first intervention page: [[interventions/pharmacological/aromatase-inhibitors]]
+
+**Definition:** Pharmacological agents that suppress systemic estrogen biosynthesis by blocking [[cyp19a1]] (aromatase / CYP19A1), the cytochrome P450 enzyme that catalyses the irreversible aromatization of androgens (androstenedione → estrone; testosterone → 17β-estradiol) in peripheral tissues (adipose, breast, liver, bone, brain). Two mechanistic sub-classes:
+
+- **Non-steroidal / reversible (`non-steroidal-aromatase-inhibitor`):** competitive inhibitors that bind the active site via a triazole or imidazole nitrogen coordinating the heme Fe²⁺ of CYP19A1 without covalent bond formation; inhibition is reversible on drug removal. Canonical agents: anastrozole and letrozole (third-generation). These achieve >99% estrogen suppression in postmenopausal women.
+- **Steroidal / irreversible (`steroidal-aromatase-inhibitor`):** substrate-analogue inhibitors (type I; exemestane) that act as pseudo-substrates, binding CYP19A1 irreversibly via covalent adduct formation at the active site. Effect persists until new enzyme is synthesized. Exemestane (6-methyleneandrosta-1,4-diene-3,17-dione) also has weak androgenic activity at the AR due to its steroidal scaffold.
+
+Mechanism of downstream suppression: androgen-to-estrogen conversion is the sole estrogen-production route in postmenopausal women (ovarian estrogen synthesis has ceased); AIs therefore drive 17β-estradiol to near-undetectable levels in postmenopausal plasma. In premenopausal women, AIs trigger a reflex rise in FSH via loss of estrogen-mediated negative feedback on the pituitary → compensatory ovarian hyperactivation; ovarian suppression (GnRH agonist or oophorectomy) is therefore required for clinical efficacy in premenopausal settings.
+
+**Key biological context for aging:** Because estrogen is bone-protective (suppresses RANKL-driven osteoclast activity via ESR1 on osteoblasts and osteoclasts), near-total estrogen deprivation produces accelerated trabecular bone loss, reduced BMD, and excess fracture risk — modeling the extreme of estrogen deficiency as an experimental paradigm. AI-exposed patients are therefore an important human model for studying estrogen's role in bone aging (see [[osteoporosis]], [[cyp19a1]], [[estradiol]]).
+
+**Distinct from:**
+- `estrogen-receptor-agonist` — acts at ER directly; AIs reduce the ligand, not the receptor.
+- `selective-estrogen-receptor-modulators` (SERMs) — tissue-selective ER partial agonists/antagonists (tamoxifen, raloxifene); SERMs block ER in breast while acting as ER agonists in bone → bone-protective (mechanistically opposite to AIs on the bone axis).
+
+**Canonical values in use:** `aromatase-inhibition`, `non-steroidal-aromatase-inhibitor`, `steroidal-aromatase-inhibitor`, `estrogen-suppression`
+
+**Hallmarks primarily targeted:** [[altered-intercellular-communication]] (estrogen is a systemic endocrine/paracrine signal; AI-mediated suppression represents a profound quantitative shift in intercellular communication with multi-tissue consequences)
+
+**Secondary hallmarks (negative consequences of mechanism):** [[loss-of-proteostasis]] (bone ECM degradation under estrogen deprivation); [[chronic-inflammation]] (joint inflammation / arthralgia is a common on-mechanism adverse effect)
+
+**Translation-gap note:** AIs are FDA-approved for cancer indications; the aging-wiki relevance is as a mechanistic estrogen-deprivation model and for cancer survivors where AI-accelerated bone aging is managed with anti-resorptive co-therapy.
+
+**Constituent intervention pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "aromatase-inhibition")
+  OR contains(mechanisms, "non-steroidal-aromatase-inhibitor")
+  OR contains(mechanisms, "steroidal-aromatase-inhibitor")
+  OR contains(mechanisms, "estrogen-suppression")
 ```
 
 ---
@@ -1956,6 +2046,38 @@ WHERE contains(mechanisms, "glp1-receptor-agonist")
   OR contains(mechanisms, "dual-incretin-agonist")
   OR contains(mechanisms, "triple-incretin-agonist")
   OR contains(mechanisms, "gipr-agonism")
+```
+
+---
+
+### selective-estrogen-receptor-modulation
+
+**Added:** 2026-06-03 — first intervention page: [[interventions/pharmacological/selective-estrogen-receptor-modulators]]
+
+**Definition:** Ligands for estrogen receptor α (ESR1) and/or estrogen receptor β (ESR2) that function as tissue-selective mixed agonists/antagonists — agonist in some tissues, antagonist in others — depending on local coactivator/corepressor availability, receptor subtype expression, and compound-specific conformational effects on the receptor's AF-2 helix. The class is mechanistically distinct from:
+
+- **`estrogen-receptor-agonist`** (pure agonists: 17β-estradiol, estrone, estriol — covered on [[interventions/pharmacological/topical-estrogens]] and systemic HRT pages)
+- **`aromatase-inhibitor`** (letrozole, anastrozole, exemestane — block estradiol synthesis upstream of the receptor)
+- **`estrogen-receptor-degrader`** (SERDs: fulvestrant, elacestrant — degrade the receptor; mechanistically distinct from SERMs that stabilize a distinct conformational state)
+
+The class concept is explicitly pharmaceutical: capture estrogen's tissue-beneficial effects (bone anabolism, lipid-lowering, breast protection) while simultaneously antagonizing estrogen's proliferative effects in tissues (breast, endometrium) where ER activation is harmful. This decoupling is only partial — no SERM achieves full benefit-without-harm across all tissues simultaneously.
+
+**Canonical values in use:** `selective-estrogen-receptor-modulation`, `estrogen-receptor-modulation`
+
+**Note on compound-level vs class-level values:** Individual SERM compound pages may additionally carry `esr1-antagonism` or `esr2-modulation` as mechanism values reflecting the dominant activity in a specific tissue context (e.g., tamoxifen's breast antagonist profile). The class value `selective-estrogen-receptor-modulation` should appear on the class-level intervention page and optionally on individual compound pages to ensure Dataview coverage here.
+
+**Hallmarks primarily targeted:** [[altered-intercellular-communication]] (estrogen is a systemic endocrine intercellular signal whose dysregulation at menopause accelerates multiple age-related processes; SERMs modify this signaling in a tissue-dependent manner), [[chronic-inflammation]] (raloxifene's bone-protective mechanism involves suppression of osteoclast-activating cytokines; bone-loss-driven inflammation is relevant to aging), [[stem-cell-exhaustion]] (bone-protective SERMs preserve trabecular bone mass and the bone marrow niche indirectly)
+
+**Aging-relevance framing:** SERMs represent the pharmacological attempt to decouple estrogen's protective effects (bone density, cardiovascular lipids) from its risks (breast cancer, endometrial cancer, venous thromboembolism). This decoupling is tissue-by-tissue and imperfect — every approved SERM carries its own tissue-specific trade-off profile. None is established as a geroprotector or longevity drug; aging relevance is indirect via bone/fracture outcomes and breast cancer prevention in postmenopausal women.
+
+**Translation-gap note:** Strong human evidence for raloxifene (fracture prevention, breast cancer prevention), tamoxifen (breast cancer treatment and prevention), and ospemifene (genitourinary syndrome). No SERM has an explicit aging-longevity or healthspan indication. The class's main aging contribution is fracture prevention (major morbidity/mortality driver in aged women) and cancer chemoprevention.
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "selective-estrogen-receptor-modulation")
+  OR contains(mechanisms, "estrogen-receptor-modulation")
 ```
 
 ---

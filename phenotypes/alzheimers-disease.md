@@ -10,7 +10,7 @@ prevalence-65plus: "~10% at age 65; ~30–50% at age 85+ (varies by diagnostic c
 verified: true
 verified-date: 2026-05-04
 verified-by: claude
-verified-scope: "Hara 2006 (Atg5), Komatsu 2006 (Atg7), Guerreiro 2013 (TREM2), van Dyck 2023 (lecanemab), Sims 2023 (donanemab), Strittmatter 1993 (APOE) verified against local PDFs. Jonsson 2013 OR verified via PubMed abstract (PDF download failed). Hardy & Higgins 1992, Hardy & Selkoe 2002, Corder 1993 unverifiable — closed-access (not_oa)."
+verified-scope: "Hara 2006 (Atg5), Komatsu 2006 (Atg7), Guerreiro 2013 (TREM2), van Dyck 2023 (lecanemab), Sims 2023 (donanemab), Strittmatter 1993 (APOE) verified against local PDFs. Jonsson 2013 OR verified via PubMed abstract (PDF download failed). Hardy & Higgins 1992, Hardy & Selkoe 2002, Corder 1993 unverifiable — closed-access (not_oa). Sex-differences section verified 2026-06-03: Mosconi 2017 verified against local PDF; Neu 2017 ORs/CIs/P-value verified against PubMed abstract (PMID 28846757); Coughlan/Buckley 2026 and Li 2026 existence and key claims verified against PubMed abstracts (PMID 41697669; Crossref DOI 10.1002/alz.71031); Xiong 2022 verified against local PDF; Snyder 2016 issue corrected 10→11; Mishra 2022 framing verified via PubMed abstract (PMID 34929348). Neu 2017 and Snyder 2016 full PDFs not locally archived (download failed)."
 ---
 
 # Alzheimer's Disease
@@ -165,6 +165,32 @@ For evidence derived from mouse AD models, the standard extrapolation caveat app
 | Phenotype conserved in humans? | partial (plaques: yes; NFT cascade: partial) |
 | Replicated in humans? | yes (human pathology is the gold standard) |
 
+## Sex differences
+
+Women constitute roughly two-thirds of AD cases worldwide [^snyder2016]. The dominant explanation has historically been longevity: women live longer on average, and more people therefore reach the high-risk ages (85+) where AD prevalence approaches 30–50%. However, the epidemiological picture is more complicated. Incidence rates per person-year — which control for age — also appear modestly elevated in women in some (though not all) population studies, and multiple lines of biological evidence point to sex-specific mechanisms that act independently of survival advantage [^snyder2016].
+
+### APOE ε4 × sex interaction
+
+The APOE ε4 risk effect is stronger in women in a specific age window. A meta-analysis by Neu et al. 2017 (JAMA Neurology; meta-analysis of published studies) found that women with the APOE ε3/ε4 genotype had an elevated AD odds ratio of 4.37 (95% CI 3.82–5.00) between ages 65–75, compared to 3.14 (95% CI 2.68–3.67) in men of the same genotype and age range (P = .002) [^neu2017]. Across the full age range of 55–85, overall sex-stratified ORs converge, suggesting the interaction is most pronounced during the perimenopausal and early postmenopausal decades. The mechanism is not established: candidates include estrogen-withdrawal reducing APOE-dependent Aβ clearance efficiency, sex-specific lipid metabolism differences, and immune-gene-by-hormone interactions. #gap/no-mechanism
+
+### Menopause, estrogen decline, and the bioenergetic window hypothesis
+
+The perimenopausal transition is proposed as a critical vulnerability window for AD. Mosconi et al. 2017 (PLoS One; observational neuroimaging in women across reproductive stages) found that perimenopausal and postmenopausal women showed reduced cerebral glucose metabolism (FDG-PET) in AD-vulnerable regions including the posterior cingulate and lateral parietal cortex, correlated with declining mitochondrial cytochrome oxidase activity, relative to premenopausal controls [^mosconi2017]. This "bioenergetic crisis" framing, developed further by Mishra & Brinton (Ageing Research Reviews 2022), holds that estrogen withdrawal drives a switch from aerobic glucose metabolism to lipid oxidation in neurons, creating conditions of brain glucose hypometabolism that overlap with early AD metabolic signatures [^mishra2022]. APOE4 status is proposed to accelerate this transition. See [[menopause]] and [[estradiol]].
+
+**MHT for AD prevention is not established.** Despite the mechanistic plausibility of the estrogen-decline hypothesis, evidence that menopausal hormone therapy (MHT) prevents AD in clinical trials is not supportive overall. The [[estradiol]] page documents the Melville 2025 (and broader MHT literature) negative findings on AD incidence endpoints — the timing hypothesis (early vs late MHT initiation) remains under investigation but lacks a definitive positive RCT.
+
+### Tau pathology sex differences
+
+Women may carry a disproportionate tau burden for a given amyloid level. Two 2026 papers provide current evidence. Coughlan, Buckley et al. (JAMA Neurology 2026) found that women had significantly higher baseline p-tau217 levels at higher aggregated amyloid-beta levels and showed greater tau deposition at elevated phospho-tau thresholds [^coughlan2026]. A concurrent meta-analysis by Li, Coughlan et al. (Alzheimer's & Dementia 2026) found that elevated temporal tau PET signal predicted faster cognitive decline in women than men [^li2026]. These observations suggest that when amyloid triggers tau spread, the propagation may be more efficient or the downstream cognitive impact more severe in female biology — though the mechanisms (hormonal, X-linked immune, microglial sex-dimorphism) are not resolved. #gap/no-mechanism
+
+### FSH-direct-action hypothesis
+
+A candidate mechanistic link between menopause and AD biology is the rise in follicle-stimulating hormone (FSH) that accompanies ovarian senescence. Xiong, Ye et al. (Nature 2022) showed that blocking FSH with an antibody in female mice with AD-relevant pathology reduced cognitive decline and lowered amyloid-beta and tau burden, proposing a "causal role for rising serum FSH levels in exaggerated Alzheimer's disease pathophysiology during menopause" [^xiong2022]. See [[fsh]] for the mechanistic detail and contested status of this hypothesis (mouse data only; the FSH receptor's expression and function in human neurons remain debated). #gap/needs-human-replication
+
+### X-chromosome and immune contributions
+
+Female immune biology is a less-characterized contributor to sex-biased AD risk. Women mount stronger innate and adaptive immune responses, which may modulate microglial reactivity and SASP amplitude over time. X-linked escape from inactivation in immune-relevant genes (TLR7, TLR8, and others expressed from both X chromosomes in some female cells) is proposed to elevate baseline inflammatory tone. See [[x-chromosome-inactivation]] for the aging-relevant biology of XCI skewing and X-linked gene dosage in aged tissue. Whether these mechanisms meaningfully alter AD trajectory in humans is not established. #gap/needs-human-replication
+
 ## Limitations and gaps
 
 - **Amyloid controversy:** Failures of BACE1 inhibitors (which reduced Aβ more effectively than anti-amyloid antibodies) and the initially conflicting aducanumab trials raised doubts about amyloid causality. The lecanemab/donanemab successes partially rehabilitate the hypothesis but absolute effects are modest. Whether amyloid is cause, cofactor, or consequence remains debated. #gap/contradictory-evidence
@@ -197,5 +223,19 @@ For evidence derived from mouse AD models, the standard extrapolation caveat app
 [^sims2023]: [[studies/sims-2023-donanemab-trailblazer-alz2]] · doi:10.1001/jama.2023.13239 · Sims JR et al. · JAMA 2023;330(6):512-527 · rct · n=1,736 randomized (860 donanemab, 876 placebo) · 76 weeks · donanemab 700 mg then 1400 mg IV q4w · iADRS slowing 35.1% (95% CI 19.90–50.23%; p<0.001) in low/medium tau subgroup (n=1,182); 22.3% (95% CI 11.38–33.15%; p<0.001) in combined population · CDR-SB slowing 36.0% (low/medium tau) / 28.9% (combined) · ARIA-E 24.0% (205/860) / ARIA-H 31.4% (268/860) (Table 3); 3 treatment-related deaths · archive: local PDF at 
 
 [^cma-tau-ref]: Tau as CMA substrate discussed on [[chaperone-mediated-autophagy]] (verified-partial). Impaired LAMP-2A in aging reduces CMA capacity, implicating CMA dysfunction in tau accumulation. #gap/needs-replication — direct causal evidence in human AD limited.
+
+[^snyder2016]: doi:10.1016/j.jalz.2016.08.004 · Snyder HM et al. · Alzheimer's & Dementia 2016;12(11):1186-1196 · review · Women's Alzheimer's Research Initiative think tank; documents ~two-thirds female proportion among US AD cases and frames the longevity vs sex-specific biology debate · n=N/A (review)
+
+[^neu2017]: doi:10.1001/jamaneurol.2017.2188 · Neu SC et al. · JAMA Neurology 2017;74(10):1178-1189 · meta-analysis · APOE ε3/ε4: women OR=4.37 (95% CI 3.82–5.00) vs men OR=3.14 (95% CI 2.68–3.67) ages 65–75 (P=.002); risks converge across full age range 55–85 · model: human (meta-analysis of published studies)
+
+[^mosconi2017]: doi:10.1371/journal.pone.0185926 · Mosconi L et al. · PLoS One 2017;12(10):e0185926 · observational neuroimaging · perimenopausal and postmenopausal women showed reduced cerebral glucose metabolism in AD-vulnerable regions (FDG-PET) correlated with mitochondrial cytochrome oxidase activity decline vs premenopausal controls · model: human women across reproductive stages
+
+[^mishra2022]: doi:10.1016/j.arr.2021.101542 · Mishra A & Brinton RD · Ageing Research Reviews 2022;74:101542 · review · menopausal transition triggers metabolic and immune system shifts increasing AD vulnerability; APOE4 accelerates the "bioenergetic crisis" framing of estrogen-withdrawal
+
+[^coughlan2026]: doi:10.1001/jamaneurol.2025.5670 · Coughlan GT & Buckley RF et al. · JAMA Neurology 2026;83(4):369-381 · observational · women had significantly higher baseline p-tau217 at higher amyloid-beta burden and greater tau deposition at elevated phospho-tau thresholds than men · model: human
+
+[^li2026]: doi:10.1002/alz.71031 · Li A & Coughlan GT et al. · Alzheimer's & Dementia 2026;22(2):e71031 · meta-analysis · elevated temporal tau PET predicts faster cognitive decline in women than men · model: human (meta-analysis)
+
+[^xiong2022]: doi:10.1038/s41586-022-04463-0 · Xiong J & Ye K et al. · Nature 2022;603(7901):470-476 · in-vivo · FSH blockade (antibody) reduced cognitive decline and amyloid-beta/tau burden in female AD-model mice; proposed causal role for rising FSH in menopause-associated AD exacerbation · model: mus-musculus female #gap/needs-human-replication
 
 [^geronimo2026]: [[studies/geronimo-olvera-2026-apoe2-dna-repair-senescence]] · doi:10.1111/acel.70494 · PMID:42103698 · PMC13156074 · in-vitro (isogenic human iPSC-derived GABAergic + Ngn2 glutamatergic neurons; ε2/ε2, ε3/ε3, ε4/ε4) + in-vivo (16-mo female human-APOE targeted-replacement B6.129P2 mice, n=3–4/genotype) · model: human + mouse · Gerónimo-Olvera C et al. 2026 *Aging Cell* 25(5):e70494 — APOE2 neurons reduce DNA damage (γH2AX/comet), enhance DDR resolution (53BP1, p-ATM), preserve Lamin A/C + H3K9me3 under stress, maintain nuclear HMGB1, restrain rRNA, and resist p16/CRYAB induction; aged APOE2 mouse hippocampus recapitulates the lamin/H3K9me3/HMGB1/nucleolar signature; recombinant APOE2 (50 ng/mL twice-weekly from day 11) partially rescues APOE4 DDR phenotype in trans (pγH2AX + 53BP1 foci number AND size both reduced) · PMC HTML full text (PMC13156074) verified 2026-05-20 (CC-BY 4.0 gold OA; journal PDF not locally archived)

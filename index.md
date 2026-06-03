@@ -21,6 +21,10 @@ Anatomical overlay (by body system):
 
 - [[by-organ-system]] — index of the 11 body-system MOCs; slices the atomic layer by anatomy rather than by molecular damage type
 
+Biological-axis overlay:
+
+- [[sex-differences-in-aging]] — slices the atomic layer by biological sex: the female & male reproductive-endocrine axes, distinctively-sexed mechanisms (X-inactivation, mother's curse), and the sex-bias in major aging diseases
+
 Cross-cutting intervention slicers:
 
 - [[frameworks/interventions-by-hallmark]] — intervention evidence matrix by hallmark (Dataview-driven)

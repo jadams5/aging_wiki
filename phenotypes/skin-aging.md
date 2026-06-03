@@ -10,7 +10,7 @@ prevalence-65plus: "Universal by 65+ in sun-exposed skin; severity varies by cum
 verified: true
 verified-date: 2026-05-05
 verified-by: claude
-verified-scope: "Fisher 1996, Demaria 2014, Hattori 2004, Velarde 2012, Krutmann 2017 verified against primary source PDFs. Purohit 2016 (corrected DOI 10.1016/j.jdermsci.2016.04.004) and Kovacs 2010 (10.1111/j.1365-2133.2010.09946.x) unverifiable — not_oa; tagged accordingly. Fisher 2009 and Sumita 2018 not independently verified (not in scope for this pass). Canonical-database identity fields not applicable to this phenotype page. ADDENDUM 2026-05-27: Sun 2025 (HYAL2 skin RNAi proof-of-concept, PMID 40365494/PMC12069053) added — new '### Hyaluronan turnover and the HYAL2 axis' subsection + therapeutic-landscape pointer; PDF cross-checked 2026-05-27 — accurate; HA-direction contradictory-evidence framing confirmed as fairly stated (Sun 2025 mouse UVB = HA decreases; human solar-elastosis literature = HA accumulates; species/compartment/measurement confound noted). Acute UVB dose corrected in footnote to '300 mJ/cm² total over 5 days' (not per-day). No corrections to body text required."
+verified-scope: "Fisher 1996, Demaria 2014, Hattori 2004, Velarde 2012, Krutmann 2017 verified against primary source PDFs. Purohit 2016 (corrected DOI 10.1016/j.jdermsci.2016.04.004) and Kovacs 2010 (10.1111/j.1365-2133.2010.09946.x) unverifiable — not_oa; tagged accordingly. Fisher 2009 and Sumita 2018 not independently verified (not in scope for this pass). Canonical-database identity fields not applicable to this phenotype page. ADDENDUM 2026-05-27: Sun 2025 (HYAL2 skin RNAi proof-of-concept, PMID 40365494/PMC12069053) added — new '### Hyaluronan turnover and the HYAL2 axis' subsection + therapeutic-landscape pointer; PDF cross-checked 2026-05-27 — accurate; HA-direction contradictory-evidence framing confirmed as fairly stated (Sun 2025 mouse UVB = HA decreases; human solar-elastosis literature = HA accumulates; species/compartment/measurement confound noted). Acute UVB dose corrected in footnote to '300 mJ/cm² total over 5 days' (not per-day). No corrections to body text required. ADDENDUM 2026-06-03: Sex-differences section verified — Brincat 1983 PDF read end-to-end (48% collagen difference confirmed, cross-sectional design confirmed, no '30%/5yr' assertion); Brincat 1987 abstract confirmed (1–2%/yr rate, Obstet Gynecol 70(6):840-5; volume/issue/pages added to footnote); Rittie 2008 closed-access — abstract confirms all load-bearing claims (n=70, sun-protected vs photoaged differential, GREB1 penetration check). ERβ-dominant-in-skin framing consistent with [[esr2]]. One footnote correction: Brincat 1987 volume/issue/pages and abstract content added."
 ---
 
 # Skin Aging
@@ -197,6 +197,42 @@ Reducing HA degradation (rather than topping up HA) is a distinct strategy: a 20
 
 ---
 
+## Sex differences (estrogen and skin aging)
+
+Skin is a steroid-hormone-responsive organ. Both estrogen receptor subtypes are expressed in human skin, with [[esr2]] (ERβ) the dominant isoform in keratinocytes and dermal fibroblasts; ERα ([[esr1]]) is present at lower levels [^zouboulis2007]. Estrogen signalling supports dermal collagen synthesis, maintenance of skin thickness, hydration (via glycosaminoglycan production), and wound healing [^callejaAgius2013]. [[cyp19a1]] (aromatase) is expressed locally in skin, enabling in-situ conversion of androgens to [[estradiol]] — meaning skin is not solely dependent on circulating estrogen for its hormonal milieu [^zouboulis2007].
+
+### Postmenopausal acceleration of skin collagen loss
+
+Collagen content and skin thickness decline with age in both sexes, but this decline accelerates after [[menopause]] when circulating estradiol falls steeply. The oft-repeated claim of "~30% collagen loss in the first 5 years after menopause" is **not well-supported by primary evidence** and should not be stated as fact. The evidence base is as follows:
+
+- Brincat 1983 (n=55 postmenopausal women, cross-sectional; skin hydroxyproline as collagen proxy) found that women receiving estrogen + testosterone implants for 2–10 years had approximately **48% more** skin collagen than age-matched untreated postmenopausal controls [^brincat1983]. This is a between-group association with long-term HRT, not a within-person loss-rate measurement.
+- Brincat 1987 (Obstet Gynecol; n not stated in abstract, observational) reported a collagen decline rate of **~1–2% per year** after menopause and a correlation between skin collagen loss and bone mass decline [^brincat1987]. This is the more directly measured rate; it suggests appreciable but gradual loss, not a sharp 5-year drop.
+- The "30%/5 yr" figure circulates in narrative reviews, apparently as a back-calculation or misattribution. It cannot be traced to a single adequately powered longitudinal primary source in the literature retrieved here. #gap/needs-replication — a controlled longitudinal study directly measuring within-person skin collagen change across the menopausal transition is needed to characterise the loss rate precisely.
+
+### Estrogen therapy effects on aged skin
+
+Topical estradiol (applied to sun-protected skin) increases procollagen I and III mRNA and collagen I protein in postmenopausal women and, to a lesser extent, in age-matched men [^rittie2008]. Critically, this collagen-stimulating effect was absent in photoaged (sun-exposed) forearm and facial skin despite confirmed drug penetration (GREB1 induction across all sites), suggesting that chronic UV damage impairs the estrogen→collagen axis independently of receptor expression [^rittie2008]. Systemic and topical estrogen replacement also increases dermal thickness and glycosaminoglycan content and reduces MMP activity [^callejaAgius2013].
+
+For the dedicated evidence on estrogen formulations, doses, and safety in aged skin, see [[topical-estrogens]].
+
+### Genitourinary skin
+
+[[esr2]]-dependent estrogen signalling is particularly critical in vulvovaginal epithelium, which is highly sensitive to estrogen withdrawal. The resulting syndrome — atrophy, dryness, dyspareunia, and recurrent urinary tract infections — is formally termed [[genitourinary-syndrome-menopause]] (GSM) and is managed primarily with local low-dose estrogen or ospemifene.
+
+### Sex differences in baseline skin biology (men)
+
+Men have a **thicker dermis** and **higher baseline collagen density** than women of the same age throughout adulthood — a difference attributable partly to the direct effects of androgens (testosterone, dihydrotestosterone acting via the androgen receptor) on dermal fibroblast activity and to the absence of the menopausal collagen-loss acceleration [^zouboulis2007] #gap/needs-replication (the comparative dermis-thickness and collagen-content difference is well-described in review literature but primary longitudinal data in matched cohorts are sparse). As a result, male skin tends to age in a more **gradual, linear pattern** rather than showing the step-change associated with menopause. Androgens also drive higher sebum production via sebaceous gland stimulation (5α-reductase converts testosterone → DHT, the primary sebogenic androgen) [^zouboulis2007], which may confer some benefit against trans-epidermal water loss but increases susceptibility to acne. The net effect on intrinsic skin-aging rate between sexes, controlling for UV exposure, is not settled. #gap/needs-replication
+
+| Dimension | Women (postmenopausal) | Men (age-matched) |
+|---|---|---|
+| Dermal collagen trajectory | Accelerated post-menopause; ~1–2%/yr loss estimated | More gradual, no abrupt decline |
+| Skin thickness | Thinner baseline; further loss post-menopause | Thicker baseline; more linear decline |
+| Sebum production | Lower (decreases with estrogen loss) | Higher; androgen-maintained |
+| Estrogen-responsive gene axis | Dominant modulator of skin homeostasis | Contributes (local aromatization via CYP19A1) |
+| Hormone-driven therapeutic window | Topical/systemic estrogen — see [[topical-estrogens]] | No equivalent HRT-for-skin-aging strategy established |
+
+---
+
 ## Limitations and gaps
 
 - **Intrinsic vs photoaging separation:** in human studies, fully UV-naive aged skin (e.g., buttocks biopsies) is rarely available at the scale needed for robust mechanistic comparison. Much "intrinsic aging" data is extrapolated from in vitro fibroblast senescence models.
@@ -237,3 +273,13 @@ Reducing HA degradation (rather than topping up HA) is a distinct strategy: a 20
 [^rodriguezParedes2026]: [[studies/rodriguez-paredes-2026-tapelift-clock]] · doi:10.1038/s41698-026-01302-7 · Rodríguez-Paredes M et al. · npj Precision Oncology · 2026 · observational · n=105 enrolled (89 passed two-stage QC) · elastic-net clock (157 CpGs, RMSE 5.8 yr internal validation) + PC clock (5,021 CpGs, RMSE 4.3 yr) · **Caucasian-only training cohort (Fitzpatrick I–IV)**; "no non-white bias" property derives from Qi 2026 external cross-ethnic validation (n=17), NOT from this paper · Beiersdorf AG/DKFZ collaboration; patent applications filed for TapeLift method · verified=true (PDF read 2026-05-19)
 
 [^sun2025]: doi:10.3389/fmed.2025.1529936 · Sun B, He Y, Zhang L et al. · *Front Med (Lausanne)* 2025;12:1529936 · in-vivo (mouse) + in-vitro · n=3 per group · model: BALB/c nude female 6-wk mice — acute UVB (300 mJ/cm² total over 5 days; 5 MEDs at 100 µW/cm²) + 10-wk chronic photoaging (two-phase: 120 mJ/cm²/wk × 4 wk, then 180 mJ/cm²/wk × 6 wk; 130 MED total); intervention = engineered human ADSCs secreting HYAL2-targeting siRNA via small extracellular vesicles (subcutaneous, 1×10⁶ cells) · HYAL2 upregulated by UVB in mouse dorsal skin; HYAL2 knockdown restored HA + water content, elasticity, epidermal/dermal thickness, reduced wrinkle scores (p<0.05–0.01, one-way ANOVA); paper states HA *decreases* with UV/photoaging; no human-skin HYAL2 data · PMID 40365494 · PMC12069053 (gold OA; PDF verified end-to-end 2026-05-27)
+
+[^brincat1983]: doi:10.1136/bmj.287.6402.1337 · Brincat M, Moniz CF, Studd JW, Darby AJ, Magos A, Cooper D · observational (cross-sectional) · BMJ (Clin Res Ed) 1983;287(6402):1337-1338 · n=55 postmenopausal women (29 untreated; 26 receiving estrogen + testosterone implants for 2–10 years) · p<0.01 · model: human postmenopausal skin biopsies; skin collagen estimated by hydroxyproline content · HRT-treated women showed ~48% more skin collagen than untreated age-matched controls; cross-sectional design cannot establish within-person loss rate; "oestrogen or testosterone, or both, prevents the decrease in skin collagen content that occurs with aging" · PMID 6416400
+
+[^brincat1987]: no DOI assigned (PMID 3120067) · Brincat M, Kabalan S, Studd JW, Moniz CF, de Trafford J, Montgomery J · observational · Obstet Gynecol 1987 Dec;70(6):840-5 · model: postmenopausal women · Reports collagen decline of ~1–2% per year after menopause, and a similar ~1–2%/yr decline in skin thickness, metacarpal index, and forearm bone mineral content; significant correlation among all four parameters suggests shared connective-tissue pathology · #gap/no-fulltext-access — closed access; quantitative details (n per group, SD, test statistics) not confirmable without PDF
+
+[^rittie2008]: doi:10.1001/archderm.144.9.1129 · Rittiè L, Kang S, Voorhees JJ, Fisher GJ · in-vivo · Arch Dermatol 2008;144(9):1129-1140 · n=70 (40 postmenopausal women + 30 age-matched men, all ~75 years, photodamaged) · vehicle-controlled topical estradiol application to sun-protected (hip) vs. photoaged (forearm/face) skin · Topical estradiol increased procollagen I and III mRNA and collagen I protein in sun-protected aged skin in postmenopausal women and, to a lesser extent, age-matched men; no collagen-stimulating effect in photoaged forearm or facial skin despite confirmed estradiol penetration (GREB1 induction); suggests chronic UV damage uncouples the estrogen–collagen axis independently of receptor expression · PMID 18794456
+
+[^callejaAgius2013]: doi:10.1016/j.bpobgyn.2013.06.004 · Calleja-Agius J, Brincat M, Borg M · review · Best Pract Res Clin Obstet Gynaecol 2013;27(5):727-740 · Summary review of skin connective tissue and aging; covers collagen atrophy in menopause, estrogen-supported dermal thickness and elasticity, MMP upregulation with estrogen deficiency; "oestrogen use after the menopause increases collagen content, dermal thickness and elasticity" · PMID 23850161
+
+[^zouboulis2007]: doi:10.1055/s-2007-961807 · Zouboulis CC, Chen W-C, Thornton MJ, Qin K, Rosenfield R · review · Horm Metab Res 2007;39(2):85-95 · Comprehensive review of sex hormone effects on human skin; androgens drive sebaceous gland growth/differentiation, hair growth, epidermal barrier homeostasis, and wound healing; 5α-reductase converts testosterone → DHT as the primary sebogenic androgen; skin also locally synthesizes sex hormones via CYP19A1 (aromatase) and other steroidogenic enzymes; estrogens influence aging, pigmentation, and sebum through ERα and ERβ · PMID 17326004

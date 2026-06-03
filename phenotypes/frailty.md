@@ -19,7 +19,7 @@ prevalence-65plus: "~10–15% aged 65+; ~25–50% aged 85+ (varies by definition
 verified: true
 verified-date: 2026-05-04
 verified-by: claude
-verified-scope: "Mitnitski 2001, Howlett 2013, Justice 2019 PDFs verified against primary source; Fried 2001 verified against PubMed abstract only (full PDF closed-access, bronze OA URL blocked by publisher paywall); Pahor 2014 verified against PubMed abstract; Rockwood 2007 and Clegg 2013 not verified (not_oa, tagged)"
+verified-scope: "Mitnitski 2001, Howlett 2013, Justice 2019 PDFs verified against primary source; Fried 2001 verified against PubMed abstract only (full PDF closed-access, bronze OA URL blocked by publisher paywall); Pahor 2014 verified against PubMed abstract; Rockwood 2007 and Clegg 2013 not verified (not_oa, tagged) | Sex-differences section verified 2026-06-03: Shi 2014 full PDF verified (quantitative FI limits confirmed exactly); Cohen 2018 full PDF verified (dysregulation system claims confirmed); Ahrenfeldt 2019 verified via PMC full text (OR + CI confirmed); Gordon 2018 and Gordon 2019 closed-access (not_oa) — abstract-level only via Crossref metadata; Gordon 2020 (MJA) confirmed via publisher page"
 ---
 
 > ⚠️ Partial-verification note (2026-05-04): Rockwood 2007 (10.1093/gerona/62.7.722) and Clegg 2013 (10.1016/S0140-6736(12)62167-9) are closed-access and could not be verified against full text. Claims sourced from these two papers are tagged #gap/no-fulltext-access. Fried 2001 full-text PDF was blocked by publisher paywall (bronze OA); verified against PubMed abstract only — quantitative HR claims that could not be confirmed from the abstract are flagged.
@@ -180,6 +180,49 @@ The first-in-human senolytic trial by Justice et al. 2019 (n=14 idiopathic pulmo
 | mTOR inhibitors (rapamycin/RAD001) | mTOR hyperactivation in aging; immune remodeling | Mannick 2014 rapalogue improved vaccine response in elderly; frailty RCT absent |
 | IL-6 / IL-1β inhibition (tocilizumab, canakinumab) | Inflammaging; SASP suppression | CANTOS (canakinumab) showed reduced cardiovascular events; frailty endpoint absent |
 | Metformin (TAME trial) | Multi-target geroprotector; AMPK activation | TAME Phase 3 design (Barzilai 2016); not currently ClinicalTrials.gov-registered as of 2026-05 (NCT03138915 cited previously is unrelated — hepatic CT angiography study); see [[metformin]] |
+
+## Sex differences and the male-female health-survival paradox
+
+### The paradox
+
+Across population studies, women have consistently **higher frailty prevalence and higher Frailty Index scores** than age-matched men, yet women have **lower mortality** — both overall and, in most cohorts, at equivalent frailty severity [^gordon2018-paradox] [^gordon2020-review]. This is the "male-female health-survival paradox": women accumulate more health deficits, but survive them better. The paradox is clinically important because it means standard frailty thresholds may carry different prognostic weight by sex.
+
+In a large European cohort (n=113,299 adults aged 50+), women had 56% higher odds of frailty than men after adjustment (OR 1.56, 95% CI 1.51–1.62) [^ahrenfeldt2019]. In FI-based studies using the Beijing Longitudinal Study of Aging (n=3,257 adults 55+), women's FI values were higher at every age, yet their FI ceiling — the submaximal limit beyond which near-complete 5-year mortality is observed — was higher too (women ~0.52 at age 65 vs men ~0.44 at age 60), meaning women tolerate a greater absolute deficit burden before dying [^shi2014-fi-sex].
+
+This is distinct from (but related to) [[female-longevity-advantage]]: the frailty paradox is one specific facet of that broader phenomenon, operating via differential deficit type and survival tolerance rather than simply through lower disease incidence.
+
+### Candidate explanations
+
+No single mechanism is established. The leading candidates are complementary rather than mutually exclusive:
+
+1. **Deficit type, not just quantity.** Women accumulate disproportionately more non-lethal deficits — musculoskeletal pain, depression, sensory impairment, urinary symptoms — that inflate frailty scores without directly increasing short-term mortality risk. Men, by contrast, accumulate fewer but more lethal deficits (cardiovascular disease, respiratory failure, organ dysfunction). Gordon & Hubbard (2019) reviewed sex differences in chronic disease burden and found this differential deficit composition largely, though not fully, accounts for the paradox [^gordon2019-mad]. #gap/contradictory-evidence — the composition hypothesis does not explain survival differences when men and women are matched on equivalent FI levels.
+
+2. **Frailty-instrument sex-specificity.** The Fried Frailty Phenotype applies **sex-specific cutpoints** for grip strength (men <27 kg / women <16 kg; EWGSOP2 thresholds) and gait speed (lowest quintile stratified by sex and height). This design partially corrects for absolute differences in muscle mass, but does not adjust for other dimensions where male/female distributions diverge (e.g., fatigue and weight loss criteria may have different clinical weight by sex). #gap/no-mechanism — whether the sex-adjusted cutpoints overcorrect or undercorrect the true paradox is not established.
+
+3. **Hormonal and endocrine contributors.** Estrogen withdrawal at [[menopause]] accelerates musculoskeletal frailty trajectories — bone loss, adipose redistribution, and anabolic resistance all accelerate perimensopausally. Testosterone decline at [[andropause]] is independently associated with [[sarcopenia]] and grip-strength loss in men; paradoxically, the more precipitous mid-life testosterone drop in men may contribute to earlier-onset lethal deficit accumulation, despite their lower overall frailty burden. The net hormonal effect on the survival vs. frailty balance is unresolved. #gap/no-mechanism
+
+4. **Physiological dysregulation tolerance.** Cohen et al. (2018; InCHIANTI + BLSA + NHANES cohorts) found men have **higher global physiological dysregulation** — particularly in oxygen transport and hematopoietic systems (p<0.001) — than women, yet do not convert to frailty at equivalent rates, suggesting sex-specific thresholds for translating dysregulation into functional deficit [^cohen2018-dysreg]. The mechanism underlying this differential tolerance is unknown.
+
+5. **Behavioural and reporting factors.** Women report more symptoms, seek medical care more often, and may be more willing to endorse functional limitations in survey instruments. This inflates measured FI without necessarily reflecting proportionately worse underlying biology.
+
+### Clinical implications
+
+The paradox means:
+- Frailty scores should not be compared directly across sexes without interpretation context.
+- Men at the same Fried Phenotype frailty level as women may carry higher short-term mortality risk.
+- Intervention trials that do not stratify by sex may mask important effect-size differences. #gap/needs-replication — sex-stratified efficacy data for most frailty interventions (exercise, nutrition, senolytics) are absent from the primary literature [^gordon2020-review].
+
+[^gordon2018-paradox]: doi:10.1016/j.maturitas.2017.09.011 · Gordon EH, Peel NM, Hubbard RE · Maturitas 2018;107:13-18 · observational · review of hospitalised older adults; characterises the male-female health-survival paradox; women more frail, men higher short-term mortality at equivalent frailty · archive: not_oa
+
+[^gordon2020-review]: doi:10.5694/mja2.50466 · Gordon EH, Hubbard RE · Med J Australia 2020;212(4):183-188 · review · sex differences in frailty across definitions; paradox framing; intervention evidence gaps by sex · archive: not_oa
+
+[^gordon2019-mad]: doi:10.1016/j.mad.2019.02.004 · Gordon EH, Hubbard RE · Mech Ageing Dev 2019;179:44-50 · review · examines whether sex differences in chronic disease composition explain the sex-frailty paradox; deficit-type hypothesis; partial support · archive: not_oa
+
+[^shi2014-fi-sex]: doi:10.1093/gerona/glt143 · Shi J, Yang Z, Song X, Yu P, Fang X, Tang Z, Peng D, Mitnitski A, Rockwood K · J Gerontol Biol Sci Med Sci 2014;69(6):702-709 · n=3,257 adults 55+ (Beijing Longitudinal Study of Aging) · observational (5-yr longitudinal) · FI constructed from 35 variables; women's FI higher at every age (F=67.87, p<.001); 99% submaximal FI limit: women 0.52±0.04 (age 65) vs men 0.44±0.02 (age 60); FI ≥99th-percentile limit associated with near-complete 5-yr mortality in both sexes; highest absolute FI: 0.69 in women, 0.61 in men (FI never exceeded 0.7) · archive: gold OA, PDF downloaded
+
+[^ahrenfeldt2019]: doi:10.1007/s00038-019-01270-9 · Ahrenfeldt LJ, Möller S, Thinggaard M, Christensen K, Lindahl-Jacobsen R · Int J Public Health 2019;64(7):1025-1036 · n=113,299 Europeans aged 50+ (SHARE study, 2004–2015) · observational (multi-wave) · frailty defined by modified Fried Phenotype (5 items); women OR 1.56 (95% CI 1.51–1.62) for frailty vs men after adjustment for age, wave, region, education, BMI; frailty prevalence: men 14.9% vs women 20.1%; sex differences largest in Southern Europe; supports the male-female health-survival paradox · archive: PMC7237816 (open access via PMC)
+
+[^cohen2018-dysreg]: doi:10.1093/gerona/glx146 · Cohen AA, Legault V, Li Q, Fried LP, Ferrucci L · J Gerontol Biol Sci Med Sci 2018;73(2):175-184 · n=13,909 total (InCHIANTI n=1,147; BLSA n=1,024; NHANES n=11,738); aged 55+ · observational · men show higher physiological dysregulation globally (β=0.172, p<.0001) and specifically in oxygen transport (β=0.175, p<.0001) and hematopoiesis (β=0.220, p<.0001) but not electrolytes, lipids, or liver/kidney function; higher D_M does not translate to proportionately higher frailty risk in men; supports male-female dysregulation-frailty paradox · archive: gold OA, PDF downloaded
 
 ## Hallmark mapping
 

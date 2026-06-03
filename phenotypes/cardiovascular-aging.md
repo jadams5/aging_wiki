@@ -20,7 +20,7 @@ prevalence-65plus: "Universal — all adults 65+ have detectable cardiovascular 
 verified: true
 verified-date: 2026-05-04
 verified-by: claude
-verified-scope: "Anderson 2019, Bergmann 2015, Lewis-McDougall 2019, North 2012, Donato 2018 verified against local PDFs. Lakatta 2003, Mitchell 2010, Childs 2016 closed-access (not_oa) — PWV ~50% figure and Childs plaque-reduction figure not independently verified against primary source; flagged #gap/no-fulltext-access in footnotes."
+verified-scope: "Anderson 2019, Bergmann 2015, Lewis-McDougall 2019, North 2012, Donato 2018 verified against local PDFs. Lakatta 2003, Mitchell 2010, Childs 2016 closed-access (not_oa) — PWV ~50% figure and Childs plaque-reduction figure not independently verified against primary source; flagged #gap/no-fulltext-access in footnotes. Sex-differences section verified 2026-06-03: El Khoudary 2020 (CIR.0000000000000912) and Sato 2022 (s11883-022-00980-5) closed-access (abstract+PubMed only); Lam 2019 (ehz835) bronze-OA but download failed (abstract+OUP landing page); TRAVERSE (NEJMoa2215025) closed-access (abstract only; cross-checked against verified testosterone.md). Three corrections applied — see verified-date 2026-06-03 log."
 ---
 
 
@@ -208,6 +208,34 @@ Endothelial senescence promotes a pro-thrombotic, pro-inflammatory endothelial p
 
 ---
 
+## Sex differences
+
+### Risk trajectory and the menopausal transition
+
+Premenopausal women have substantially lower CVD incidence than age-matched men — a gap of several years in clinical event timing (the AHA statement characterises this as women developing coronary heart disease "several years later than men"; the commonly cited "~10 year" figure is a population-level approximation that varies by endpoint and cohort). After [[menopause]] the gap narrows markedly, and by the 8th decade women's absolute CVD mortality converges with or exceeds men's, making CVD the leading cause of death in women overall [^elkhoudary2020]. This pattern anchors the **estrogen-cardioprotection concept**: endogenous estradiol (see [[estradiol]]) exerts vasculoprotective effects via nuclear receptor [[esr1]] (ERα) and membrane receptor [[gper]], broadly promoting endothelial NO production, limiting vascular inflammation, and attenuating smooth muscle proliferation.
+
+**Timing hypothesis — nuance required.** The vasculoprotective effects of estrogen appear to be **timing-dependent**. Menopausal hormone therapy (MHT) initiated within approximately 10 years of menopause onset (the "window of opportunity") is associated with reduced CVD incidence in observational cohorts and some trial arms, possibly reflecting a substrate-dependent response: a healthy endothelium can respond to estrogen-mediated NO signalling, whereas an already-diseased artery cannot. MHT initiated late (>10 years post-menopause) did not reduce cardiovascular events in the Women's Health Initiative RCT and increased risk in some subgroups — an important caveat to any simple "estrogen is cardioprotective" framing [^elkhoudary2020]. #gap/contradictory-evidence The biological basis of the timing window is not fully elucidated; leading hypotheses involve cumulative atheromatous disease occluding the estrogenic signalling benefit.
+
+### Sex differences in disease expression
+
+Beyond incidence timing, women and men express cardiovascular aging differently across multiple phenotypic dimensions:
+
+- **HFpEF predominance.** Women account for the majority of HFpEF cases; conversely, men predominate in HFrEF. The sex-HFpEF association is not fully explained by older age at diagnosis — biological factors including higher myocardial fibrosis rates, distinct calcium-handling kinetics, and hormonal withdrawal likely contribute [^lam2019]. The page [[heart-failure]] carries fuller mechanistic detail. #gap/needs-replication for causal mechanism vs associative observation.
+- **Microvascular disease and INOCA/MINOCA.** Women are disproportionately represented among patients with ischemia with non-obstructive coronary arteries (INOCA) and myocardial infarction with non-obstructive coronary arteries (MINOCA) — presentations that are structurally absent from traditional obstructive-atherosclerosis frameworks and historically under-diagnosed when symptom recognition relied on male-typical anginal patterns [^elkhoudary2020]. Coronary microvascular dysfunction and vasospasm are the dominant mechanistic substrates.
+- **Plaque morphology.** Autopsy and intracoronary imaging studies suggest that plaque erosion (thrombus overlying an intact fibrous cap without rupture) is more common in younger women who smoke, whereas fibrous-cap rupture predominates in older women and in men across age groups [^sato2022]. The clinical implication is that erosion-driven ACS may be less detectable by calcium scoring and may respond differently to interventional strategies, though this domain carries significant uncertainty owing to selection bias in autopsy series. #gap/needs-replication
+- **Later onset.** First coronary events occur on average several years later in women than men (the AHA statement uses "several years"; the "~10 year" approximation is widely cited in the literature but represents a population-level average that varies by endpoint and is not explicitly quantified in [^elkhoudary2020]) — a clinically important consideration for risk-stratification thresholds. #gap/needs-replication for the specific year-gap figure.
+- **Historical under-diagnosis and under-treatment.** Women have been enrolled at lower rates in cardiovascular trials (forming only ~20–25% of cohorts in landmark HF trials [^lam2019]) and have historically been under-referred for angiography and revascularization. Under-representation in trials means that evidence-based treatment guidelines rest predominantly on male-derived data.
+
+### Men's cardiovascular aging profile
+
+Men accumulate atherosclerotic burden earlier and more steeply, tracking with earlier LDL oxidation susceptibility, higher lifetime inflammatory exposure, and — though contested — possible pro-atherogenic effects of androgens. Testosterone's cardiovascular role remains unresolved: the TRAVERSE RCT (n=5,246 men ages 45–80 with hypogonadism and pre-existing or high CV risk) found testosterone gel non-inferior to placebo on major adverse cardiovascular events (MACE: 7.0% vs 7.3%, HR 0.96, 95% CI 0.78–1.17), but reported higher incidence of atrial fibrillation, pulmonary embolism, and acute kidney injury in the testosterone arm [^traverse2023]. This precludes a straightforward "testosterone is cardioprotective in men" conclusion; see [[testosterone]] for full evidence. #gap/contradictory-evidence
+
+### Longevity connection
+
+Sex differences in cardiovascular aging are a concrete contributor to the [[female-longevity-advantage]]: women's later and initially lower cardiovascular burden translates directly into lower all-cause mortality across the 6th–8th decades. Conversely, the post-menopausal convergence of CVD risk — occurring over compressed time compared with the decades of slower accumulation in men — may partly explain why women, despite living longer, spend a larger fraction of late life with multimorbidity.
+
+---
+
 ## Limitations and gaps
 
 - **Causality vs correlation**: It remains difficult to disentangle which cardiovascular aging features are causal drivers of clinical disease and which are epiphenomena of lifelong risk factor exposure. #gap/contradictory-evidence
@@ -253,3 +281,11 @@ Endothelial senescence promotes a pro-thrombotic, pro-inflammatory endothelial p
 
 [^bergan_cva]: doi:10.1056/NEJMra055289 · Bergan JJ et al. · *N Engl J Med* 2006;355(5):488-498 · review (landmark) · PMID 16885552 · chronic venous disease mechanism — valve incompetence → reflux → venous hypertension → inflammation. See [[chronic-venous-disease]] for full treatment
 [^maurins_cva]: doi:10.1016/j.jvs.2008.04.029 · Maurins U et al. (Bonn Vein Study) · *J Vasc Surg* 2008;48(3):680-687 · observational, population-based · n=3072 · superficial-vein reflux rises markedly with age, deep does not; population CEAP distribution. See [[chronic-venous-disease]]
+
+[^elkhoudary2020]: doi:10.1161/CIR.0000000000000912 · El Khoudary SR et al. (AHA Scientific Statement) · *Circulation* 2020;142(25):e506–e532 · systematic review / scientific statement · model: human epidemiology · menopause transition & CVD risk; estrogen-cardioprotection concept; timing-of-MHT evidence (WHI and later studies); INOCA/MINOCA epidemiology; midlife as critical prevention window; >600 citations. Closed-access; PMID 33251828.
+
+[^lam2019]: doi:10.1093/eurheartj/ehz835 · Lam CSP et al. · *European Heart Journal* 2019;41(12):1252–1259 · review · model: human (trial + registry data) · women predominate in HFpEF; men in HFrEF; women under-enrolled in HF clinical trials (~20–25% of cohorts); biological and trial-evidence gaps in sex-disaggregated HF care. Closed-access; PMID 31800034.
+
+[^sato2022]: doi:10.1007/s11883-022-00980-5 · Sato Y et al. · *Current Atherosclerosis Reports* 2022;24(3):119–130 · review · model: human (intracoronary imaging + autopsy series) · plaque erosion more common in younger women smokers; fibrous-cap rupture predominates in older women and in men; sex differences in risk factors and coronary calcification patterns; historically under-recognised in women. PMID 35175547.
+
+[^traverse2023]: doi:10.1056/NEJMoa2215025 · Lincoff AM et al. (TRAVERSE investigators) · *N Engl J Med* 2023;389(2):107–117 · rct · n=5,246 men (age 45–80; hypogonadism + elevated CV risk) · testosterone gel vs placebo; MACE 7.0% vs 7.3% (HR 0.96; non-inferior); higher rates of AF, pulmonary embolism, and acute kidney injury in testosterone arm; median follow-up 33 months. PMID 37326322.

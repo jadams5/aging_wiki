@@ -8,6 +8,8 @@ The same atomic page (e.g. `[[cellular-senescence]]`) can be referenced by multi
 
 - [[hallmarks-of-aging]] — by molecular damage type (López-Otín, 12 hallmarks)
 - [[sens-damage-categories]] — by repair strategy (SENS, 7 categories)
+- [[by-organ-system]] — by affected body system (11 organ-system MOCs)
+- [[sex-differences-in-aging]] — by biological sex (reproductive-endocrine axes + distinctively-sexed mechanisms + sex-bias in diseases)
 
 ## Future MOCs (add as needed)
 

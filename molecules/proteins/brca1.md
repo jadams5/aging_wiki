@@ -122,7 +122,7 @@ Most pathogenic variants are frameshift or nonsense mutations (loss of protein).
 
 BRCA1 transcript and protein levels decrease in aging breast epithelium and in the aging ovary [^oktay2020]. This age-associated decline is proposed to reduce HR fidelity in normal (non-malignant) tissue, contributing to the age-related accumulation of somatic mutations and structural variants that underlies cancer risk and tissue dysfunction.
 
-**Ovarian aging:** Oktay and colleagues demonstrated that BRCA1-mutant women show accelerated ovarian aging (lower ovarian reserve, earlier menopause), consistent with a role for BRCA1-dependent DSB repair in protecting primordial follicle oocytes from accumulated oxidative DSBs [^oktay2020] [^oktay2015].
+**Ovarian aging:** Oktay and colleagues demonstrated that BRCA1-mutant women show accelerated [[ovary|ovarian]] aging (lower ovarian reserve, earlier [[menopause]]), consistent with a role for BRCA1-dependent DSB repair in protecting primordial-follicle [[oocytes]] from accumulated oxidative DSBs [^oktay2020] [^oktay2015].
 
 | Dimension | Status |
 |---|---|

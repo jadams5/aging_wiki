@@ -46,7 +46,7 @@ Trabecular and cortical bone accumulate to peak BMD in the late second to early 
 
 ### Post-menopausal acceleration (women 50–60)
 
-Estrogen withdrawal removes a brake on osteoclast activity (estrogen suppresses RANKL and promotes OPG secretion by osteoblasts), producing a ~10–15% BMD loss over 5–10 years post-menopause — predominantly trabecular, producing the early vertebral fracture pattern.
+[[estradiol|Estrogen]] withdrawal at [[menopause]] removes a brake on osteoclast activity (estrogen suppresses RANKL and promotes OPG secretion by osteoblasts), producing a ~10–15% BMD loss over 5–10 years post-menopause — predominantly trabecular, producing the early vertebral fracture pattern.
 
 ### Senile/age-related phase (both sexes, 70+)
 
