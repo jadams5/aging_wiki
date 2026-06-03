@@ -1,6 +1,6 @@
 ---
 type: compound
-aliases: [UA, urolithin-A, 3,8-dihydroxy-6H-benzo[c]chromen-6-one, Mitopure]
+aliases: [UA, urolithin-A, "3,8-dihydroxy-6H-benzo[c]chromen-6-one", Mitopure]
 pubchem-cid: 5488186
 inchikey: RIUPLDUFZCXCHM-UHFFFAOYSA-N
 chembl-id: CHEMBL1836264

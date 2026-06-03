@@ -1,6 +1,6 @@
 ---
 type: compound
-aliases: [Tazorac, Avage, Fabior, Arazlo, tazarotenic acid (active metabolite), ethyl 6-[2-(4,4-dimethylthiochroman-6-yl)ethynyl]nicotinate]
+aliases: [Tazorac, Avage, Fabior, Arazlo, tazarotenic acid (active metabolite), "ethyl 6-[2-(4,4-dimethylthiochroman-6-yl)ethynyl]nicotinate"]
 pubchem-cid: 5381
 inchikey: OGQICQVSFDPSEI-UHFFFAOYSA-N
 chembl-id: CHEMBL1657

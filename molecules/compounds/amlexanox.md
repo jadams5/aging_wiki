@@ -1,6 +1,6 @@
 ---
 type: compound
-aliases: [2-amino-7-isopropyl-5-oxo-5H-chromeno[2,3-b]pyridine-3-carboxylic acid, amolexanox, Aphthasol, Aftol]
+aliases: ["2-amino-7-isopropyl-5-oxo-5H-chromeno[2,3-b]pyridine-3-carboxylic acid", amolexanox, Aphthasol, Aftol]
 pubchem-cid: 2161
 inchikey: SGRYPYWGNKJSDL-UHFFFAOYSA-N
 chembl-id: CHEMBL1096

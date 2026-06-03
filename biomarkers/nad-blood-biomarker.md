@@ -23,6 +23,7 @@ verified: true
 verified-date: 2026-05-18
 verified-by: claude
 verified-scope: "Full-PDF cross-check of the primary negative source ([[studies/tretowicz-2026-blood-nad-stable-aging]]) against the user-supplied 24-page PDF on 2026-05-18. All Trętowicz-2026-derived claims on this page (7 cohorts, n=303, P-values, R² values, pre-analytical artifacts, NR positive-control responsiveness, power-analysis figures) match Results, Methods, and Extended Data Figs 1–7. Corrections applied 2026-05-18: (a) added that −80°C freezing also degrades NAD+ (previously only −20°C was mentioned); (b) added method-validation parameters (LOD 0.21 nmol/mL, LOQ 0.69 nmol/mL, intra/inter-assay CV 12.5%/16.1%); (c) added quantitative NR positive-control values (32→62 nmol/mL, P=1.59e-9). Prior-literature citations (Chaleckis 2016, Wang 2023, Yang 2022, Breton 2020) have NOT been independently PDF-verified — they are summarized from Trętowicz's reference list and abstract level only; flagged for separate verification pass."
+---
 
 # Whole-Blood NAD+ as an Aging Biomarker (refuted, 2026)
 
