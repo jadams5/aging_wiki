@@ -32,7 +32,7 @@ Point the agent at this repo and ask it to onboard you, and it will:
 
 The [`protocols-template/`](protocols-template/) directory is a fake-data skeleton of exactly this layer — copy it, point the agent at it, and start. The privacy boundary is enforced structurally: links run one way (`protocols/ → research`, never the reverse), and a lint gate blocks any personal data from leaking into the public repo.
 
-> This is **research synthesis, not medical advice** — the plan is a structured, citable starting point for you and a clinician, not a prescription. See the caveats below.
+> This is **research synthesis, not medical advice** — the plan is a structured, citable starting point for you and a clinician, not a prescription. See the disclaimer below.
 
 ---
 
@@ -59,6 +59,29 @@ Densely cross-linked **atomic pages** — one per protein, pathway, compound, pr
 ## Disclaimer
 
 This is **research synthesis, not medical advice.** Pages marked auto-extracted have not yet been verified against their source PDFs — treat their numbers as provisional until the banner is gone. It's a living document maintained by a human–AI collaboration, and like any such effort it will contain errors; the citation and verification discipline exists to make them findable, not to pretend they don't exist.
+
+**The wiki is incomplete and a work in progress.** Coverage is uneven and actively being built out: large areas of aging biology are thinly covered, seeded but not yet verified, or absent entirely. The absence of a page or a claim is **not** evidence of absence — it usually just means no one has gotten to it yet. Expect gaps, stubs, and pages still awaiting verification, and weight anything you find accordingly.
+
+---
+
+## Contributing
+
+Contributions are welcome — whether you're fixing a number, seeding a missing entity, or verifying an auto-extracted page against its source PDF. The schema *is* the product, so the bar is consistency with it.
+
+**Read [`CLAUDE.md`](CLAUDE.md) first.** It is the authoritative schema and operating manual — page types, frontmatter conventions, citation rules, and the standard operating procedures in [`sops/`](sops/). When it's silent on something, open an issue or ask rather than inventing a convention.
+
+**The workflow is agent-driven.** New pages are drafted by a *seeder* subagent from canonical databases and the primary literature, then cross-checked by a *verifier* subagent against the source PDFs. You can run these yourself in Claude Code, or write pages by hand — either way the same rules apply.
+
+Whatever you add, hold to these invariants:
+
+- **One fact, one home.** Truth lives on the most specific atomic page; everything else links to it. Don't duplicate claims across pages — move the fact and link.
+- **Every biological claim cites a primary source** via a footnote that carries its own quality signal (sample size, study design, model organism). Cite by **DOI**; never store journal PDFs in the repo.
+- **Flag trust honestly.** New AI-drafted pages ship `verified: false` with the auto-extraction banner. Only flip to `verified: true` after reading the underlying source(s) end-to-end and confirming every quantitative claim. **Verify before you trust** — the seeding step has a real error rate, which is exactly why the verification step exists.
+- **Key everything to canonical identifiers** (DOI, UniProt, PubChem, KEGG, HGNC, …) so humans and machines can resolve any entity.
+- **Tag what you don't know.** Open questions and missing data are first-class — mark them with the `#gap/*` tags rather than papering over them.
+- **Respect the privacy boundary.** Personal/applied-health data lives only in the private `protocols/` tree (git-ignored, never public). Links run one way — `protocols/ → research`, never the reverse. Run the leak-gate before every commit; it must return nothing.
+
+Before opening a PR, run the [lint pass](sops/lint-pass.md) (orphan pages, broken wikilinks, missing frontmatter, stale claims, privacy invariant) and log substantive changes in [`log.md`](log.md).
 
 ---
 
