@@ -7,7 +7,7 @@ covers: [hallmarks]
 
 # Hallmarks of Aging
 
-A navigational MOC over the 12 hallmarks defined by López-Otín, Blasco, Partridge, Serrano, and Kroemer (2013, expanded 2023). The original 2013 paper defined 9 hallmarks; the 2023 update added 3 more.
+A navigational MOC (map of content) over the 12 hallmarks defined by López-Otín, Blasco, Partridge, Serrano, and Kroemer (2013, expanded 2023). The original 2013 paper defined 9 hallmarks; the 2023 update added 3 more.
 
 > A hallmark of aging should ideally fulfill three criteria: (1) manifest during normal aging; (2) experimental aggravation accelerates aging; (3) experimental amelioration retards aging and increases healthspan.
 
