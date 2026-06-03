@@ -92,6 +92,9 @@ jobs:
             wiki/ quartz/content/
           echo "Pages to render: $(find quartz/content -name '*.md' | wc -l)"
 
+      - name: Set custom favicon
+        run: cp wiki/sources/branding/icon.png quartz/static/icon.png
+
       - name: Build site
         working-directory: quartz
         run: npx quartz build

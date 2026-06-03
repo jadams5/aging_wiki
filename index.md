@@ -1,8 +1,7 @@
 ---
 type: index
+title: aging_wiki
 ---
-
-# aging_wiki
 
 > [!warning] Research synthesis, not medical advice — and a work in progress
 > This is a living, AI-maintained knowledge base, not clinical guidance. Coverage is uneven: many areas are thin, seeded-but-unverified, or absent entirely — the absence of a page or a claim is **not** evidence of absence, usually just that no one has gotten to it yet. Pages flagged *auto-extracted* have not been checked against their source PDFs; treat their numbers as provisional. Nothing here substitutes for a clinician.
