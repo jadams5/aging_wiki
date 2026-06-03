@@ -14,10 +14,16 @@ Point an agent like Claude Code or Codex CLI at this repository and it can:
 
 - **Answer hard mechanistic questions** by searching across many interlinked pages instead of hallucinating from training memory.
 - **Extend itself** — when the wiki lacks a fact, the agent seeds the missing page from canonical databases and the primary literature, *then* answers.
-- **Police its own trust** — every biological claim carries a citation to a primary source, and every page is flagged AI-extracted or human-verified until someone reads the underlying PDF and confirms the numbers.
+- **Police its own trust** — every biological claim carries a citation to a primary source, and every page stays flagged **AI-extracted** until a verifier agent reads the underlying PDF and confirms every number against it.
 - **Build you a personal healthspan plan** — walk you through importing your own medical data (labs, family history, medications, wearables) into a *private* repo, then turn the research it sits on into an evidence-backed, continuously-tracked plan for your healthspan and lifespan — with every recommendation linked to the primary literature behind it.
 
 The repo ships with its own operating manual ([`CLAUDE.md`](CLAUDE.md)) and a pair of subagents (a *seeder* that drafts new pages and a *verifier* that cross-checks them against the source PDFs). The schema *is* the product as much as the content is.
+
+---
+
+## What this isn't
+
+Not a replacement for UniProt, KEGG, Reactome, PubChem, GenAge, or PubMed — it cites those by canonical ID and links out rather than duplicating them. It's the aging-specific *synthesis* layer above them: the connective tissue linking proteins → pathways → compounds → hallmarks → graded evidence, curated for one question (the biology of human aging) and honest about what's still unknown. Want a sequence, a structure, or raw expression data? Follow the IDs to the source.
 
 ---
 
