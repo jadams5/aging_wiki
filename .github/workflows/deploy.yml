@@ -102,6 +102,16 @@ jobs:
         # @use). Hides tag chips in folder/page listings — see the file's notes.
         run: cat wiki/sources/branding/custom.scss >> quartz/quartz/styles/custom.scss
 
+      - name: Inject Google Search Console verification meta
+        # No Quartz config hook exists for custom <head> tags, so add the
+        # verification <meta> to the Head component (static tag, no logic). The
+        # guard fails the build if the anchor line ever moves, so the tag can't
+        # be silently dropped.
+        run: |
+          HEAD=quartz/quartz/components/Head.tsx
+          sed -i 's#<meta charSet="utf-8" />#&\n        <meta name="google-site-verification" content="tqOWoSYo6FZhnzQ-8Hw2ZEOkufoTt4Q4zUDxbXjGYcY" />#' "$HEAD"
+          grep -q 'google-site-verification' "$HEAD" || { echo "::error::verification meta not injected (Head.tsx anchor changed)"; exit 1; }
+
       - name: Build site
         working-directory: quartz
         run: npx quartz build
