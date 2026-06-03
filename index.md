@@ -37,82 +37,61 @@ Or use search, follow the graph, or browse the full catalog below. For how the w
 
 ---
 
-## Browse the catalog
+## Browse by entity
 
-See [[CLAUDE]] for schema and conventions. See [[log]] for chronological history of changes. See [[gaps/planned-coverage]] for proactive coverage intent (priority ranking is driven by inbound-count discovery in [[lint-pass]] § Step 3, not a static checklist). See [[acronyms]] for the abbreviations glossary.
+Truth lives on **atomic pages** — one per entity. Each link opens that folder:
 
-### Frameworks (navigational overlays)
-
-Co-equal MOCs (maps of content) over the atomic-entity layer:
-
-- [[hallmarks-of-aging]] — López-Otín et al. (12 hallmarks, 2023 update)
-- [[sens-damage-categories]] — SENS Research Foundation (7 damage categories)
-- [[frameworks/hallmark-causality-graph]] — opinionated wiki-internal upstream/downstream ordering of the 12 hallmarks (mechanistic, distinct from López-Otín's primary/antagonistic/integrative taxonomy)
-- [[frameworks/causal-graph-data]] — companion edge-list with evidence-strength ratings + per-edge wiki-page anchors
-
-Anatomical overlay (by body system):
-
-- [[by-organ-system]] — index of the 11 body-system MOCs; slices the atomic layer by anatomy rather than by molecular damage type
-
-Biological-axis overlay:
-
-- [[sex-differences-in-aging]] — slices the atomic layer by biological sex: the female & male reproductive-endocrine axes, distinctively-sexed mechanisms (X-inactivation, mother's curse), and the sex-bias in major aging diseases
-
-Cross-cutting intervention slicers:
-
-- [[frameworks/interventions-by-hallmark]] — intervention evidence matrix by hallmark (Dataview-driven)
-- [[frameworks/interventions-by-modality]] — slice by delivery (drug vs. cell vs. dietary vs. gene-therapy vs. blood-product)
-- [[frameworks/intervention-classes]] — canonical mechanism-class taxonomy used by `mechanisms:` frontmatter
-- [[frameworks/intervention-by-target-immunogenicity]] — cross-cutting filter: immunogenicity tier of target dictates viable intervention class (Side-A vs Side-B vs direct molecular)
-
-Biomarker layer:
-
-- [[frameworks/biological-age-measurement]] — MOC for biological-age estimators (epigenetic / proteomic / composite clocks)
-
-Training-prescription references:
-
-- [[frameworks/heart-rate-zones]] — aerobic intensity tier reference (Z1–Z5, Tanaka HRmax, polarized vs threshold, Norwegian 4×4)
-
-### Browse by category
-
-The atomic entity pages, grouped — each link opens that folder on the site:
-
-- **[Hallmarks](https://jadams5.github.io/aging_wiki/hallmarks/)** — the 12 hallmarks of aging (plus [[hallmarks/disabled-adaptive-immunity]], a *proposed* candidate not yet formally adopted by López-Otín et al.)
-- **[Pathways](https://jadams5.github.io/aging_wiki/pathways/)** — signaling pathways
+**Molecules & pathways**
 - **[Proteins](https://jadams5.github.io/aging_wiki/molecules/proteins/)** — genes and gene products
-- **[Compounds](https://jadams5.github.io/aging_wiki/molecules/compounds/)** — *single* chemical entities: drugs, small molecules, and single-molecule supplements (creatine, CoQ10). Each page holds that one molecule's identity, mechanism, and efficacy.
+- **[Compounds](https://jadams5.github.io/aging_wiki/molecules/compounds/)** — *single* chemical entities: drugs, small molecules, single-molecule supplements (creatine, CoQ10); each holds its own mechanism + efficacy
+- **[Metabolites](https://jadams5.github.io/aging_wiki/molecules/metabolites/)** — endogenous small-molecule intermediates
+- **[Pathways](https://jadams5.github.io/aging_wiki/pathways/)** — signaling pathways
+
+**Cells, tissues & systems**
 - **[Processes](https://jadams5.github.io/aging_wiki/processes/)** — autophagy, apoptosis, senescence, …
+- **[Cell types](https://jadams5.github.io/aging_wiki/cell-types/)** — stem, immune, and post-mitotic cell populations
+- **[Tissues](https://jadams5.github.io/aging_wiki/tissues/)** — organs and tissues
+- **[Organ systems](https://jadams5.github.io/aging_wiki/organ-systems/)** — the 11 body-system overlays
+- **[Microbes](https://jadams5.github.io/aging_wiki/microbiome/)** — gut / skin taxa behind the dysbiosis hallmark
+
+**Phenotypes, measures & theories**
+- **[Hallmarks](https://jadams5.github.io/aging_wiki/hallmarks/)** — the 12 hallmarks of aging (plus the *proposed* [[hallmarks/disabled-adaptive-immunity]] candidate)
 - **[Phenotypes](https://jadams5.github.io/aging_wiki/phenotypes/)** — sarcopenia, frailty, inflammaging, …
 - **[Biomarkers](https://jadams5.github.io/aging_wiki/biomarkers/)** — biological-age clocks (epigenetic / proteomic / composite)
-- **[Interventions](https://jadams5.github.io/aging_wiki/interventions/)** — modalities and multi-compound classes: lifestyle, dietary, pharmacological classes (e.g. senolytics), gene / cell / blood-product therapies. Combination & regimen products (e.g. multivitamins) live here, not under compounds.
+- **[Hypotheses](https://jadams5.github.io/aging_wiki/hypotheses/)** — contested or open theories of *why* we age
+
+**Interventions & evidence**
+- **[Interventions](https://jadams5.github.io/aging_wiki/interventions/)** — modalities and multi-compound classes: lifestyle, dietary, pharmacological classes (e.g. senolytics), gene / cell / blood-product therapies; combination & regimen products (e.g. multivitamins) live here
 - **[Model organisms](https://jadams5.github.io/aging_wiki/model-organisms/)** — mouse, worm, fly, killifish, naked mole-rat, human, …
 - **[Studies](https://jadams5.github.io/aging_wiki/studies/)** — primary sources extracted from
 - **[Methods](https://jadams5.github.io/aging_wiki/methods/)** — lab / analytical techniques and their recurring caveats
-- **[Hypotheses](https://jadams5.github.io/aging_wiki/hypotheses/)** — contested or open theories
 
-### Anatomy — organ systems, tissues & cell types
+## Maps & frameworks
 
-Body-system overlays (`type: organ-system`) — see [[by-organ-system]] for the index and the cross-system rollup:
+Navigational overlays that re-slice the atomic layer — they link to entity pages, never duplicate them. Full set in the **[frameworks folder](https://jadams5.github.io/aging_wiki/frameworks/)**; the essential ones:
 
-- [[cardiovascular-system]] · [[musculoskeletal-system]] · [[integumentary-system]] · [[nervous-system]] · [[hematopoietic-system]] · [[immune-system]] · [[endocrine-system]] · [[digestive-system]] · [[urinary-system]] · [[respiratory-system]] · [[reproductive-system]]
+**The two damage maps** (co-equal)
+- [[hallmarks-of-aging]] — López-Otín et al. (12 hallmarks, 2023 update)
+- [[sens-damage-categories]] — SENS Research Foundation (7 damage categories)
 
-Atomic pages: **[organ systems](https://jadams5.github.io/aging_wiki/organ-systems/)** · **[tissues](https://jadams5.github.io/aging_wiki/tissues/)** · **[cell types](https://jadams5.github.io/aging_wiki/cell-types/)**
+**Causal ordering**
+- [[frameworks/hallmark-causality-graph]] — wiki-internal upstream→downstream ordering of the hallmarks
+- [[frameworks/causal-graph-data]] — companion edge-list with evidence grades + per-edge page anchors
 
-## Gap tracker
+**Slice the atomic layer by…**
+- [[by-organ-system]] — anatomy (the 11 body systems)
+- [[sex-differences-in-aging]] — biological sex (reproductive-endocrine axes, sexed mechanisms, disease sex-bias)
+- [[frameworks/biological-age-measurement]] — biomarkers / aging clocks
 
-See [[gaps/README]] for aggregated knowledge gaps by category.
+**Intervention overlays**
+- [[frameworks/interventions-by-hallmark]] — evidence matrix by hallmark
+- [[frameworks/interventions-by-modality]] — by delivery (drug / cell / dietary / gene / blood-product)
+- [[frameworks/intervention-classes]] — mechanism-class taxonomy
+- [[frameworks/intervention-by-target-immunogenicity]] — immunogenicity-tier filter
 
-## Personal-application layer (protocols)
+## Project & maintenance
 
-The research above is general knowledge; the *protocols layer* is where one person applies it to themselves (baseline, plans, labs, tracking). Real personal data lives in a **private** `protocols/` directory, git-ignored from this public repo and tracked separately. See [[protocols-template/README|protocols-template]] for a public, fake-data skeleton of that system and an onboarding guide for starting your own. The privacy architecture is documented in [[CLAUDE]] § "Privacy posture".
-
-## SOPs
-
-- [[retrieving-papers]] — using a local paper archive
-- [[extracting-evidence]] — what to record from a primary source
-- [[finding-pathway-data]] — KEGG, Reactome, WikiPathways
-- [[finding-protein-data]] — UniProt, NCBI Gene, STRING, CAZy
-- [[finding-compound-data]] — PubChem, DrugBank, ChEMBL
-- [[finding-aging-specific]] — GenAge, AgingAtlas, Open Targets
-- [[adding-a-claim]] — citation conventions
-- [[lint-pass]] — periodic health check
+- **Knowledge gaps** — [[gaps/README]] aggregates open questions by category; [[gaps/planned-coverage]] holds proactive coverage intent.
+- **Personal-application layer** — apply the research to one person (baseline, plans, labs, tracking). Real data lives in a **private**, git-ignored `protocols/` repo; [[protocols-template/README|protocols-template]] is a fake-data skeleton + onboarding guide. Privacy model in [[CLAUDE]] § "Privacy posture".
+- **Schema & operations** — [[CLAUDE]] (schema + operating manual) · [[lint-pass]] (periodic health check) · [[acronyms]] (glossary) · [[log]] (change history).
+- **SOP playbooks** (data-source how-tos) — full set in **[sops/](https://jadams5.github.io/aging_wiki/sops/)**; e.g. [[retrieving-papers]], [[extracting-evidence]], [[finding-pathway-data]], [[finding-protein-data]], [[finding-compound-data]], [[finding-aging-specific]], [[adding-a-claim]].
