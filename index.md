@@ -9,6 +9,8 @@ type: index
 
 A knowledge base on the **cellular and molecular mechanisms of human aging** — a densely cross-linked set of *atomic pages* (one per protein, pathway, compound, process, hallmark, phenotype, biomarker, study, hypothesis, and model organism) built to be operated by an AI agent, and browsable by humans. Every biological claim cites a primary source whose footnote carries its own quality signal (sample size, study design, model organism), and every page is flagged AI-extracted or human-verified so you know how far to trust it.
 
+**Source, schema & contributing:** the full project — including the operating manual and the seeder/verifier agents — lives on [GitHub](https://github.com/jadams5/aging_wiki).
+
 ## Start here
 
 New here and just want to read? A few good places to begin:
@@ -42,7 +44,7 @@ A research wiki on the cellular and molecular mechanisms of human aging.
 
 See [[CLAUDE]] for schema and conventions. See [[log]] for chronological history of changes. See [[gaps/planned-coverage]] for proactive coverage intent (priority ranking is driven by inbound-count discovery in [[lint-pass]] § Step 3, not a static checklist). See [[acronyms]] for the abbreviations glossary.
 
-## Frameworks (navigational overlays)
+### Frameworks (navigational overlays)
 
 Co-equal MOCs over the atomic-entity layer:
 
@@ -74,120 +76,30 @@ Training-prescription references:
 
 - [[frameworks/heart-rate-zones]] — aerobic intensity tier reference (Z1–Z5, Tanaka HRmax, polarized vs threshold, Norwegian 4×4)
 
-## Hallmarks of Aging — atomic pages
+### Browse by category
 
-```dataview
-TABLE category AS "Category", introduced AS "Introduced"
-FROM "hallmarks"
-WHERE type = "hallmark"
-SORT category, file.name
-```
+The atomic entity pages, grouped — each link opens that folder on the site:
 
-> **Note (2026-05-07):** [[hallmarks/disabled-adaptive-immunity]] is a **proposed candidate hallmark** (not formally adopted by López-Otín et al.). It uses `introduced: proposed` — a schema extension. The Dataview block above will include it; filter by `introduced != "proposed"` to see only the 12 formally adopted hallmarks.
+- **[Hallmarks](https://jadams5.github.io/aging_wiki/hallmarks/)** — the 12 hallmarks of aging (plus [[hallmarks/disabled-adaptive-immunity]], a *proposed* candidate not yet formally adopted by López-Otín et al.)
+- **[Pathways](https://jadams5.github.io/aging_wiki/pathways/)** — signaling pathways
+- **[Proteins](https://jadams5.github.io/aging_wiki/molecules/proteins/)** — genes and gene products
+- **[Compounds](https://jadams5.github.io/aging_wiki/molecules/compounds/)** — drugs, supplements, small molecules
+- **[Processes](https://jadams5.github.io/aging_wiki/processes/)** — autophagy, apoptosis, senescence, …
+- **[Phenotypes](https://jadams5.github.io/aging_wiki/phenotypes/)** — sarcopenia, frailty, inflammaging, …
+- **[Biomarkers](https://jadams5.github.io/aging_wiki/biomarkers/)** — biological-age clocks (epigenetic / proteomic / composite)
+- **[Interventions](https://jadams5.github.io/aging_wiki/interventions/)** — lifestyle, dietary, pharmacological, gene / cell / blood-product therapies
+- **[Model organisms](https://jadams5.github.io/aging_wiki/model-organisms/)** — mouse, worm, fly, killifish, naked mole-rat, human, …
+- **[Studies](https://jadams5.github.io/aging_wiki/studies/)** — primary sources extracted from
+- **[Methods](https://jadams5.github.io/aging_wiki/methods/)** — lab / analytical techniques and their recurring caveats
+- **[Hypotheses](https://jadams5.github.io/aging_wiki/hypotheses/)** — contested or open theories
 
-## Pathways
+### Anatomy — organ systems, tissues & cell types
 
-```dataview
-TABLE kegg, reactome
-FROM "pathways"
-WHERE type = "pathway"
-SORT file.name
-```
-
-## Proteins
-
-```dataview
-TABLE uniprot, hgnc
-FROM "molecules/proteins"
-WHERE type = "protein"
-SORT file.name
-```
-
-## Compounds
-
-```dataview
-TABLE clinical-stage AS "Stage", human-evidence-level AS "Human evidence"
-FROM "molecules/compounds"
-WHERE type = "compound"
-SORT file.name
-```
-
-## Processes
-
-```dataview
-LIST FROM "processes" WHERE type = "process"
-```
-
-## Phenotypes
-
-```dataview
-LIST FROM "phenotypes" WHERE type = "phenotype"
-```
-
-## Organ systems, tissues & cell types
-
-Body-system navigational overlays (`type: organ-system`, in `organ-systems/`) — see [[by-organ-system]] for the index and the cross-system rollup:
+Body-system overlays (`type: organ-system`) — see [[by-organ-system]] for the index and the cross-system rollup:
 
 - [[cardiovascular-system]] · [[musculoskeletal-system]] · [[integumentary-system]] · [[nervous-system]] · [[hematopoietic-system]] · [[immune-system]] · [[endocrine-system]] · [[digestive-system]] · [[urinary-system]] · [[respiratory-system]] · [[reproductive-system]]
 
-```dataview
-LIST FROM "organ-systems"
-```
-
-Atomic tissue/organ pages:
-
-```dataview
-LIST FROM "tissues" WHERE type = "tissue"
-```
-
-Cell types:
-
-```dataview
-LIST FROM "cell-types" WHERE type = "cell-type"
-```
-
-## Interventions
-
-```dataview
-LIST FROM "interventions"
-```
-
-## Model organisms
-
-```dataview
-TABLE common-name AS "Common name", typical-lifespan AS "Lifespan"
-FROM "model-organisms"
-WHERE type = "model-organism"
-```
-
-## Studies extracted
-
-```dataview
-TABLE year, organism, n-subjects, study-design
-FROM "studies"
-WHERE type = "study"
-SORT year DESC
-LIMIT 25
-```
-
-## Methods reference
-
-Laboratory and analytical techniques cited frequently in `studies/`. Anchors recurring methodological caveats. R46 pilot scope; see CLAUDE.md § `type: method` for schema.
-
-```dataview
-TABLE category, abbreviation, verified
-FROM "methods"
-WHERE type = "method"
-SORT category ASC
-```
-
-## Open hypotheses
-
-```dataview
-TABLE status, proposed-year
-FROM "hypotheses"
-WHERE type = "hypothesis"
-```
+Atomic pages: **[organ systems](https://jadams5.github.io/aging_wiki/organ-systems/)** · **[tissues](https://jadams5.github.io/aging_wiki/tissues/)** · **[cell types](https://jadams5.github.io/aging_wiki/cell-types/)**
 
 ## Gap tracker
 
