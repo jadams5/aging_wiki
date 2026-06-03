@@ -1,6 +1,7 @@
 ---
 type: index
 title: aging_wiki
+description: "An agent-maintained knowledge base on the cellular and molecular mechanisms of human aging — cross-linked atomic pages with graded citations and tracked knowledge gaps."
 ---
 
 > [!warning] Research synthesis, not medical advice — and a work in progress
