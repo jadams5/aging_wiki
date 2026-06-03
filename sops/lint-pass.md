@@ -137,6 +137,32 @@ for f in $(find. -name "*.md" ! -path "./.obsidian/*" ! -name "README.md"); do
 done
 ```
 
+### YAML frontmatter validity (parse check) — HIGH priority
+
+Obsidian's frontmatter parser is lenient; the public **Quartz site build is not**, and
+a single malformed frontmatter block fails the *entire* Pages deploy. Two structural
+bugs recur and are invisible in Obsidian:
+
+- **Missing closing `---`** — the frontmatter runs into the body and the YAML parser
+  chokes on the first colon-bearing prose line (precedent: `nad-blood-biomarker.md`,
+  2026-06-03 — a `verified: true` page whose frontmatter had been malformed all along).
+- **Flow-sequence values with unquoted `[ ]`** — e.g. an IUPAC alias like
+  `aliases: [..., 3,8-dihydroxy-6H-benzo[c]chromen-6-one, ...]`; YAML reads `[c]` as a
+  nested sequence and errors with "missed comma between flow collection entries". Fix by
+  quoting the offending entry (precedent: `amlexanox`, `urolithin-a`, `tazarotene`,
+  2026-06-03). These are also why the page-build, not just Obsidian, is the source of truth.
+
+Run the validator (catches both, across all tracked pages, in one pass):
+
+```bash
+python3 scripts/check-frontmatter.py   # exit non-zero ⇒ fix before committing
+```
+
+This is a **pre-commit / pre-push gate**: a malformed block should be caught locally,
+not by a red Pages deploy. (The script uses PyYAML; the site uses js-yaml — they agree
+on these structural errors. For an exact-match check, run the same `yaml.load` over each
+frontmatter block using the `js-yaml` in a local Quartz checkout.)
+
 ### R14 schema coverage (synthesis-MOC enablers)
 
 R14 added optional frontmatter fields that are required for R15 (causality graph) and R16 (intervention matrix) Dataview queries. Check each type for completeness:

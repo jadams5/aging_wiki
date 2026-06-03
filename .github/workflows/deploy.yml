@@ -45,15 +45,21 @@ jobs:
           # If a future Quartz change breaks the config patching below, pin a
           # known-good commit SHA here instead of the moving v4 branch.
 
-      - name: Configure Quartz (title + baseUrl)
+      - name: Configure Quartz (title + baseUrl + graph)
         run: |
           cd quartz
           BASE="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]').github.io/${{ github.event.repository.name }}"
           # Key-anchored seds so they survive changes to Quartz's default values.
           sed -i "s#pageTitle: \".*\"#pageTitle: \"🧬 Aging Wiki\"#" quartz.config.ts
           sed -i "s#baseUrl: \".*\"#baseUrl: \"${BASE}\"#" quartz.config.ts
+          # Lighter-weight graph via Quartz's built-in Graph component options
+          # (NOT a source patch): showTags:false drops the per-tag nodes that
+          # otherwise bloat every local graph (pages carry many #gap/* tags);
+          # higher centerForce + lower repelForce settle the layout faster.
+          sed -i 's#Component.Graph()#Component.Graph({ localGraph: { depth: 1, scale: 1.2, repelForce: 0.3, centerForce: 0.5, linkDistance: 25, fontSize: 0.55, showTags: false }, globalGraph: { repelForce: 0.4, centerForce: 0.3, showTags: false } })#' quartz.layout.ts
           echo "baseUrl set to: ${BASE}"
           grep -E "pageTitle:|baseUrl:" quartz.config.ts
+          grep -n "Component.Graph" quartz.layout.ts
 
       - name: Sync public content into Quartz
         run: |

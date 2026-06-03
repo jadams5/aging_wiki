@@ -8,26 +8,26 @@ Most wikis are written for people and occasionally read by machines. This one is
 
 ## A few good entry points
 
-New here and just want to read? These are some of the most-linked, highest-traffic pages — good places to start wandering. (A live site with backlinks, graph view, and search is published at **[jadams5.github.io/aging_wiki](https://jadams5.github.io/aging_wiki/)**; the [master catalog](index.md) lists everything.)
+New here and just want to read? These links open the **live wiki site** (with backlinks, graph view, and search) at [jadams5.github.io/aging_wiki](https://jadams5.github.io/aging_wiki/) — the [master catalog](https://jadams5.github.io/aging_wiki/) lists everything. (Prefer raw Markdown? Browse the [`index.md`](index.md) catalog here in the repo.)
 
 **The two maps** — the same biology, sliced two ways:
-- [Hallmarks of Aging](frameworks/hallmarks-of-aging.md) — the academic standard, organized by molecular damage type
-- [SENS damage categories](frameworks/sens-damage-categories.md) — de Grey's intervention-oriented framing
+- [Hallmarks of Aging](https://jadams5.github.io/aging_wiki/frameworks/hallmarks-of-aging) — the academic standard, organized by molecular damage type
+- [SENS damage categories](https://jadams5.github.io/aging_wiki/frameworks/sens-damage-categories) — de Grey's intervention-oriented framing
 
 **Core mechanisms:**
-- [Cellular senescence](hallmarks/cellular-senescence.md) — "zombie" cells that accumulate with age and drive inflammation
-- [Autophagy](processes/autophagy.md) — the cell's recycling system, and why it falters
-- [mTOR](pathways/mtor.md) & [insulin/IGF-1](pathways/insulin-igf1.md) — the nutrient-sensing pathways at the center of aging
+- [Cellular senescence](https://jadams5.github.io/aging_wiki/hallmarks/cellular-senescence) — "zombie" cells that accumulate with age and drive inflammation
+- [Autophagy](https://jadams5.github.io/aging_wiki/processes/autophagy) — the cell's recycling system, and why it falters
+- [mTOR](https://jadams5.github.io/aging_wiki/pathways/mtor) & [insulin/IGF-1](https://jadams5.github.io/aging_wiki/pathways/insulin-igf1) — the nutrient-sensing pathways at the center of aging
 
 **Interventions:**
-- [Caloric restriction](interventions/lifestyle/caloric-restriction.md) — the most replicated lifespan intervention in biology
-- [Senolytics](interventions/pharmacological/senolytics.md) — drugs that clear senescent cells (dasatinib + quercetin, fisetin)
-- [Rapamycin](molecules/compounds/rapamycin.md) & [metformin](molecules/compounds/metformin.md) — the two most-studied geroprotective drugs
+- [Caloric restriction](https://jadams5.github.io/aging_wiki/interventions/lifestyle/caloric-restriction) — the most replicated lifespan intervention in biology
+- [Senolytics](https://jadams5.github.io/aging_wiki/interventions/pharmacological/senolytics) — drugs that clear senescent cells (dasatinib + quercetin, fisetin)
+- [Rapamycin](https://jadams5.github.io/aging_wiki/molecules/compounds/rapamycin) & [metformin](https://jadams5.github.io/aging_wiki/molecules/compounds/metformin) — the two most-studied geroprotective drugs
 
 **Measuring & comparing aging:**
-- [Horvath clock](biomarkers/horvath-clock-2013.md) — the original DNA-methylation "epigenetic clock"
-- [Naked mole-rat](model-organisms/heterocephalus-glaber.md) — a rodent that barely ages; what it teaches us
-- [Information theory of aging](hypotheses/information-theory-of-aging.md) — a leading theory of *why* we age
+- [Horvath clock](https://jadams5.github.io/aging_wiki/biomarkers/horvath-clock-2013) — the original DNA-methylation "epigenetic clock"
+- [Naked mole-rat](https://jadams5.github.io/aging_wiki/model-organisms/heterocephalus-glaber) — a rodent that barely ages; what it teaches us
+- [Information theory of aging](https://jadams5.github.io/aging_wiki/hypotheses/information-theory-of-aging) — a leading theory of *why* we age
 
 ---
 
