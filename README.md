@@ -2,9 +2,9 @@
 
 **A knowledge base on the cellular and molecular mechanisms of human aging — built to be operated by an AI agent.**
 
-Most wikis are written for people and occasionally read by machines. This one is the other way around: it's a structured knowledge substrate designed so an LLM agent can *live inside it* — reading broadly before answering, extending it with new findings, and verifying its own claims against primary sources. The result happens to be a pretty good wiki for humans too.
+Most wikis are written for people and occasionally read by machines. This one is the other way around: it's designed so an LLM agent can can use it as a knowledge base to better serve people — reading broadly before answering, extending it with new findings, and verifying its own claims against primary sources. The result happens to be a pretty good wiki for humans too.
 
-**New here and just want to read?** The **live wiki site** (with backlinks, graph view, and search) lives at [🧬 Aging Wiki](https://jadams5.github.io/aging_wiki/).
+**Just want to read?** The **live wiki site** lives at [🧬 Aging Wiki](https://jadams5.github.io/aging_wiki/).
 
 ---
 
