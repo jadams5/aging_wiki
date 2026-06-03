@@ -6,25 +6,20 @@ Most wikis are written for people and occasionally read by machines. This one is
 
 ---
 
-## A few good entry points
+## Some good entry points
 
-New here and just want to read? These links open the **live wiki site** (with backlinks, graph view, and search) at [jadams5.github.io/aging_wiki](https://jadams5.github.io/aging_wiki/) — the [master catalog](https://jadams5.github.io/aging_wiki/) lists everything. (Prefer raw Markdown? Browse the [`index.md`](index.md) catalog here in the repo.)
+New here and just want to read? These links open the **live wiki site** (with backlinks, graph view, and search) at [jadams5.github.io/aging_wiki](https://jadams5.github.io/aging_wiki/).
 
-**The two maps** — the same biology, sliced two ways:
 - [Hallmarks of Aging](https://jadams5.github.io/aging_wiki/frameworks/hallmarks-of-aging) — the academic standard, organized by molecular damage type
-- [SENS damage categories](https://jadams5.github.io/aging_wiki/frameworks/sens-damage-categories) — de Grey's intervention-oriented framing
 
-**Core mechanisms:**
 - [Cellular senescence](https://jadams5.github.io/aging_wiki/hallmarks/cellular-senescence) — "zombie" cells that accumulate with age and drive inflammation
 - [Autophagy](https://jadams5.github.io/aging_wiki/processes/autophagy) — the cell's recycling system, and why it falters
 - [mTOR](https://jadams5.github.io/aging_wiki/pathways/mtor) & [insulin/IGF-1](https://jadams5.github.io/aging_wiki/pathways/insulin-igf1) — the nutrient-sensing pathways at the center of aging
 
-**Interventions:**
 - [Caloric restriction](https://jadams5.github.io/aging_wiki/interventions/lifestyle/caloric-restriction) — the most replicated lifespan intervention in biology
 - [Senolytics](https://jadams5.github.io/aging_wiki/interventions/pharmacological/senolytics) — drugs that clear senescent cells (dasatinib + quercetin, fisetin)
 - [Rapamycin](https://jadams5.github.io/aging_wiki/molecules/compounds/rapamycin) & [metformin](https://jadams5.github.io/aging_wiki/molecules/compounds/metformin) — the two most-studied geroprotective drugs
 
-**Measuring & comparing aging:**
 - [Horvath clock](https://jadams5.github.io/aging_wiki/biomarkers/horvath-clock-2013) — the original DNA-methylation "epigenetic clock"
 - [Naked mole-rat](https://jadams5.github.io/aging_wiki/model-organisms/heterocephalus-glaber) — a rodent that barely ages; what it teaches us
 - [Information theory of aging](https://jadams5.github.io/aging_wiki/hypotheses/information-theory-of-aging) — a leading theory of *why* we age
@@ -33,7 +28,7 @@ New here and just want to read? These links open the **live wiki site** (with ba
 
 ## The idea
 
-Point an agent (this repo is built around [Claude Code](https://www.claude.com/product/claude-code)) at this directory and it can:
+Point an agent like Claude Code or Codex CLI at this repository and it can:
 
 - **Answer hard mechanistic questions** by searching across many interlinked pages instead of hallucinating from training memory.
 - **Extend itself** — when the wiki lacks a fact, the agent seeds the missing page from canonical databases and the primary literature, *then* answers.
