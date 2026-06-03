@@ -1,7 +1,8 @@
 name: Deploy Quartz site to GitHub Pages
 
-# Renders the public wiki to a Quartz static site and publishes it to GitHub Pages.
-# Source-of-truth stays [[wikilinks]]; Quartz resolves them at build time.
+# Renders the public wiki to a Quartz (v5) static site and publishes it to
+# GitHub Pages. Source-of-truth stays [[wikilinks]]; Quartz resolves them at
+# build time.
 #
 # Cost: Actions minutes are free + unlimited for public repos, so this is $0.
 #
@@ -9,6 +10,12 @@ name: Deploy Quartz site to GitHub Pages
 #   Settings → Pages → Build and deployment → Source → "GitHub Actions".
 # After that, every push to main rebuilds and redeploys automatically.
 # Site URL: https://jadams5.github.io/aging_wiki/
+#
+# v5 notes: config is a single quartz.config.yaml (copied from upstream's
+# default, then overlaid by scripts/quartz-config-patch.py). Components are
+# fetched from github:quartz-community/* via `quartz plugin install` (pinned by
+# Quartz's quartz.lock.json). The graph idle-CPU is inherent to Quartz's render
+# loop (v4 and v5 alike) — config only trims the settle phase.
 
 on:
   push:
@@ -36,30 +43,33 @@ jobs:
           # Full history so Quartz can derive created/modified dates from git.
           fetch-depth: 0
 
-      - name: Checkout Quartz
+      - name: Checkout Quartz (v5)
         uses: actions/checkout@v4
         with:
           repository: jackyzha0/quartz
-          ref: v4
+          ref: v5
           path: quartz
-          # If a future Quartz change breaks the config patching below, pin a
-          # known-good commit SHA here instead of the moving v4 branch.
 
       - name: Configure Quartz (title + baseUrl + graph)
         run: |
           cd quartz
+          cp quartz.config.default.yaml quartz.config.yaml
           BASE="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]').github.io/${{ github.event.repository.name }}"
-          # Key-anchored seds so they survive changes to Quartz's default values.
-          sed -i "s#pageTitle: \".*\"#pageTitle: \"🧬 Aging Wiki\"#" quartz.config.ts
-          sed -i "s#baseUrl: \".*\"#baseUrl: \"${BASE}\"#" quartz.config.ts
-          # Lighter-weight graph via Quartz's built-in Graph component options
-          # (NOT a source patch): showTags:false drops the per-tag nodes that
-          # otherwise bloat every local graph (pages carry many #gap/* tags);
-          # higher centerForce + lower repelForce settle the layout faster.
-          sed -i 's#Component.Graph()#Component.Graph({ localGraph: { depth: 1, scale: 1.2, repelForce: 0.3, centerForce: 0.5, linkDistance: 25, fontSize: 0.55, showTags: false }, globalGraph: { repelForce: 0.4, centerForce: 0.3, showTags: false } })#' quartz.layout.ts
-          echo "baseUrl set to: ${BASE}"
-          grep -E "pageTitle:|baseUrl:" quartz.config.ts
-          grep -n "Component.Graph" quartz.layout.ts
+          python3 -c "import yaml" 2>/dev/null || pip install --break-system-packages --quiet pyyaml
+          python3 ../wiki/scripts/quartz-config-patch.py quartz.config.yaml "$BASE"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: quartz
+        run: npm ci
+
+      - name: Install Quartz plugins (pinned by lockfile)
+        working-directory: quartz
+        run: npx quartz plugin install
 
       - name: Sync public content into Quartz
         run: |
@@ -81,15 +91,6 @@ jobs:
             --exclude 'CLAUDE.local.md' \
             wiki/ quartz/content/
           echo "Pages to render: $(find quartz/content -name '*.md' | wc -l)"
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        working-directory: quartz
-        run: npm ci
 
       - name: Build site
         working-directory: quartz
