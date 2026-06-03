@@ -1,0 +1,12 @@
+// Site style overrides for the published Quartz build.
+// Appended to Quartz's quartz/styles/custom.scss at build time (see the deploy
+// workflow); the leading `@use "./variables.scss"` stays in that file, so this
+// fragment must contain plain rules only (no @use — it is concatenated after).
+
+// Folder / page-list listings render every page's tags as chips. Atomic pages
+// here carry many #gap/* markers, which swamp the listing and break its layout
+// (e.g. /hallmarks/). Hide tag chips in listings only — tags remain on the
+// pages themselves and are still browsable via the /tags/ index.
+.section > .tags {
+  display: none;
+}

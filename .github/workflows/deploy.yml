@@ -97,6 +97,11 @@ jobs:
         # checked out to quartz/, and its source lives in a nested quartz/).
         run: cp wiki/sources/branding/icon.png quartz/quartz/static/icon.png
 
+      - name: Apply custom styles
+        # Append our overrides to Quartz's custom.scss hook (keeps its leading
+        # @use). Hides tag chips in folder/page listings — see the file's notes.
+        run: cat wiki/sources/branding/custom.scss >> quartz/quartz/styles/custom.scss
+
       - name: Build site
         working-directory: quartz
         run: npx quartz build
