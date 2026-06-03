@@ -4,25 +4,7 @@
 
 Most wikis are written for people and occasionally read by machines. This one is the other way around: it's a structured knowledge substrate designed so an LLM agent can *live inside it* — reading broadly before answering, extending it with new findings, and verifying its own claims against primary sources. The result happens to be a pretty good wiki for humans too.
 
----
-
-## Some good entry points
-
-New here and just want to read? These links open the **live wiki site** (with backlinks, graph view, and search) at [jadams5.github.io/aging_wiki](https://jadams5.github.io/aging_wiki/).
-
-- [Hallmarks of Aging](https://jadams5.github.io/aging_wiki/frameworks/hallmarks-of-aging) — the academic standard, organized by molecular damage type
-
-- [Cellular senescence](https://jadams5.github.io/aging_wiki/hallmarks/cellular-senescence) — "zombie" cells that accumulate with age and drive inflammation
-- [Autophagy](https://jadams5.github.io/aging_wiki/processes/autophagy) — the cell's recycling system, and why it falters
-- [mTOR](https://jadams5.github.io/aging_wiki/pathways/mtor) & [insulin/IGF-1](https://jadams5.github.io/aging_wiki/pathways/insulin-igf1) — the nutrient-sensing pathways at the center of aging
-
-- [Caloric restriction](https://jadams5.github.io/aging_wiki/interventions/lifestyle/caloric-restriction) — the most replicated lifespan intervention in biology
-- [Senolytics](https://jadams5.github.io/aging_wiki/interventions/pharmacological/senolytics) — drugs that clear senescent cells (dasatinib + quercetin, fisetin)
-- [Rapamycin](https://jadams5.github.io/aging_wiki/molecules/compounds/rapamycin) & [metformin](https://jadams5.github.io/aging_wiki/molecules/compounds/metformin) — the two most-studied geroprotective drugs
-
-- [Horvath clock](https://jadams5.github.io/aging_wiki/biomarkers/horvath-clock-2013) — the original DNA-methylation "epigenetic clock"
-- [Naked mole-rat](https://jadams5.github.io/aging_wiki/model-organisms/heterocephalus-glaber) — a rodent that barely ages; what it teaches us
-- [Information theory of aging](https://jadams5.github.io/aging_wiki/hypotheses/information-theory-of-aging) — a leading theory of *why* we age
+**New here and just want to read?** The **live wiki site** (with backlinks, graph view, and search) lives at [🧬 Aging Wiki](https://jadams5.github.io/aging_wiki/).
 
 ---
 
