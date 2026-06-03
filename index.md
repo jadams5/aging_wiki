@@ -12,7 +12,7 @@ This is a knowledge base on the **cellular and molecular mechanisms of human agi
 
 ## Start here
 
-New here and just want to read? While the intent is to point a local agent like Claude Code at the [GitHub Repository](https://github.com/jadams5/aging_wiki), you're more than welcome to manually browse around here. A few good places to begin:
+New here and just want to read? While the intent is to point a local agent like [Claude Code](https://www.anthropic.com/product/claude-code) at the [GitHub Repository](https://github.com/jadams5/aging_wiki), you're more than welcome to manually browse around here. A few good places to begin:
 
 **The two maps** — the same biology, sliced two ways:
 - [[hallmarks-of-aging]] — the academic standard, organized by molecular damage type
