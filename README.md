@@ -52,7 +52,7 @@ Densely cross-linked **atomic pages** — one per protein, pathway, compound, pr
 
 ## Using it
 
-- **Browse it** as an [Obsidian](https://obsidian.md) vault — it's plain interlinked Markdown. Start at [`index.md`](index.md). The repo ships no Obsidian config; for the live queries (knowledge-gap tracker, framework MOCs, lab-panel time-series) to render, install the [Dataview](https://github.com/blacksmithgu/obsidian-dataview) community plugin.
+- **Browse it** as an [Obsidian](https://obsidian.md) vault — it's plain interlinked Markdown. Start at [`index.md`](index.md). The repo ships no Obsidian config; for the live queries (knowledge-gap tracker, framework MOCs (maps of content), lab-panel time-series) to render, install the [Dataview](https://github.com/blacksmithgu/obsidian-dataview) community plugin.
 - **Run an agent in it** — open the repo in Claude Code; `CLAUDE.md` tells the agent how the wiki is structured and how to maintain it. Ask it mechanistic questions, or have it seed and verify new entities.
 - **Apply it to yourself** — copy [`protocols-template/`](protocols-template/) to a private `protocols/` repo and have the agent onboard your data and build your plan (see [From the literature to your own plan](#from-the-literature-to-your-own-plan) above). Real personal data lives in a separate private repo; the template's README walks through setup.
 

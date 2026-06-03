@@ -39,13 +39,11 @@ Or use search, follow the graph, or browse the full catalog below. For how the w
 
 ## Browse the catalog
 
-A research wiki on the cellular and molecular mechanisms of human aging.
-
 See [[CLAUDE]] for schema and conventions. See [[log]] for chronological history of changes. See [[gaps/planned-coverage]] for proactive coverage intent (priority ranking is driven by inbound-count discovery in [[lint-pass]] § Step 3, not a static checklist). See [[acronyms]] for the abbreviations glossary.
 
 ### Frameworks (navigational overlays)
 
-Co-equal MOCs over the atomic-entity layer:
+Co-equal MOCs (maps of content) over the atomic-entity layer:
 
 - [[hallmarks-of-aging]] — López-Otín et al. (12 hallmarks, 2023 update)
 - [[sens-damage-categories]] — SENS Research Foundation (7 damage categories)
