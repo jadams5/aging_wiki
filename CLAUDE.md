@@ -602,6 +602,8 @@ last-updated:                      # ISO date; required
 
 Protocols do not carry `verified:` — they are decisions, not facts. Citation discipline still applies to evidence claims within the body.
 
+The frontmatter here (`monitoring-required:`, `review-cadence:`, `stop-criteria:`) is the *scaffold* — for the device-agnostic guidance on **what to track and how** (the discrete-vs-continuous routing rule, the Metric·Cadence·Source·Target·File monitoring table, consistent units-bearing analyte keys, the correlate-streams-into-narrative discipline, intermittent block-mode sensing, the lab cadence ladder, dated milestone targets), see [[sops/personal-tracking]]. That SOP is also the starting point for any applied-health / "personal" question when **no per-individual protocol area exists yet**.
+
 ### type: assessment
 
 Lives in `protocols/reviews/`. One page per periodic review of a person's protocols against their tracking data.
@@ -838,6 +840,8 @@ Append findings to `log.md` under a `## [YYYY-MM-DD] lint` heading.
 
 The `protocols/` directory holds personal intervention protocols, baseline data, lab records, and tracking — distinct from the research-synthesis content in the rest of the wiki. Protocols are *application of* the research, not research itself.
 
+> **Answering "personal" / applied-health questions** (tracking plans, monitoring schedules, "what should I measure / how do I log this") — even when no per-individual `protocols/` area exists in the current clone — start from [[sops/personal-tracking]]. It carries the device- and vendor-agnostic tracking conventions distilled from real use, so you don't have to invent them.
+
 ### Privacy posture
 
 **The wiki is split into two git repositories sharing one working tree (set up 2026-06-01):**
@@ -932,6 +936,7 @@ Standard operating procedures live in `sops/`. Index:
 - `sops/finding-singlecell-aging.md` — Tabula Muris Senis, CellxGene Census, `single-cell-aging-signature:` field
 - `sops/adding-a-claim.md` — citation conventions, gap markers
 - `sops/writing-hypothesis-pages.md` — synthesis-MOC discipline for `type: hypothesis` pages (Mode A evidence-aggregating vs Mode B conceptual-frame; never duplicate atomic-page truth)
+- `sops/personal-tracking.md` — device-agnostic guidance on *what* applied-health data to track and *how* to structure it; the starting scaffold for "personal" questions when no per-individual `protocols/` area exists
 - `sops/lint-pass.md` — periodic health check protocol
 
 ---
