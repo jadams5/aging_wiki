@@ -80,11 +80,11 @@ The atomic entity pages, grouped — each link opens that folder on the site:
 - **[Hallmarks](https://jadams5.github.io/aging_wiki/hallmarks/)** — the 12 hallmarks of aging (plus [[hallmarks/disabled-adaptive-immunity]], a *proposed* candidate not yet formally adopted by López-Otín et al.)
 - **[Pathways](https://jadams5.github.io/aging_wiki/pathways/)** — signaling pathways
 - **[Proteins](https://jadams5.github.io/aging_wiki/molecules/proteins/)** — genes and gene products
-- **[Compounds](https://jadams5.github.io/aging_wiki/molecules/compounds/)** — drugs, supplements, small molecules
+- **[Compounds](https://jadams5.github.io/aging_wiki/molecules/compounds/)** — *single* chemical entities: drugs, small molecules, and single-molecule supplements (creatine, CoQ10). Each page holds that one molecule's identity, mechanism, and efficacy.
 - **[Processes](https://jadams5.github.io/aging_wiki/processes/)** — autophagy, apoptosis, senescence, …
 - **[Phenotypes](https://jadams5.github.io/aging_wiki/phenotypes/)** — sarcopenia, frailty, inflammaging, …
 - **[Biomarkers](https://jadams5.github.io/aging_wiki/biomarkers/)** — biological-age clocks (epigenetic / proteomic / composite)
-- **[Interventions](https://jadams5.github.io/aging_wiki/interventions/)** — lifestyle, dietary, pharmacological, gene / cell / blood-product therapies
+- **[Interventions](https://jadams5.github.io/aging_wiki/interventions/)** — modalities and multi-compound classes: lifestyle, dietary, pharmacological classes (e.g. senolytics), gene / cell / blood-product therapies. Combination & regimen products (e.g. multivitamins) live here, not under compounds.
 - **[Model organisms](https://jadams5.github.io/aging_wiki/model-organisms/)** — mouse, worm, fly, killifish, naked mole-rat, human, …
 - **[Studies](https://jadams5.github.io/aging_wiki/studies/)** — primary sources extracted from
 - **[Methods](https://jadams5.github.io/aging_wiki/methods/)** — lab / analytical techniques and their recurring caveats
