@@ -93,7 +93,9 @@ jobs:
           echo "Pages to render: $(find quartz/content -name '*.md' | wc -l)"
 
       - name: Set custom favicon
-        run: cp wiki/sources/branding/icon.png quartz/static/icon.png
+        # Quartz's source static dir is quartz/quartz/static (the repo is
+        # checked out to quartz/, and its source lives in a nested quartz/).
+        run: cp wiki/sources/branding/icon.png quartz/quartz/static/icon.png
 
       - name: Build site
         working-directory: quartz
