@@ -1,0 +1,106 @@
+name: Deploy Quartz site to GitHub Pages
+
+# Renders the public wiki to a Quartz static site and publishes it to GitHub Pages.
+# Source-of-truth stays [[wikilinks]]; Quartz resolves them at build time.
+#
+# Cost: Actions minutes are free + unlimited for public repos, so this is $0.
+#
+# ONE-TIME SETUP (cannot be done from CI): in the repo on GitHub, go to
+#   Settings → Pages → Build and deployment → Source → "GitHub Actions".
+# After that, every push to main rebuilds and redeploys automatically.
+# Site URL: https://jadams5.github.io/aging_wiki/
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; don't cancel an in-progress publish.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout wiki content
+        uses: actions/checkout@v4
+        with:
+          path: wiki
+          # Full history so Quartz can derive created/modified dates from git.
+          fetch-depth: 0
+
+      - name: Checkout Quartz
+        uses: actions/checkout@v4
+        with:
+          repository: jackyzha0/quartz
+          ref: v4
+          path: quartz
+          # If a future Quartz change breaks the config patching below, pin a
+          # known-good commit SHA here instead of the moving v4 branch.
+
+      - name: Configure Quartz (title + baseUrl)
+        run: |
+          cd quartz
+          BASE="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]').github.io/${{ github.event.repository.name }}"
+          # Key-anchored seds so they survive changes to Quartz's default values.
+          sed -i "s#pageTitle: \".*\"#pageTitle: \"🧬 Aging Wiki\"#" quartz.config.ts
+          sed -i "s#baseUrl: \".*\"#baseUrl: \"${BASE}\"#" quartz.config.ts
+          echo "baseUrl set to: ${BASE}"
+          grep -E "pageTitle:|baseUrl:" quartz.config.ts
+
+      - name: Sync public content into Quartz
+        run: |
+          rm -rf quartz/content
+          mkdir -p quartz/content
+          # Copy the public wiki into Quartz's content dir. Excludes:
+          #  - protocols / protocols-template : private + meta scaffolding
+          #  - tooling/config dirs            : not wiki content
+          #  - CLAUDE.local.md                : git-ignored private layer (belt-and-suspenders)
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '.obsidian' \
+            --exclude '.claude' \
+            --exclude '.agents' \
+            --exclude '.codex' \
+            --exclude 'protocols' \
+            --exclude 'protocols-template' \
+            --exclude 'CLAUDE.local.md' \
+            wiki/ quartz/content/
+          echo "Pages to render: $(find quartz/content -name '*.md' | wc -l)"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: quartz
+        run: npm ci
+
+      - name: Build site
+        working-directory: quartz
+        run: npx quartz build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: quartz/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
