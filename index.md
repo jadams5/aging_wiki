@@ -2,7 +2,41 @@
 type: index
 ---
 
-# aging_wiki — master catalog
+# aging_wiki
+
+> [!warning] Research synthesis, not medical advice — and a work in progress
+> This is a living, AI-maintained knowledge base, not clinical guidance. Coverage is uneven: many areas are thin, seeded-but-unverified, or absent entirely — the absence of a page or a claim is **not** evidence of absence, usually just that no one has gotten to it yet. Pages flagged *auto-extracted* have not been checked against their source PDFs; treat their numbers as provisional. Nothing here substitutes for a clinician.
+
+A knowledge base on the **cellular and molecular mechanisms of human aging** — a densely cross-linked set of *atomic pages* (one per protein, pathway, compound, process, hallmark, phenotype, biomarker, study, hypothesis, and model organism) built to be operated by an AI agent, and browsable by humans. Every biological claim cites a primary source whose footnote carries its own quality signal (sample size, study design, model organism), and every page is flagged AI-extracted or human-verified so you know how far to trust it.
+
+## Start here
+
+New here and just want to read? A few good places to begin:
+
+**The two maps** — the same biology, sliced two ways:
+- [[hallmarks-of-aging]] — the academic standard, organized by molecular damage type
+- [[sens-damage-categories]] — SENS's intervention-oriented framing
+
+**Core mechanisms:**
+- [[cellular-senescence]] — "zombie" cells that accumulate with age and drive inflammation
+- [[autophagy]] — the cell's recycling system, and why it falters
+- [[mtor|mTOR]] & [[insulin-igf1|insulin/IGF-1]] — the nutrient-sensing pathways at the center of aging
+
+**Interventions:**
+- [[caloric-restriction|caloric restriction]] — the most replicated lifespan intervention in biology
+- [[senolytics]] — drugs that clear senescent cells (dasatinib + quercetin, fisetin)
+- [[rapamycin]] & [[metformin]] — the two most-studied geroprotective drugs
+
+**Measuring & comparing aging:**
+- [[horvath-clock-2013|Horvath clock]] — the original DNA-methylation "epigenetic clock"
+- [[heterocephalus-glaber|naked mole-rat]] — a rodent that barely ages; what it teaches us
+- [[information-theory-of-aging|information theory of aging]] — a leading theory of *why* we age
+
+Or use search, follow the graph, or browse the full catalog below. For how the wiki is built and how to run an agent in it, see the [project README](https://github.com/jadams5/aging_wiki#readme).
+
+---
+
+## Browse the catalog
 
 A research wiki on the cellular and molecular mechanisms of human aging.
 
