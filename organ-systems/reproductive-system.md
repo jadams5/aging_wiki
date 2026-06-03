@@ -11,7 +11,7 @@ parent-system: null
 
 # Reproductive System
 
-Navigational overlay for the gonads and reproductive organs. This system is a planned area of the wiki. Reproductive aging is notable for being the earliest and most abrupt organ-system aging in humans — **ovarian aging / menopause** typically completes decades before other systems fail, making the ovary a model of accelerated aging and a target of "ovarian rejuvenation" research. Gonadal hormone decline (estrogen, testosterone) has system-wide consequences, most prominently the post-menopausal acceleration of bone loss ([[osteoporosis]]) and cardiovascular risk.
+Navigational overlay for the gonads and reproductive organs. Reproductive aging is notable for being the earliest and most abrupt organ-system aging in humans — **ovarian aging / menopause** typically completes decades before other systems fail, making the ovary a model of accelerated aging and a target of "ovarian rejuvenation" research. Gonadal hormone decline (estrogen, testosterone) has system-wide consequences, most prominently the post-menopausal acceleration of bone loss ([[osteoporosis]]) and cardiovascular risk.
 
 ## Key aging themes
 

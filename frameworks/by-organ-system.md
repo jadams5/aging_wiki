@@ -25,7 +25,7 @@ This is the anatomical complement to the two mechanism-organized framework MOCs,
 | Digestive / GI | [[digestive-system]] | developing (microbiome-led) |
 | Urinary / renal | [[urinary-system]] | planned (mineral-axis-anchored) |
 | Respiratory | [[respiratory-system]] | planned |
-| Reproductive | [[reproductive-system]] | planned |
+| Reproductive | [[reproductive-system]] | moderate |
 
 ## All tissue pages grouped by system
 
