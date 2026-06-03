@@ -6,13 +6,13 @@ title: aging_wiki
 > [!warning] Research synthesis, not medical advice — and a work in progress
 > This is a living, AI-maintained knowledge base, not clinical guidance. Coverage is uneven: many areas are thin, seeded-but-unverified, or absent entirely — the absence of a page or a claim is **not** evidence of absence, usually just that no one has gotten to it yet. Pages flagged *auto-extracted* have not been checked against their source PDFs; treat their numbers as provisional. Nothing here substitutes for a clinician.
 
-A knowledge base on the **cellular and molecular mechanisms of human aging** — a densely cross-linked set of *atomic pages* (one per protein, pathway, compound, process, hallmark, phenotype, biomarker, study, hypothesis, and model organism) built to be operated by an AI agent, and browsable by humans. Every biological claim cites a primary source whose footnote carries its own quality signal (sample size, study design, model organism), and every page is flagged AI-extracted or human-verified so you know how far to trust it.
+This is a knowledge base on the **cellular and molecular mechanisms of human aging** — a densely cross-linked set of *atomic pages* (one per protein, pathway, compound, process, hallmark, phenotype, biomarker, study, hypothesis, and model organism) built to be operated by an AI agent, and browsable by humans. Every biological claim cites a primary source whose footnote carries its own quality signal (sample size, study design, model organism), and every page is flagged AI-extracted or human-verified so you know how far to trust it.
 
 **Source, schema & contributing:** the full project — including the operating manual and the seeder/verifier agents — lives on [GitHub](https://github.com/jadams5/aging_wiki).
 
 ## Start here
 
-New here and just want to read? A few good places to begin:
+New here and just want to read? While the intent is to point a local agent like Claude Code at the [GitHub Repository](https://github.com/jadams5/aging_wiki), you're more than welcome to manually browse around here. A few good places to begin:
 
 **The two maps** — the same biology, sliced two ways:
 - [[hallmarks-of-aging]] — the academic standard, organized by molecular damage type
