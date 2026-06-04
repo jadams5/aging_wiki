@@ -184,6 +184,7 @@ This page will require structural revision if:
 
 ## Related hypotheses
 
+- [[hypotheses/androgen-deprivation-longevity-hypothesis]] — the male-side natural-experiment: do eunuchs live longer? Hamilton & Mestler 1969, Min 2012, and Garratt 2026 vertebrate meta-analysis suggest reduced androgen exposure benefits male lifespan; a contested hypothesis that is the mechanistic complement of the estrogen-protection candidate mechanism here.
 - [[hypotheses/disposable-soma-theory]] — the Blagosklonny 2010 critique explicitly argues that disposable soma cannot explain why females, who bear greater reproductive cost, live longer. The interaction between sex-specific life-history trade-offs and longevity is actively contested; see the disposable-soma page for the NMR queen paradox.
 - [[hypotheses/antagonistic-pleiotropy]] — sex-biased pleiotropic effects are likely; alleles beneficial for male reproductive success (testosterone-driven) may be harmful for male longevity at older ages.
 - [[hypotheses/dna-damage-theory-of-aging]] — the lower oxidative burden in premenopausal women (iron hypothesis, estrogen antioxidant effects) connects to DNA damage accumulation.

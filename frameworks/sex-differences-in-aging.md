@@ -24,6 +24,7 @@ This MOC exists because the wiki's coverage was historically *reproductive-endoc
 Women outlive men in virtually every human population and historical period — a gap that persists even under famine, epidemic, and enslavement, and that recurs across most mammals. Yet women also carry **more** disability and frailty at a given age: the **male–female health–survival paradox**.
 
 - [[female-longevity-advantage]] — the evidence-aggregating MOC: the demographic phenomenon + eight candidate mechanisms (X-mosaicism, sex-differential epigenetic aging, estrogen, iron, immune robustness, telomeres, the countervailing mother's curse, and behaviour).
+- [[androgen-deprivation-longevity-hypothesis]] — the male-side natural-experiment evidence: do eunuchs live longer? Historical cohorts (Hamilton & Mestler 1969; Min et al. 2012), the 2026 vertebrate meta-analysis (Garratt et al.), and the Sugrue 2021 epigenetic aging result; currently contested.
 - [[frailty]] — § the male–female health–survival paradox (women frailer, longer-lived).
 
 ---

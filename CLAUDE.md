@@ -924,6 +924,7 @@ The lint pass should additionally:
 Standard operating procedures live in `sops/`. Index:
 
 - `sops/retrieving-papers.md` — DOI-based paper resolution (local full-text tooling is private; see `CLAUDE.local.md`)
+- `sops/scraping-youtube-references.md` — pulling a science-video transcript + reference list as discovery leads (video is never citable; resolve to primaries)
 - `sops/extracting-evidence.md` — what to record from a primary source
 - `sops/finding-pathway-data.md` — KEGG, Reactome, WikiPathways
 - `sops/finding-protein-data.md` — UniProt, NCBI Gene, STRING, BioGRID, CAZy

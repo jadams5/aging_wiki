@@ -838,3 +838,6 @@ Entries below are in reverse-chronological order (newest first). Each line: date
 - **2026-05-19** verify | molecules/proteins/kitlg.md (R40) → [[log/R40]]
 - **2026-05-19** verify — molecules/compounds/bakuchiol.md (R41 retinoid cluster) → [[log/R41]]
 - **2026-05-29** ingest | Tyshkovskiy 2026 *Nature* — universal transcriptomic clocks (tAge) of mammalian ageing+mortality; 4 new pages + 7 propagated + R48 schema escalation → [[log/2026-05-29]]
+- **2026-06-04** ingest | androgen-deprivation-longevity hypothesis + 2 eunuch study pages (Min 2012, Hamilton-Mestler 1969); Garratt 2026/Sugrue 2021 evidence → [[log/2026-06-04]]
+- **2026-06-04** update | leydig-cells.md — § steroidogenesis-as-self-damage + reversibility (Chen-Zirkin 1999 full-text verified; Beattie 2013 abstract); limiting-factor mechanism → [[log/2026-06-04]]
+- **2026-06-04** ingest+update | testosterone MR (Ruth 2020 + Mohammadi-Shemirani 2020, full-text verified) + testosterone.md § MR + § mTOR-rate-of-aging directionality synthesis → [[log/2026-06-04]]
