@@ -165,7 +165,7 @@ Practical barriers to human translation, beyond the scientific caveats above:
 Several companies are pursuing partial reprogramming strategies commercially; none has published human clinical data as of 2026-05-04:
 
 - **Altos Labs** (backed by Yuri Milner / Jeff Bezos) — broad reprogramming platform; attracted multiple Yamanaka-field researchers
-- **NewLimit** (co-founded by Brian Armstrong) — focused on epigenetic reprogramming with emphasis on cell-specific delivery
+- **NewLimit** (co-founded 2021 by Brian Armstrong, Blake Byers, Jacob Kimmel) — AI/genomics-driven discovery of proprietary transcription-factor combinations (not classical OSK), mRNA delivery; **liver** is the lead program. Raised a $435M Series C (Founders Fund-led, ~$3.1B valuation) in June 2026 after company-reported age-reversal in aged human liver cells; first-in-human trials announced but not yet registered. See [[in-vivo-partial-reprogramming-therapy]] for the pipeline table and sourcing caveat.
 - **Retro Biosciences** (backed by Sam Altman) — partial reprogramming + other longevity approaches
 - **Life Biosciences** — founded in part by David Sinclair; pursuing OSK clinical translation
 - **Turn Biotechnologies** — mRNA-based transient TF delivery
