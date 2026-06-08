@@ -841,3 +841,4 @@ Entries below are in reverse-chronological order (newest first). Each line: date
 - **2026-06-04** ingest | androgen-deprivation-longevity hypothesis + 2 eunuch study pages (Min 2012, Hamilton-Mestler 1969); Garratt 2026/Sugrue 2021 evidence → [[log/2026-06-04]]
 - **2026-06-04** update | leydig-cells.md — § steroidogenesis-as-self-damage + reversibility (Chen-Zirkin 1999 full-text verified; Beattie 2013 abstract); limiting-factor mechanism → [[log/2026-06-04]]
 - **2026-06-04** ingest+update | testosterone MR (Ruth 2020 + Mohammadi-Shemirani 2020, full-text verified) + testosterone.md § MR + § mTOR-rate-of-aging directionality synthesis → [[log/2026-06-04]]
+- **2026-06-07** ingest | infectious hypothesis of AD + herpes-zoster-vaccine→dementia (YouTube-lead); alzheimers-disease.md § infectious-hypothesis/HZ-vaccination + § endogenous-lithium-depletion; neurodegeneration.md §6 latent-viral-reactivation → [[log/2026-06-07]]
