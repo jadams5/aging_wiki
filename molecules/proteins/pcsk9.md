@@ -123,7 +123,7 @@ FOURIER established pre-specified cardiovascular outcomes benefit for evolocumab
 
 ### In vivo CRISPR base editing
 
-In-vivo somatic base editing of the PCSK9 locus to install LOF mutations is under development as a one-time intervention — see [[crispr-base-editing-pcsk9]] for the VERVE-101/102 program. This approach aims to replicate the lifetime LOF phenotype pharmacologically.
+In-vivo somatic base editing of the PCSK9 locus (an A·T→G·C edit at the intron-1 splice site, abolishing protein expression) is under development as a one-time intervention — see [[crispr-base-editing-pcsk9]] for the VERVE-101/102 program and [[methods/in-vivo-base-editing]] for the platform methodology. This approach aims to replicate the lifetime LOF phenotype from a single dose. The first published Phase 1 trial (VERVE-102, Vafai 2026) reported dose-dependent reductions in blood PCSK9 up to **−88%** and LDL-C up to **−62%** (absolute −78 mg/dL) at 1.0 mg/kg, durable through ≥12 months from one infusion, with no dose-limiting toxicity [^vafai2026]. #gap/long-term-unknown — durability across decades and genome-wide off-target consequences remain unestablished.
 
 ## Pathway context
 
@@ -162,3 +162,5 @@ For the integrated lipoprotein-flux pathway view (chylomicron, VLDL→IDL→LDL 
 [^sabatine2017]: doi:10.1056/NEJMoa1615664 · Sabatine MS et al. (FOURIER trial) · *NEJM* 2017 · rct · n=27,564 · model: human · median follow-up 2.2 years (26 months); evolocumab 59% LDL-C reduction (median 92→30 mg/dL); primary endpoint HR 0.85 (95% CI 0.79–0.92, P<0.001); key secondary (CV death/MI/stroke) HR 0.80 (95% CI 0.73–0.88, P<0.001) · PDF-verified 2026-05-06
 
 [^robinson2015]: doi:10.1056/NEJMoa1501031 · Robinson JG et al. (ODYSSEY LONG TERM) · *NEJM* 2015 · rct · n=2,341 (1,553 alirocumab, 788 placebo) · model: human · primary endpoint: −61.0% LDL-C at week 24 (P<0.001); post hoc MACE analysis: 1.7% alirocumab vs 3.3% placebo (HR 0.52, 95% CI 0.31–0.90, nominal P=0.02); 78 weeks treatment · PDF-verified 2026-05-06
+
+[^vafai2026]: [[studies/vafai-2026-verve-102-pcsk9]] · doi:10.1056/NEJMoa2601283 · Vafai SB, …, Kathiresan S · *N Engl J Med* 2026 · PMID 42187087 · n=35 · in-vivo (human Phase 1, single-ascending-dose) · single IV VERVE-102 (ABE v8.8 mRNA + PCSK9 gRNA, GalNAc-LNP), 0.3–1.0 mg/kg; PCSK9 −51%→−88%, LDL-C −9%→−62% across dose; durable ≥12 mo; no dose-limiting toxicity. Closed-access (NEJM) — verified against article PDF (ad-hoc ingest 2026-06-08; mirrors the queued [[studies/vafai-2026-verve-102-pcsk9]]).

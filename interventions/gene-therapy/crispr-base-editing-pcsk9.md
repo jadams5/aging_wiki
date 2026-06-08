@@ -12,16 +12,16 @@ safety-profile: investigational
 translation-gap: phase-2-needed
 next-experiment: "Phase 2 in primary CV-aging prevention in elderly patients with elevated Lp(a) or high polygenic CV risk score but no manifest disease; co-primary endpoints: ApoB reduction at 12 months + composite major adverse cardiovascular event (MACE) at 3 years; WGS off-target surveillance sub-study required."
 clinical-trials-active: 2
-literature-checked-through: 2026-05-08
+literature-checked-through: 2026-06-08
 verified: true
 verified-date: 2026-05-06
 verified-by: claude
-verified-scope: "Cohen 2006, Komor 2016, Gaudelli 2017, Chadwick 2017 claims verified against local PDFs. Musunuru 2021 (Nature) and Lee 2022 (Circulation) are closed-access (not_oa); claims verified against PubMed abstracts only — full PDF cross-check not possible for those two papers. Commentary authors (pvad095, pvad103) corrected against PubMed metadata. ClinicalTrials.gov data verified against API (NCT05398029, NCT06164730). Canonical DB identity fields not independently re-verified. R34 recency pass (2026-05-08): PubMed VERVE-101/102/PCSK9 base-editing 2024–2026 returned 92 hits scanned for primary trial data. No peer-reviewed full Phase 1 heart-1 results paper has appeared since the 2024 pass (the Hermel 2024 AHA highlights review remains the most recent context-piece; only AHA 2023 conference data exist for VERVE-101). NCT05398029 status confirmed COMPLETED, NCT06164730 confirmed RECRUITING per ClinicalTrials.gov 2026-05-08; clinical-trials-active=2 unchanged. No edits required from this pass; the heart-1 publication gap remains."
+verified-scope: "2026-06-08 update (claude): ingested the VERVE-102 full Phase 1 results (Vafai 2026, NEJM, doi:10.1056/NEJMoa2601283, PMID 42187087) extracted from the article PDF — added Phase 1 efficacy/safety to the VERVE-102 section, resolved the standing 'no full Phase 1 paper' gap for VERVE-102 (heart-1/VERVE-101 paper still unpublished), and corrected the editor description from 'Cas12-family compact nuclease' to the primary-source 'ABE v8.8 with Cas9 nickase'. The Vafai-2026 numerics here mirror the (verified:false, queued) [[studies/vafai-2026-verve-102-pcsk9]] page pending its independent verifier pass. PRIOR SCOPE: Cohen 2006, Komor 2016, Gaudelli 2017, Chadwick 2017 claims PDF-verified. Musunuru 2021 (Nature) and Lee 2022 (Circulation) are closed-access (not_oa); claims verified against PubMed abstracts only — full PDF cross-check not possible for those two papers. Commentary authors (pvad095, pvad103) corrected against PubMed metadata. ClinicalTrials.gov data verified against API (NCT05398029, NCT06164730). Canonical DB identity fields not independently re-verified. R34 recency pass (2026-05-08): PubMed VERVE-101/102/PCSK9 base-editing 2024–2026 returned 92 hits scanned for primary trial data. No peer-reviewed full Phase 1 heart-1 results paper has appeared since the 2024 pass (the Hermel 2024 AHA highlights review remains the most recent context-piece; only AHA 2023 conference data exist for VERVE-101). NCT05398029 status confirmed COMPLETED, NCT06164730 confirmed RECRUITING per ClinicalTrials.gov 2026-05-08; clinical-trials-active=2 unchanged. No edits required from this pass; the heart-1 publication gap remains."
 ---
 
 # In-vivo CRISPR base-editing of PCSK9 (VERVE-101 / VERVE-102)
 
-A single-administration in-vivo somatic-cell gene-editing therapy that permanently silences the hepatic *PCSK9* gene using adenine base-editing (ABE) delivered by lipid nanoparticles (LNPs), producing durable LDL cholesterol reduction without a double-strand DNA break. VERVE-101 (SaCas9-ABE8e + PCSK9-targeting guide RNA) entered Phase 1b (heart-1) in patients with heterozygous familial hypercholesterolemia (HeFH) and established cardiovascular disease, making it the first in-vivo base-editing therapeutic in human clinical trials. VERVE-102, a second-generation product using an engineered nuclease with improved precision, is currently recruiting (heart-2, Phase 1b). **Human evidence is limited to Phase 1b dose-escalation; no Phase 2 or hard cardiovascular endpoint data exist as of 2026-05-06.**
+A single-administration in-vivo somatic-cell gene-editing therapy that permanently silences the hepatic *PCSK9* gene using adenine base-editing (ABE) delivered by lipid nanoparticles (LNPs), producing durable LDL cholesterol reduction without a double-strand DNA break. VERVE-101 (SaCas9-ABE8e + PCSK9-targeting guide RNA) entered Phase 1b (heart-1) in patients with heterozygous familial hypercholesterolemia (HeFH) and established cardiovascular disease, making it the first in-vivo base-editing therapeutic in human clinical trials. VERVE-102, a second-generation product (reformulated GalNAc-LNP + adenine base editor v8.8), reported **full Phase 1 results in *NEJM* in 2026** (n=35; up to −88% PCSK9 and −62% LDL-C from a single dose, durable ≥12 months, no dose-limiting toxicity) [^vafai2026] — the first peer-reviewed full Phase 1 trial of an in-vivo base-editing medicine. **Human evidence remains limited to Phase 1 dose-escalation; no Phase 2 or hard cardiovascular endpoint data exist as of 2026-06-08.**
 
 See [[pcsk9]] for full PCSK9 protein biology.
 
@@ -107,15 +107,17 @@ Results were reported at AHA Scientific Sessions 2023. Preliminary data indicate
 
 **Note:** Full peer-reviewed Phase 1 results paper is not yet confirmed as published in the archive as of 2026-05-06. Commentaries in *European Heart Journal - Cardiovascular Pharmacotherapy* (Horie and Ono [^horie2023]; Lewis [^nakaya2023]; both published Feb 2024) contextualize early results from the AHA 2023 presentation. Verifiers should check for a primary results paper (expected NEJM, NEJM Evidence, or Nature Medicine) #gap/needs-replication.
 
-### VERVE-102 — heart-2 (Phase 1b, ongoing)
+### VERVE-102 — heart-2 (Phase 1b) — **full Phase 1 results published 2026**
 
-**NCT06164730** — open-label Phase 1b dose-escalation in HeFH or premature coronary artery disease patients.
+**NCT06164730** — open-label, single-ascending-dose Phase 1 in HeFH and/or premature coronary artery disease patients. **Primary peer-reviewed results: Vafai et al., *NEJM* 2026** [^vafai2026] — see [[studies/vafai-2026-verve-102-pcsk9]] for the full extraction and [[methods/in-vivo-base-editing]] for the platform methodology.
 
-- **Status:** Recruiting (as of 2026-05-06)
-- **n (target):** ~85
-- **Key differences from VERVE-101:** switched from SaCas9 to an engineered compact nuclease (reported as Cas12-family; reduces immunogenicity and improves packaging efficiency); GalNAc-conjugated LNP for enhanced hepatocyte targeting; improved guide RNA design based on VERVE-101 learnings [^heart2abstract2024]
+- **Status:** Recruiting; interim analysis of n=35 (data-cutoff 2026-02-27) now published; planned enrollment up to 85
+- **Editor:** the NEJM report specifies VERVE-102 as an **adenine base editor v8.8** — an engineered adenosine deaminase fused to a catalytically-impaired **Cas9 nickase** [^vafai2026]. (This corrects the earlier "Cas12-family compact nuclease" description on this page, which came from pre-publication conference materials; the primary source describes a Cas9-based editor.)
+- **Key differences from VERVE-101:** a reformulated, **GalNAc-conjugated LNP** (adds ASGPR-mediated hepatocyte uptake on top of ApoE/LDLR uptake) and an updated base editor; the authors attribute VERVE-102's improved acute safety primarily to the LNP formulation + GalNAc change rather than to the editor [^vafai2026].
 
-The switch from SaCas9 to the engineered nuclease addresses two concerns: (1) SaCas9 is immunogenic due to prior *S. aureus* exposure in human populations, and (2) the compact nuclease allows smaller LNP payload with higher molar efficiency.
+**Phase 1 efficacy (Vafai 2026, time-averaged from day 28):** dose-dependent reduction in blood PCSK9 from **−51%** (0.3 mg/kg) to **−88%** (1.0 mg/kg), and LDL-C from −9% to **−62%** (absolute **−78 mg/dL** at 1.0 mg/kg; baseline 128 → 51 mg/dL). Total RNA dose correlated with LDL reduction (r=−0.68). Effects appeared durable through ≥12 months (15/35 with ≥1 yr follow-up) [^vafai2026].
+
+**Phase 1 safety:** no dose-limiting toxic effects, deaths, or withdrawals. Any AE 74%; infusion-related reactions 20% (all grade 1–2); transient asymptomatic ALT ≤2.4× ULN in 3/35 peaking day 3–4. One serious AE (grade 3 aspiration pneumonitis in a participant with GERD/hiatal hernia) was adjudicated **unrelated**. LNP terminal half-life <20 h [^vafai2026].
 
 ---
 
@@ -135,7 +137,7 @@ This "cumulative-exposure advantage" is the core geroprotective argument for bas
 |---|---|---|
 | Pathway conserved in humans? | yes | PCSK9-LDLR axis is well-conserved; NHP results directly inform human predictions |
 | Phenotype conserved in humans? | yes | Natural human LOF variants (Cohen 2006) directly demonstrate the LDL-lowering phenotype |
-| Replicated in humans? | in-progress | Phase 1b heart-1 complete; heart-2 recruiting; Phase 2 not yet initiated |
+| Replicated in humans? | in-progress | heart-1 complete (unpublished); **heart-2 (VERVE-102) full Phase 1 published, NEJM 2026** [^vafai2026]; Phase 2 not yet initiated |
 
 ---
 
@@ -179,8 +181,8 @@ This precedent is directly relevant to other aging gene-therapy programs — see
 
 ## Limitations and gaps
 
-- **No published peer-reviewed full Phase 1 results paper as of 2026-05-06.** Conference presentation data (AHA 2023) is not peer-reviewed primary evidence. #gap/needs-replication
-- **Sample sizes are very small.** n=13 in heart-1 provides no statistical power for safety conclusions. Rare adverse events cannot be excluded. #gap/long-term-unknown
+- **VERVE-102 full Phase 1 now published (Vafai 2026, NEJM)** [^vafai2026] — this resolves the long-standing "no full Phase 1 paper" gap *for VERVE-102*. The **VERVE-101 heart-1** full results paper remains unpublished as of 2026-06-08 (only AHA 2023 conference data). #gap/needs-replication
+- **Sample sizes are small.** n=35 (VERVE-102, six dose cohorts of 4–8) and n=13 (heart-1) provide limited power for safety conclusions; rare adverse events cannot be excluded. #gap/long-term-unknown
 - **Long-term durability unproven in humans.** NHP data extend to 8 months; hepatocyte turnover over years/decades could reduce editing efficiency. #gap/long-term-unknown
 - **Cancer surveillance absent.** Unlike AAV-TERT, ABE/PCSK9 does not raise direct oncogenic concerns (PCSK9 is not a cancer driver), but long-term WGS surveillance for off-target editing consequences has not been published. #gap/long-term-unknown
 - **[[pcsk9]] protein page is a stub.** All PCSK9 protein-level detail (structure, LDLR-binding mechanism, cleavage, tissue expression, other LOF variants) should live there, not on this page.
@@ -189,7 +191,9 @@ This precedent is directly relevant to other aging gene-therapy programs — see
 
 ## Cross-references
 
-- [[pcsk9]] (no page — wikilink-stub; seed R24+)
+- [[studies/vafai-2026-verve-102-pcsk9]] — primary Phase 1 publication (NEJM 2026)
+- [[methods/in-vivo-base-editing]] — the base-editing platform / methodology (off-target landscape, delivery ramifications)
+- [[pcsk9]] — full target biology
 - [[chronic-inflammation]] — cardiovascular aging hallmark; atherosclerosis as inflammation driver
 - [[altered-intercellular-communication]] — PCSK9 pleiotropic vascular signaling
 - [[aav-tert]] (verified R18) — sibling gene-therapy modality; telomere-attrition target
@@ -220,3 +224,5 @@ This precedent is directly relevant to other aging gene-therapy programs — see
 [^nakaya2023]: doi:10.1093/ehjcvp/pvad095 · Lewis BS · Eur Heart J Cardiovasc Pharmacother 2024 (published Feb 23, 2024; 10(2):87-88) · news from AHA; summarizes first-in-human VERVE-101 heart-1 findings reported at AHA Scientific Sessions 2023; not peer-reviewed primary results paper · archive: download failed (bronze OA — PDF access issue)
 
 [^heart2abstract2024]: doi:10.1161/circ.150.suppl_1.4139206 · Verve Therapeutics · Circulation 2024 (AHA abstract) · design of heart-2 trial (VERVE-102, GalNAc-LNP, engineered nuclease); Phase 1b; ~85 patients HeFH or premature CAD; conference abstract only; 11 citations · archive: not confirmed via metadata
+
+[^vafai2026]: [[studies/vafai-2026-verve-102-pcsk9]] · doi:10.1056/NEJMoa2601283 · Vafai SB, Täubel J, …, Khera AV, Kathiresan S · *N Engl J Med* 2026 · PMID 42187087 · n=35 · in-vivo (human Phase 1, single-ascending-dose, non-randomized) · NCT06164730 (Heart-2); single IV VERVE-102 (ABE v8.8 mRNA + PCSK9 gRNA, GalNAc-LNP), 0.3–1.0 mg/kg total RNA; at 1.0 mg/kg PCSK9 −88% and LDL-C −62% (−78 mg/dL absolute), durable ≥12 mo; no dose-limiting toxicity; 1 unrelated SAE; transient ALT ≤2.4× ULN in 3/35; LNP t½ <20 h. Sponsor: Verve Therapeutics (Eli Lilly). Closed-access (NEJM) — verified against article PDF.
