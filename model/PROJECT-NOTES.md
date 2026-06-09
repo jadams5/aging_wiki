@@ -324,10 +324,29 @@ sizes (never free-fit — same discipline as the `fit` harness bullet).
 | **Diabetes mellitus** | `E10–E14` | new `diabetes` | HbA1c (dominant), BMI, activity/fitness | CDC codes direct-diabetes deaths only (diabetic CVD already codes to CVD), so endpoint-clean. The NEW HbA1c→diabetes edge is a *different endpoint* from the existing HbA1c→CVD/cancer/dementia mediator edges — not a double-count, but anchor it to direct-diabetes-mortality RR, not all-cause. |
 | **Chronic lower respiratory (COPD)** | `J40–J47` | new `copd` | smoking (dominant; the smoking-status mediator note already anticipates "smoking→COPD"), PM2.5, chronic-inflammation | Clean. Current-smoker RR is large (~12–25×); use the categorical smoking mediator already built for smoking→cancer/CVD. |
 | **Chronic kidney disease** | `N00–N07, N17–N19, N25–N27` | new `ckd` | SBP (dominant), HbA1c (diabetic nephropathy) | Endpoint-clean (nephritis/nephrosis coded separately from diabetes & CVD). Shares SBP/HbA1c drivers with CVD/diabetes — fine, different endpoint. |
-| **Chronic liver disease & cirrhosis** | `K70, K73–K74` | new `liver` | alcohol (dominant), BMI+HbA1c (NAFLD/MASH path) | **Already partially modeled**: an `alcohol→liver(residual)` hinge edge exists — splitting `liver` out lets that edge target a proper node and removes it from the residual bucket cleanly. |
+| **Chronic liver disease & cirrhosis** | `K70, K73–K74` (optionally +`K75.81`,`K76.0` — see note) | new `liver` | **alcohol** (K70, dominant *labeled* share) **+ metabolic: BMI + HbA1c** (MASLD/MASH→cirrhosis, lands in K74) | **Two etiologies, not alcohol-only** — see liver note below. **Already partially modeled**: an `alcohol→liver(residual)` hinge edge exists; splitting `liver` out lets that edge target a proper node and removes it from residual cleanly — but it MUST gain metabolic (BMI/HbA1c) edges too, or it mis-attributes the growing under-coded MASLD share. |
 | **Parkinson disease** | `G20–G21` | **extend** `neurodegeneration` | (shares proteostasis/neuro drivers) | Prefer extending the neuro node's `cdc:` code set + Rmax over a new node — same upstream biology. Reclaims a slice of residual into neuro. |
 | **Hypertensive disease (remainder)** | `I10, I12, I15` (parts not in CVD's I11/I13) | **fold into** `cardiovascular` | SBP already drives CVD | Small; extend CVD code set rather than a new node. |
 | **Aortic aneurysm / other arterial** | `I71` (+ parts of `I70`) | **fold into** `cardiovascular` | shared atherosclerosis driver | Small; extend CVD. |
+
+**Liver note — etiology split & coding caveat.** The GR113 "Chronic liver disease
+and cirrhosis" group (`K70, K73, K74`) is NOT alcohol-only: `K70` is alcohol-specific,
+but `K73` (chronic hepatitis NEC) and especially `K74` (fibrosis & cirrhosis,
+etiology-agnostic) capture non-alcoholic cirrhosis — end-stage **MASLD/MASH**
+(formerly NAFLD/NASH) usually lands in `K74` as "cryptogenic"/unspecified cirrhosis
+because the certificate records the end-stage, not the upstream steatohepatitis. So
+the `liver` node needs BOTH an **alcohol** edge (K70, dominant labeled share — alcohol-
+associated deaths rose sharply post-2020) and **metabolic edges (BMI + HbA1c)** for the
+MASLD path; alcohol-only would mis-attribute the fast-growing under-coded metabolic
+share. Caveats: (a) the MASLD-*specific* codes `K75.81` (MASH) and `K76.0` (fatty liver
+NEC) are NOT in the GR113 group — they currently sit in our residual; decision point is
+keep GR113-standard (model MASLD via K74, accept undercount) vs expand the node to
+`+K75.81,K76.0` and pull them from residual. (b) Death-certificate liver coding is known
+to UNDERCOUNT MASLD (cryptogenic cirrhosis, or attributed to diabetes/obesity
+comorbidity), so the CDC curve under-represents true metabolic-liver mortality — note it
+in the node's provenance. (c) Watch double-count with `diabetes`/BMI J-curve: the
+BMI→liver and HbA1c→liver edges are a *distinct endpoint* from BMI/HbA1c→CVD/diabetes,
+so not a double-count, but anchor them to liver-specific RRs.
 
 **Stays in residual (the irreducible / non-mechanistic remainder — keep age-keyed):**
 COVID-19 `U07.1` (pandemic-transient, inflates the 2022 residual vs other years;
