@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aging causal-graph simulator (v0.3 + B-layer)</title>
+<title>Aging causal-graph simulator (v0.4 + B-layer)</title>
 <style>
   :root {
     /* Layer palette */
@@ -140,7 +140,7 @@
 </head>
 <body>
 <header>
-  <h1>Aging causal-graph simulator (v0.3 + B-layer)</h1>
+  <h1>Aging causal-graph simulator (v0.4 + B-layer)</h1>
   <div class="disclaimer">
     Illustrative sensitivity model &mdash; parameters are mostly illustrative (see causal-graph-parameters.md).
     <b>v0.4 &mdash; sex-specific competing hazards (CDC WONDER 2022); no sex scalar &mdash; female CVD-onset delay &amp; male external excess emerge from data. Old-age escalation is now burden-driven (no age-keyed Gompertz factor): cause hazards use an odds link Rmax&middot;B/(1&minus;B) on reserve-depletion burden, so interventions bend the &gt;90 mortality curve.</b>
@@ -217,14 +217,13 @@
 
   <!-- RIGHT COLUMN ROW 1 (stacked under controls): survival + LE -->
   <div class="panel">
-    <h2>Survival &amp; life expectancy</h2>
-    <div class="sub" id="survSub"></div>
-    <svg id="survSvg" viewBox="0 0 520 170" preserveAspectRatio="xMidYMin meet"></svg>
+    <h2>Life expectancy</h2>
     <div>
       <span class="le-big" id="leVal">&mdash;</span>
       <span style="color:var(--muted);font-size:13px;">yrs life expectancy</span>
       <span class="le-delta zero" id="leDelta"></span>
     </div>
+    <div class="sub" id="survSub" style="margin-top:6px;"></div>
   </div>
   </div><!-- /.right-stack -->
 
@@ -233,7 +232,7 @@
     <details class="blayer" id="blayerDetails">
       <summary>Lifestyle &amp; environment &middot; Labs <span style="font-weight:400;color:var(--muted);font-size:12px;">(B-layer &mdash; drives mediator values &amp; their mortality multipliers)</span></summary>
       <div class="sub" style="margin-top:6px;">
-        Defaults are each input's population mean, so the all-default state reproduces the v0.3 baseline exactly.
+        Defaults are each input's population mean, so the all-default state reproduces the v0.4 baseline exactly.
         Lab fields anchor a person's mediator curve to a measured value at the chosen current age (held forward).
         &Delta;LE is read vs the all-default baseline.
       </div>
@@ -272,8 +271,8 @@
   <div class="panel row2-right">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
       <div>
-        <h2 style="display:inline;">Cause of death by age</h2>
-        <div class="sub">Stacked hazard decomposition over age. External causes dominate youth &rarr; cancer &amp; cardiovascular rise in midlife (with a large &ldquo;other causes&rdquo; band) &rarr; cardiovascular dominates old age.</div>
+        <h2 style="display:inline;">Cause of death &amp; survival by age</h2>
+        <div class="sub">Stacked hazard decomposition (<b>left axis</b>) with the survival curve overlaid (<b>right axis</b>, 0&ndash;100%): solid navy = current scenario, dashed grey = all-default baseline. Shared age x-axis. External causes dominate youth &rarr; cancer &amp; cardiovascular rise in midlife &rarr; cardiovascular dominates old age.</div>
       </div>
       <span class="seg-mini" id="codModeSeg">
         <button data-mode="share" class="active">Share of total</button>
@@ -3228,9 +3227,9 @@ function renderGraph(){
 /* ---- decomposition accessor: engine returns decomposition[k].parts ---- */
 function partsAt(sim, k){ return sim.decomposition[k].parts; }
 
-// ---- Cause-of-death stacked-area panel ----
+// ---- Cause-of-death stacked-area panel (with survival overlay, right axis) ----
 const CW = 1080, CH = 210;
-const C_M = { l: 52, r: 14, t: 10, b: 24 };
+const C_M = { l: 52, r: 44, t: 10, b: 24 };
 function cx(age){ return C_M.l + (CW - C_M.l - C_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 
 // Plain (non-exponential) hazard label, units yr^-1. Decimals scale with
@@ -3242,7 +3241,7 @@ function fmtHaz(v){
   return v.toFixed(dec);
 }
 
-function renderCauseOfDeath(sim){
+function renderCauseOfDeath(sim, base){
   const svg = document.getElementById("codSvg");
   svg.innerHTML = "";
   const share = (state.codMode === "share");
@@ -3316,6 +3315,33 @@ function renderCauseOfDeath(sim){
     for (let k = 0; k < N_AGE; k++) cum[k] = newCum[k];
   }
 
+  // ---- Survival overlay (right Y axis, 0–100%, shared age x-axis) ----
+  function survY(v){ return plotBot - plotH * v; }   // v in [0,1]
+  for (let f = 0; f <= 1.0001; f += 0.25){
+    const y = survY(f);
+    el("line", { x1: CW - C_M.r, y1: y, x2: CW - C_M.r + 4, y2: y, stroke: "#1a2533" }, svg);
+    el("text", { x: CW - C_M.r + 7, y: y + 3, "text-anchor": "start", "font-size": "10", fill: "#1a2533" }, svg)
+      .textContent = Math.round(f * 100) + "%";
+  }
+  // axis titles: left = cause scale, right = survival
+  el("text", { x: C_M.l - 2, y: plotTop - 2, "text-anchor": "end", "font-size": "9", fill: "#999" }, svg)
+    .textContent = share ? "% of deaths" : "hazard/yr";
+  el("text", { x: CW - C_M.r + 2, y: plotTop - 2, "text-anchor": "start", "font-size": "9", fill: "#1a2533" }, svg)
+    .textContent = "survival";
+  // baseline survival (dashed grey)
+  if (base && base.survival){
+    let db = "";
+    for (let k = 0; k <= kMax; k++)
+      db += (k===0?"M":"L") + cx(AGES[k]).toFixed(1) + "," + survY(base.survival[k]).toFixed(1) + " ";
+    el("path", { d: db, fill: "none", stroke: "#999", "stroke-width": "1.6", "stroke-dasharray": "4,3", opacity: "0.9" }, svg);
+  }
+  // scenario survival (solid navy, white casing for contrast over the bands)
+  let ds = "";
+  for (let k = 0; k <= kMax; k++)
+    ds += (k===0?"M":"L") + cx(AGES[k]).toFixed(1) + "," + survY(sim.survival[k]).toFixed(1) + " ";
+  el("path", { d: ds, fill: "none", stroke: "#fff", "stroke-width": "4", opacity: "0.6" }, svg);
+  el("path", { d: ds, fill: "none", stroke: "#1a2533", "stroke-width": "2.4" }, svg);
+
   el("text", { x: (C_M.l + CW - C_M.r)/2, y: CH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
     .textContent = "age (years)";
 
@@ -3337,7 +3363,7 @@ function renderCauseOfDeath(sim){
       const pct = (v / tot * 100);
       return { key, v, pct };
     }).sort((a, b) => b.v - a.v);
-    let html = `Age <b>${age}</b> &mdash; `;
+    let html = `Age <b>${age}</b> &mdash; <span style="color:#1a2533;font-weight:700">survival ${(sim.survival[k]*100).toFixed(0)}%</span> &middot; `;
     html += rows.map(r =>
       `<span style="color:${CAUSE_COLOR[r.key]};font-weight:600">${CAUSE_LABEL[r.key]}</span> ${r.pct.toFixed(0)}%`
     ).join(" &middot; ");
@@ -3353,7 +3379,9 @@ function buildCodLegend(){
   const wrap = document.getElementById("codLegend");
   wrap.innerHTML = CAUSE_KEYS.map(key =>
     `<span class="item"><span class="swatch" style="background:${CAUSE_COLOR[key]}"></span>${CAUSE_LABEL[key]}</span>`
-  ).join("");
+  ).join("") +
+    `<span class="item"><span class="swatch" style="background:#1a2533"></span>survival (scenario)</span>` +
+    `<span class="item"><span class="swatch" style="background:#999"></span>survival (baseline)</span>`;
 }
 
 // ---- Burden timeline ----
@@ -3486,41 +3514,12 @@ function updateLimitReadout(sim, k, age){
 }
 
 // ---- Survival panel ----
-const SW = 520, SH = 170;
-const S_M = { l: 40, r: 12, t: 8, b: 22 };
-function sx(age){ return S_M.l + (SW - S_M.l - S_M.r) * (age - AGE0) / (X_MAX - AGE0); }
-function sy(v){ return S_M.t + (SH - S_M.t - S_M.b) * (1 - v); }
-
+// Survival is now overlaid on the Cause-of-death chart (right axis). This only
+// keeps the LE-panel caption in sync; no standalone survival SVG anymore.
 function renderSurvival(sim, base){
-  const svg = document.getElementById("survSvg");
-  svg.innerHTML = "";
-  for (let v = 0; v <= 1.0001; v += 0.25){
-    const y = sy(v);
-    el("line", { x1: S_M.l, y1: y, x2: SW - S_M.r, y2: y, stroke: "#eee" }, svg);
-    const t = el("text", { x: S_M.l - 5, y: y + 3, "text-anchor": "end", "font-size": "9", fill: "#999" }, svg);
-    t.textContent = v.toFixed(2);
-  }
-  for (const age of xTicks()){
-    const x = sx(age);
-    el("text", { x: x, y: SH - S_M.b + 13, "text-anchor": "middle", "font-size": "9", fill: "#999" }, svg).textContent = age;
-  }
-
-  if (base.survival){
-    let d0 = "";
-    for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
-      d0 += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(base.survival[k]).toFixed(1) + " ";
-    }
-    el("path", { d: d0, fill: "none", stroke: "#bbb", "stroke-width": "1.4", "stroke-dasharray": "4,3" }, svg);
-  }
-
-  let d = "";
-  for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
-    d += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(sim.survival[k]).toFixed(1) + " ";
-  }
-  el("path", { d: d, fill: "none", stroke: "#2c3e50", "stroke-width": "2.2" }, svg);
-
   document.getElementById("survSub").innerHTML =
-    `Solid = current scenario; dashed grey = all-default baseline (${state.sex}, lifestyle &times;1.0, no inputs/treatments/labs/interventions).`;
+    `Survival curve is overlaid on the <b>Cause of death &amp; survival</b> chart (right axis). ` +
+    `&Delta;LE vs all-default baseline (${state.sex}, lifestyle &times;1.0, no inputs/treatments/labs/interventions).`;
 }
 
 // ---- Mediator readout panel (LDL / SBP / HbA1c vs baseline) ----
@@ -3798,7 +3797,7 @@ function renderAll(){
 
   renderGraph();
   renderMediators(sim);
-  renderCauseOfDeath(sim);
+  renderCauseOfDeath(sim, base);
   renderBurden(sim);
   renderSurvival(sim, base);
 
@@ -3834,7 +3833,7 @@ function buildLegend(){
     "</div>" +
     `<div class="hint">Border weight/style = clinical tractability; fill color = biological layer; in-node glyph = role. ` +
     `<code>ordinal-default</code> parameters are illustrative only. ` +
-    `Mortality is a v0.3 sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; ` +
+    `Mortality is a v0.4 sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; ` +
     `female CVD-onset delay &amp; male external excess emerge from data), amplified by a ` +
     `sarcopenia frailty multiplier; clonal-hematopoiesis is a driver with no own death line. ` +
     `The extrinsic channel (accidents / lifestyle) is non-cascading and scaled by the Lifestyle slider.</div>`;
@@ -3927,7 +3926,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
     for (let k = 0; k < N_AGE; k++) maxDev = Math.max(maxDev, Math.abs(b[k] - t[k]));
   }
   const okNodes = (NODES.length === 18), okEdges = (MODEL.edges.length === 38);
-  const okVer = (MODEL.meta.version === "v0.3");
+  const okVer = (MODEL.meta.version === "v0.4");
   const leM = simulate(MODEL, { sex: "male" }).LE;
   const leF = simulate(MODEL, { sex: "female" }).LE;
 
@@ -3936,7 +3935,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
   } else if (!okNodes || !okEdges || !okVer){
     console.error("Self-check FAILED: structure counts.", { nodes: NODES.length, edges: MODEL.edges.length, version: MODEL.meta.version });
   } else {
-    console.log("Self-check OK: v0.3 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
+    console.log("Self-check OK: v0.4 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
                 "nodes=" + NODES.length + " edges=" + MODEL.edges.length + ";",
                 "baseline LE male=" + leM.toFixed(2) + " female=" + leF.toFixed(2) + " (target 75.82 / 80.89).");
   }
