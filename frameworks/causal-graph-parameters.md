@@ -162,13 +162,13 @@ Real cause-of-death data forced this addition: external causes (unintentional in
 ```json
 {
   "meta": {
-    "version": "v0.3",
+    "version": "v0.4",
     "ageRange": [
       20,
       130
     ],
     "dt": 1,
-    "couple": 1.0,
+    "couple": 1,
     "note": "Illustrative parameter layer for aging-simulator v0.3. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC-WONDER-2022 SEX-SPECIFIC competing hazards (no sex scalar). NOT verified facts; sensitivity-exploration only."
   },
   "strengthToGain": {
@@ -185,7 +185,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
   "mortality": {
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
-      "lifestyleMult": 1.0,
+      "lifestyleMult": 1,
       "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
       "byAge": {
         "male": [
@@ -337,6 +337,22 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           [
             90,
             0.055532
+          ],
+          [
+            100,
+            0.132021
+          ],
+          [
+            110,
+            0.313864
+          ],
+          [
+            120,
+            0.746174
+          ],
+          [
+            130,
+            1.773942
           ]
         ],
         "female": [
@@ -371,6 +387,22 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           [
             90,
             0.04114
+          ],
+          [
+            100,
+            0.097806
+          ],
+          [
+            110,
+            0.232521
+          ],
+          [
+            120,
+            0.552791
+          ],
+          [
+            130,
+            1.314197
           ]
         ]
       },
@@ -380,12 +412,8 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     "oldAgeTail": {
       "rate": 0,
       "fromAge": 90,
-      "note": "DEPRECATED v0.4 (2026-06-09): old-age escalation is no longer an age-keyed hazard factor. It now emerges from the cause-node RESERVE-DEPLETION burden tables (B asymptotes toward 1; odds link Rmax*B/(1-B) converts reserve->hazard) so interventions bend the >90 mortality curve. rate kept 0 for back-compat; nothing in the engine multiplies by it. Residual carries its own escalation in its age table."
+      "note": "DEPRECATED v0.4 (2026-06-09): old-age escalation is no longer an age-keyed hazard factor. It now emerges from the cause-node RESERVE-DEPLETION burden tables (B asymptotes toward 1; odds link Rmax*B/(1-B) in engine.mjs converts reserve->hazard) so interventions that slow burden accumulation bend the >90 mortality curve. rate kept 0 for back-compat; nothing in the engine multiplies by it anymore. Residual (unmodeled remainder) carries its own escalation in its age table."
     }
-    // NOTE: the cause-node `byAge` tables and the residual table snapshotted above
-    // predate the v0.4 reserve-depletion transform (B' = h/(1+h) with >90 anchors,
-    // residual extended to 130). model/params.json is canonical; this doc snapshot
-    // illustrates structure, not current numerics.
   },
   "nodes": [
     {
@@ -429,11 +457,11 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       "curve": {
         "form": "linear",
         "params": {
-          "t0": 0.0,
+          "t0": 0,
           "slope": 0.0115
         },
         "female": {
-          "t0": 0.0,
+          "t0": 0,
           "slope": 0.0108
         }
       }
@@ -586,31 +614,55 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           ],
           [
             30,
-            0.002285
+            0.00228
           ],
           [
             40,
-            0.007916
+            0.007854
           ],
           [
             50,
-            0.023345
+            0.022812
           ],
           [
             60,
-            0.059632
+            0.056276
           ],
           [
             70,
-            0.121294
+            0.108173
+          ],
+          [
+            75,
+            0.140209
           ],
           [
             80,
-            0.286352
+            0.222608
+          ],
+          [
+            85,
+            0.378453
           ],
           [
             90,
-            1.0
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
@@ -621,31 +673,55 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             ],
             [
               30,
-              0.001448
+              0.001446
             ],
             [
               40,
-              0.004914
+              0.00489
             ],
             [
               50,
-              0.01303
+              0.012862
             ],
             [
               60,
-              0.033255
+              0.032185
             ],
             [
               70,
-              0.077676
+              0.072077
+            ],
+            [
+              75,
+              0.099407
             ],
             [
               80,
-              0.231733
+              0.188136
+            ],
+            [
+              85,
+              0.365608
             ],
             [
               90,
-              1.0
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -664,70 +740,118 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "byAge": [
           [
             20,
-            0.001705
+            0.001702
           ],
           [
             30,
-            0.003641
+            0.003628
           ],
           [
             40,
-            0.010092
+            0.009991
           ],
           [
             50,
-            0.036406
+            0.035127
           ],
           [
             60,
-            0.1247
+            0.110874
           ],
           [
             70,
-            0.285023
+            0.221804
+          ],
+          [
+            75,
+            0.28366
           ],
           [
             80,
-            0.543917
+            0.352297
+          ],
+          [
+            85,
+            0.4317
           ],
           [
             90,
-            1.0
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
           "byAge": [
             [
               20,
-              0.002081
+              0.002077
             ],
             [
               30,
-              0.006484
+              0.006442
             ],
             [
               40,
-              0.023533
+              0.022992
             ],
             [
               50,
-              0.068919
+              0.064475
             ],
             [
               60,
-              0.183943
+              0.155365
             ],
             [
               70,
-              0.360202
+              0.264815
+            ],
+            [
+              75,
+              0.332445
             ],
             [
               80,
-              0.656688
+              0.396386
+            ],
+            [
+              85,
+              0.45218
             ],
             [
               90,
-              1.0
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -746,15 +870,15 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "byAge": [
           [
             20,
-            0.0
+            0
           ],
           [
             30,
-            1.8e-05
+            0.000018
           ],
           [
             40,
-            4.4e-05
+            0.000044
           ],
           [
             50,
@@ -762,34 +886,58 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           ],
           [
             60,
-            0.004081
+            0.004064
           ],
           [
             70,
-            0.028259
+            0.027482
+          ],
+          [
+            75,
+            0.054381
           ],
           [
             80,
-            0.187196
+            0.157679
+          ],
+          [
+            85,
+            0.355236
           ],
           [
             90,
-            1.0
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
           "byAge": [
             [
               20,
-              0.0
+              0
             ],
             [
               30,
-              0.0
+              0
             ],
             [
               40,
-              3.2e-05
+              0.000032
             ],
             [
               50,
@@ -797,19 +945,43 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             ],
             [
               60,
-              0.003034
+              0.003025
             ],
             [
               70,
-              0.022594
+              0.022095
+            ],
+            [
+              75,
+              0.045206
             ],
             [
               80,
-              0.166392
+              0.142655
+            ],
+            [
+              85,
+              0.347488
             ],
             [
               90,
-              1.0
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -828,70 +1000,118 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "byAge": [
           [
             20,
-            0.001244
+            0.001242
           ],
           [
             30,
-            0.004561
+            0.00454
           ],
           [
             40,
-            0.010574
+            0.010463
           ],
           [
             50,
-            0.024881
+            0.024277
           ],
           [
             60,
-            0.06158
+            0.058008
           ],
           [
             70,
-            0.13954
+            0.122453
+          ],
+          [
+            75,
+            0.168144
           ],
           [
             80,
-            0.337757
+            0.25248
+          ],
+          [
+            85,
+            0.390198
           ],
           [
             90,
-            1.0
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
           "byAge": [
             [
               20,
-              0.001768
+              0.001765
             ],
             [
               30,
-              0.0056
+              0.005569
             ],
             [
               40,
-              0.012084
+              0.01194
             ],
             [
               50,
-              0.028883
+              0.028072
             ],
             [
               60,
-              0.06985
+              0.06529
             ],
             [
               70,
-              0.153551
+              0.133112
+            ],
+            [
+              75,
+              0.181065
             ],
             [
               80,
-              0.358385
+              0.263832
+            ],
+            [
+              85,
+              0.394634
             ],
             [
               90,
-              1.0
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -1430,7 +1650,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             ],
             [
               85,
-              28.0
+              28
             ]
           ]
         },
@@ -1545,7 +1765,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       {
         "from": "calorieBalance",
         "to": "BMI",
-        "coeff": 1.0,
+        "coeff": 1,
         "form": "weightDynamic",
         "provenance": "Hall 2013: static 7700 kcal/kg OVERSTATES ~40-50% long-term; use dynamic decay. SOLID. Form: asymptotic body-weight change from a sustained energy-balance offset, converted to BMI via heightRefM."
       },
@@ -1631,7 +1851,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "med": "HbA1c",
         "slope": 1.052,
         "threshold": 5.7,
-        "cap": 3.0,
+        "cap": 3,
         "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 reached at HbA1c 6.5 => exp(1.052*(6.5-5.7))=2.32; ramp from 5.7, capped 3.0. Ratio-to-baseline so =1 at the per-age baseline HbA1c. SOLID."
       },
       {
@@ -1660,7 +1880,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "form": "smokingCategorical",
         "input": "smokingStatus",
         "rr": {
-          "never": 1.0,
+          "never": 1,
           "former": 1.3,
           "current": 2.2
         },
@@ -1672,9 +1892,9 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "form": "smokingCategorical",
         "input": "smokingStatus",
         "rr": {
-          "never": 1.0,
-          "former": 2.0,
-          "current": 6.0
+          "never": 1,
+          "former": 2,
+          "current": 6
         },
         "provenance": "COPD slice of residual; stronger smoking gradient never 1.0 / former 2.0 / current 6.0. NORMALIZED by mix mean (0.61+0.50+0.84=1.95): never~0.513 / former~1.026 / current~3.077. Applied to the whole residual bucket as an approximation (COPD is the dominant smoking-attributable residual cause). APPROXIMATE."
       },
@@ -1684,7 +1904,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "form": "smokingCategorical",
         "input": "smokingStatus",
         "rr": {
-          "never": 1.0,
+          "never": 1,
           "former": 1.3,
           "current": 1.9
         },
@@ -1707,11 +1927,11 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           ],
           [
             150,
-            0.0
+            0
           ],
           [
             300,
-            1.0
+            1
           ],
           [
             600,

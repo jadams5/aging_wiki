@@ -283,14 +283,68 @@ already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseli
 - **exogenous→latent wiring** (optional) — so a smoker's genomic-instability rises
   and the burden timeline responds to lifestyle (the cascade we discussed).
 - **More completeness** — sleep/diet-axis edges to causes; more mediators (HDL/TG,
-  hsCRP as a live mediator); decompose the large "other/residual" bucket (COPD,
-  diabetes, kidney, liver) so named-cause crossovers sharpen.
+  hsCRP as a live mediator); **decompose the residual into named CDC causes — full
+  roadmap in §8a below** (the agreed direction: shrink the age-keyed residual by
+  converting ignorance into grounded named-cause nodes, NOT by adding a generic
+  "unknown" sink with unidentifiable upstream edges).
 - **Personal-offset polish** — percentile-held (not just additive) + multi-draw
   trajectory fitting + mild regression-to-mean.
 - **Wiki-maintenance leads** surfaced by the audit (seed a cancer-PAF layer; create
   `rdw-biomarker.md`; add TMRC 2017 / Salosensaari 2021 / Lancet Commission 2024
   citations; cite Blokzijl 2016 directly).
 - **Publishing** — wire into Quartz (currently a local double-click artifact).
+
+### 8a. Residual decomposition — CDC-backed causes to implement
+
+The current residual = `all-cause_sex(age) − Σ(4 modeled causes) − extrinsic`
+(CDC WONDER 2022, per sex). It is the only intentionally age-keyed mortality term
+left after v0.4 — the honest "we haven't modeled this mechanism" bucket. The agreed
+plan is to **shrink it by splitting out named, CDC-backed causes** one at a time,
+each becoming a graph node that flows through the v0.4 odds link automatically. We
+intend to implement **all** of the Tier-A/B causes below; this table is the
+enumeration so each is turnkey.
+
+**Already modeled (for reference — what the residual EXCLUDES):** cardiovascular
+`I00-09,I11,I13,I20-51 + I60-69`; cancer `C00-C97`; neurodegeneration/dementia
+`G30,F01,F03,G31`; infection `J09-18 + A40-41`; extrinsic `accidents−falls +
+suicide + homicide`.
+
+**Per-cause implementation recipe (same for every row):** (1) pull the cause's
+CDC WONDER 2022 per-sex age curve (the `cdc:` code string is the WONDER query);
+(2) `Rmax_{c,sex}` = the curve's 85+/age-90 anchor rate; (3) burden table =
+reserve transform `B' = h/(1+h)` of `h = CDC_rate/Rmax` at each anchor, then the
+shared >90 reserve anchors `[90,0.5] [100,0.7039] [110,0.8497] [120,0.9307]
+[130,0.9696]`; (4) **recompute residual** = all-cause − ALL named causes − extrinsic
+so the baseline total stays = empirical all-cause (no double-count, LE invariant);
+(5) wire upstream edges using EXISTING mediators with literature-anchored effect
+sizes (never free-fit — same discipline as the `fit` harness bullet).
+
+| Cause | ICD-10 (confirm vs WONDER GR113) | New/extend node | Upstream edges (existing mediators) | Double-count / notes |
+|---|---|---|---|---|
+| **Diabetes mellitus** | `E10–E14` | new `diabetes` | HbA1c (dominant), BMI, activity/fitness | CDC codes direct-diabetes deaths only (diabetic CVD already codes to CVD), so endpoint-clean. The NEW HbA1c→diabetes edge is a *different endpoint* from the existing HbA1c→CVD/cancer/dementia mediator edges — not a double-count, but anchor it to direct-diabetes-mortality RR, not all-cause. |
+| **Chronic lower respiratory (COPD)** | `J40–J47` | new `copd` | smoking (dominant; the smoking-status mediator note already anticipates "smoking→COPD"), PM2.5, chronic-inflammation | Clean. Current-smoker RR is large (~12–25×); use the categorical smoking mediator already built for smoking→cancer/CVD. |
+| **Chronic kidney disease** | `N00–N07, N17–N19, N25–N27` | new `ckd` | SBP (dominant), HbA1c (diabetic nephropathy) | Endpoint-clean (nephritis/nephrosis coded separately from diabetes & CVD). Shares SBP/HbA1c drivers with CVD/diabetes — fine, different endpoint. |
+| **Chronic liver disease & cirrhosis** | `K70, K73–K74` | new `liver` | alcohol (dominant), BMI+HbA1c (NAFLD/MASH path) | **Already partially modeled**: an `alcohol→liver(residual)` hinge edge exists — splitting `liver` out lets that edge target a proper node and removes it from the residual bucket cleanly. |
+| **Parkinson disease** | `G20–G21` | **extend** `neurodegeneration` | (shares proteostasis/neuro drivers) | Prefer extending the neuro node's `cdc:` code set + Rmax over a new node — same upstream biology. Reclaims a slice of residual into neuro. |
+| **Hypertensive disease (remainder)** | `I10, I12, I15` (parts not in CVD's I11/I13) | **fold into** `cardiovascular` | SBP already drives CVD | Small; extend CVD code set rather than a new node. |
+| **Aortic aneurysm / other arterial** | `I71` (+ parts of `I70`) | **fold into** `cardiovascular` | shared atherosclerosis driver | Small; extend CVD. |
+
+**Stays in residual (the irreducible / non-mechanistic remainder — keep age-keyed):**
+COVID-19 `U07.1` (pandemic-transient, inflates the 2022 residual vs other years;
+optionally route a fraction through immunosenescence later); elderly falls `W00–W19`
+(already captured via the sarcopenia frailty multiplier); ill-defined `R00–R99`,
+iatrogenic, nutritional, and the long tail of small causes. This is the honest
+"unmodeled mechanism" bucket — it SHOULD remain age-keyed rather than be given
+invented upstream edges (see §6 FIXED-MISTAKES discussion and the "unknown node"
+decision).
+
+**Suggested implementation order** (largest + best-anchored first): diabetes →
+COPD → CKD → liver → (extend neuro for Parkinson) → (fold hypertensive/aneurysm
+into CVD). Each is one node + reserve table + recomputed residual + 1–3 anchored
+edges; the v0.4 odds-link + reserve machinery needs no change. After each, re-run
+`build-params → build-app → test` and re-baseline the freeze-ΔLE targets (the LE
+*invariant* must hold: recomputing residual keeps baseline total = empirical
+all-cause, so M 75.82 / F 80.89 should not move).
 
 ---
 

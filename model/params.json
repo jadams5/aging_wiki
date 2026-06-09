@@ -24,7 +24,7 @@
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
       "lifestyleMult": 1,
-      "note": "Non-biological parallel channel: (unintentional injury \u2212 falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
+      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
       "byAge": {
         "male": [
           [
@@ -244,7 +244,7 @@
           ]
         ]
       },
-      "note": "all-cause \u2212 modeled causes \u2212 extrinsic, per SEX (CDC WONDER 2022). Long tail: COPD, diabetes, kidney, liver, falls, etc. Keeps baseline total = empirical sex-specific all-cause mortality."
+      "note": "all-cause − modeled causes − extrinsic, per SEX (CDC WONDER 2022). Long tail: COPD, diabetes, kidney, liver, falls, etc. Keeps baseline total = empirical sex-specific all-cause mortality."
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
@@ -712,11 +712,11 @@
           ],
           [
             30,
-            1.8e-05
+            0.000018
           ],
           [
             40,
-            4.4e-05
+            0.000044
           ],
           [
             50,
@@ -775,7 +775,7 @@
             ],
             [
               40,
-              3.2e-05
+              0.000032
             ],
             [
               50,
@@ -1181,7 +1181,7 @@
   ],
   "bLayer": {
     "version": "B-stage1",
-    "note": "Stage-1 endogenous-mediator tier (2026-06-08). Exogenous behavioral/environmental inputs drive emergent mediator VALUES (LDL, SBP, BMI, HbA1c). NOT YET wired to mortality \u2014 mortality math is unchanged v0.3. mediator(age) = baseline_{med,sex}(age) + \u03a3_x coeff_{x\u2192med}\u00b7form(input_x \u2212 populationMean_x) + personal_offset. At population-average inputs + zero offset, mediator == baseline (invariant). Numbers transcribed from \u00a7 B-layer parameters; interpolations flagged in provenance.",
+    "note": "Stage-1 endogenous-mediator tier (2026-06-08). Exogenous behavioral/environmental inputs drive emergent mediator VALUES (LDL, SBP, BMI, HbA1c). NOT YET wired to mortality — mortality math is unchanged v0.3. mediator(age) = baseline_{med,sex}(age) + Σ_x coeff_{x→med}·form(input_x − populationMean_x) + personal_offset. At population-average inputs + zero offset, mediator == baseline (invariant). Numbers transcribed from § B-layer parameters; interpolations flagged in provenance.",
     "exogenousInputs": [
       {
         "id": "smoking",
@@ -1203,11 +1203,11 @@
           "former",
           "current"
         ],
-        "note": "Categorical smoking status for the direct smoking->cancer/COPD cause edges (Stage 2). Sentinel populationMean 'population' (and undefined) maps to the US smoker mix (61% never / 25% former / 14% current), normalized so the mix averages to a multiplier of 1 \u2014 the CDC cause baselines already embed this mix."
+        "note": "Categorical smoking status for the direct smoking->cancer/COPD cause edges (Stage 2). Sentinel populationMean 'population' (and undefined) maps to the US smoker mix (61% never / 25% former / 14% current), normalized so the mix averages to a multiplier of 1 — the CDC cause baselines already embed this mix."
       },
       {
         "id": "calorieBalance",
-        "label": "Caloric balance (intake \u2212 expenditure)",
+        "label": "Caloric balance (intake − expenditure)",
         "unit": "kcal/day",
         "populationMean": 0,
         "range": [
@@ -1278,7 +1278,7 @@
       {
         "id": "airPollution",
         "label": "Air pollution",
-        "unit": "\u00b5g/m\u00b3 PM2.5",
+        "unit": "µg/m³ PM2.5",
         "populationMean": 8,
         "range": [
           2,
@@ -1659,7 +1659,7 @@
     "constants": {
       "heightRefM": 1.7,
       "weightAsymptoteFraction": 0.55,
-      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (\u0394BMI = \u0394kg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
+      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
     },
     "causeEdges": [
       {
