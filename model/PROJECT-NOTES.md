@@ -233,6 +233,15 @@ already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseli
 
 ## 7. Current state (what's built)
 
+- **v0.4.1 residual decomposition** (2026-06-09): split the residual into four named
+  CDC causes — **diabetes, COPD, CKD, liver** — now 22 nodes / 8 named causes. Data:
+  CDC WONDER **D76, 2019** crude rates by sex × ten-year age (see §8a; the API is
+  blocked for the 2022 D158 dataset, so 2019 is a documented proxy pending a 2022
+  swap). Decomposition is **LE-invariant** (re-buckets mortality; baseline 75.81/80.89
+  unchanged). Residual-proxy edges retargeted to the new nodes (smoking→copd,
+  alcohol→liver, PM2.5→copd) + smoking→diabetes/ckd added (literature RRs). Liver is
+  **non-monotonic** (peaks midlife → no Gompertz tail; its own declining >90 anchors).
+  81/81 tests. **Known gaps → §8b.**
 - **Stages 1–3 complete.** S1 mediator emergence; S2 clean mediator→cause edges;
   S3a smoking→CVD + activity→fitness (Kodama 0.87/MET, weight-independent); S3b
   mechanistic BMI (Lu 2014).
@@ -294,7 +303,15 @@ already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseli
   citations; cite Blokzijl 2016 directly).
 - **Publishing** — wire into Quartz (currently a local double-click artifact).
 
-### 8a. Residual decomposition — CDC-backed causes to implement
+### 8a. Residual decomposition — CDC-backed causes
+
+> **STATUS (v0.4.1, 2026-06-09): Tier-A DONE** — diabetes, COPD, CKD, liver are
+> implemented as named cause nodes (CDC WONDER D76 2019 rates; LE-invariant split).
+> Tier-B (Parkinson→extend neuro; hypertensive/aneurysm→fold into CVD) still pending.
+> **Data caveat:** rates are **2019** (the WONDER API is blocked for the 2022 D158
+> dataset — only legacy D76 ≤2020 is API-accessible; confirmed empirically). Each new
+> cause's `cdc:` field carries a `SWAP-TO-2022` marker. See §8b for the 2022 swap +
+> the smoking-realism + per-cause-frailty follow-ups.
 
 The current residual = `all-cause_sex(age) − Σ(4 modeled causes) − extrinsic`
 (CDC WONDER 2022, per sex). It is the only intentionally age-keyed mortality term
@@ -364,6 +381,43 @@ edges; the v0.4 odds-link + reserve machinery needs no change. After each, re-ru
 `build-params → build-app → test` and re-baseline the freeze-ΔLE targets (the LE
 *invariant* must hold: recomputing residual keeps baseline total = empirical
 all-cause, so M 75.82 / F 80.89 should not move).
+
+### 8b. Follow-ups opened by the v0.4.1 decomposition
+
+1. **Swap 2019 → 2022 rates.** The four new cause tables use CDC WONDER **D76 2019**
+   because the API rejects the 2022 single-race dataset (D158) — only legacy D76
+   (≤2020) is API-accessible (D158/D176 both return a generic group-by rejection;
+   D76 works). Liver & diabetes ran ~15–30% higher by 2022, so the split currently
+   under-counts those. To swap: pull D158 2022 from the WONDER **web UI** (group by
+   gender × ten-year age, per cause), re-run the reserve transform, recompute the
+   residual. Marked `SWAP-TO-2022` in each cause's `cdc:` field. *(Working harvester
+   for D76: the gender×age group-by + crude-rate recipe is in the git history of this
+   session; D158 needs the web UI.)*
+
+2. **Smoking realism (IMPORTANT).** v0.4.1 dropped current-smoker ΔLE from ~-8 (v0.4)
+   to **~-3.7** — and the -8 was an *artifact* (COPD's smoking RR 6× applied to the
+   ENTIRE old-age residual). The honest cause-specific routing (smoking → CVD + cancer
+   + COPD + diabetes + CKD) is **conservative vs literature** (Jha 2013: current
+   smokers lose ~10 yr), for two reasons: (a) the `smokingCategorical` **normalization**
+   caps the effect — raising a cause's current-RR also raises the mix-weighted divisor,
+   so the effective multiplier barely moves; (b) the model doesn't route smoking to
+   *every* smoking-attributable cause. **Fix (needs a small architecture call):** add a
+   whole-bracket **`smoking→allcause`** edge (à la the existing `physicalActivity→allcause`),
+   pinned to the Jha/CPS-II current-smoker all-cause HR (~2.5–3) — but then DROP or
+   shrink the cause-specific smoking edges to avoid double-counting (all-cause already
+   includes CVD/cancer/COPD). Decide: all-cause-only vs cause-specific + small all-cause
+   remainder. The B3a/B2 smoking tests are currently re-baselined to the conservative
+   -3.7 with a floor + direction; tighten them when this lands.
+
+3. **Per-cause frailty betas.** The four new causes use the **residual's** frailty β
+   (0.8755) to keep the split LE-invariant in all scenarios. Peng 2022 has
+   cause-specific frail-vs-robust HRs (respiratory ~4.9 → COPD; etc.) — applying them
+   would intentionally break LE-invariance (a modeling improvement) and needs a
+   freeze-ΔLE re-baseline.
+
+4. **Tier-B causes.** Parkinson (G20–G21) → extend the neuro node's code set + Rmax;
+   hypertensive (I10/I12/I15) + aneurysm (I71) → fold into CVD. Both shrink the
+   residual further; same recipe.
 
 ---
 

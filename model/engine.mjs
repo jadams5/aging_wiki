@@ -79,8 +79,10 @@ export function curveT(node, sex, age, AGE0 = 20) {
 
 /* ------------------------------ simulate ------------------------------- */
 
-// Cause order for the six-way decomposition.
-const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "residual"];
+// Cause order for the competing-hazards decomposition (v0.4.1: residual split into
+// named CDC causes — diabetes/COPD/CKD/liver — so the stacked chart + readout show
+// them; residual stays last as the unmodeled remainder).
+const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "diabetes", "copd", "ckd", "liver", "residual"];
 
 /**
  * simulate(MODEL, opts) — integrate the v0.3 model forward over age.

@@ -388,8 +388,10 @@ function curveT(node, sex, age, AGE0 = 20) {
 
 /* ------------------------------ simulate ------------------------------- */
 
-// Cause order for the six-way decomposition.
-const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "residual"];
+// Cause order for the competing-hazards decomposition (v0.4.1: residual split into
+// named CDC causes — diabetes/COPD/CKD/liver — so the stacked chart + readout show
+// them; residual stays last as the unmodeled remainder).
+const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "diabetes", "copd", "ckd", "liver", "residual"];
 
 /**
  * simulate(MODEL, opts) — integrate the v0.3 model forward over age.
@@ -1014,7 +1016,7 @@ function topoSortMediators(mediatorList, mediatorEdges, medIds) {
 /* ---- MODEL (model/params.json) ---- */
 const MODEL = {
   "meta": {
-    "version": "v0.4",
+    "version": "v0.4.1",
     "ageRange": [
       20,
       130
@@ -1117,7 +1119,11 @@ const MODEL = {
         "cancer": 0.678,
         "neurodegeneration": 0.8755,
         "infection": 1.5913,
-        "residual": 0.8755
+        "residual": 0.8755,
+        "diabetes": 0.8755,
+        "copd": 0.8755,
+        "ckd": 0.8755,
+        "liver": 0.8755
       },
       "note": "B2 (2026-06-08): CAUSE-SPECIFIC frailty multiplier. Peng 2022 frail-vs-robust cause-specific HRs: respiratory 4.91->infection, CV 2.64->cardiovascular, cancer 1.97->cancer; general ~2.4->neurodegeneration/residual. beta_cause = ln(HR) for a FULL-span (robust->frail) sarcopenia deviation (B-T). =1 at baseline. Replaces the global beta 0.6, which was mis-anchored to a wrong Kojima 1.83 (real frail-vs-robust ~2.4, Peng 2022)."
     },
@@ -1153,6 +1159,38 @@ const MODEL = {
           "female": 0.003393
         },
         "cdc": "influenza/pneumonia J09-18 + sepsis A40-41"
+      },
+      "diabetes": {
+        "node": "diabetes",
+        "RmaxPerYear": {
+          "male": 0.003191,
+          "female": 0.002261
+        },
+        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+      },
+      "copd": {
+        "node": "copd",
+        "RmaxPerYear": {
+          "male": 0.007382,
+          "female": 0.006072
+        },
+        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+      },
+      "ckd": {
+        "node": "ckd",
+        "RmaxPerYear": {
+          "male": 0.003162,
+          "female": 0.002142
+        },
+        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+      },
+      "liver": {
+        "node": "liver",
+        "RmaxPerYear": {
+          "male": 0.000469,
+          "female": 0.000251
+        },
+        "cdc": "K70,K73,K74, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022; non-monotonic (peaks midlife) so NO Gompertz tail"
       }
     },
     "residual": {
@@ -1160,101 +1198,101 @@ const MODEL = {
         "male": [
           [
             20,
-            0.000156
+            0.000142
           ],
           [
             30,
-            0.000464
+            0.000395
           ],
           [
             40,
-            0.000964
+            0.000758
           ],
           [
             50,
-            0.002001
+            0.001392
           ],
           [
             60,
-            0.004521
+            0.002947
           ],
           [
             70,
-            0.009048
+            0.005865
           ],
           [
             80,
-            0.0208
+            0.014113
           ],
           [
             90,
-            0.055532
+            0.041433
           ],
           [
             100,
-            0.132021
+            0.099004
           ],
           [
             110,
-            0.313864
+            0.235871
           ],
           [
             120,
-            0.746174
+            0.561255
           ],
           [
             130,
-            1.773942
+            1.33482
           ]
         ],
         "female": [
           [
             20,
-            0.000103
+            0.000092
           ],
           [
             30,
-            0.000304
+            0.000257
           ],
           [
             40,
-            0.000633
+            0.000499
           ],
           [
             50,
-            0.001304
+            0.000917
           ],
           [
             60,
-            0.00299
+            0.001978
           ],
           [
             70,
-            0.006263
+            0.004065
           ],
           [
             80,
-            0.015065
+            0.009933
           ],
           [
             90,
-            0.04114
+            0.030455
           ],
           [
             100,
-            0.097806
+            0.072693
           ],
           [
             110,
-            0.232521
+            0.173107
           ],
           [
             120,
-            0.552791
+            0.41183
           ],
           [
             130,
-            1.314197
+            0.979368
           ]
         ]
       },
@@ -1964,6 +2002,462 @@ const MODEL = {
             [
               130,
               0.969646
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "diabetes",
+      "label": "Diabetes mellitus",
+      "layer": "phenotype",
+      "tractability": "moderate",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "diabetes",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.001877
+          ],
+          [
+            30,
+            0.007465
+          ],
+          [
+            40,
+            0.020565
+          ],
+          [
+            50,
+            0.059811
+          ],
+          [
+            60,
+            0.129569
+          ],
+          [
+            70,
+            0.228295
+          ],
+          [
+            80,
+            0.351555
+          ],
+          [
+            90,
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
+          ]
+        ],
+        "female": {
+          "byAge": [
+            [
+              20,
+              0.002207
+            ],
+            [
+              30,
+              0.006154
+            ],
+            [
+              40,
+              0.017384
+            ],
+            [
+              50,
+              0.045992
+            ],
+            [
+              60,
+              0.1042
+            ],
+            [
+              70,
+              0.195087
+            ],
+            [
+              80,
+              0.332053
+            ],
+            [
+              90,
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "copd",
+      "label": "COPD / chronic lower respiratory",
+      "layer": "phenotype",
+      "tractability": "moderate",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "copd",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.000677
+          ],
+          [
+            30,
+            0.001083
+          ],
+          [
+            40,
+            0.002028
+          ],
+          [
+            50,
+            0.010721
+          ],
+          [
+            60,
+            0.058538
+          ],
+          [
+            70,
+            0.15721
+          ],
+          [
+            80,
+            0.318815
+          ],
+          [
+            90,
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
+          ]
+        ],
+        "female": {
+          "byAge": [
+            [
+              20,
+              0.000494
+            ],
+            [
+              30,
+              0.001316
+            ],
+            [
+              40,
+              0.002792
+            ],
+            [
+              50,
+              0.015405
+            ],
+            [
+              60,
+              0.065415
+            ],
+            [
+              70,
+              0.157135
+            ],
+            [
+              80,
+              0.32817
+            ],
+            [
+              90,
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "ckd",
+      "label": "Chronic kidney disease",
+      "layer": "phenotype",
+      "tractability": "moderate",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "ckd",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.000632
+          ],
+          [
+            30,
+            0.002209
+          ],
+          [
+            40,
+            0.006285
+          ],
+          [
+            50,
+            0.020749
+          ],
+          [
+            60,
+            0.051305
+          ],
+          [
+            70,
+            0.114782
+          ],
+          [
+            80,
+            0.256175
+          ],
+          [
+            90,
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
+          ]
+        ],
+        "female": {
+          "byAge": [
+            [
+              20,
+              0.000933
+            ],
+            [
+              30,
+              0.002793
+            ],
+            [
+              40,
+              0.007874
+            ],
+            [
+              50,
+              0.020128
+            ],
+            [
+              60,
+              0.047577
+            ],
+            [
+              70,
+              0.120329
+            ],
+            [
+              80,
+              0.26969
+            ],
+            [
+              90,
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "liver",
+      "label": "Chronic liver disease / cirrhosis",
+      "layer": "phenotype",
+      "tractability": "moderate",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "liver",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.002128
+          ],
+          [
+            30,
+            0.06012
+          ],
+          [
+            40,
+            0.181501
+          ],
+          [
+            50,
+            0.355769
+          ],
+          [
+            60,
+            0.5
+          ],
+          [
+            70,
+            0.490771
+          ],
+          [
+            80,
+            0.468254
+          ],
+          [
+            90,
+            0.436975
+          ],
+          [
+            100,
+            0.436975
+          ],
+          [
+            110,
+            0.436975
+          ],
+          [
+            120,
+            0.436975
+          ],
+          [
+            130,
+            0.436975
+          ]
+        ],
+        "female": {
+          "byAge": [
+            [
+              20,
+              0.003968
+            ],
+            [
+              30,
+              0.07037
+            ],
+            [
+              40,
+              0.192926
+            ],
+            [
+              50,
+              0.35641
+            ],
+            [
+              60,
+              0.463675
+            ],
+            [
+              70,
+              0.472689
+            ],
+            [
+              80,
+              0.5
+            ],
+            [
+              90,
+              0.455531
+            ],
+            [
+              100,
+              0.455531
+            ],
+            [
+              110,
+              0.455531
+            ],
+            [
+              120,
+              0.455531
+            ],
+            [
+              130,
+              0.455531
             ]
           ]
         }
@@ -2740,15 +3234,15 @@ const MODEL = {
       },
       {
         "from": "smokingStatus",
-        "to": "residual",
+        "to": "copd",
         "form": "smokingCategorical",
         "input": "smokingStatus",
         "rr": {
           "never": 1,
-          "former": 2,
-          "current": 6
+          "former": 7,
+          "current": 12
         },
-        "provenance": "COPD slice of residual; stronger smoking gradient never 1.0 / former 2.0 / current 6.0. NORMALIZED by mix mean (0.61+0.50+0.84=1.95): never~0.513 / former~1.026 / current~3.077. Applied to the whole residual bucket as an approximation (COPD is the dominant smoking-attributable residual cause). APPROXIMATE."
+        "provenance": "Smoking->COPD. Current-smoker COPD-death RR ~12 (Thun 2013 CPS-II, conservative end of 12-26); former ~7. smokingCategorical, normalized to US smoker mix (mult=1 at baseline). v0.4.1."
       },
       {
         "from": "smokingStatus",
@@ -2802,12 +3296,12 @@ const MODEL = {
       },
       {
         "from": "alcohol",
-        "to": "residual",
+        "to": "liver",
         "form": "directHinge",
         "input": "alcohol",
         "slope": 0.15,
         "knee": 2,
-        "provenance": "Liver slice of residual; supralinear in heavy drinkers ~exp(0.15*max(0, drinks/day - 2)); negligible at/below ~2 drinks/day. APPROXIMATE."
+        "provenance": "Alcohol->liver (now a named cause node; was the liver slice of residual). directHinge slope0.15 knee2 (supralinear in heavy drinkers). v0.4.1 retarget 2026-06-09."
       },
       {
         "from": "airPollution",
@@ -2819,11 +3313,11 @@ const MODEL = {
       },
       {
         "from": "airPollution",
-        "to": "residual",
+        "to": "copd",
         "form": "directLogLinear",
         "input": "airPollution",
         "beta": 0.005,
-        "provenance": "Respiratory slice of residual; similar small PM2.5 slope ~exp(0.005*(PM25 - popMean)). APPROXIMATE."
+        "provenance": "PM2.5->COPD/respiratory (now a named cause node; was the respiratory slice of residual). beta 0.005 per ug/m3. v0.4.1 retarget 2026-06-09."
       },
       {
         "from": "BMI",
@@ -2844,6 +3338,30 @@ const MODEL = {
         "upper": 25,
         "lower": 20,
         "provenance": "Stage 3b (2026-06-08). BMI J-curve whole-intrinsic-bracket multiplier (target 'allcause', at the frailty-multiplier site), NORMALIZED to per-age baseline BMI so =1 at baseline. UPPER arm (BMI>25): small NON-CV obesity mortality, betaUpper = ln(1.09)/5 = 0.017236 per unit >25 (BMI->all-cause 1.39 per +5 vs the CV portion 1.27 => ~1.09 residual non-CV slice). LOWER arm (BMI<20): underweight/frailty, betaLower = ln(1.51)/3.5 = 0.117746 per unit <20 (Global BMI Mortality Collaboration 2016: HR 1.51 at BMI 15-18.5, ~3.5 below the nadir edge 20; mostly non-metabolic frailty). Nadir band [20,25] => factor 1. mult = Jbracket(BMI_person)/Jbracket(BMI_baseline); since baseline BMI (~28-30) sits on the UPPER arm, a lean person (BMI 22, nadir) gets mult<1 and an underweight person (BMI 17) gets the frailty penalty. The CV slice of BMI->mortality is carried separately (edges 1+2) so this J-curve is the NON-CV + frailty residual only (no CV double-count). OMITTED: BMI->LDL (null per MR) and a continuous BMI->glucose edge (folded into this residual / not separately wired). Global BMI 2016; Lu 2014. SOLID-direction."
+      },
+      {
+        "from": "smokingStatus",
+        "to": "diabetes",
+        "form": "smokingCategorical",
+        "input": "smokingStatus",
+        "rr": {
+          "never": 1,
+          "former": 1.2,
+          "current": 1.6
+        },
+        "provenance": "Smoking->diabetes mortality RR ~1.6 current / 1.2 former (Pan 2015 meta; smoking raises diabetes incidence+mortality). smokingCategorical normalized. v0.4.1."
+      },
+      {
+        "from": "smokingStatus",
+        "to": "ckd",
+        "form": "smokingCategorical",
+        "input": "smokingStatus",
+        "rr": {
+          "never": 1,
+          "former": 1.2,
+          "current": 1.5
+        },
+        "provenance": "Smoking->CKD mortality RR ~1.5 current (smoking accelerates nephropathy/CKD progression). smokingCategorical normalized. v0.4.1."
       }
     ],
     "causeEdgesNote": "Stage 2 (2026-06-08): CLEAN non-double-counting mediator->cause and direct exogenous->cause multipliers. cause_hazard_c = [v0.3 hazard] * Prod_edges mult_edge; mult=1 at population-average inputs so v0.3 (LE 75.31 M / 80.37 F) reproduces exactly. mediatorThresholdRamp uses a RATIO-to-baseline so mult=1 at the per-age baseline HbA1c (which exceeds the 5.7 threshold at 60+). Stage 3a (2026-06-08) ADDED two clean cause edges, both =1 at default inputs: (1) smoking->cardiovascular (smokingCategorical, normalized, never 0.833/former 1.082/current 1.582) and (2) physicalActivity->allcause (activityFitness, target 'allcause', exp(-0.139*dMETs), applied to the WHOLE intrinsic bracket at the frailty-multiplier site, weight/glucose-independent fitness channel). Stage 3b (2026-06-08) ADDED the BMI/adiposity edges MECHANISTICALLY (Lu 2014 mediation decomposition, no double-counting), all =1 at the per-age baseline BMI so v0.3 still reproduces exactly: (1) BMI->systolicBP mediatorEdge (mediatorLinear, +0.72 mmHg/+1 kg/m2, the DOMINANT mediated path, flowing through SBP->CVD); (2) BMI->cardiovascular causeEdge (bmiThresholdRatio, upper-arm only, beta 0.022819, the UNMEDIATED CV residual; combined with the SBP path => Lu 1.27 per +5 BMI, log-HR split SBP 52.3% / residual 47.7%); (3) BMI->allcause J-curve (bmiJcurve, upper betaUpper ln1.09/5 non-CV obesity + lower betaLower ln1.51/3.5 underweight-frailty, nadir [20,25], whole-bracket). OMITTED in 3b: BMI->LDL (null per MR), continuous BMI->glucose (folded into the residual). DEFERRED: alcohol->all-cause(MR) bundle; B2 latent fixes."
@@ -2924,6 +3442,10 @@ const CAUSE_COLOR = {
   cancer:            getCss("--cause-cancer"),
   neurodegeneration: getCss("--cause-neurodegeneration"),
   infection:         getCss("--cause-infection"),
+  diabetes:          "#9b59b6",
+  copd:              "#16a085",
+  ckd:               "#d35400",
+  liver:             "#8d6e2f",
   residual:          getCss("--cause-residual")
 };
 const CAUSE_LABEL = {
@@ -2932,6 +3454,10 @@ const CAUSE_LABEL = {
   cancer:            "Cancer",
   neurodegeneration: "Neurodegeneration",
   infection:         "Infection",
+  diabetes:          "Diabetes",
+  copd:              "COPD / respiratory",
+  ckd:               "Kidney disease",
+  liver:             "Liver / cirrhosis",
   residual:          "Other causes"
 };
 
@@ -3925,8 +4451,8 @@ document.getElementById("resetAll").addEventListener("click", () => {
     const t = sim.T[node.id], b = sim.B[node.id];
     for (let k = 0; k < N_AGE; k++) maxDev = Math.max(maxDev, Math.abs(b[k] - t[k]));
   }
-  const okNodes = (NODES.length === 18), okEdges = (MODEL.edges.length === 38);
-  const okVer = (MODEL.meta.version === "v0.4");
+  const okNodes = (NODES.length === 22), okEdges = (MODEL.edges.length === 38);
+  const okVer = (MODEL.meta.version === "v0.4.1");
   const leM = simulate(MODEL, { sex: "male" }).LE;
   const leF = simulate(MODEL, { sex: "female" }).LE;
 
@@ -3935,7 +4461,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
   } else if (!okNodes || !okEdges || !okVer){
     console.error("Self-check FAILED: structure counts.", { nodes: NODES.length, edges: MODEL.edges.length, version: MODEL.meta.version });
   } else {
-    console.log("Self-check OK: v0.4 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
+    console.log("Self-check OK: v0.4.1 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
                 "nodes=" + NODES.length + " edges=" + MODEL.edges.length + ";",
                 "baseline LE male=" + leM.toFixed(2) + " female=" + leF.toFixed(2) + " (target 75.82 / 80.89).");
   }

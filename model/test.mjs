@@ -77,12 +77,31 @@ str("v0.4: cause reserve B<1 at 130 (asymptotes, no clamp pile-up)", String(_b.B
 str("v0.4: cause freeze bends >90 survival (S@100 rises)", String(S100({ sex: "male", interventions: { cancer: { startAge: 40, efficacy: 1 } } }) > S100({ sex: "male" }) + 0.005), "true");
 str("v0.4: oldAgeTail neutralized (rate 0; not age-keyed)", String(MODEL.mortality.oldAgeTail.rate === 0), "true");
 
+// ---- v0.4.1 residual decomposition into named CDC causes (CDC WONDER D76 2019) ----
+const _c = MODEL.mortality.causes;
+str("v0.4.1: 8 named causes (4 new split from residual)",
+  String(["diabetes","copd","ckd","liver"].every(k => k in _c)), "true");
+// Decomposition is LE-invariant (re-buckets mortality; pinned by baseline-LE tests
+// above). Each new cause appears in the decomposition parts:
+str("v0.4.1: new causes in decomposition", String(["diabetes","copd","ckd","liver"]
+  .every(k => k in _b.decomposition[70 - MODEL.meta.ageRange[0]].parts)), "true");
+// Liver is non-monotonic (peaks midlife, declines) — its hazard at 60 exceeds 85+:
+const _liv = (a) => _b.decomposition[a - MODEL.meta.ageRange[0]].parts.liver;
+str("v0.4.1: liver non-monotonic (haz@60 > haz@90)", String(_liv(60) > _liv(90)), "true");
+// New causes are intervention-responsive via retargeted edges (smoking→copd,
+// alcohol→liver) — COPD hazard rises under current-smoking:
+str("v0.4.1: smoking raises COPD hazard",
+  String(causeMultAt("copd", 70, { inputs: { smokingStatus: "current" } }) > 1.2), "true");
+
 num("lifestyle male 0× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 0 }) - baseM, 2.44, 0.1);
 num("lifestyle male 10× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 10 }) - baseM, -17.09, 0.1);
 
 str("decomposition top male age 25", topContributor(25), "extrinsic");
-str("decomposition top male age 55", topContributor(55), "residual");
-str("decomposition top male age 90", topContributor(90), "residual");
+// v0.4.1: residual decomposed into named CDC causes (diabetes/COPD/CKD/liver),
+// so cardiovascular — not the catch-all residual — is now the leading contributor
+// at midlife and old age.
+str("decomposition top male age 55", topContributor(55), "cardiovascular");
+str("decomposition top male age 90", topContributor(90), "cardiovascular");
 
 /* ========================= B-layer Stage-1 checks ========================= */
 // Mediator-value machinery. Mortality is untouched (verified above); these
@@ -194,18 +213,22 @@ str("B2: HbA1c diabetic raises dementia", String(causeMultAt("neurodegeneration"
 
 // Smoking (categorical, normalized): current LOWERS LE; never RAISES LE (protected
 // vs the mixed-population CDC baseline); former ≈ slightly below baseline.
-str("B2: current-smoker lowers LE", String(dLEm({ inputs: { smokingStatus: "current" } }) < -4.0), "true");
+str("B2: current-smoker lowers LE", String(dLEm({ inputs: { smokingStatus: "current" } }) < -2.5), "true");
 str("B2: never-smoker raises LE (protected)", String(dLEm({ inputs: { smokingStatus: "never" } }) > 1.0), "true");
 str("B2: former-smoker ≈ slight loss", String(dLEm({ inputs: { smokingStatus: "former" } }) < 0 && dLEm({ inputs: { smokingStatus: "former" } }) > -1), "true");
 // Normalized cancer multiplier: current = 2.2/1.243 ≈ 1.770; never = 1.0/1.243 ≈ 0.804.
 num("B2: smoking→cancer current mult", causeMultAt("cancer", 60, { inputs: { smokingStatus: "current" } }), 1.770, 0.01);
 num("B2: smoking→cancer never mult", causeMultAt("cancer", 60, { inputs: { smokingStatus: "never" } }), 0.804, 0.01);
 
-// Alcohol: heavy (6/day) lowers LE via cancer + liver(residual).
-str("B2: heavy alcohol lowers LE", String(dLEm({ inputs: { alcohol: 6 } }) < -1.5), "true");
-str("B2: alcohol→liver(residual) hinge >baseline", String(causeMultAt("residual", 60, { inputs: { alcohol: 6 } }) > 1.0), "true");
+// Alcohol: heavy (6/day) lowers LE via cancer + liver (v0.4.1: liver is now a
+// named cause node; the hinge edge retargeted residual→liver). Magnitude is
+// smaller than the v0.4 residual-proxy because liver is a smaller bucket than the
+// whole residual — the structurally-correct routing.
+str("B2: heavy alcohol lowers LE", String(dLEm({ inputs: { alcohol: 6 } }) < -0.8), "true");
+str("B2: alcohol→liver hinge >baseline", String(causeMultAt("liver", 60, { inputs: { alcohol: 6 } }) > 1.0), "true");
 
-// PM2.5: high pollution lowers LE via CVD + respiratory(residual).
+// PM2.5: high pollution lowers LE via CVD + COPD/respiratory (v0.4.1: retargeted
+// residual→copd).
 str("B2: high PM2.5 lowers LE", String(dLEm({ inputs: { airPollution: 30 } }) < -0.3), "true");
 num("B2: PM2.5 30 → CVD mult", causeMultAt("cardiovascular", 60, { inputs: { airPollution: 30 } }), Math.exp(0.00583 * (30 - 8)), 0.005);
 
@@ -218,10 +241,16 @@ num("B2: PM2.5 30 → CVD mult", causeMultAt("cardiovascular", 60, { inputs: { a
 // the exact normalized smoking→CVD multipliers + weight-independence of fitness.
 
 // Edge 1 — smoking → cardiovascular (normalized categorical).
-// current-smoker now LOSES MORE than Stage-2 (cancer+COPD + CVD now): ~-8.4.
-str("B3a: current-smoker more negative (< -8)", String(dLEm({ inputs: { smokingStatus: "current" } }) < -8.0), "true");
-// never-smoker still gains, now with a small extra CVD bump (~+3.5 vs Stage-2 ~+2.8).
-str("B3a: never-smoker raises LE (> +3)", String(dLEm({ inputs: { smokingStatus: "never" } }) > 3.0), "true");
+// v0.4.1 NOTE: total current-smoker ΔLE is now ~-3.7 (was ~-8 in v0.4). The v0.4
+// figure was inflated by applying COPD's smoking RR (6×) to the ENTIRE old-age
+// residual; with smoking correctly routed to CVD+cancer+COPD+diabetes+CKD the
+// honest cause-specific effect is smaller — and CONSERVATIVE vs literature (Jha
+// 2013 ~10yr) because (a) the smokingCategorical normalization caps it and (b)
+// the model doesn't yet route smoking to every smoking-attributable cause. A
+// whole-bracket smoking→allcause edge (à la physicalActivity) would restore the
+// Jha figure — see PROJECT-NOTES §8b. Tests below assert direction + a floor.
+str("B3a: current-smoker lowers LE (< -3)", String(dLEm({ inputs: { smokingStatus: "current" } }) < -3.0), "true");
+str("B3a: never-smoker raises LE (> +1)", String(dLEm({ inputs: { smokingStatus: "never" } }) > 1.0), "true");
 // Normalized smoking→CVD multiplier: current = 1.9/1.201 ≈ 1.582; never = 1.0/1.201 ≈ 0.833.
 num("B3a: smoking→CVD current mult", causeMultAt("cardiovascular", 60, { inputs: { smokingStatus: "current" } }), 1.582, 0.005);
 num("B3a: smoking→CVD never mult", causeMultAt("cardiovascular", 60, { inputs: { smokingStatus: "never" } }), 0.833, 0.005);
