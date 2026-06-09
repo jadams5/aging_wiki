@@ -196,34 +196,41 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   const hazard = new Array(N_AGE);
   const decomposition = new Array(N_AGE);
 
+  // B2: cause-SPECIFIC frailty (Peng 2022 frail-vs-robust HRs differ by cause:
+  // respiratory ~4.9× ≫ CV ~2.6× > cancer ~2.0×). `betaByCause` carries ln(HR)
+  // for a full-span (robust→frail) sarcopenia deviation; falls back to a shared
+  // `beta`/`default` for backward-compat. All =1 at baseline (frailtyDev 0).
+  const frBeta = fr.betaByCause || {};
+  const frDefault = (frBeta.default !== undefined) ? frBeta.default : (fr.beta || 0);
+
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
     const extrinsic = interp(extrTable, age) * lifestyle;
-    const frailtyMult = Math.exp(fr.beta * (Barr[frIdx][k] - Tarr[frIdx][k]));
+    const frailtyDev = Barr[frIdx][k] - Tarr[frIdx][k];
+    const frailtyMultFor = (cn) =>
+      Math.exp((frBeta[cn] !== undefined ? frBeta[cn] : frDefault) * frailtyDev);
     const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
 
-    // Stage-3b: BMI J-curve whole-bracket multiplier (target "allcause"), per-age
-    // because BMI value+baseline are age-varying. =1 when BMI==baseline BMI.
+    // Stage-3b: BMI J-curve whole-bracket multiplier (target "allcause"), per-age.
     let bmiJMult = 1;
     for (const e of bmiJcurveEdges) bmiJMult *= bmiJcurveMult(e, k, medValues, medBaseline);
 
-    // Stage-3a: the activityFitness all-cause multiplier scales the whole
-    // intrinsic bracket alongside frailty (causeSum + resid, every cause line +
-    // residual). At population-average activity allcauseMult == 1 ⇒ no change.
-    // Stage-3b adds the per-age BMI J-curve factor to the same bracket site.
-    const bracketMult = frailtyMult * allcauseMult * bmiJMult;
+    // Stage-3a activityFitness + Stage-3b BMI J-curve scale the whole intrinsic
+    // bracket. Frailty is now applied PER CAUSE (above), not in this shared mult.
+    const bracketMult = allcauseMult * bmiJMult;
 
     const parts = { extrinsic };
-    let causeSum = 0;
+    let intrinsic = 0;
     for (const cn of causeNames) {
       const c = causes[cn];
       const ch = c.RmaxPerYear[sex] * Barr[NODE_IDX[c.node]][k] * edgeMultFor(cn, k, age);
-      causeSum += ch;
-      parts[cn] = bracketMult * ch;
+      const p = bracketMult * frailtyMultFor(cn) * ch;
+      parts[cn] = p;
+      intrinsic += p;
     }
-    parts.residual = bracketMult * resid;
+    parts.residual = bracketMult * frailtyMultFor("residual") * resid;
+    intrinsic += parts.residual;
 
-    const intrinsic = bracketMult * (causeSum + resid);
     hazard[k] = extrinsic + intrinsic;
     decomposition[k] = { age, parts };
   }

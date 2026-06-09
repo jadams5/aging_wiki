@@ -258,8 +258,14 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     },
     "frailty": {
       "node": "sarcopenia",
-      "beta": 0.6,
-      "note": "Frailty as global multiplier on the intrinsic bracket (not a cause line). exp(beta*(B-T)); =1 at baseline. Kojima 2018 frailty-index HR 1.83."
+      "betaByCause": {
+        "cardiovascular": 0.9708,
+        "cancer": 0.678,
+        "neurodegeneration": 0.8755,
+        "infection": 1.5913,
+        "residual": 0.8755
+      },
+      "note": "B2 (2026-06-08): CAUSE-SPECIFIC frailty multiplier. Peng 2022 frail-vs-robust cause-specific HRs: respiratory 4.91->infection, CV 2.64->cardiovascular, cancer 1.97->cancer; general ~2.4->neurodegeneration/residual. beta_cause = ln(HR) for a FULL-span (robust->frail) sarcopenia deviation (B-T). =1 at baseline. Replaces the global beta 0.6, which was mis-anchored to a wrong Kojima 1.83 (real frail-vs-robust ~2.4, Peng 2022)."
     },
     "causes": {
       "cardiovascular": {
