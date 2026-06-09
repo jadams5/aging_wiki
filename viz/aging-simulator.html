@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aging causal-graph simulator (v0.3)</title>
+<title>Aging causal-graph simulator (v0.3 + B-layer)</title>
 <style>
   :root {
     /* Layer palette */
@@ -23,6 +23,10 @@
     --cause-neurodegeneration: #2980b9;
     --cause-infection: #16a085;
     --cause-residual: #bdc3c7;
+    /* Mediator readout palette */
+    --med-LDL: #c0392b;
+    --med-systolicBP: #2980b9;
+    --med-HbA1c: #d68910;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -99,6 +103,26 @@
     padding: 5px 8px; border-radius: 5px; font-size: 11px; z-index: 50;
     opacity: 0; transition: opacity .08s; max-width: 240px;
   }
+  /* B-layer panel */
+  details.blayer { margin: 0; }
+  details.blayer > summary {
+    cursor: pointer; font-size: 14px; font-weight: 600; list-style: revert;
+    padding: 2px 0; user-select: none;
+  }
+  details.blayer > summary:hover { color: #000; }
+  .bgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; margin-top: 8px; }
+  @media (max-width: 720px) { .bgrid { grid-template-columns: 1fr; } }
+  .brow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 12px; }
+  .brow > label.bl { width: 150px; flex: none; color: var(--muted); }
+  .brow input[type=range] { flex: 1; min-width: 60px; }
+  .brow input[type=number] { width: 72px; }
+  .brow .bval { width: 78px; text-align: right; font-variant-numeric: tabular-nums; color: #444; }
+  .bsub { font-size: 11px; color: var(--muted); margin: 10px 0 2px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .txtoggles { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 0; font-size: 12px; }
+  .txtoggles label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+  .labgrid { display: grid; grid-template-columns: repeat(2, auto 1fr); gap: 6px 10px; align-items: center; font-size: 12px; }
+  .labgrid label { color: var(--muted); }
+  .labnote { font-size: 11px; color: var(--muted); margin-top: 6px; font-style: italic; }
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .graph-panel { grid-row: auto; }
@@ -107,14 +131,16 @@
 </head>
 <body>
 <header>
-  <h1>Aging causal-graph simulator (v0.3)</h1>
+  <h1>Aging causal-graph simulator (v0.3 + B-layer)</h1>
   <div class="disclaimer">
     Illustrative sensitivity model &mdash; parameters are mostly illustrative (see causal-graph-parameters.md).
     <b>v0.3 &mdash; sex-specific competing hazards (CDC WONDER 2022); no sex scalar &mdash; female CVD-onset delay &amp; male external excess emerge from data.</b>
     Mortality sums a per-sex extrinsic channel (accidents / suicide / homicide, scaled by the Lifestyle slider) and a
     per-sex intrinsic bracket of named CDC causes + a residual, amplified by a sarcopenia-driven frailty multiplier.
-    Coupling propagates intervention relief through the graph as a bounded algebraic fixed point (no integration step-bug).
-    Not prediction, not medical advice.
+    Coupling propagates intervention relief through the graph as a bounded algebraic fixed point.
+    The <b>B-layer</b> (Lifestyle &amp; environment + Labs) drives emergent mediator values (LDL / SBP / HbA1c) and
+    their clean mediator&rarr;cause / direct exogenous&rarr;cause mortality multipliers.
+    All numbers come from <code>model/engine.mjs</code> (the single source of truth). Not prediction, not medical advice.
   </div>
 </header>
 
@@ -191,7 +217,47 @@
     </div>
   </div>
 
-  <!-- NEW headline panel: cause of death by age (full width) -->
+  <!-- B-LAYER panel: Lifestyle & environment + Labs (full width, collapsible) -->
+  <div class="panel" style="grid-column: 1 / -1;">
+    <details class="blayer" id="blayerDetails">
+      <summary>Lifestyle &amp; environment &middot; Labs <span style="font-weight:400;color:var(--muted);font-size:12px;">(B-layer &mdash; drives mediator values &amp; their mortality multipliers)</span></summary>
+      <div class="sub" style="margin-top:6px;">
+        Defaults are each input's population mean, so the all-default state reproduces the v0.3 baseline exactly.
+        Lab fields anchor a person's mediator curve to a measured value at the chosen current age (held forward).
+        &Delta;LE is read vs the all-default baseline.
+      </div>
+
+      <div class="bsub">Exogenous inputs</div>
+      <div class="bgrid" id="inputsGrid"><!-- populated --></div>
+
+      <div class="bsub">Treatments</div>
+      <div class="txtoggles" id="treatToggles"><!-- populated --></div>
+
+      <div class="bsub">Labs (offset anchoring)</div>
+      <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start;">
+        <div class="labgrid" id="labGrid"><!-- populated --></div>
+        <div class="brow" style="margin:0;">
+          <label class="bl" style="width:auto;" for="currentAge">Current age (anchor)</label>
+          <input type="number" id="currentAge" min="20" max="100" step="1" value="40">
+        </div>
+      </div>
+      <div class="labnote" id="labNote">
+        Enter a measured value to pin that mediator's curve to it at the current age (offset = measured &minus; engine-predicted).
+        Clear a field to revert to the engine's computed value.
+      </div>
+    </details>
+  </div>
+
+  <!-- MEDIATOR readout panel (full width) -->
+  <div class="panel" style="grid-column: 1 / -1;">
+    <h2>Mediator trajectories &mdash; person vs population baseline</h2>
+    <div class="sub">LDL (mg/dL), systolic BP (mmHg), HbA1c (%) over age. Solid = current scenario (inputs/treatments/labs); dashed = population baseline for this sex. Vertical mark = current age.</div>
+    <svg id="medSvg" viewBox="0 0 1080 260" preserveAspectRatio="xMidYMin meet"></svg>
+    <div class="legend" id="medLegend"></div>
+    <div class="readout" id="medReadout">Hover the chart to read mediator values at a given age.</div>
+  </div>
+
+  <!-- headline panel: cause of death by age (full width) -->
   <div class="panel" style="grid-column: 1 / -1;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
       <div>
@@ -223,14 +289,497 @@
 <script>
 "use strict";
 
-/* =========================================================================
-   MODEL — embedded verbatim from frameworks/causal-graph-parameters.md
-   (canonical JSON block, v0.3). 18 nodes, 38 edges. Do not edit here; edit the md.
-   v0.3: sexMult DELETED; per-sex extrinsic/residual tables + per-sex Rmax +
-   per-sex cause-curve overrides. No sex scalar anywhere.
-   ========================================================================= */
-const MODEL =
-  {
+// <<<ENGINE-INJECT-START>>>
+/* ======================================================================
+   AUTO-GENERATED by model/build-app.mjs — DO NOT EDIT BETWEEN THE MARKERS.
+   Source of truth: model/engine.mjs (math) + model/params.json (MODEL).
+   Re-run `node model/build-app.mjs` to regenerate. The app's rendering code
+   (below the END marker) consumes simulate(MODEL, opts) from this block.
+   ====================================================================== */
+/* ---- canonical engine (model/engine.mjs, export/import stripped) ---- */
+// engine.mjs — canonical v0.3 aging-simulator model engine.
+//
+// Pure ESM, NO DOM, NO globals, NO external deps. This is the single
+// source-of-truth reimplementation of the math that currently lives
+// embedded in viz/aging-simulator.html. The HTML app will be refactored
+// to consume this module in a follow-up; until then the two carry
+// identical math and model/test.mjs pins the v0.3 regression targets.
+//
+// The MODEL object (18 nodes / 38 edges, v0.3) is produced from
+// frameworks/causal-graph-parameters.md by build-params.mjs → params.json.
+// That .md file is the source of truth for the parameters.
+
+/* ----------------------------- primitives ------------------------------ */
+
+function clamp01(v) {
+  return v < 0 ? 0 : v > 1 ? 1 : v;
+}
+
+// Piecewise-linear interpolation of [[age,val],...] ascending; clamped to endpoints.
+function interp(arr, age) {
+  if (age <= arr[0][0]) return arr[0][1];
+  if (age >= arr[arr.length - 1][0]) return arr[arr.length - 1][1];
+  for (let i = 0; i < arr.length - 1; i++) {
+    const a0 = arr[i][0], r0 = arr[i][1], a1 = arr[i + 1][0], r1 = arr[i + 1][1];
+    if (age >= a0 && age <= a1) {
+      const f = a1 === a0 ? 0 : (age - a0) / (a1 - a0);
+      return r0 + f * (r1 - r0);
+    }
+  }
+  return arr[arr.length - 1][1];
+}
+
+// Pick parametric params for a node given sex: female override if present.
+function paramsFor(node, sex) {
+  if (sex === "female" && node.curve.female) return node.curve.female;
+  return node.curve.params;
+}
+
+// Intrinsic baseline trajectory T(node, sex, age), clamped to [0,1].
+// AGE0 is needed for the parametric x = age - AGE0 offset; defaults to 20
+// (MODEL.meta.ageRange[0]) so the helper is usable standalone in tests.
+function curveT(node, sex, age, AGE0 = 20) {
+  const c = node.curve;
+  if (c.form === "table") {
+    if (sex === "female" && c.female && c.female.byAge) return clamp01(interp(c.female.byAge, age));
+    return clamp01(interp(c.byAge, age));
+  }
+  const p = paramsFor(node, sex);
+  const x = age - AGE0;
+  let v;
+  switch (c.form) {
+    case "linear":      v = p.t0 + p.slope * x; break;
+    case "exponential": v = p.A * (Math.exp(p.r * x) - 1); break;
+    case "sigmoid":     v = p.L / (1 + Math.exp(-p.k * (age - p.mid))); break;
+    case "ushaped":     v = p.t0 + p.amp * Math.pow((age - p.mid) / p.scale, 2); break;
+    default:            v = 0;
+  }
+  return clamp01(v);
+}
+
+/* ------------------------------ simulate ------------------------------- */
+
+// Cause order for the six-way decomposition.
+const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "residual"];
+
+/**
+ * simulate(MODEL, opts) — integrate the v0.3 model forward over age.
+ *
+ * opts:
+ *   sex          : "male" | "female"        (required)
+ *   lifestyle    : number   (default 1.0)   scales the extrinsic channel only
+ *   interventions: { nodeId: { startAge, efficacy } }  (default {})
+ *
+ * Returns:
+ *   { ages, T:{nodeId:[...]}, B:{nodeId:[...]}, hazard:[...],
+ *     decomposition:[{age, parts:{extrinsic,cardiovascular,cancer,
+ *                     neurodegeneration,infection,residual}}],
+ *     survival:[...], LE }
+ */
+function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}, treatments = {}, offsets = {} } = {}) {
+  if (sex !== "male" && sex !== "female") {
+    throw new Error(`simulate: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
+  }
+
+  const AGE0 = MODEL.meta.ageRange[0]; // 20
+  const AGE1 = MODEL.meta.ageRange[1]; // 100
+  const DT = MODEL.meta.dt;            // 1
+  const couple = MODEL.meta.couple;    // 1.0
+
+  const AGES = [];
+  for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
+  const N_AGE = AGES.length;
+
+  const NODES = MODEL.nodes;
+  const NN = NODES.length;
+  const NODE_IDX = {};
+  NODES.forEach((n, i) => { NODE_IDX[n.id] = i; });
+
+  // Coupling gain matrix G[to][from] = strengthToGain[edge.strength].
+  const G = Array.from({ length: NN }, () => new Array(NN).fill(0));
+  for (const e of MODEL.edges) {
+    const to = NODE_IDX[e.to], from = NODE_IDX[e.from];
+    if (to === undefined || from === undefined) continue;
+    G[to][from] = MODEL.strengthToGain[e.strength];
+  }
+  const COUPLE_ITERS = (MODEL.coupling && MODEL.coupling.iterations) || 60;
+
+  // Precompute baseline T over all ages: Tarr[i][k].
+  const Tarr = NODES.map((node) => AGES.map((a) => curveT(node, sex, a, AGE0)));
+
+  // B[i][k] via bounded fixed-point coupling per age.
+  const Barr = NODES.map(() => new Array(N_AGE));
+  const prim = new Array(NN).fill(0);
+
+  for (let k = 0; k < N_AGE; k++) {
+    const age = AGES[k];
+    // Solve D = prim + couple*(G·D) by fixed-point iteration.
+    let D = prim.slice();
+    for (let it = 0; it < COUPLE_ITERS; it++) {
+      const ND = new Array(NN);
+      for (let i = 0; i < NN; i++) {
+        let s = 0;
+        const Gi = G[i];
+        for (let j = 0; j < NN; j++) { if (Gi[j] !== 0) s += Gi[j] * D[j]; }
+        ND[i] = prim[i] + couple * s;
+      }
+      D = ND;
+    }
+    for (let i = 0; i < NN; i++) Barr[i][k] = clamp01(Tarr[i][k] + D[i]);
+
+    // Accumulate primary deviation for the NEXT step from active interventions.
+    if (k < N_AGE - 1) {
+      for (let i = 0; i < NN; i++) {
+        const iv = interventions[NODES[i].id];
+        if (iv && age >= iv.startAge) {
+          prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
+        }
+      }
+    }
+  }
+
+  // Mortality — sex-specific competing hazards + six-way decomposition.
+  const fr = MODEL.mortality.frailty;
+  const frIdx = NODE_IDX[fr.node];
+  const causes = MODEL.mortality.causes; // {causeName:{node, RmaxPerYear:{male,female}}}
+  const causeNames = Object.keys(causes);
+  const residTable = MODEL.mortality.residual.byAgePerYear[sex];
+  const extrTable = MODEL.mortality.extrinsic.byAge[sex];
+
+  // B-layer (Stage 1+2): emergent mediator trajectories. Stage 2 wires the CLEAN
+  // (non-double-counting) mediator→cause and direct exogenous→cause multipliers
+  // into the mortality math below. At population-average inputs every mediator
+  // deviation is 0 and every direct-input deviation is 0 ⇒ every multiplier == 1
+  // ⇒ the v0.3 mortality math is reproduced exactly.
+  const hasB = !!MODEL.bLayer;
+  const medValues = hasB ? mediators(MODEL, { sex, inputs, treatments, offsets }) : {};
+  // Baseline mediator trajectories (default inputs/treatments/offsets) — the
+  // reference against which Stage-2 continuous mediator→cause edges take their
+  // deviation. At default inputs medValues === medBaseline ⇒ deviation 0.
+  const medBaseline = hasB ? mediators(MODEL, { sex }) : {};
+  // popMean lookup for direct exogenous→cause edges.
+  const popMean = {};
+  if (hasB) for (const inp of MODEL.bLayer.exogenousInputs) popMean[inp.id] = inp.populationMean;
+  // Stage-2 cause-edge multipliers, grouped by target (cause name | "residual").
+  const causeEdges = (hasB && MODEL.bLayer.causeEdges) || [];
+  const causeEdgesByTarget = {};
+  for (const e of causeEdges) (causeEdgesByTarget[e.to] ||= []).push(e);
+
+  // Π of Stage-2 edge multipliers for a given target at age-index k.
+  function edgeMultFor(target, k, age) {
+    const list = causeEdgesByTarget[target];
+    if (!list) return 1;
+    let m = 1;
+    for (const e of list) m *= causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean);
+    return m;
+  }
+
+  const hazard = new Array(N_AGE);
+  const decomposition = new Array(N_AGE);
+
+  for (let k = 0; k < N_AGE; k++) {
+    const age = AGES[k];
+    const extrinsic = interp(extrTable, age) * lifestyle;
+    const frailtyMult = Math.exp(fr.beta * (Barr[frIdx][k] - Tarr[frIdx][k]));
+    const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
+
+    const parts = { extrinsic };
+    let causeSum = 0;
+    for (const cn of causeNames) {
+      const c = causes[cn];
+      const ch = c.RmaxPerYear[sex] * Barr[NODE_IDX[c.node]][k] * edgeMultFor(cn, k, age);
+      causeSum += ch;
+      parts[cn] = frailtyMult * ch;
+    }
+    parts.residual = frailtyMult * resid;
+
+    const intrinsic = frailtyMult * (causeSum + resid);
+    hazard[k] = extrinsic + intrinsic;
+    decomposition[k] = { age, parts };
+  }
+
+  // Survival + life expectancy.
+  const survival = new Array(N_AGE);
+  let cum = 0, leSum = 0;
+  for (let k = 0; k < N_AGE; k++) {
+    cum += hazard[k] * DT;
+    survival[k] = Math.exp(-cum);
+    leSum += survival[k] * DT;
+  }
+  const LE = AGE0 + leSum;
+
+  // Repack T / B as { nodeId: [...] } maps for the public API.
+  const T = {}, B = {};
+  NODES.forEach((n, i) => { T[n.id] = Tarr[i]; B[n.id] = Barr[i]; });
+
+  return { ages: AGES, T, B, hazard, decomposition, survival, LE, medValues };
+}
+
+/** lifeExpectancy(MODEL, opts) — convenience returning just LE. */
+function lifeExpectancy(MODEL, opts) {
+  return simulate(MODEL, opts).LE;
+}
+
+/* ============================ B-layer (Stage 1) ============================ */
+//
+// Endogenous-mediator tier. Exogenous behavioral/environmental inputs drive
+// emergent mediator VALUES (LDL, systolic BP, BMI, HbA1c). This layer is NOT
+// wired to mortality in Stage 1 — `simulate()`'s hazard/decomposition/LE math
+// is untouched; mediator trajectories are returned alongside as `medValues`.
+//
+// Emergence formula (per § B-layer parameters):
+//   mediator(age) = baseline_{med,sex}(age)
+//                 + Σ_x coeff_{x→med} · form(input_x − populationMean_x [, context])
+//                 + personal_offset (default 0)
+//                 [then any active treatment perturbations on that mediator]
+// At population-average inputs (every input == its populationMean) + zero
+// offset + no treatment, mediator == baseline. THAT IS THE INVARIANT.
+
+// Saturating soluble-fiber transform (Brown 1999: ~linear to ~10 g of *effect*,
+// dampened beyond). The knee is placed at the population mean + 10 g so the
+// canonical "+10 g/day → −22 mg/dL" deviation lands fully in the linear regime,
+// and "+20 g" is dampened above the knee (so it is NOT double the +10 effect).
+function fiberSat(g, knee) {
+  if (g <= knee) return g;
+  return knee + 0.35 * (g - knee);
+}
+
+// Convex sodium→SBP with effect-modification: steeper at higher baseline SBP
+// (older / hypertensive). He 2013: ~−5.4 mmHg/100 mmol in HTN vs −1.0 in
+// normotensives. `coeff` (−5.8 per 100 mmol) is scaled by a baseline-SBP factor
+// in roughly [0.35 (normotensive ~110) .. 1.15 (hypertensive ~155+)].
+function sodiumMod(baselineSBP) {
+  // Linear map: 110 mmHg → 0.35, 155 mmHg → 1.15; clamped.
+  const f = 0.35 + (baselineSBP - 110) * (1.15 - 0.35) / (155 - 110);
+  return f < 0.2 ? 0.2 : f > 1.3 ? 1.3 : f;
+}
+
+// Threshold alcohol→SBP (Roerecke 2017): negligible up to ~2 drinks/day, then
+// steep rise. Returns mmHg shift for an absolute drinks/day intake. Anchored so
+// ~6 drinks/day ≈ +5.5 mmHg above the ~2-drink threshold (the cited heavy-vs-cut
+// magnitude). `coeff` (5.5) is the asymptotic per-step slope above threshold.
+function alcoholThreshold(drinks, coeff) {
+  const thr = 2;
+  if (drinks <= thr) return 0;
+  // Steep, slightly accelerating above threshold; +6 drinks → ~+5.5 mmHg.
+  return coeff * (drinks - thr) / 4;
+}
+
+// Exercise→HbA1c (Umpierre 2011): −0.67% for a full sedentary→active shift.
+// Scaled by activity deviation across the ~150 min/wk sedentary→active span.
+function exerciseScale(deviationMin) {
+  // Full −0.67% credited at +150 min/wk above the sedentary reference; capped.
+  const f = deviationMin / 150;
+  return f > 1.5 ? 1.5 : f < -1 ? -1 : f;
+}
+
+// Dynamic caloric-balance→weight (Hall 2013): the static 7700 kcal/kg rule
+// overstates long-run weight change by ~40–50%; only ~weightAsymptoteFraction
+// of it is realized. Returns Δkg for a sustained daily energy-balance offset.
+function weightDynamicKg(calBalancePerDay, asymptoteFraction) {
+  const STATIC_KCAL_PER_KG = 7700;
+  // Static ~1 yr accumulation, damped to the realized long-run asymptote.
+  const staticKg = (calBalancePerDay * 365) / STATIC_KCAL_PER_KG;
+  return staticKg * asymptoteFraction;
+}
+
+// Apply a single mediator edge: returns the additive contribution to the
+// mediator value (in the mediator's natural units) for one age's baseline.
+function applyMediatorEdge(edge, inputs, popMean, baselineVal, K) {
+  const x = inputs[edge.from];
+  const dx = (x === undefined ? popMean : x) - popMean; // deviation from pop mean
+  switch (edge.form) {
+    case "linear":
+      return edge.coeff * dx;
+    case "fiberSaturating": {
+      const intake = x === undefined ? popMean : x;
+      const knee = popMean + 10; // linear to popMean+10 g, dampened beyond
+      return edge.coeff * (fiberSat(intake, knee) - fiberSat(popMean, knee));
+    }
+    case "exerciseHbA1c":
+      return edge.coeff * exerciseScale(dx);
+    case "sodiumConvex":
+      // coeff is per 100 mmol; convex + baseline-SBP effect-modified.
+      return edge.coeff * (dx / 100) * sodiumMod(baselineVal);
+    case "alcoholThreshold": {
+      const intake = x === undefined ? popMean : x;
+      return alcoholThreshold(intake, edge.coeff) - alcoholThreshold(popMean, edge.coeff);
+    }
+    case "weightDynamic": {
+      // calorieBalance offset → Δkg → ΔBMI via reference height.
+      const dkg = weightDynamicKg(dx, K.weightAsymptoteFraction);
+      return dkg / (K.heightRefM * K.heightRefM);
+    }
+    default:
+      return edge.coeff * dx;
+  }
+}
+
+/* ===================== B-layer (Stage 2): cause edges ===================== */
+//
+// Stage-2 wires mediator VALUES (from Stage 1) and a few direct exogenous inputs
+// into the per-cause / residual hazard via multiplicative deviation factors.
+//
+//   cause_hazard_c(age) = [v0.3 cause hazard] · Π_edges mult_edge(age)
+//
+// Every multiplier is 1 at population-average inputs (continuous: value==baseline
+// ⇒ Δ=0; direct: input==popMean ⇒ Δ=0; categorical smoking: normalized so the
+// population mix averages to 1 and the default/undefined status maps to 1), so
+// the v0.3 mortality reproduces exactly.
+//
+// CATEGORICAL SMOKING NORMALIZATION: the CDC cause baselines already embed the
+// US smoker mix (≈61% never / 25% former / 14% current). Raw relative RRs are
+// therefore divided by the population-mix mean RR so the mix averages to 1 and
+// never-smokers come out PROTECTED (<1). The `smokingStatus` input defaults
+// (undefined / its sentinel populationMean) to the population mix ⇒ mult 1.
+
+// Population smoking-status mix (US adults) used to normalize categorical RRs.
+const SMOKE_MIX = { never: 0.61, former: 0.25, current: 0.14 };
+
+// Resolve a continuous direct-exogenous input deviation from population mean.
+// Undefined input ⇒ deviation 0 (the invariant: default == population average).
+function inputDev(inputs, popMean, id) {
+  const x = inputs[id];
+  return (x === undefined ? popMean[id] : x) - popMean[id];
+}
+
+// Compute one Stage-2 cause-edge multiplier at age-index k / age `age`.
+function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean) {
+  switch (e.form) {
+    // -------- continuous mediator → cause: exp(β · (value − baseline)) --------
+    case "mediatorLogLinear": {
+      // β may be a scalar OR age-modified (Lewington SBP): β(age)=base·half^((age−refAge)/halfLife).
+      let beta = e.beta;
+      if (e.betaAgeMod) {
+        const { refAge, halfPer } = e.betaAgeMod; // slope halves per `halfPer` years
+        beta = e.beta * Math.pow(0.5, (age - refAge) / halfPer);
+      }
+      const dev = medValues[e.med][k] - medBaseline[e.med][k];
+      return Math.exp(beta * dev);
+    }
+    case "mediatorThresholdRamp": {
+      // exp(slope · max(0, value − threshold)), capped. At baseline value the
+      // deviation contribution is exp(slope·max(0, baseline − threshold)); we
+      // take the RATIO to the baseline so mult==1 when value==baseline.
+      const v = medValues[e.med][k];
+      const b = medBaseline[e.med][k];
+      const num = Math.min(e.cap, Math.exp(e.slope * Math.max(0, v - e.threshold)));
+      const den = Math.min(e.cap, Math.exp(e.slope * Math.max(0, b - e.threshold)));
+      return num / den;
+    }
+    // ------------------ direct exogenous → cause (continuous) ------------------
+    case "directLogLinear":
+      return Math.exp(e.beta * inputDev(inputs, popMean, e.input));
+    case "directHinge": {
+      // exp(slope · max(0, input − knee)); =1 below the knee. Population mean is
+      // below the knee ⇒ default mult 1.
+      const x = inputs[e.input];
+      const xv = x === undefined ? popMean[e.input] : x;
+      return Math.exp(e.slope * Math.max(0, xv - e.knee));
+    }
+    // -------------------- categorical smoking (normalized) --------------------
+    case "smokingCategorical": {
+      // e.rr: { never, former, current }. Normalize by the population-mix mean
+      // so the mix averages to 1. Default status (undefined) == population mix
+      // ⇒ mult exactly 1.
+      const meanRR = SMOKE_MIX.never * e.rr.never
+        + SMOKE_MIX.former * e.rr.former
+        + SMOKE_MIX.current * e.rr.current;
+      const status = inputs[e.input]; // "never" | "former" | "current" | undefined
+      if (status === undefined) return 1; // population mix → normalized mult 1
+      const raw = e.rr[status];
+      if (raw === undefined) return 1; // unknown status → neutral
+      return raw / meanRR;
+    }
+    default:
+      return 1;
+  }
+}
+
+// Apply a treatment perturbation to a mediator value. `dose` in [0,1] scales it.
+function applyTreatment(tx, value, dose) {
+  switch (tx.form) {
+    case "pctReduction": {
+      const reduced = value * (1 - tx.amount * dose);
+      const floor = tx.floor ?? -Infinity;
+      return reduced < floor ? floor : reduced;
+    }
+    case "absShift":
+      return value + tx.amount * dose;
+    default:
+      return value;
+  }
+}
+
+/**
+ * mediators(MODEL, opts) — emergent endogenous-mediator trajectories.
+ *
+ * opts:
+ *   sex        : "male" | "female"             (required)
+ *   inputs     : { inputId: value }            (default {} → all at populationMean)
+ *   treatments : { txId: doseInZeroToOne | true } (default {}; true === full dose 1.0)
+ *   offsets    : { medId: number }             (default {}; personal residual, natural units)
+ *
+ * Returns { medId: [valueByAge over MODEL.meta.ageRange] }.
+ *
+ * Invariant: inputs={} (or every input == populationMean), treatments={},
+ * offsets={} ⇒ each mediator value == its baseline curve at that age.
+ */
+function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {} } = {}) {
+  if (sex !== "male" && sex !== "female") {
+    throw new Error(`mediators: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
+  }
+  const b = MODEL.bLayer;
+  if (!b) throw new Error("mediators: MODEL.bLayer is missing (regenerate params.json)");
+
+  const AGE0 = MODEL.meta.ageRange[0];
+  const AGE1 = MODEL.meta.ageRange[1];
+  const DT = MODEL.meta.dt;
+  const AGES = [];
+  for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
+
+  const K = b.constants || { heightRefM: 1.7, weightAsymptoteFraction: 0.55 };
+
+  // populationMean lookup by input id.
+  const popMean = {};
+  for (const inp of b.exogenousInputs) popMean[inp.id] = inp.populationMean;
+
+  // Edges grouped by target mediator.
+  const edgesByMed = {};
+  for (const e of b.mediatorEdges) (edgesByMed[e.to] ||= []).push(e);
+  // Treatments grouped by target mediator (only those requested in opts).
+  const txByMed = {};
+  for (const tx of b.treatments) {
+    if (treatments[tx.id] !== undefined && treatments[tx.id] !== false) {
+      (txByMed[tx.to] ||= []).push(tx);
+    }
+  }
+
+  const out = {};
+  for (const med of b.mediators) {
+    const curve = med.baseline[sex];
+    const offset = offsets[med.id] ?? 0;
+    const edges = edgesByMed[med.id] || [];
+    const txs = txByMed[med.id] || [];
+    out[med.id] = AGES.map((age) => {
+      const baselineVal = interp(curve, age);
+      let v = baselineVal;
+      for (const e of edges) {
+        v += applyMediatorEdge(e, inputs, popMean[e.from], baselineVal, K);
+      }
+      v += offset;
+      for (const tx of txs) {
+        const dose = treatments[tx.id] === true ? 1.0 : treatments[tx.id];
+        v = applyTreatment(tx, v, dose);
+      }
+      return v;
+    });
+  }
+  return out;
+}
+
+/* ---- MODEL (model/params.json) ---- */
+const MODEL = {
   "meta": {
     "version": "v0.3",
     "ageRange": [
@@ -238,7 +787,7 @@ const MODEL =
       100
     ],
     "dt": 1,
-    "couple": 1.0,
+    "couple": 1,
     "note": "Illustrative parameter layer for aging-simulator v0.3. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC-WONDER-2022 SEX-SPECIFIC competing hazards (no sex scalar). NOT verified facts; sensitivity-exploration only."
   },
   "strengthToGain": {
@@ -255,7 +804,7 @@ const MODEL =
   "mortality": {
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
-      "lifestyleMult": 1.0,
+      "lifestyleMult": 1,
       "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
       "byAge": {
         "male": [
@@ -443,740 +992,1325 @@ const MODEL =
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar."
   },
   "nodes": [
-      {
-        "id": "genomic-instability",
-        "label": "Genomic instability",
-        "layer": "tier1",
-        "tractability": "low",
-        "provenance": "anchored",
-        "curve": {
-          "form": "linear",
-          "params": {
-            "t0": 0.05,
-            "slope": 0.01
-          }
+    {
+      "id": "genomic-instability",
+      "label": "Genomic instability",
+      "layer": "tier1",
+      "tractability": "low",
+      "provenance": "anchored",
+      "curve": {
+        "form": "linear",
+        "params": {
+          "t0": 0.05,
+          "slope": 0.01
         }
-      },
-      {
-        "id": "telomere-attrition",
-        "label": "Telomere attrition",
-        "layer": "tier1",
-        "tractability": "low",
-        "provenance": "anchored",
-        "curve": {
-          "form": "linear",
-          "params": {
-            "t0": 0.05,
-            "slope": 0.011
-          },
-          "female": {
-            "t0": 0.03,
-            "slope": 0.011
-          }
+      }
+    },
+    {
+      "id": "telomere-attrition",
+      "label": "Telomere attrition",
+      "layer": "tier1",
+      "tractability": "low",
+      "provenance": "anchored",
+      "curve": {
+        "form": "linear",
+        "params": {
+          "t0": 0.05,
+          "slope": 0.011
+        },
+        "female": {
+          "t0": 0.03,
+          "slope": 0.011
         }
-      },
-      {
-        "id": "epigenetic-alterations",
-        "label": "Epigenetic alterations",
-        "layer": "tier1",
-        "tractability": "moderate",
-        "provenance": "anchored-direction",
-        "curve": {
-          "form": "linear",
-          "params": {
-            "t0": 0.0,
-            "slope": 0.0115
-          },
-          "female": {
-            "t0": 0.0,
-            "slope": 0.0108
-          }
+      }
+    },
+    {
+      "id": "epigenetic-alterations",
+      "label": "Epigenetic alterations",
+      "layer": "tier1",
+      "tractability": "moderate",
+      "provenance": "anchored-direction",
+      "curve": {
+        "form": "linear",
+        "params": {
+          "t0": 0,
+          "slope": 0.0115
+        },
+        "female": {
+          "t0": 0,
+          "slope": 0.0108
         }
-      },
-      {
-        "id": "mitochondrial-dysfunction",
-        "label": "Mitochondrial dysfunction",
-        "layer": "tier1",
-        "tractability": "moderate",
-        "provenance": "ordinal-default",
-        "curve": {
-          "form": "exponential",
-          "params": {
-            "A": 0.05,
-            "r": 0.03
-          }
+      }
+    },
+    {
+      "id": "mitochondrial-dysfunction",
+      "label": "Mitochondrial dysfunction",
+      "layer": "tier1",
+      "tractability": "moderate",
+      "provenance": "ordinal-default",
+      "curve": {
+        "form": "exponential",
+        "params": {
+          "A": 0.05,
+          "r": 0.03
         }
-      },
-      {
-        "id": "cellular-senescence",
-        "label": "Cellular senescence",
-        "layer": "tier2",
-        "tractability": "high",
-        "provenance": "anchored",
-        "curve": {
-          "form": "exponential",
-          "params": {
-            "A": 0.025,
-            "r": 0.04
-          }
+      }
+    },
+    {
+      "id": "cellular-senescence",
+      "label": "Cellular senescence",
+      "layer": "tier2",
+      "tractability": "high",
+      "provenance": "anchored",
+      "curve": {
+        "form": "exponential",
+        "params": {
+          "A": 0.025,
+          "r": 0.04
         }
-      },
-      {
-        "id": "deregulated-nutrient-sensing",
-        "label": "Deregulated nutrient sensing",
-        "layer": "tier2",
-        "tractability": "high",
-        "provenance": "ordinal-default",
-        "curve": {
-          "form": "sigmoid",
-          "params": {
-            "L": 0.9,
-            "k": 0.09,
-            "mid": 55
-          }
+      }
+    },
+    {
+      "id": "deregulated-nutrient-sensing",
+      "label": "Deregulated nutrient sensing",
+      "layer": "tier2",
+      "tractability": "high",
+      "provenance": "ordinal-default",
+      "curve": {
+        "form": "sigmoid",
+        "params": {
+          "L": 0.9,
+          "k": 0.09,
+          "mid": 55
         }
-      },
-      {
-        "id": "disabled-macroautophagy",
-        "label": "Disabled macroautophagy",
-        "layer": "tier2",
-        "tractability": "high",
-        "provenance": "ordinal-default",
-        "curve": {
-          "form": "sigmoid",
-          "params": {
-            "L": 0.85,
-            "k": 0.08,
-            "mid": 58
-          }
+      }
+    },
+    {
+      "id": "disabled-macroautophagy",
+      "label": "Disabled macroautophagy",
+      "layer": "tier2",
+      "tractability": "high",
+      "provenance": "ordinal-default",
+      "curve": {
+        "form": "sigmoid",
+        "params": {
+          "L": 0.85,
+          "k": 0.08,
+          "mid": 58
         }
-      },
-      {
-        "id": "loss-of-proteostasis",
-        "label": "Loss of proteostasis",
-        "layer": "tier2",
-        "tractability": "moderate",
-        "provenance": "ordinal-default",
-        "curve": {
-          "form": "exponential",
-          "params": {
-            "A": 0.03,
-            "r": 0.035
-          }
+      }
+    },
+    {
+      "id": "loss-of-proteostasis",
+      "label": "Loss of proteostasis",
+      "layer": "tier2",
+      "tractability": "moderate",
+      "provenance": "ordinal-default",
+      "curve": {
+        "form": "exponential",
+        "params": {
+          "A": 0.03,
+          "r": 0.035
         }
-      },
-      {
-        "id": "chronic-inflammation",
-        "label": "Chronic inflammation",
-        "layer": "tier3",
-        "tractability": "high",
-        "provenance": "anchored-direction",
-        "curve": {
-          "form": "sigmoid",
-          "params": {
-            "L": 0.9,
-            "k": 0.1,
-            "mid": 60
-          }
+      }
+    },
+    {
+      "id": "chronic-inflammation",
+      "label": "Chronic inflammation",
+      "layer": "tier3",
+      "tractability": "high",
+      "provenance": "anchored-direction",
+      "curve": {
+        "form": "sigmoid",
+        "params": {
+          "L": 0.9,
+          "k": 0.1,
+          "mid": 60
         }
-      },
-      {
-        "id": "altered-intercellular-communication",
-        "label": "Altered intercellular communication",
-        "layer": "tier3",
-        "tractability": "moderate",
-        "provenance": "ordinal-default",
-        "curve": {
-          "form": "sigmoid",
-          "params": {
-            "L": 0.85,
-            "k": 0.08,
-            "mid": 60
-          }
+      }
+    },
+    {
+      "id": "altered-intercellular-communication",
+      "label": "Altered intercellular communication",
+      "layer": "tier3",
+      "tractability": "moderate",
+      "provenance": "ordinal-default",
+      "curve": {
+        "form": "sigmoid",
+        "params": {
+          "L": 0.85,
+          "k": 0.08,
+          "mid": 60
         }
-      },
-      {
-        "id": "stem-cell-exhaustion",
-        "label": "Stem cell exhaustion",
-        "layer": "tier3",
-        "tractability": "low",
-        "provenance": "ordinal-default",
-        "curve": {
-          "form": "sigmoid",
-          "params": {
-            "L": 0.9,
-            "k": 0.09,
-            "mid": 65
-          }
+      }
+    },
+    {
+      "id": "stem-cell-exhaustion",
+      "label": "Stem cell exhaustion",
+      "layer": "tier3",
+      "tractability": "low",
+      "provenance": "ordinal-default",
+      "curve": {
+        "form": "sigmoid",
+        "params": {
+          "L": 0.9,
+          "k": 0.09,
+          "mid": 65
         }
-      },
-      {
-        "id": "dysbiosis",
-        "label": "Dysbiosis",
-        "layer": "tier3",
-        "tractability": "moderate",
-        "provenance": "ordinal-default",
-        "curve": {
-          "form": "linear",
-          "params": {
-            "t0": 0.05,
-            "slope": 0.009
-          }
+      }
+    },
+    {
+      "id": "dysbiosis",
+      "label": "Dysbiosis",
+      "layer": "tier3",
+      "tractability": "moderate",
+      "provenance": "ordinal-default",
+      "curve": {
+        "form": "linear",
+        "params": {
+          "t0": 0.05,
+          "slope": 0.009
         }
-      },
-      {
-        "id": "atherosclerosis",
-        "label": "Atherosclerosis / CVD",
-        "layer": "phenotype",
-        "tractability": "moderate",
-        "provenance": "anchored",
-        "role": "mortality-cause",
-        "mortalityCause": "cardiovascular",
-        "curve": {
-          "form": "table",
+      }
+    },
+    {
+      "id": "atherosclerosis",
+      "label": "Atherosclerosis / CVD",
+      "layer": "phenotype",
+      "tractability": "moderate",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "cardiovascular",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.000512
+          ],
+          [
+            30,
+            0.002285
+          ],
+          [
+            40,
+            0.007916
+          ],
+          [
+            50,
+            0.023345
+          ],
+          [
+            60,
+            0.059632
+          ],
+          [
+            70,
+            0.121294
+          ],
+          [
+            80,
+            0.286352
+          ],
+          [
+            90,
+            1
+          ]
+        ],
+        "female": {
           "byAge": [
             [
               20,
-              0.000512
+              0.000373
             ],
             [
               30,
-              0.002285
+              0.001448
             ],
             [
               40,
-              0.007916
+              0.004914
             ],
             [
               50,
-              0.023345
+              0.01303
             ],
             [
               60,
-              0.059632
+              0.033255
             ],
             [
               70,
-              0.121294
+              0.077676
             ],
             [
               80,
-              0.286352
+              0.231733
             ],
             [
               90,
-              1.0
+              1
             ]
-          ],
-          "female": {
-            "byAge": [
-              [
-                20,
-                0.000373
-              ],
-              [
-                30,
-                0.001448
-              ],
-              [
-                40,
-                0.004914
-              ],
-              [
-                50,
-                0.01303
-              ],
-              [
-                60,
-                0.033255
-              ],
-              [
-                70,
-                0.077676
-              ],
-              [
-                80,
-                0.231733
-              ],
-              [
-                90,
-                1.0
-              ]
-            ]
-          }
+          ]
         }
-      },
-      {
-        "id": "cancer",
-        "label": "Cancer",
-        "layer": "phenotype",
-        "tractability": "moderate",
-        "provenance": "anchored",
-        "role": "mortality-cause",
-        "mortalityCause": "cancer",
-        "curve": {
-          "form": "table",
+      }
+    },
+    {
+      "id": "cancer",
+      "label": "Cancer",
+      "layer": "phenotype",
+      "tractability": "moderate",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "cancer",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.001705
+          ],
+          [
+            30,
+            0.003641
+          ],
+          [
+            40,
+            0.010092
+          ],
+          [
+            50,
+            0.036406
+          ],
+          [
+            60,
+            0.1247
+          ],
+          [
+            70,
+            0.285023
+          ],
+          [
+            80,
+            0.543917
+          ],
+          [
+            90,
+            1
+          ]
+        ],
+        "female": {
           "byAge": [
             [
               20,
-              0.001705
+              0.002081
             ],
             [
               30,
-              0.003641
+              0.006484
             ],
             [
               40,
-              0.010092
+              0.023533
             ],
             [
               50,
-              0.036406
+              0.068919
             ],
             [
               60,
-              0.1247
+              0.183943
             ],
             [
               70,
-              0.285023
+              0.360202
             ],
             [
               80,
-              0.543917
+              0.656688
             ],
             [
               90,
-              1.0
+              1
             ]
-          ],
-          "female": {
-            "byAge": [
-              [
-                20,
-                0.002081
-              ],
-              [
-                30,
-                0.006484
-              ],
-              [
-                40,
-                0.023533
-              ],
-              [
-                50,
-                0.068919
-              ],
-              [
-                60,
-                0.183943
-              ],
-              [
-                70,
-                0.360202
-              ],
-              [
-                80,
-                0.656688
-              ],
-              [
-                90,
-                1.0
-              ]
-            ]
-          }
+          ]
         }
-      },
-      {
-        "id": "neurodegeneration",
-        "label": "Neurodegeneration",
-        "layer": "phenotype",
-        "tractability": "low",
-        "provenance": "anchored",
-        "role": "mortality-cause",
-        "mortalityCause": "neurodegeneration",
-        "curve": {
-          "form": "table",
+      }
+    },
+    {
+      "id": "neurodegeneration",
+      "label": "Neurodegeneration",
+      "layer": "phenotype",
+      "tractability": "low",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "neurodegeneration",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0
+          ],
+          [
+            30,
+            0.000018
+          ],
+          [
+            40,
+            0.000044
+          ],
+          [
+            50,
+            0.000395
+          ],
+          [
+            60,
+            0.004081
+          ],
+          [
+            70,
+            0.028259
+          ],
+          [
+            80,
+            0.187196
+          ],
+          [
+            90,
+            1
+          ]
+        ],
+        "female": {
           "byAge": [
             [
               20,
-              0.0
+              0
             ],
             [
               30,
-              1.8e-05
+              0
             ],
             [
               40,
-              4.4e-05
+              0.000032
             ],
             [
               50,
-              0.000395
+              0.000291
             ],
             [
               60,
-              0.004081
+              0.003034
             ],
             [
               70,
-              0.028259
+              0.022594
             ],
             [
               80,
-              0.187196
+              0.166392
             ],
             [
               90,
-              1.0
+              1
             ]
-          ],
-          "female": {
-            "byAge": [
-              [
-                20,
-                0.0
-              ],
-              [
-                30,
-                0.0
-              ],
-              [
-                40,
-                3.2e-05
-              ],
-              [
-                50,
-                0.000291
-              ],
-              [
-                60,
-                0.003034
-              ],
-              [
-                70,
-                0.022594
-              ],
-              [
-                80,
-                0.166392
-              ],
-              [
-                90,
-                1.0
-              ]
-            ]
-          }
+          ]
         }
-      },
-      {
-        "id": "immunosenescence",
-        "label": "Immunosenescence",
-        "layer": "phenotype",
-        "tractability": "low",
-        "provenance": "anchored",
-        "role": "mortality-cause",
-        "mortalityCause": "infection",
-        "curve": {
-          "form": "table",
+      }
+    },
+    {
+      "id": "immunosenescence",
+      "label": "Immunosenescence",
+      "layer": "phenotype",
+      "tractability": "low",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "infection",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.001244
+          ],
+          [
+            30,
+            0.004561
+          ],
+          [
+            40,
+            0.010574
+          ],
+          [
+            50,
+            0.024881
+          ],
+          [
+            60,
+            0.06158
+          ],
+          [
+            70,
+            0.13954
+          ],
+          [
+            80,
+            0.337757
+          ],
+          [
+            90,
+            1
+          ]
+        ],
+        "female": {
           "byAge": [
             [
               20,
-              0.001244
+              0.001768
             ],
             [
               30,
-              0.004561
+              0.0056
             ],
             [
               40,
-              0.010574
+              0.012084
             ],
             [
               50,
-              0.024881
+              0.028883
             ],
             [
               60,
-              0.06158
+              0.06985
             ],
             [
               70,
-              0.13954
+              0.153551
             ],
             [
               80,
-              0.337757
+              0.358385
             ],
             [
               90,
-              1.0
+              1
             ]
-          ],
-          "female": {
-            "byAge": [
-              [
-                20,
-                0.001768
-              ],
-              [
-                30,
-                0.0056
-              ],
-              [
-                40,
-                0.012084
-              ],
-              [
-                50,
-                0.028883
-              ],
-              [
-                60,
-                0.06985
-              ],
-              [
-                70,
-                0.153551
-              ],
-              [
-                80,
-                0.358385
-              ],
-              [
-                90,
-                1.0
-              ]
-            ]
-          }
+          ]
         }
+      }
+    },
+    {
+      "id": "sarcopenia",
+      "label": "Sarcopenia / frailty",
+      "layer": "phenotype",
+      "tractability": "moderate",
+      "provenance": "anchored-direction",
+      "role": "frailty-multiplier",
+      "curve": {
+        "form": "sigmoid",
+        "params": {
+          "L": 0.95,
+          "k": 0.1,
+          "mid": 72
+        }
+      }
+    },
+    {
+      "id": "clonal-hematopoiesis",
+      "label": "Clonal hematopoiesis",
+      "layer": "phenotype",
+      "tractability": "low",
+      "provenance": "anchored-direction",
+      "role": "driver",
+      "curve": {
+        "form": "exponential",
+        "params": {
+          "A": 0.008,
+          "r": 0.05
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "genomic-instability",
+      "to": "cellular-senescence",
+      "strength": "strong"
+    },
+    {
+      "from": "genomic-instability",
+      "to": "chronic-inflammation",
+      "strength": "strong"
+    },
+    {
+      "from": "genomic-instability",
+      "to": "clonal-hematopoiesis",
+      "strength": "strong"
+    },
+    {
+      "from": "telomere-attrition",
+      "to": "cellular-senescence",
+      "strength": "strong"
+    },
+    {
+      "from": "telomere-attrition",
+      "to": "stem-cell-exhaustion",
+      "strength": "strong"
+    },
+    {
+      "from": "telomere-attrition",
+      "to": "genomic-instability",
+      "strength": "moderate"
+    },
+    {
+      "from": "epigenetic-alterations",
+      "to": "cellular-senescence",
+      "strength": "moderate"
+    },
+    {
+      "from": "epigenetic-alterations",
+      "to": "stem-cell-exhaustion",
+      "strength": "moderate"
+    },
+    {
+      "from": "epigenetic-alterations",
+      "to": "deregulated-nutrient-sensing",
+      "strength": "weak"
+    },
+    {
+      "from": "cellular-senescence",
+      "to": "chronic-inflammation",
+      "strength": "strong"
+    },
+    {
+      "from": "cellular-senescence",
+      "to": "stem-cell-exhaustion",
+      "strength": "moderate"
+    },
+    {
+      "from": "cellular-senescence",
+      "to": "altered-intercellular-communication",
+      "strength": "moderate"
+    },
+    {
+      "from": "deregulated-nutrient-sensing",
+      "to": "disabled-macroautophagy",
+      "strength": "strong"
+    },
+    {
+      "from": "deregulated-nutrient-sensing",
+      "to": "cellular-senescence",
+      "strength": "moderate"
+    },
+    {
+      "from": "deregulated-nutrient-sensing",
+      "to": "mitochondrial-dysfunction",
+      "strength": "moderate"
+    },
+    {
+      "from": "deregulated-nutrient-sensing",
+      "to": "stem-cell-exhaustion",
+      "strength": "moderate"
+    },
+    {
+      "from": "disabled-macroautophagy",
+      "to": "loss-of-proteostasis",
+      "strength": "strong"
+    },
+    {
+      "from": "disabled-macroautophagy",
+      "to": "mitochondrial-dysfunction",
+      "strength": "strong"
+    },
+    {
+      "from": "disabled-macroautophagy",
+      "to": "chronic-inflammation",
+      "strength": "moderate"
+    },
+    {
+      "from": "mitochondrial-dysfunction",
+      "to": "cellular-senescence",
+      "strength": "disputed"
+    },
+    {
+      "from": "mitochondrial-dysfunction",
+      "to": "chronic-inflammation",
+      "strength": "moderate"
+    },
+    {
+      "from": "mitochondrial-dysfunction",
+      "to": "loss-of-proteostasis",
+      "strength": "moderate"
+    },
+    {
+      "from": "loss-of-proteostasis",
+      "to": "neurodegeneration",
+      "strength": "strong"
+    },
+    {
+      "from": "chronic-inflammation",
+      "to": "stem-cell-exhaustion",
+      "strength": "moderate"
+    },
+    {
+      "from": "chronic-inflammation",
+      "to": "atherosclerosis",
+      "strength": "strong"
+    },
+    {
+      "from": "chronic-inflammation",
+      "to": "clonal-hematopoiesis",
+      "strength": "moderate"
+    },
+    {
+      "from": "chronic-inflammation",
+      "to": "sarcopenia",
+      "strength": "moderate"
+    },
+    {
+      "from": "dysbiosis",
+      "to": "chronic-inflammation",
+      "strength": "moderate"
+    },
+    {
+      "from": "dysbiosis",
+      "to": "altered-intercellular-communication",
+      "strength": "moderate"
+    },
+    {
+      "from": "altered-intercellular-communication",
+      "to": "stem-cell-exhaustion",
+      "strength": "weak"
+    },
+    {
+      "from": "stem-cell-exhaustion",
+      "to": "sarcopenia",
+      "strength": "strong"
+    },
+    {
+      "from": "stem-cell-exhaustion",
+      "to": "immunosenescence",
+      "strength": "strong"
+    },
+    {
+      "from": "stem-cell-exhaustion",
+      "to": "chronic-inflammation",
+      "strength": "moderate"
+    },
+    {
+      "from": "clonal-hematopoiesis",
+      "to": "atherosclerosis",
+      "strength": "moderate"
+    },
+    {
+      "from": "genomic-instability",
+      "to": "cancer",
+      "strength": "strong"
+    },
+    {
+      "from": "epigenetic-alterations",
+      "to": "cancer",
+      "strength": "moderate"
+    },
+    {
+      "from": "chronic-inflammation",
+      "to": "cancer",
+      "strength": "moderate"
+    },
+    {
+      "from": "immunosenescence",
+      "to": "cancer",
+      "strength": "moderate"
+    }
+  ],
+  "bLayer": {
+    "version": "B-stage1",
+    "note": "Stage-1 endogenous-mediator tier (2026-06-08). Exogenous behavioral/environmental inputs drive emergent mediator VALUES (LDL, SBP, BMI, HbA1c). NOT YET wired to mortality — mortality math is unchanged v0.3. mediator(age) = baseline_{med,sex}(age) + Σ_x coeff_{x→med}·form(input_x − populationMean_x) + personal_offset. At population-average inputs + zero offset, mediator == baseline (invariant). Numbers transcribed from § B-layer parameters; interpolations flagged in provenance.",
+    "exogenousInputs": [
+      {
+        "id": "smoking",
+        "label": "Smoking",
+        "unit": "cigarettes/day",
+        "populationMean": 2,
+        "range": [
+          0,
+          40
+        ]
       },
       {
-        "id": "sarcopenia",
-        "label": "Sarcopenia / frailty",
-        "layer": "phenotype",
-        "tractability": "moderate",
-        "provenance": "anchored-direction",
-        "role": "frailty-multiplier",
-        "curve": {
-          "form": "sigmoid",
-          "params": {
-            "L": 0.95,
-            "k": 0.1,
-            "mid": 72
-          }
-        }
+        "id": "smokingStatus",
+        "label": "Smoking status (categorical)",
+        "unit": "never|former|current",
+        "populationMean": "population",
+        "range": [
+          "never",
+          "former",
+          "current"
+        ],
+        "note": "Categorical smoking status for the direct smoking->cancer/COPD cause edges (Stage 2). Sentinel populationMean 'population' (and undefined) maps to the US smoker mix (61% never / 25% former / 14% current), normalized so the mix averages to a multiplier of 1 — the CDC cause baselines already embed this mix."
       },
       {
-        "id": "clonal-hematopoiesis",
-        "label": "Clonal hematopoiesis",
-        "layer": "phenotype",
-        "tractability": "low",
-        "provenance": "anchored-direction",
-        "role": "driver",
-        "curve": {
-          "form": "exponential",
-          "params": {
-            "A": 0.008,
-            "r": 0.05
-          }
-        }
+        "id": "calorieBalance",
+        "label": "Caloric balance (intake − expenditure)",
+        "unit": "kcal/day",
+        "populationMean": 0,
+        "range": [
+          -1000,
+          1000
+        ]
+      },
+      {
+        "id": "physicalActivity",
+        "label": "Physical activity",
+        "unit": "min/week MVPA",
+        "populationMean": 150,
+        "range": [
+          0,
+          600
+        ]
+      },
+      {
+        "id": "dietSatFat",
+        "label": "Saturated fat",
+        "unit": "% energy",
+        "populationMean": 11,
+        "range": [
+          3,
+          25
+        ]
+      },
+      {
+        "id": "dietFiber",
+        "label": "Soluble fiber",
+        "unit": "g/day",
+        "populationMean": 3,
+        "range": [
+          0,
+          30
+        ]
+      },
+      {
+        "id": "dietSodium",
+        "label": "Dietary sodium",
+        "unit": "mmol/day",
+        "populationMean": 150,
+        "range": [
+          40,
+          300
+        ]
+      },
+      {
+        "id": "alcohol",
+        "label": "Alcohol",
+        "unit": "drinks/day",
+        "populationMean": 1,
+        "range": [
+          0,
+          10
+        ]
+      },
+      {
+        "id": "sleep",
+        "label": "Sleep",
+        "unit": "hours/night",
+        "populationMean": 7,
+        "range": [
+          3,
+          11
+        ]
+      },
+      {
+        "id": "airPollution",
+        "label": "Air pollution",
+        "unit": "µg/m³ PM2.5",
+        "populationMean": 8,
+        "range": [
+          2,
+          60
+        ]
       }
     ],
-    "edges": [
+    "mediators": [
       {
-        "from": "genomic-instability",
-        "to": "cellular-senescence",
-        "strength": "strong"
+        "id": "LDL",
+        "label": "LDL cholesterol",
+        "unit": "mg/dL",
+        "sd": 35,
+        "baseline": {
+          "male": [
+            [
+              25,
+              115
+            ],
+            [
+              35,
+              115
+            ],
+            [
+              45,
+              115
+            ],
+            [
+              55,
+              115
+            ],
+            [
+              65,
+              108
+            ],
+            [
+              75,
+              100
+            ],
+            [
+              85,
+              100
+            ]
+          ],
+          "female": [
+            [
+              25,
+              115
+            ],
+            [
+              35,
+              115
+            ],
+            [
+              45,
+              116
+            ],
+            [
+              55,
+              120
+            ],
+            [
+              65,
+              116
+            ],
+            [
+              75,
+              115
+            ],
+            [
+              85,
+              115
+            ]
+          ]
+        },
+        "provenance": "JAMA Cardiol lipid-trends; PMC9615374; db515. Only crude <65 vs >=65 published (M<65 114.8/M>=65 100.0(treated-low); F<65 114.8/F>=65 114.6). INTERPOLATED to per-year: male flat ~115 to 55 then decline to ~100 (treated-low >=65); female menopausal rise 45-55 to ~120 peak then ~115, overtaking male >=65."
       },
       {
-        "from": "genomic-instability",
-        "to": "chronic-inflammation",
-        "strength": "strong"
+        "id": "systolicBP",
+        "label": "Systolic blood pressure",
+        "unit": "mmHg",
+        "sd": 16,
+        "baseline": {
+          "male": [
+            [
+              25,
+              119
+            ],
+            [
+              35,
+              119
+            ],
+            [
+              45,
+              124
+            ],
+            [
+              55,
+              124
+            ],
+            [
+              65,
+              133
+            ],
+            [
+              75,
+              154
+            ],
+            [
+              85,
+              154
+            ]
+          ],
+          "female": [
+            [
+              25,
+              110
+            ],
+            [
+              35,
+              110
+            ],
+            [
+              45,
+              122
+            ],
+            [
+              55,
+              122
+            ],
+            [
+              65,
+              139
+            ],
+            [
+              75,
+              159
+            ],
+            [
+              85,
+              159
+            ]
+          ]
+        },
+        "provenance": "NHSR-35 2001-08 untreated-HTN/total strata. 3 published bands -> INTERPOLATED piecewise-linear. Female SBP crossover at 60s (F139 > M133) encoded."
       },
       {
-        "from": "genomic-instability",
-        "to": "clonal-hematopoiesis",
-        "strength": "strong"
+        "id": "BMI",
+        "label": "Body mass index",
+        "unit": "kg/m^2",
+        "sd": 6,
+        "baseline": {
+          "male": [
+            [
+              25,
+              27.6
+            ],
+            [
+              35,
+              30.3
+            ],
+            [
+              45,
+              30.1
+            ],
+            [
+              55,
+              29.8
+            ],
+            [
+              65,
+              29.9
+            ],
+            [
+              75,
+              29.2
+            ],
+            [
+              85,
+              27.6
+            ]
+          ],
+          "female": [
+            [
+              25,
+              28.3
+            ],
+            [
+              35,
+              29.9
+            ],
+            [
+              45,
+              30.7
+            ],
+            [
+              55,
+              30.3
+            ],
+            [
+              65,
+              30.3
+            ],
+            [
+              75,
+              29.8
+            ],
+            [
+              85,
+              28
+            ]
+          ]
+        },
+        "provenance": "Fryar 2015-18 (~untreated biology; right-skewed). Direct per-band table, band-center ages."
       },
       {
-        "from": "telomere-attrition",
-        "to": "cellular-senescence",
-        "strength": "strong"
-      },
-      {
-        "from": "telomere-attrition",
-        "to": "stem-cell-exhaustion",
-        "strength": "strong"
-      },
-      {
-        "from": "telomere-attrition",
-        "to": "genomic-instability",
-        "strength": "moderate"
-      },
-      {
-        "from": "epigenetic-alterations",
-        "to": "cellular-senescence",
-        "strength": "moderate"
-      },
-      {
-        "from": "epigenetic-alterations",
-        "to": "stem-cell-exhaustion",
-        "strength": "moderate"
-      },
-      {
-        "from": "epigenetic-alterations",
-        "to": "deregulated-nutrient-sensing",
-        "strength": "weak"
-      },
-      {
-        "from": "cellular-senescence",
-        "to": "chronic-inflammation",
-        "strength": "strong"
-      },
-      {
-        "from": "cellular-senescence",
-        "to": "stem-cell-exhaustion",
-        "strength": "moderate"
-      },
-      {
-        "from": "cellular-senescence",
-        "to": "altered-intercellular-communication",
-        "strength": "moderate"
-      },
-      {
-        "from": "deregulated-nutrient-sensing",
-        "to": "disabled-macroautophagy",
-        "strength": "strong"
-      },
-      {
-        "from": "deregulated-nutrient-sensing",
-        "to": "cellular-senescence",
-        "strength": "moderate"
-      },
-      {
-        "from": "deregulated-nutrient-sensing",
-        "to": "mitochondrial-dysfunction",
-        "strength": "moderate"
-      },
-      {
-        "from": "deregulated-nutrient-sensing",
-        "to": "stem-cell-exhaustion",
-        "strength": "moderate"
-      },
-      {
-        "from": "disabled-macroautophagy",
-        "to": "loss-of-proteostasis",
-        "strength": "strong"
-      },
-      {
-        "from": "disabled-macroautophagy",
-        "to": "mitochondrial-dysfunction",
-        "strength": "strong"
-      },
-      {
-        "from": "disabled-macroautophagy",
-        "to": "chronic-inflammation",
-        "strength": "moderate"
-      },
-      {
-        "from": "mitochondrial-dysfunction",
-        "to": "cellular-senescence",
-        "strength": "disputed"
-      },
-      {
-        "from": "mitochondrial-dysfunction",
-        "to": "chronic-inflammation",
-        "strength": "moderate"
-      },
-      {
-        "from": "mitochondrial-dysfunction",
-        "to": "loss-of-proteostasis",
-        "strength": "moderate"
-      },
-      {
-        "from": "loss-of-proteostasis",
-        "to": "neurodegeneration",
-        "strength": "strong"
-      },
-      {
-        "from": "chronic-inflammation",
-        "to": "stem-cell-exhaustion",
-        "strength": "moderate"
-      },
-      {
-        "from": "chronic-inflammation",
-        "to": "atherosclerosis",
-        "strength": "strong"
-      },
-      {
-        "from": "chronic-inflammation",
-        "to": "clonal-hematopoiesis",
-        "strength": "moderate"
-      },
-      {
-        "from": "chronic-inflammation",
-        "to": "sarcopenia",
-        "strength": "moderate"
-      },
-      {
-        "from": "dysbiosis",
-        "to": "chronic-inflammation",
-        "strength": "moderate"
-      },
-      {
-        "from": "dysbiosis",
-        "to": "altered-intercellular-communication",
-        "strength": "moderate"
-      },
-      {
-        "from": "altered-intercellular-communication",
-        "to": "stem-cell-exhaustion",
-        "strength": "weak"
-      },
-      {
-        "from": "stem-cell-exhaustion",
-        "to": "sarcopenia",
-        "strength": "strong"
-      },
-      {
-        "from": "stem-cell-exhaustion",
-        "to": "immunosenescence",
-        "strength": "strong"
-      },
-      {
-        "from": "stem-cell-exhaustion",
-        "to": "chronic-inflammation",
-        "strength": "moderate"
-      },
-      {
-        "from": "clonal-hematopoiesis",
-        "to": "atherosclerosis",
-        "strength": "moderate"
-      },
-      {
-        "from": "genomic-instability",
-        "to": "cancer",
-        "strength": "strong"
-      },
-      {
-        "from": "epigenetic-alterations",
-        "to": "cancer",
-        "strength": "moderate"
-      },
-      {
-        "from": "chronic-inflammation",
-        "to": "cancer",
-        "strength": "moderate"
-      },
-      {
-        "from": "immunosenescence",
-        "to": "cancer",
-        "strength": "moderate"
+        "id": "HbA1c",
+        "label": "Glycated hemoglobin",
+        "unit": "%",
+        "sd": 0.6,
+        "baseline": {
+          "male": [
+            [
+              25,
+              5.3
+            ],
+            [
+              35,
+              5.3
+            ],
+            [
+              45,
+              5.6
+            ],
+            [
+              55,
+              5.6
+            ],
+            [
+              65,
+              5.9
+            ],
+            [
+              75,
+              5.9
+            ],
+            [
+              85,
+              5.9
+            ]
+          ],
+          "female": [
+            [
+              25,
+              5.3
+            ],
+            [
+              35,
+              5.3
+            ],
+            [
+              45,
+              5.5
+            ],
+            [
+              55,
+              5.5
+            ],
+            [
+              65,
+              5.8
+            ],
+            [
+              75,
+              5.8
+            ],
+            [
+              85,
+              5.8
+            ]
+          ]
+        },
+        "provenance": "Selvin 2005-10 (sexes ~equal; rising secular trend). Direct per-band table, band-center ages."
       }
-    ]
-  };
+    ],
+    "mediatorEdges": [
+      {
+        "from": "dietSatFat",
+        "to": "LDL",
+        "coeff": 1.7,
+        "form": "linear",
+        "provenance": "Mensink 2016/2003: +1.3-2.1 mg/dL per 1% energy (replacement-dependent: PUFA -2.1, carb -1.3); 1.7 = mid. SOLID."
+      },
+      {
+        "from": "dietFiber",
+        "to": "LDL",
+        "coeff": -2.2,
+        "form": "fiberSaturating",
+        "provenance": "Brown 1999: -2.2 mg/dL per g/day soluble fiber; SATURATING >10 g/day. SOLID."
+      },
+      {
+        "from": "physicalActivity",
+        "to": "HbA1c",
+        "coeff": -0.67,
+        "form": "exerciseHbA1c",
+        "provenance": "Umpierre 2011: -0.67% (T2D) for structured exercise vs sedentary. SOLID. Form scales the -0.67% by activity deviation across the sedentary->active span (~150 min/wk)."
+      },
+      {
+        "from": "dietSodium",
+        "to": "systolicBP",
+        "coeff": -5.8,
+        "form": "sodiumConvex",
+        "provenance": "He 2013: -5.8 mmHg per -100 mmol/day; CONVEX, effect-modified (HTN -5.4 / normo -1.0; steeper older/Black). SOLID. Form scales by baseline-SBP (older/higher = steeper)."
+      },
+      {
+        "from": "alcohol",
+        "to": "systolicBP",
+        "coeff": 5.5,
+        "form": "alcoholThreshold",
+        "provenance": "Roerecke 2017: up to -5.5 mmHg from heavy 50% cut; THRESHOLD ~2 drinks then steep. SOLID. Form: ~no effect <=2 drinks, steep rise above."
+      },
+      {
+        "from": "calorieBalance",
+        "to": "BMI",
+        "coeff": 1,
+        "form": "weightDynamic",
+        "provenance": "Hall 2013: static 7700 kcal/kg OVERSTATES ~40-50% long-term; use dynamic decay. SOLID. Form: asymptotic body-weight change from a sustained energy-balance offset, converted to BMI via heightRefM."
+      }
+    ],
+    "treatments": [
+      {
+        "id": "statin",
+        "label": "Statin",
+        "to": "LDL",
+        "form": "pctReduction",
+        "amount": 0.4,
+        "floor": 50,
+        "provenance": "Statin lowers LDL ~40% (high-intensity ~50%); modeled as multiplicative reduction with an absolute floor. amount in [0,1]; floor mg/dL."
+      },
+      {
+        "id": "antihypertensive",
+        "label": "Antihypertensive",
+        "to": "systolicBP",
+        "form": "absShift",
+        "amount": -15,
+        "provenance": "Antihypertensive lowers SBP ~-15 mmHg; modeled as additive downshift (per fully-dosed). amount mmHg."
+      },
+      {
+        "id": "metformin",
+        "label": "Metformin / GLP-1",
+        "to": "HbA1c",
+        "form": "absShift",
+        "amount": -0.8,
+        "provenance": "Metformin/GLP-1 lowers HbA1c ~-0.8% (GLP-1 larger); modeled as additive downshift. amount %."
+      }
+    ],
+    "constants": {
+      "heightRefM": 1.7,
+      "weightAsymptoteFraction": 0.55,
+      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
+    },
+    "causeEdges": [
+      {
+        "from": "LDL",
+        "to": "cardiovascular",
+        "form": "mediatorLogLinear",
+        "med": "LDL",
+        "beta": 0.00643,
+        "provenance": "CTT 2010: RR 0.78 per -1 mmol/L LDL = exp(-0.2485/38.67 mg/dL) => beta=0.00643 per mg/dL. Acts on (LDL value - per-sex/age baseline); =1 at baseline. SOLID."
+      },
+      {
+        "from": "systolicBP",
+        "to": "cardiovascular",
+        "form": "mediatorLogLinear",
+        "med": "systolicBP",
+        "beta": 0.0347,
+        "betaAgeMod": {
+          "refAge": 50,
+          "halfPer": 20
+        },
+        "provenance": "Lewington 2002: ~2x CVD per +20 mmHg (>=115) => beta=ln(2)/20=0.0347 per mmHg at age 50; relative slope HALVES per ~2 decades (betaAgeMod refAge 50, halfPer 20). Acts on (SBP value - baseline). SOLID."
+      },
+      {
+        "from": "HbA1c",
+        "to": "cardiovascular",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "slope": 1.052,
+        "threshold": 5.7,
+        "cap": 3,
+        "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 reached at HbA1c 6.5 => exp(1.052*(6.5-5.7))=2.32; ramp from 5.7, capped 3.0. Ratio-to-baseline so =1 at the per-age baseline HbA1c. SOLID."
+      },
+      {
+        "from": "HbA1c",
+        "to": "cancer",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "slope": 0.27893,
+        "threshold": 5.7,
+        "cap": 1.25,
+        "provenance": "ERFC 2011: diabetes->cancer death HR 1.25 at HbA1c>=6.5 => slope=ln(1.25)/0.8=0.27893; ramp from 5.7, cap 1.25. Ratio-to-baseline. SOLID."
+      },
+      {
+        "from": "HbA1c",
+        "to": "neurodegeneration",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "slope": 0.68515,
+        "threshold": 5.7,
+        "cap": 1.73,
+        "provenance": "Gudala 2013: diabetes->dementia RR 1.73 at HbA1c>=6.5 => slope=ln(1.73)/0.8=0.68515; ramp from 5.7, cap 1.73. Ratio-to-baseline. SOLID."
+      },
+      {
+        "from": "smokingStatus",
+        "to": "cancer",
+        "form": "smokingCategorical",
+        "input": "smokingStatus",
+        "rr": {
+          "never": 1,
+          "former": 1.3,
+          "current": 2.2
+        },
+        "provenance": "Relative cancer-death RR never 1.0 / former 1.3 / current 2.2 (PAF 28.8%). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*2.2=1.243) so the population mix averages to mult 1 (the CDC cancer baseline already embeds the mix). Normalized: never~0.804 / former~1.046 / current~1.770. SOLID-direction; relative magnitudes approximate."
+      },
+      {
+        "from": "smokingStatus",
+        "to": "residual",
+        "form": "smokingCategorical",
+        "input": "smokingStatus",
+        "rr": {
+          "never": 1,
+          "former": 2,
+          "current": 6
+        },
+        "provenance": "COPD slice of residual; stronger smoking gradient never 1.0 / former 2.0 / current 6.0. NORMALIZED by mix mean (0.61+0.50+0.84=1.95): never~0.513 / former~1.026 / current~3.077. Applied to the whole residual bucket as an approximation (COPD is the dominant smoking-attributable residual cause). APPROXIMATE."
+      },
+      {
+        "from": "alcohol",
+        "to": "cancer",
+        "form": "directLogLinear",
+        "input": "alcohol",
+        "beta": 0.05,
+        "provenance": "Bagnardi 2015 (breast/CRC/liver-driven): small all-cancer slope ~exp(0.05*(drinks/day - popMean)). APPROXIMATE (per-drink all-cancer slope not line-verified)."
+      },
+      {
+        "from": "alcohol",
+        "to": "residual",
+        "form": "directHinge",
+        "input": "alcohol",
+        "slope": 0.15,
+        "knee": 2,
+        "provenance": "Liver slice of residual; supralinear in heavy drinkers ~exp(0.15*max(0, drinks/day - 2)); negligible at/below ~2 drinks/day. APPROXIMATE."
+      },
+      {
+        "from": "airPollution",
+        "to": "cardiovascular",
+        "form": "directLogLinear",
+        "input": "airPollution",
+        "beta": 0.00583,
+        "provenance": "Pope 2002: RR 1.06 per +10 ug/m3 PM2.5 => beta=ln(1.06)/10=0.00583 per ug/m3 (deviation from popMean ~8). SOLID*-direction (per-10 not PDF-line-verified)."
+      },
+      {
+        "from": "airPollution",
+        "to": "residual",
+        "form": "directLogLinear",
+        "input": "airPollution",
+        "beta": 0.005,
+        "provenance": "Respiratory slice of residual; similar small PM2.5 slope ~exp(0.005*(PM25 - popMean)). APPROXIMATE."
+      }
+    ],
+    "causeEdgesNote": "Stage 2 (2026-06-08): CLEAN non-double-counting mediator->cause and direct exogenous->cause multipliers. cause_hazard_c = [v0.3 hazard] * Prod_edges mult_edge; mult=1 at population-average inputs so v0.3 (LE 75.31 M / 80.37 F, 31 tests) reproduces exactly. mediatorThresholdRamp uses a RATIO-to-baseline so mult=1 at the per-age baseline HbA1c (which exceeds the 5.7 threshold at 60+). DEFERRED to Stage 3 (route-once double-count decisions needed; NOT implemented here): smoking->CVD; alcohol->all-cause(MR) bundle; activity->all-cause bundle; BMI/adiposity->cause."
+  }
+};
+
+/* ---- on-load regression assert: baseline male LE ≈ 75.31 ---- */
+console.assert(
+  Math.abs(simulate(MODEL, { sex: 'male' }).LE - 75.31) < 0.05,
+  'engine self-check: baseline male LE expected ≈75.31, got',
+  simulate(MODEL, { sex: 'male' }).LE
+);
+// <<<ENGINE-INJECT-END>>>
+
+/* =========================================================================
+   APP LAYER — pure rendering. ALL math comes from the inlined engine above
+   via simulate(MODEL, opts) / mediators(MODEL, opts). No model math here.
+   ========================================================================= */
 
 /* ============================ Derived constants ========================== */
 const AGE0 = MODEL.meta.ageRange[0];      // 20
@@ -1195,23 +2329,14 @@ const LAYER_COLOR = {
   phenotype: getCss("--c-phenotype")
 };
 
-// index nodes by id
+// index nodes by id (for graph layout / labels / burden lines)
 const NODES = MODEL.nodes;
 const NODE_BY_ID = {};
 NODES.forEach((n, i) => { n._idx = i; NODE_BY_ID[n.id] = n; });
 
-// Coupling gain matrix G[to][from] = strengthToGain[edge.strength].
-const NN = NODES.length;
-const G = Array.from({ length: NN }, () => new Array(NN).fill(0));
-MODEL.edges.forEach(e => {
-  const to = NODE_BY_ID[e.to], from = NODE_BY_ID[e.from];
-  if (!to || !from) return;
-  G[to._idx][from._idx] = MODEL.strengthToGain[e.strength];
-});
-const COUPLE_ITERS = (MODEL.coupling && MODEL.coupling.iterations) || 60;
-
 // Cause order for the six-way decomposition + the stacked panel.
-const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "residual"];
+// CAUSE_KEYS is provided by the inlined engine (same ["extrinsic",...] order);
+// the app reuses it rather than redeclaring (would collide in classic-script scope).
 const CAUSE_COLOR = {
   extrinsic:         getCss("--cause-extrinsic"),
   cardiovascular:    getCss("--cause-cardiovascular"),
@@ -1229,158 +2354,137 @@ const CAUSE_LABEL = {
   residual:          "Other causes"
 };
 
-/* ============================ Curve evaluation =========================== */
-function clamp01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+// B-layer lookups (exogenous inputs / mediators / treatments).
+const B = MODEL.bLayer;
+const EXO_INPUTS = B.exogenousInputs;
+const EXO_BY_ID = {};
+EXO_INPUTS.forEach(inp => { EXO_BY_ID[inp.id] = inp; });
+const MEDIATORS = B.mediators;            // [{id,label,unit,...}]
+const MED_BY_ID = {};
+MEDIATORS.forEach(m => { MED_BY_ID[m.id] = m; });
+const TREATMENTS = B.treatments;          // [{id,label,to,...}]
+const MED_COLOR = {
+  LDL:        getCss("--med-LDL"),
+  systolicBP: getCss("--med-systolicBP"),
+  HbA1c:      getCss("--med-HbA1c")
+};
 
-// piecewise-linear interpolation of [[age,val],...] ascending; clamped to endpoints.
-function interp(arr, age){
-  if (age <= arr[0][0]) return arr[0][1];
-  if (age >= arr[arr.length - 1][0]) return arr[arr.length - 1][1];
-  for (let i = 0; i < arr.length - 1; i++){
-    const a0 = arr[i][0], r0 = arr[i][1], a1 = arr[i + 1][0], r1 = arr[i + 1][1];
-    if (age >= a0 && age <= a1){
-      const f = (a1 === a0) ? 0 : (age - a0) / (a1 - a0);
-      return r0 + f * (r1 - r0);
-    }
-  }
-  return arr[arr.length - 1][1];
+// Which exogenous inputs get a control in the panel (per spec). smokingStatus is
+// segmented (categorical); the rest are numeric sliders/selects. `sleep` and the
+// raw `smoking` (cig/day) input are not wired (Stage-2 uses smokingStatus); we
+// surface the spec'd set.
+const PANEL_INPUT_IDS = [
+  "smokingStatus", "physicalActivity", "dietSatFat", "dietFiber",
+  "dietSodium", "alcohol", "airPollution", "calorieBalance"
+];
+const LAB_FIELDS = [
+  { med: "LDL",        label: "LDL",          unit: "mg/dL", step: 1,   min: 20,  max: 400 },
+  { med: "systolicBP", label: "Systolic BP",  unit: "mmHg",  step: 1,   min: 70,  max: 250 },
+  { med: "HbA1c",      label: "HbA1c",        unit: "%",     step: 0.1, min: 4,   max: 14 }
+];
+
+/* ============================ Engine adapter ============================= */
+// The app calls the canonical engine. `couple` is a MODEL.meta field, so to vary
+// it from the slider we hand the engine a shallow-cloned MODEL with meta.couple
+// overridden (everything else is shared by reference — read-only in the engine).
+function modelWithCouple(couple){
+  if (couple === MODEL.meta.couple) return MODEL;
+  return Object.assign({}, MODEL, { meta: Object.assign({}, MODEL.meta, { couple }) });
 }
 
-// Pick params for a node given sex: female override if present, else base params.
-function paramsFor(node, sex){
-  if (sex === "female" && node.curve.female) return node.curve.female;
-  return node.curve.params;
+// Run the engine for a given app-state opts bundle.
+function run(opts){
+  const m = modelWithCouple(opts.couple);
+  return simulate(m, {
+    sex: opts.sex,
+    lifestyle: opts.lifestyle,
+    interventions: opts.interventions || {},
+    inputs: opts.inputs || {},
+    treatments: opts.treatments || {},
+    offsets: opts.offsets || {}
+  });
 }
-// Intrinsic baseline trajectory T(node, sex, age), clamped to [0,1].
-function T(node, age, sex){
-  const c = node.curve;
-  if (c.form === "table"){
-    if (sex === "female" && c.female && c.female.byAge) return clamp01(interp(c.female.byAge, age));
-    return clamp01(interp(c.byAge, age));
-  }
-  const p = paramsFor(node, sex);
-  const x = age - AGE0;
-  let v;
-  switch (c.form){
-    case "linear":      v = p.t0 + p.slope * x; break;
-    case "exponential": v = p.A * (Math.exp(p.r * x) - 1); break;
-    case "sigmoid":     v = p.L / (1 + Math.exp(-p.k * (age - p.mid))); break;
-    case "ushaped":     v = p.t0 + p.amp * Math.pow((age - p.mid) / p.scale, 2); break;
-    default:            v = 0;
-  }
-  return clamp01(v);
-}
-
-// Extrinsic per-year rate (parallel non-cascading channel), per-sex.
-function E(age, sex){ return interp(MODEL.mortality.extrinsic.byAge[sex], age); }
 
 /* ============================ State ====================================== */
 let state = {
   sex: "male",
   couple: MODEL.meta.couple,
-  lifestyle: MODEL.mortality.extrinsic.lifestyleMult,  // extrinsic-risk multiplier (1.0 = US avg)
-  interventions: {},   // id -> {startAge, efficacy in [0,1]}
+  lifestyle: 1.0,           // extrinsic-risk multiplier (1.0 = US avg)
+  interventions: {},        // id -> {startAge, efficacy in [0,1]}
   selected: null,
-  codMode: "share"     // "share" | "abs"
+  codMode: "share",         // "share" | "abs"
+  inputs: {},               // exogenous-input id -> value (absent = populationMean)
+  treatments: {},           // treatment id -> true
+  labs: {},                 // mediator id -> measured value (raw, as typed)
+  currentAge: 40            // anchor age for offsets + conditional readouts
 };
 
-/* ============================ Core simulation ============================
-   Coupling: bounded fixed point.
-     - prim[node] = primary deviation accumulated from the node's OWN intervention.
-     - At each age, solve D = prim + couple*(G·D) by iteration (D = (I-couple*G)^-1 prim).
-     - B[node] = clamp(T(node,sex,age) + D[node], 0, 1).
-     - Then accumulate the next step's prim:  for active interventions at age>=startAge:
-         prim[node] -= efficacy * (T(node,sex,age+1) - T(node,sex,age)).
-   Baseline (no interventions): prim≡0 ⇒ D≡0 ⇒ B≡T exactly.
+// Default every panel input to its populationMean (so defaults reproduce baseline
+// AND the UI shows the population value). Numeric means only; smokingStatus stays
+// undefined (its sentinel populationMean maps to the population mix → mult 1).
+PANEL_INPUT_IDS.forEach(id => {
+  const inp = EXO_BY_ID[id];
+  if (id === "smokingStatus") return;
+  state.inputs[id] = inp.populationMean;
+});
 
-   Mortality: sex-specific competing hazards (v0.3 — NO sex scalar).
-     extrinsic   = E_sex(age)*lifestyle
-     frailtyMult = exp(beta_frail * (B[sarcopenia] - T[sarcopenia]))
-     causeHaz_c  = Rmax_c[sex] * B[node(c)]
-     residual    = interp(residual.byAgePerYear[sex])
-     intrinsic   = frailtyMult * (Σ causeHaz_c + residual_sex)
-     h(age)      = extrinsic + intrinsic
-   ========================================================================= */
-function simulate(sex, couple, interventions, lifestyle){
-  if (lifestyle === undefined) lifestyle = MODEL.mortality.extrinsic.lifestyleMult;
-
-  // Precompute baseline T over all ages.
-  const Tarr = NODES.map(node => AGES.map(a => T(node, a, sex)));
-
-  // B[i][k], with bounded fixed-point coupling per age.
-  const B = NODES.map(() => new Array(N_AGE));
-  const prim = new Array(NN).fill(0);
-
-  for (let k = 0; k < N_AGE; k++){
-    const age = AGES[k];
-    // Solve deviation vector D = prim + couple*(G·D) by fixed-point iteration.
-    let D = prim.slice();
-    for (let it = 0; it < COUPLE_ITERS; it++){
-      const ND = new Array(NN);
-      for (let i = 0; i < NN; i++){
-        let s = 0;
-        const Gi = G[i];
-        for (let j = 0; j < NN; j++){ if (Gi[j] !== 0) s += Gi[j] * D[j]; }
-        ND[i] = prim[i] + couple * s;
-      }
-      D = ND;
-    }
-    for (let i = 0; i < NN; i++) B[i][k] = clamp01(Tarr[i][k] + D[i]);
-
-    // Accumulate primary deviation for the NEXT step from active interventions.
-    if (k < N_AGE - 1){
-      for (let i = 0; i < NN; i++){
-        const iv = interventions[NODES[i].id];
-        if (iv && age >= iv.startAge){
-          prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
-        }
-      }
-    }
+/* ===== Offsets: anchor a mediator curve to a measured lab value =====
+   For each filled lab field: offset = measured − engine_predicted_at_currentAge,
+   where the prediction uses the CURRENT inputs/treatments but NO offset for that
+   mediator (so the offset is the pure personal residual). Passing it to the
+   engine's `offsets` shifts the whole curve by a constant ⇒ the curve passes
+   through `measured` at every age's baseline+inputs+treatments (held forward). */
+function computeOffsets(){
+  const offsets = {};
+  const filled = LAB_FIELDS.filter(f => state.labs[f.med] != null && state.labs[f.med] !== "");
+  if (filled.length === 0) return offsets;
+  const k = clampAgeIdx(state.currentAge);
+  // Predicted mediator values with current inputs/treatments, zero offsets.
+  const m = modelWithCouple(state.couple);
+  const predicted = mediators(m, {
+    sex: state.sex,
+    inputs: state.inputs,
+    treatments: state.treatments,
+    offsets: {}
+  });
+  for (const f of filled){
+    const measured = +state.labs[f.med];
+    if (!isFinite(measured)) continue;
+    offsets[f.med] = measured - predicted[f.med][k];
   }
+  return offsets;
+}
+function clampAgeIdx(age){
+  let a = Math.round(age);
+  if (a < AGE0) a = AGE0;
+  if (a > AGE1) a = AGE1;
+  return a - AGE0;
+}
 
-  // Mortality — sex-specific competing hazards + per-age six-way decomposition.
-  // v0.3: no sex scalar. Rmax, residual, and extrinsic are all per-sex.
-  const fr = MODEL.mortality.frailty;
-  const frIdx = NODE_BY_ID[fr.node]._idx;
-  const causes = MODEL.mortality.causes;            // {causeName: {node, RmaxPerYear:{male,female}}}
-  const causeNames = Object.keys(causes);
-  const residTable = MODEL.mortality.residual.byAgePerYear[sex];
-
-  const hazard = new Array(N_AGE);
-  const contrib = new Array(N_AGE);   // contrib[k] = { parts:{causeKey:hazard}, total }
-
-  for (let k = 0; k < N_AGE; k++){
-    const age = AGES[k];
-    const extrinsic = E(age, sex) * lifestyle;
-    const frailtyMult = Math.exp(fr.beta * (B[frIdx][k] - Tarr[frIdx][k]));
-    const resid = interp(residTable, age);
-
-    const parts = { extrinsic: extrinsic };
-    let causeSum = 0;
-    for (const cn of causeNames){
-      const c = causes[cn];
-      const ch = c.RmaxPerYear[sex] * B[NODE_BY_ID[c.node]._idx][k];
-      causeSum += ch;
-      parts[cn] = frailtyMult * ch;
-    }
-    parts.residual = frailtyMult * resid;
-
-    const intrinsic = frailtyMult * (causeSum + resid);
-    hazard[k] = extrinsic + intrinsic;
-    contrib[k] = { parts: parts, total: hazard[k] };
-  }
-
-  // Survival + life expectancy.
-  const S = new Array(N_AGE);
-  let cum = 0, leSum = 0;
-  for (let k = 0; k < N_AGE; k++){
-    cum += hazard[k] * DT;
-    S[k] = Math.exp(-cum);
-    leSum += S[k] * DT;
-  }
-  const lifeExpectancy = AGE0 + leSum;
-
-  return { T: Tarr, B, hazard, S, lifeExpectancy, contrib };
+// Assemble the engine opts from current state.
+function currentOpts(){
+  return {
+    sex: state.sex,
+    couple: state.couple,
+    lifestyle: state.lifestyle,
+    interventions: state.interventions,
+    inputs: state.inputs,
+    treatments: state.treatments,
+    offsets: computeOffsets()
+  };
+}
+// The all-default baseline opts for ΔLE: lifestyle 1, no interventions/inputs/
+// treatments/offsets. (Same sex + couple as current so the comparison is clean.)
+function baselineOpts(){
+  return {
+    sex: state.sex,
+    couple: state.couple,
+    lifestyle: 1.0,
+    interventions: {},
+    inputs: {},
+    treatments: {},
+    offsets: {}
+  };
 }
 
 /* ============================ Layout for graph =========================== */
@@ -1497,7 +2601,7 @@ function renderGraph(){
       "stroke-dasharray": dash
     }, g);
 
-    // role glyph (small, inside-right of node) — distinguishes mortality-cause / frailty / driver
+    // role glyph (small, inside node) — distinguishes mortality-cause / frailty / driver
     const glyph = roleGlyph(node);
     if (glyph){
       const gl = el("text", {
@@ -1538,6 +2642,9 @@ function renderGraph(){
   });
 }
 
+/* ---- decomposition accessor: engine returns decomposition[k].parts ---- */
+function partsAt(sim, k){ return sim.decomposition[k].parts; }
+
 // ---- Cause-of-death stacked-area panel ----
 const CW = 1080, CH = 320;
 const C_M = { l: 52, r: 14, t: 12, b: 28 };
@@ -1553,7 +2660,8 @@ function renderCauseOfDeath(sim){
   let maxTotal = 0;
   for (let k = 0; k < N_AGE; k++){
     let t = 0;
-    for (const key of CAUSE_KEYS) t += Math.max(0, sim.contrib[k].parts[key]);
+    const parts = partsAt(sim, k);
+    for (const key of CAUSE_KEYS) t += Math.max(0, parts[key]);
     totals[k] = t;
     if (t > maxTotal) maxTotal = t;
   }
@@ -1561,7 +2669,6 @@ function renderCauseOfDeath(sim){
 
   const plotTop = C_M.t, plotBot = CH - C_M.b;
   const plotH = plotBot - plotTop;
-  // y position of a stacked cumulative value at age index k
   function yAt(cum, k){
     if (share){
       const denom = totals[k] > 0 ? totals[k] : 1;
@@ -1588,12 +2695,11 @@ function renderCauseOfDeath(sim){
   // Build stacked bands bottom-up in CAUSE_KEYS order.
   const cum = new Array(N_AGE).fill(0);
   for (const key of CAUSE_KEYS){
-    // band polygon: top edge = cum+val, bottom edge = cum (reversed)
     let dTop = "", dBot = "";
     const newCum = new Array(N_AGE);
     for (let k = 0; k < N_AGE; k++){
-      const v = Math.max(0, sim.contrib[k].parts[key]);
-      const lo = cum[k], hi = cum[k] + v;
+      const v = Math.max(0, partsAt(sim, k)[key]);
+      const hi = cum[k] + v;
       newCum[k] = hi;
       const x = cx(AGES[k]);
       dTop += (k === 0 ? "M" : "L") + x.toFixed(1) + "," + yAt(hi, k).toFixed(1) + " ";
@@ -1612,7 +2718,6 @@ function renderCauseOfDeath(sim){
     for (let k = 0; k < N_AGE; k++) cum[k] = newCum[k];
   }
 
-  // axis label
   el("text", { x: (C_M.l + CW - C_M.r)/2, y: CH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
     .textContent = "age (years)";
 
@@ -1627,7 +2732,7 @@ function renderCauseOfDeath(sim){
     const k = age - AGE0;
     guide.setAttribute("x1", cx(age)); guide.setAttribute("x2", cx(age));
     guide.setAttribute("opacity", "0.6");
-    const parts = sim.contrib[k].parts;
+    const parts = partsAt(sim, k);
     const tot = totals[k] > 0 ? totals[k] : 1;
     let rows = CAUSE_KEYS.map(key => {
       const v = Math.max(0, parts[key]);
@@ -1678,10 +2783,11 @@ function renderBurden(sim){
   el("text", { x: (B_M.l + BW - B_M.r)/2, y: BH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
     .textContent = "age (years)";
 
-  NODES.forEach((node, i) => {
+  NODES.forEach((node) => {
+    const series = sim.B[node.id];
     let d = "";
     for (let k = 0; k < N_AGE; k++){
-      const x = bx(AGES[k]), y = by(sim.B[i][k]);
+      const x = bx(AGES[k]), y = by(series[k]);
       d += (k === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1) + " ";
     }
     const isSel = state.selected === node.id;
@@ -1714,8 +2820,8 @@ function renderBurden(sim){
 
 // Largest contributor at age index k from the six-way competing-hazards decomposition.
 function updateLimitReadout(sim, k, age){
-  const parts = sim.contrib[k].parts;
-  const total = sim.contrib[k].total || 0;
+  const parts = partsAt(sim, k);
+  const total = sim.hazard[k] || 0;
   let bestKey = null, bestVal = -Infinity;
   for (const key of CAUSE_KEYS){
     const v = Math.max(0, parts[key]);
@@ -1736,7 +2842,7 @@ const S_M = { l: 40, r: 12, t: 10, b: 26 };
 function sx(age){ return S_M.l + (SW - S_M.l - S_M.r) * (age - AGE0) / (AGE1 - AGE0); }
 function sy(v){ return S_M.t + (SH - S_M.t - S_M.b) * (1 - v); }
 
-function renderSurvival(sim, baselineLE){
+function renderSurvival(sim, base){
   const svg = document.getElementById("survSvg");
   svg.innerHTML = "";
   for (let v = 0; v <= 1.0001; v += 0.25){
@@ -1750,22 +2856,119 @@ function renderSurvival(sim, baselineLE){
     el("text", { x: x, y: SH - S_M.b + 13, "text-anchor": "middle", "font-size": "9", fill: "#999" }, svg).textContent = age;
   }
 
-  if (baselineLE.S){
+  if (base.survival){
     let d0 = "";
     for (let k = 0; k < N_AGE; k++){
-      d0 += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(baselineLE.S[k]).toFixed(1) + " ";
+      d0 += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(base.survival[k]).toFixed(1) + " ";
     }
     el("path", { d: d0, fill: "none", stroke: "#bbb", "stroke-width": "1.4", "stroke-dasharray": "4,3" }, svg);
   }
 
   let d = "";
   for (let k = 0; k < N_AGE; k++){
-    d += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(sim.S[k]).toFixed(1) + " ";
+    d += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(sim.survival[k]).toFixed(1) + " ";
   }
   el("path", { d: d, fill: "none", stroke: "#2c3e50", "stroke-width": "2.2" }, svg);
 
   document.getElementById("survSub").innerHTML =
-    `Solid = current scenario; dashed grey = no-intervention baseline (${state.sex}, lifestyle &times;1.0).`;
+    `Solid = current scenario; dashed grey = all-default baseline (${state.sex}, lifestyle &times;1.0, no inputs/treatments/labs/interventions).`;
+}
+
+// ---- Mediator readout panel (LDL / SBP / HbA1c vs baseline) ----
+const MW = 1080, MH = 260;
+const M_M = { l: 46, r: 14, t: 12, b: 28 };
+function mx(age){ return M_M.l + (MW - M_M.l - M_M.r) * (age - AGE0) / (AGE1 - AGE0); }
+// Each mediator is scaled to its own [min,max] band so all three share the plot.
+const MED_SCALE = {
+  LDL:        { lo: 40,  hi: 220 },
+  systolicBP: { lo: 90,  hi: 200 },
+  HbA1c:      { lo: 4.5, hi: 9.5 }
+};
+function myFor(medId, v){
+  const s = MED_SCALE[medId];
+  const f = (v - s.lo) / (s.hi - s.lo);
+  const ff = f < 0 ? 0 : f > 1 ? 1 : f;
+  return M_M.t + (MH - M_M.t - M_M.b) * (1 - ff);
+}
+
+function renderMediators(sim){
+  const svg = document.getElementById("medSvg");
+  svg.innerHTML = "";
+
+  // gridlines (age)
+  for (let age = AGE0; age <= AGE1; age += 10){
+    const x = mx(age);
+    el("line", { x1: x, y1: M_M.t, x2: x, y2: MH - M_M.b, stroke: "#f3f3f3" }, svg);
+    const t = el("text", { x: x, y: MH - M_M.b + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
+    t.textContent = age;
+  }
+  el("text", { x: (M_M.l + MW - M_M.r)/2, y: MH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
+    .textContent = "age (years)";
+
+  // population baseline mediators (no inputs/treatments/offsets) for this sex.
+  const m = modelWithCouple(state.couple);
+  const baseMed = mediators(m, { sex: state.sex });
+  const personMed = sim.medValues;
+
+  for (const med of MEDIATORS){
+    const id = med.id;
+    if (!(id in personMed)) continue;
+    const color = MED_COLOR[id] || "#888";
+    // baseline (dashed)
+    let d0 = "";
+    for (let k = 0; k < N_AGE; k++){
+      d0 += (k===0?"M":"L") + mx(AGES[k]).toFixed(1) + "," + myFor(id, baseMed[id][k]).toFixed(1) + " ";
+    }
+    el("path", { d: d0, fill: "none", stroke: color, "stroke-width": "1.2", opacity: "0.5", "stroke-dasharray": "4,3" }, svg);
+    // person (solid)
+    let d1 = "";
+    for (let k = 0; k < N_AGE; k++){
+      d1 += (k===0?"M":"L") + mx(AGES[k]).toFixed(1) + "," + myFor(id, personMed[id][k]).toFixed(1) + " ";
+    }
+    el("path", { d: d1, fill: "none", stroke: color, "stroke-width": "2.1" }, svg);
+  }
+
+  // current-age vertical marker
+  const cAge = Math.max(AGE0, Math.min(AGE1, Math.round(state.currentAge)));
+  const cxpos = mx(cAge);
+  el("line", { x1: cxpos, y1: M_M.t, x2: cxpos, y2: MH - M_M.b, stroke: "#111", "stroke-width": "1", opacity: "0.45", "stroke-dasharray": "2,2" }, svg);
+  el("text", { x: cxpos + 3, y: M_M.t + 10, "font-size": "9", fill: "#555" }, svg).textContent = "age " + cAge;
+
+  // hover guideline + readout
+  const guide = el("line", { x1: 0, y1: M_M.t, x2: 0, y2: MH - M_M.b, stroke: "#333", "stroke-width": "1", opacity: "0", "stroke-dasharray": "3,3" }, svg);
+  const hit = el("rect", { x: M_M.l, y: M_M.t, width: MW - M_M.l - M_M.r, height: MH - M_M.t - M_M.b, fill: "transparent" }, svg);
+  hit.addEventListener("mousemove", (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const sxp = (ev.clientX - rect.left) * (MW / rect.width);
+    let age = AGE0 + (sxp - M_M.l) / (MW - M_M.l - M_M.r) * (AGE1 - AGE0);
+    age = Math.max(AGE0, Math.min(AGE1, Math.round(age)));
+    const k = age - AGE0;
+    guide.setAttribute("x1", mx(age)); guide.setAttribute("x2", mx(age));
+    guide.setAttribute("opacity", "0.6");
+    let html = `Age <b>${age}</b> &mdash; ` + MEDIATORS.map(med => {
+      const id = med.id;
+      const pv = personMed[id][k], bv = baseMed[id][k];
+      const dv = pv - bv;
+      const sign = dv >= 0 ? "+" : "";
+      const prec = id === "HbA1c" ? 2 : 0;
+      return `<span style="color:${MED_COLOR[id]||'#888'};font-weight:600">${med.label}</span> ` +
+             `${pv.toFixed(prec)} ${med.unit} (${sign}${dv.toFixed(prec)} vs base)`;
+    }).join(" &middot; ");
+    document.getElementById("medReadout").innerHTML = html;
+  });
+  hit.addEventListener("mouseleave", () => {
+    guide.setAttribute("opacity", "0");
+    document.getElementById("medReadout").textContent = "Hover the chart to read mediator values at a given age.";
+  });
+}
+
+function buildMedLegend(){
+  const wrap = document.getElementById("medLegend");
+  wrap.innerHTML = MEDIATORS.map(med =>
+    `<span class="item"><span class="swatch" style="background:${MED_COLOR[med.id]||'#888'}"></span>${med.label} (${med.unit})</span>`
+  ).join("") +
+  `<span class="item" style="margin-left:14px;"><svg width="26" height="10"><line x1="0" y1="5" x2="26" y2="5" stroke="#888" stroke-width="2.1"/></svg>person</span>` +
+  `<span class="item"><svg width="26" height="10"><line x1="0" y1="5" x2="26" y2="5" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3"/></svg>population baseline</span>`;
 }
 
 /* ============================ Controls glue ============================== */
@@ -1820,21 +3023,136 @@ function applyIntervFromControls(){
   renderAll();
 }
 
+/* ============================ B-layer controls UI ======================== */
+function fmtNum(v){
+  if (Math.abs(v) >= 100 || Number.isInteger(v)) return String(Math.round(v));
+  return (Math.round(v * 10) / 10).toFixed(1);
+}
+
+function buildBlayerControls(){
+  /* ---- exogenous inputs ---- */
+  const grid = document.getElementById("inputsGrid");
+  grid.innerHTML = "";
+  PANEL_INPUT_IDS.forEach(id => {
+    const inp = EXO_BY_ID[id];
+    const row = document.createElement("div");
+    row.className = "brow";
+
+    if (id === "smokingStatus"){
+      // segmented never/former/current (default = population)
+      row.innerHTML = `<label class="bl">${inp.label}</label>`;
+      const seg = document.createElement("span");
+      seg.className = "seg-mini";
+      seg.id = "smokeSeg";
+      [["population","Population"],["never","Never"],["former","Former"],["current","Current"]].forEach(([val,lbl]) => {
+        const b = document.createElement("button");
+        b.dataset.val = val;
+        b.textContent = lbl;
+        if ((state.inputs.smokingStatus === undefined && val === "population") || state.inputs.smokingStatus === val){
+          b.classList.add("active");
+        }
+        b.addEventListener("click", () => {
+          seg.querySelectorAll("button").forEach(x => x.classList.remove("active"));
+          b.classList.add("active");
+          if (val === "population") delete state.inputs.smokingStatus;
+          else state.inputs.smokingStatus = val;
+          renderAll();
+        });
+        seg.appendChild(b);
+      });
+      row.appendChild(seg);
+      grid.appendChild(row);
+      return;
+    }
+
+    // numeric slider
+    const [lo, hi] = inp.range;
+    const cur = state.inputs[id] != null ? state.inputs[id] : inp.populationMean;
+    const step = (hi - lo) <= 30 ? ((hi - lo) <= 6 ? 0.5 : 1) : (id === "calorieBalance" ? 25 : (hi - lo) / 200);
+    row.innerHTML =
+      `<label class="bl" title="${inp.label}">${inp.label}</label>` +
+      `<input type="range" id="in-${id}" min="${lo}" max="${hi}" step="${step}" value="${cur}">` +
+      `<span class="bval" id="inv-${id}">${fmtNum(cur)} ${inp.unit}</span>`;
+    grid.appendChild(row);
+    const slider = row.querySelector(`#in-${id}`);
+    const out = row.querySelector(`#inv-${id}`);
+    slider.addEventListener("input", () => {
+      const v = +slider.value;
+      state.inputs[id] = v;
+      out.textContent = `${fmtNum(v)} ${inp.unit}`;
+      renderAll();
+    });
+  });
+
+  /* ---- treatments ---- */
+  const tx = document.getElementById("treatToggles");
+  tx.innerHTML = "";
+  TREATMENTS.forEach(t => {
+    const lab = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.id = "tx-" + t.id;
+    cb.checked = !!state.treatments[t.id];
+    cb.addEventListener("change", () => {
+      if (cb.checked) state.treatments[t.id] = true;
+      else delete state.treatments[t.id];
+      renderAll();
+    });
+    lab.appendChild(cb);
+    lab.appendChild(document.createTextNode(" " + t.label + " → " + (MED_BY_ID[t.to] ? MED_BY_ID[t.to].label : t.to)));
+    tx.appendChild(lab);
+  });
+
+  /* ---- labs (offset anchoring) ---- */
+  const lg = document.getElementById("labGrid");
+  lg.innerHTML = "";
+  LAB_FIELDS.forEach(f => {
+    const lab = document.createElement("label");
+    lab.setAttribute("for", "lab-" + f.med);
+    lab.textContent = `${f.label} (${f.unit})`;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = "lab-" + f.med;
+    input.step = f.step; input.min = f.min; input.max = f.max;
+    input.placeholder = "—";
+    if (state.labs[f.med] != null) input.value = state.labs[f.med];
+    input.addEventListener("input", () => {
+      const v = input.value.trim();
+      if (v === "") delete state.labs[f.med];
+      else state.labs[f.med] = v;
+      renderAll();
+    });
+    lg.appendChild(lab);
+    lg.appendChild(input);
+  });
+
+  // current-age field
+  const ca = document.getElementById("currentAge");
+  ca.value = state.currentAge;
+  ca.addEventListener("input", () => {
+    let v = +ca.value;
+    if (!isFinite(v)) return;
+    state.currentAge = v;
+    renderAll();
+  });
+}
+
 /* ============================ Master render ============================== */
 function renderAll(){
-  const sim = simulate(state.sex, state.couple, state.interventions, state.lifestyle);
-  // ΔLE baseline: no node interventions AND lifestyle = 1.0 for current sex.
-  const base = simulate(state.sex, state.couple, {}, MODEL.mortality.extrinsic.lifestyleMult);
+  const opts = currentOpts();
+  const sim = run(opts);
+  const base = run(baselineOpts());
 
   renderGraph();
+  renderMediators(sim);
   renderCauseOfDeath(sim);
   renderBurden(sim);
   renderSurvival(sim, base);
 
-  const le = sim.lifeExpectancy;
+  const le = sim.LE;
   document.getElementById("leVal").textContent = le.toFixed(1);
   const dEl = document.getElementById("leDelta");
-  const delta = le - base.lifeExpectancy;
+  const delta = le - base.LE;
   if (Math.abs(delta) < 0.05){
     dEl.textContent = "(baseline)"; dEl.className = "le-delta zero";
   } else if (delta > 0){
@@ -1927,33 +3245,38 @@ document.getElementById("clearNode").addEventListener("click", () => {
 document.getElementById("resetAll").addEventListener("click", () => {
   state.interventions = {};
   state.couple = MODEL.meta.couple;
-  state.lifestyle = MODEL.mortality.extrinsic.lifestyleMult;
+  state.lifestyle = 1.0;
   state.selected = null;
+  state.inputs = {};
+  state.treatments = {};
+  state.labs = {};
+  state.currentAge = 40;
+  PANEL_INPUT_IDS.forEach(id => {
+    if (id === "smokingStatus") return;
+    state.inputs[id] = EXO_BY_ID[id].populationMean;
+  });
   coupleSlider.value = state.couple;
   document.getElementById("coupleVal").textContent = state.couple.toFixed(2);
   lifestyleSlider.value = state.lifestyle;
   syncLifestyleVal();
+  buildBlayerControls();
   syncIntervControls();
   renderAll();
 });
 
 /* ============================ Self-check ================================= */
 (function selfCheck(){
-  // 1. Baseline invariant: with no interventions, B must reproduce T exactly.
-  const sim = simulate("male", state.couple, {});
+  // Baseline invariant + structure + LE sanity, all via the canonical engine.
+  const sim = simulate(MODEL, { sex: "male" });
   let maxDev = 0;
-  for (let i = 0; i < NODES.length; i++)
-    for (let k = 0; k < N_AGE; k++)
-      maxDev = Math.max(maxDev, Math.abs(sim.B[i][k] - sim.T[i][k]));
-
-  // 2. Structure counts.
+  for (const node of NODES){
+    const t = sim.T[node.id], b = sim.B[node.id];
+    for (let k = 0; k < N_AGE; k++) maxDev = Math.max(maxDev, Math.abs(b[k] - t[k]));
+  }
   const okNodes = (NODES.length === 18), okEdges = (MODEL.edges.length === 38);
   const okVer = (MODEL.meta.version === "v0.3");
-
-  // 3. Baseline LE sanity (target ≈ 75.3 M / 80.4 F).
-  const lm = MODEL.mortality.extrinsic.lifestyleMult;
-  const leM = simulate("male",   state.couple, {}, lm).lifeExpectancy;
-  const leF = simulate("female", state.couple, {}, lm).lifeExpectancy;
+  const leM = simulate(MODEL, { sex: "male" }).LE;
+  const leF = simulate(MODEL, { sex: "female" }).LE;
 
   if (maxDev > 1e-12){
     console.error("Self-check FAILED: baseline run does not reproduce intrinsic curves. maxDev=", maxDev);
@@ -1962,13 +3285,15 @@ document.getElementById("resetAll").addEventListener("click", () => {
   } else {
     console.log("Self-check OK: v0.3 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
                 "nodes=" + NODES.length + " edges=" + MODEL.edges.length + ";",
-                "baseline LE male=" + leM.toFixed(2) + " female=" + leF.toFixed(2) + " (target 75.3 / 80.4).");
+                "baseline LE male=" + leM.toFixed(2) + " female=" + leF.toFixed(2) + " (target 75.31 / 80.37).");
   }
 })();
 
 /* ============================ Boot ======================================= */
 buildLegend();
 buildCodLegend();
+buildMedLegend();
+buildBlayerControls();
 syncIntervControls();
 renderAll();
 </script>
