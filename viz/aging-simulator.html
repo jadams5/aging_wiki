@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aging causal-graph simulator (v0.3)</title>
+<style>
+  :root {
+    /* Layer palette */
+    --c-tier1: #c0392b;     /* proximal damage  */
+    --c-tier2: #d68910;     /* intermediate     */
+    --c-tier3: #2e86c1;     /* integrative      */
+    --c-phenotype: #7d3c98; /* organ-level outcome */
+    --bg: #fafaf7;
+    --panel: #ffffff;
+    --ink: #222;
+    --muted: #777;
+    --line: #ddd;
+    /* Cause-of-death band palette */
+    --cause-extrinsic: #7f8c8d;
+    --cause-cardiovascular: #c0392b;
+    --cause-cancer: #8e44ad;
+    --cause-neurodegeneration: #2980b9;
+    --cause-infection: #16a085;
+    --cause-residual: #bdc3c7;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink); background: var(--bg);
+    font-size: 14px;
+  }
+  header {
+    padding: 12px 18px 8px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  header h1 { margin: 0 0 2px; font-size: 20px; }
+  .disclaimer { color: var(--muted); font-size: 12px; max-width: 1100px; }
+  .topbar {
+    display: flex; flex-wrap: wrap; gap: 18px; align-items: center;
+    padding: 8px 18px; border-bottom: 1px solid var(--line); background: var(--panel);
+  }
+  .topbar label { font-size: 13px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .seg button {
+    border: none; background: #fff; padding: 5px 14px; cursor: pointer; font-size: 13px;
+  }
+  .seg button.active { background: #34495e; color: #fff; }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(380px, 1fr) minmax(380px, 1fr);
+    gap: 14px;
+    padding: 14px 18px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .panel h2 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+  .panel .sub { color: var(--muted); font-size: 11px; margin: -4px 0 6px; }
+  .graph-panel { grid-row: span 2; }
+  svg { display: block; width: 100%; height: auto; }
+  .readout { font-size: 12px; color: var(--muted); min-height: 16px; margin-top: 4px; }
+  .le-big { font-size: 26px; font-weight: 700; }
+  .le-delta { font-size: 15px; font-weight: 600; }
+  .le-delta.pos { color: #1e8449; }
+  .le-delta.neg { color: #c0392b; }
+  .le-delta.zero { color: var(--muted); }
+  .controls { font-size: 13px; }
+  .controls .row { margin: 8px 0; display: flex; align-items: center; gap: 8px; }
+  .controls .row label { width: 78px; flex: none; color: var(--muted); }
+  .controls input[type=range] { flex: 1; }
+  .controls .val { width: 52px; text-align: right; font-variant-numeric: tabular-nums; }
+  .controls button {
+    border: 1px solid var(--line); background: #fff; border-radius: 5px; padding: 5px 10px;
+    cursor: pointer; font-size: 12px;
+  }
+  .controls button:hover { background: #f0f0f0; }
+  .sel-name { font-weight: 600; }
+  .badge {
+    display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 10px;
+    color: #fff; vertical-align: middle;
+  }
+  .legend { font-size: 11px; color: var(--muted); }
+  .legend .item { display: inline-flex; align-items: center; gap: 5px; margin: 0 10px 4px 0; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .nodeg { cursor: pointer; }
+  .nodeg text { pointer-events: none; }
+  .hint { color: var(--muted); font-style: italic; }
+  table.params { font-size: 11px; border-collapse: collapse; }
+  .seg-mini { display: inline-flex; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; font-size: 11px; }
+  .seg-mini button { border: none; background: #fff; padding: 3px 9px; cursor: pointer; font-size: 11px; }
+  .seg-mini button.active { background: #34495e; color: #fff; }
+  .tooltip {
+    position: fixed; pointer-events: none; background: #222; color: #fff;
+    padding: 5px 8px; border-radius: 5px; font-size: 11px; z-index: 50;
+    opacity: 0; transition: opacity .08s; max-width: 240px;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .graph-panel { grid-row: auto; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Aging causal-graph simulator (v0.3)</h1>
+  <div class="disclaimer">
+    Illustrative sensitivity model &mdash; parameters are mostly illustrative (see causal-graph-parameters.md).
+    <b>v0.3 &mdash; sex-specific competing hazards (CDC WONDER 2022); no sex scalar &mdash; female CVD-onset delay &amp; male external excess emerge from data.</b>
+    Mortality sums a per-sex extrinsic channel (accidents / suicide / homicide, scaled by the Lifestyle slider) and a
+    per-sex intrinsic bracket of named CDC causes + a residual, amplified by a sarcopenia-driven frailty multiplier.
+    Coupling propagates intervention relief through the graph as a bounded algebraic fixed point (no integration step-bug).
+    Not prediction, not medical advice.
+  </div>
+</header>
+
+<div class="topbar">
+  <div>
+    <label>Sex:</label>
+    <span class="seg" id="sexSeg">
+      <button data-sex="male" class="active">Male</button>
+      <button data-sex="female">Female</button>
+    </span>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; min-width:260px; flex:1; max-width:420px;">
+    <label for="coupleSlider" style="white-space:nowrap;">Coupling (couple):</label>
+    <input type="range" id="coupleSlider" min="0" max="2" step="0.05" style="flex:1;">
+    <span class="val" id="coupleVal" style="width:40px;"></span>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px; min-width:300px; flex:1; max-width:480px;">
+    <label for="lifestyleSlider" style="white-space:nowrap;" title="Scales the extrinsic (non-biological) mortality channel: accidents + suicide + homicide. Does not cascade through hallmarks.">Lifestyle / extrinsic risk:</label>
+    <span style="font-size:10px; color:var(--muted); white-space:nowrap;">low</span>
+    <input type="range" id="lifestyleSlider" min="0" max="10" step="0.1" style="flex:1;">
+    <span style="font-size:10px; color:var(--muted); white-space:nowrap;">high</span>
+    <span class="val" id="lifestyleVal" style="width:96px;"></span>
+  </div>
+  <button id="resetAll" style="border:1px solid var(--line); background:#fff; border-radius:5px; padding:5px 12px; cursor:pointer;">
+    Reset all
+  </button>
+</div>
+
+<div class="layout">
+
+  <!-- LEFT COLUMN: causal graph (spans two rows) -->
+  <div class="panel graph-panel">
+    <h2>Causal graph (control surface)</h2>
+    <div class="sub">Click a node to select it for intervention. &#10052; = active freeze. Border = tractability. Glyph = node role.</div>
+    <svg id="graphSvg" viewBox="0 0 560 640" preserveAspectRatio="xMidYMin meet"></svg>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <!-- RIGHT COLUMN ROW 1: intervention controls -->
+  <div class="panel">
+    <h2>Intervention &mdash; <span class="sel-name" id="selName">none selected</span></h2>
+    <div class="sub" id="selMeta">Click a node in the graph to configure a freeze/slow intervention.</div>
+    <div class="controls" id="interv">
+      <div class="row">
+        <label for="startSlider">Start age</label>
+        <input type="range" id="startSlider" min="20" max="100" step="1" value="50" disabled>
+        <span class="val" id="startVal">50</span>
+      </div>
+      <div class="row">
+        <label for="effSlider">Efficacy</label>
+        <input type="range" id="effSlider" min="0" max="100" step="1" value="0" disabled>
+        <span class="val" id="effVal">0%</span>
+      </div>
+      <div class="row">
+        <button id="clearNode" disabled>Clear this node's intervention</button>
+      </div>
+      <div class="hint" style="font-size:11px;">
+        Efficacy slows the node's intrinsic accumulation from the start age on (100% fully freezes
+        further accrual). The relief propagates downstream as a bounded fixed-point deviation through
+        the coupling &mdash; smoothly and monotonically with efficacy (no step/cliff).
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN ROW 2: survival + LE -->
+  <div class="panel" style="grid-column: 2;">
+    <h2>Survival &amp; life expectancy</h2>
+    <div class="sub" id="survSub"></div>
+    <svg id="survSvg" viewBox="0 0 520 220" preserveAspectRatio="xMidYMin meet"></svg>
+    <div>
+      <span class="le-big" id="leVal">&mdash;</span>
+      <span style="color:var(--muted);font-size:13px;">yrs life expectancy</span>
+      <span class="le-delta zero" id="leDelta"></span>
+    </div>
+  </div>
+
+  <!-- NEW headline panel: cause of death by age (full width) -->
+  <div class="panel" style="grid-column: 1 / -1;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+      <div>
+        <h2 style="display:inline;">Cause of death by age</h2>
+        <div class="sub">Stacked hazard decomposition over age. External causes dominate youth &rarr; cancer &amp; cardiovascular rise in midlife (with a large &ldquo;other causes&rdquo; band) &rarr; cardiovascular dominates old age.</div>
+      </div>
+      <span class="seg-mini" id="codModeSeg">
+        <button data-mode="share" class="active">Share of total</button>
+        <button data-mode="abs">Absolute hazard</button>
+      </span>
+    </div>
+    <svg id="codSvg" viewBox="0 0 1080 320" preserveAspectRatio="xMidYMin meet"></svg>
+    <div class="legend" id="codLegend"></div>
+    <div class="readout" id="codReadout">Hover the chart to read the cause breakdown at a given age.</div>
+  </div>
+
+  <!-- Burden timeline spans full width below -->
+  <div class="panel" style="grid-column: 1 / -1;">
+    <h2>Burden timeline</h2>
+    <div class="sub">One line per node (color matches graph). Hover to read the largest mortality-hazard contributor at that age (six-way competing-hazards decomposition).</div>
+    <svg id="burdenSvg" viewBox="0 0 1080 360" preserveAspectRatio="xMidYMin meet"></svg>
+    <div class="readout" id="limitReadout">Hover the chart to see the limiting factor at a given age.</div>
+  </div>
+
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+"use strict";
+
+/* =========================================================================
+   MODEL — embedded verbatim from frameworks/causal-graph-parameters.md
+   (canonical JSON block, v0.3). 18 nodes, 38 edges. Do not edit here; edit the md.
+   v0.3: sexMult DELETED; per-sex extrinsic/residual tables + per-sex Rmax +
+   per-sex cause-curve overrides. No sex scalar anywhere.
+   ========================================================================= */
+const MODEL =
+  {
+  "meta": {
+    "version": "v0.3",
+    "ageRange": [
+      20,
+      100
+    ],
+    "dt": 1,
+    "couple": 1.0,
+    "note": "Illustrative parameter layer for aging-simulator v0.3. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC-WONDER-2022 SEX-SPECIFIC competing hazards (no sex scalar). NOT verified facts; sensitivity-exploration only."
+  },
+  "strengthToGain": {
+    "strong": 0.2,
+    "moderate": 0.1,
+    "weak": 0.04,
+    "disputed": 0.03
+  },
+  "coupling": {
+    "method": "fixed-point",
+    "iterations": 60,
+    "note": "Delta = p + couple*G*Delta solved by iteration (= (I-couple*G)^-1 * p). p = primary deviation from a node's own intervention. Bounded & stable: spectral radius(couple*G) approx 0.10."
+  },
+  "mortality": {
+    "model": "competing-hazards-sexspecific",
+    "extrinsic": {
+      "lifestyleMult": 1.0,
+      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
+      "byAge": {
+        "male": [
+          [
+            20,
+            0.000903
+          ],
+          [
+            30,
+            0.001574
+          ],
+          [
+            40,
+            0.001654
+          ],
+          [
+            50,
+            0.001466
+          ],
+          [
+            60,
+            0.001422
+          ],
+          [
+            70,
+            0.001012
+          ],
+          [
+            80,
+            0.001108
+          ],
+          [
+            90,
+            0.00185
+          ]
+        ],
+        "female": [
+          [
+            20,
+            0.000291
+          ],
+          [
+            30,
+            0.00051
+          ],
+          [
+            40,
+            0.000574
+          ],
+          [
+            50,
+            0.00053
+          ],
+          [
+            60,
+            0.000489
+          ],
+          [
+            70,
+            0.000338
+          ],
+          [
+            80,
+            0.000406
+          ],
+          [
+            90,
+            0.000791
+          ]
+        ]
+      }
+    },
+    "frailty": {
+      "node": "sarcopenia",
+      "beta": 0.6,
+      "note": "Frailty as global multiplier on the intrinsic bracket (not a cause line). exp(beta*(B-T)); =1 at baseline. Kojima 2018 frailty-index HR 1.83."
+    },
+    "causes": {
+      "cardiovascular": {
+        "node": "atherosclerosis",
+        "RmaxPerYear": {
+          "male": 0.054702,
+          "female": 0.045587
+        },
+        "cdc": "heart(I00-09,I11,I13,I20-51)+stroke(I60-69), CDC WONDER 2022 by sex"
+      },
+      "cancer": {
+        "node": "cancer",
+        "RmaxPerYear": {
+          "male": 0.0217,
+          "female": 0.012493
+        },
+        "cdc": "malignant neoplasms C00-C97"
+      },
+      "neurodegeneration": {
+        "node": "neurodegeneration",
+        "RmaxPerYear": {
+          "male": 0.022789,
+          "female": 0.030981
+        },
+        "cdc": "dementia G30/F01/F03/G31"
+      },
+      "infection": {
+        "node": "immunosenescence",
+        "RmaxPerYear": {
+          "male": 0.004823,
+          "female": 0.003393
+        },
+        "cdc": "influenza/pneumonia J09-18 + sepsis A40-41"
+      }
+    },
+    "residual": {
+      "byAgePerYear": {
+        "male": [
+          [
+            20,
+            0.000156
+          ],
+          [
+            30,
+            0.000464
+          ],
+          [
+            40,
+            0.000964
+          ],
+          [
+            50,
+            0.002001
+          ],
+          [
+            60,
+            0.004521
+          ],
+          [
+            70,
+            0.009048
+          ],
+          [
+            80,
+            0.0208
+          ],
+          [
+            90,
+            0.055532
+          ]
+        ],
+        "female": [
+          [
+            20,
+            0.000103
+          ],
+          [
+            30,
+            0.000304
+          ],
+          [
+            40,
+            0.000633
+          ],
+          [
+            50,
+            0.001304
+          ],
+          [
+            60,
+            0.00299
+          ],
+          [
+            70,
+            0.006263
+          ],
+          [
+            80,
+            0.015065
+          ],
+          [
+            90,
+            0.04114
+          ]
+        ]
+      },
+      "note": "all-cause − modeled causes − extrinsic, per SEX (CDC WONDER 2022). Long tail: COPD, diabetes, kidney, liver, falls, etc. Keeps baseline total = empirical sex-specific all-cause mortality."
+    },
+    "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar."
+  },
+  "nodes": [
+      {
+        "id": "genomic-instability",
+        "label": "Genomic instability",
+        "layer": "tier1",
+        "tractability": "low",
+        "provenance": "anchored",
+        "curve": {
+          "form": "linear",
+          "params": {
+            "t0": 0.05,
+            "slope": 0.01
+          }
+        }
+      },
+      {
+        "id": "telomere-attrition",
+        "label": "Telomere attrition",
+        "layer": "tier1",
+        "tractability": "low",
+        "provenance": "anchored",
+        "curve": {
+          "form": "linear",
+          "params": {
+            "t0": 0.05,
+            "slope": 0.011
+          },
+          "female": {
+            "t0": 0.03,
+            "slope": 0.011
+          }
+        }
+      },
+      {
+        "id": "epigenetic-alterations",
+        "label": "Epigenetic alterations",
+        "layer": "tier1",
+        "tractability": "moderate",
+        "provenance": "anchored-direction",
+        "curve": {
+          "form": "linear",
+          "params": {
+            "t0": 0.0,
+            "slope": 0.0115
+          },
+          "female": {
+            "t0": 0.0,
+            "slope": 0.0108
+          }
+        }
+      },
+      {
+        "id": "mitochondrial-dysfunction",
+        "label": "Mitochondrial dysfunction",
+        "layer": "tier1",
+        "tractability": "moderate",
+        "provenance": "ordinal-default",
+        "curve": {
+          "form": "exponential",
+          "params": {
+            "A": 0.05,
+            "r": 0.03
+          }
+        }
+      },
+      {
+        "id": "cellular-senescence",
+        "label": "Cellular senescence",
+        "layer": "tier2",
+        "tractability": "high",
+        "provenance": "anchored",
+        "curve": {
+          "form": "exponential",
+          "params": {
+            "A": 0.025,
+            "r": 0.04
+          }
+        }
+      },
+      {
+        "id": "deregulated-nutrient-sensing",
+        "label": "Deregulated nutrient sensing",
+        "layer": "tier2",
+        "tractability": "high",
+        "provenance": "ordinal-default",
+        "curve": {
+          "form": "sigmoid",
+          "params": {
+            "L": 0.9,
+            "k": 0.09,
+            "mid": 55
+          }
+        }
+      },
+      {
+        "id": "disabled-macroautophagy",
+        "label": "Disabled macroautophagy",
+        "layer": "tier2",
+        "tractability": "high",
+        "provenance": "ordinal-default",
+        "curve": {
+          "form": "sigmoid",
+          "params": {
+            "L": 0.85,
+            "k": 0.08,
+            "mid": 58
+          }
+        }
+      },
+      {
+        "id": "loss-of-proteostasis",
+        "label": "Loss of proteostasis",
+        "layer": "tier2",
+        "tractability": "moderate",
+        "provenance": "ordinal-default",
+        "curve": {
+          "form": "exponential",
+          "params": {
+            "A": 0.03,
+            "r": 0.035
+          }
+        }
+      },
+      {
+        "id": "chronic-inflammation",
+        "label": "Chronic inflammation",
+        "layer": "tier3",
+        "tractability": "high",
+        "provenance": "anchored-direction",
+        "curve": {
+          "form": "sigmoid",
+          "params": {
+            "L": 0.9,
+            "k": 0.1,
+            "mid": 60
+          }
+        }
+      },
+      {
+        "id": "altered-intercellular-communication",
+        "label": "Altered intercellular communication",
+        "layer": "tier3",
+        "tractability": "moderate",
+        "provenance": "ordinal-default",
+        "curve": {
+          "form": "sigmoid",
+          "params": {
+            "L": 0.85,
+            "k": 0.08,
+            "mid": 60
+          }
+        }
+      },
+      {
+        "id": "stem-cell-exhaustion",
+        "label": "Stem cell exhaustion",
+        "layer": "tier3",
+        "tractability": "low",
+        "provenance": "ordinal-default",
+        "curve": {
+          "form": "sigmoid",
+          "params": {
+            "L": 0.9,
+            "k": 0.09,
+            "mid": 65
+          }
+        }
+      },
+      {
+        "id": "dysbiosis",
+        "label": "Dysbiosis",
+        "layer": "tier3",
+        "tractability": "moderate",
+        "provenance": "ordinal-default",
+        "curve": {
+          "form": "linear",
+          "params": {
+            "t0": 0.05,
+            "slope": 0.009
+          }
+        }
+      },
+      {
+        "id": "atherosclerosis",
+        "label": "Atherosclerosis / CVD",
+        "layer": "phenotype",
+        "tractability": "moderate",
+        "provenance": "anchored",
+        "role": "mortality-cause",
+        "mortalityCause": "cardiovascular",
+        "curve": {
+          "form": "table",
+          "byAge": [
+            [
+              20,
+              0.000512
+            ],
+            [
+              30,
+              0.002285
+            ],
+            [
+              40,
+              0.007916
+            ],
+            [
+              50,
+              0.023345
+            ],
+            [
+              60,
+              0.059632
+            ],
+            [
+              70,
+              0.121294
+            ],
+            [
+              80,
+              0.286352
+            ],
+            [
+              90,
+              1.0
+            ]
+          ],
+          "female": {
+            "byAge": [
+              [
+                20,
+                0.000373
+              ],
+              [
+                30,
+                0.001448
+              ],
+              [
+                40,
+                0.004914
+              ],
+              [
+                50,
+                0.01303
+              ],
+              [
+                60,
+                0.033255
+              ],
+              [
+                70,
+                0.077676
+              ],
+              [
+                80,
+                0.231733
+              ],
+              [
+                90,
+                1.0
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "id": "cancer",
+        "label": "Cancer",
+        "layer": "phenotype",
+        "tractability": "moderate",
+        "provenance": "anchored",
+        "role": "mortality-cause",
+        "mortalityCause": "cancer",
+        "curve": {
+          "form": "table",
+          "byAge": [
+            [
+              20,
+              0.001705
+            ],
+            [
+              30,
+              0.003641
+            ],
+            [
+              40,
+              0.010092
+            ],
+            [
+              50,
+              0.036406
+            ],
+            [
+              60,
+              0.1247
+            ],
+            [
+              70,
+              0.285023
+            ],
+            [
+              80,
+              0.543917
+            ],
+            [
+              90,
+              1.0
+            ]
+          ],
+          "female": {
+            "byAge": [
+              [
+                20,
+                0.002081
+              ],
+              [
+                30,
+                0.006484
+              ],
+              [
+                40,
+                0.023533
+              ],
+              [
+                50,
+                0.068919
+              ],
+              [
+                60,
+                0.183943
+              ],
+              [
+                70,
+                0.360202
+              ],
+              [
+                80,
+                0.656688
+              ],
+              [
+                90,
+                1.0
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "id": "neurodegeneration",
+        "label": "Neurodegeneration",
+        "layer": "phenotype",
+        "tractability": "low",
+        "provenance": "anchored",
+        "role": "mortality-cause",
+        "mortalityCause": "neurodegeneration",
+        "curve": {
+          "form": "table",
+          "byAge": [
+            [
+              20,
+              0.0
+            ],
+            [
+              30,
+              1.8e-05
+            ],
+            [
+              40,
+              4.4e-05
+            ],
+            [
+              50,
+              0.000395
+            ],
+            [
+              60,
+              0.004081
+            ],
+            [
+              70,
+              0.028259
+            ],
+            [
+              80,
+              0.187196
+            ],
+            [
+              90,
+              1.0
+            ]
+          ],
+          "female": {
+            "byAge": [
+              [
+                20,
+                0.0
+              ],
+              [
+                30,
+                0.0
+              ],
+              [
+                40,
+                3.2e-05
+              ],
+              [
+                50,
+                0.000291
+              ],
+              [
+                60,
+                0.003034
+              ],
+              [
+                70,
+                0.022594
+              ],
+              [
+                80,
+                0.166392
+              ],
+              [
+                90,
+                1.0
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "id": "immunosenescence",
+        "label": "Immunosenescence",
+        "layer": "phenotype",
+        "tractability": "low",
+        "provenance": "anchored",
+        "role": "mortality-cause",
+        "mortalityCause": "infection",
+        "curve": {
+          "form": "table",
+          "byAge": [
+            [
+              20,
+              0.001244
+            ],
+            [
+              30,
+              0.004561
+            ],
+            [
+              40,
+              0.010574
+            ],
+            [
+              50,
+              0.024881
+            ],
+            [
+              60,
+              0.06158
+            ],
+            [
+              70,
+              0.13954
+            ],
+            [
+              80,
+              0.337757
+            ],
+            [
+              90,
+              1.0
+            ]
+          ],
+          "female": {
+            "byAge": [
+              [
+                20,
+                0.001768
+              ],
+              [
+                30,
+                0.0056
+              ],
+              [
+                40,
+                0.012084
+              ],
+              [
+                50,
+                0.028883
+              ],
+              [
+                60,
+                0.06985
+              ],
+              [
+                70,
+                0.153551
+              ],
+              [
+                80,
+                0.358385
+              ],
+              [
+                90,
+                1.0
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "id": "sarcopenia",
+        "label": "Sarcopenia / frailty",
+        "layer": "phenotype",
+        "tractability": "moderate",
+        "provenance": "anchored-direction",
+        "role": "frailty-multiplier",
+        "curve": {
+          "form": "sigmoid",
+          "params": {
+            "L": 0.95,
+            "k": 0.1,
+            "mid": 72
+          }
+        }
+      },
+      {
+        "id": "clonal-hematopoiesis",
+        "label": "Clonal hematopoiesis",
+        "layer": "phenotype",
+        "tractability": "low",
+        "provenance": "anchored-direction",
+        "role": "driver",
+        "curve": {
+          "form": "exponential",
+          "params": {
+            "A": 0.008,
+            "r": 0.05
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "genomic-instability",
+        "to": "cellular-senescence",
+        "strength": "strong"
+      },
+      {
+        "from": "genomic-instability",
+        "to": "chronic-inflammation",
+        "strength": "strong"
+      },
+      {
+        "from": "genomic-instability",
+        "to": "clonal-hematopoiesis",
+        "strength": "strong"
+      },
+      {
+        "from": "telomere-attrition",
+        "to": "cellular-senescence",
+        "strength": "strong"
+      },
+      {
+        "from": "telomere-attrition",
+        "to": "stem-cell-exhaustion",
+        "strength": "strong"
+      },
+      {
+        "from": "telomere-attrition",
+        "to": "genomic-instability",
+        "strength": "moderate"
+      },
+      {
+        "from": "epigenetic-alterations",
+        "to": "cellular-senescence",
+        "strength": "moderate"
+      },
+      {
+        "from": "epigenetic-alterations",
+        "to": "stem-cell-exhaustion",
+        "strength": "moderate"
+      },
+      {
+        "from": "epigenetic-alterations",
+        "to": "deregulated-nutrient-sensing",
+        "strength": "weak"
+      },
+      {
+        "from": "cellular-senescence",
+        "to": "chronic-inflammation",
+        "strength": "strong"
+      },
+      {
+        "from": "cellular-senescence",
+        "to": "stem-cell-exhaustion",
+        "strength": "moderate"
+      },
+      {
+        "from": "cellular-senescence",
+        "to": "altered-intercellular-communication",
+        "strength": "moderate"
+      },
+      {
+        "from": "deregulated-nutrient-sensing",
+        "to": "disabled-macroautophagy",
+        "strength": "strong"
+      },
+      {
+        "from": "deregulated-nutrient-sensing",
+        "to": "cellular-senescence",
+        "strength": "moderate"
+      },
+      {
+        "from": "deregulated-nutrient-sensing",
+        "to": "mitochondrial-dysfunction",
+        "strength": "moderate"
+      },
+      {
+        "from": "deregulated-nutrient-sensing",
+        "to": "stem-cell-exhaustion",
+        "strength": "moderate"
+      },
+      {
+        "from": "disabled-macroautophagy",
+        "to": "loss-of-proteostasis",
+        "strength": "strong"
+      },
+      {
+        "from": "disabled-macroautophagy",
+        "to": "mitochondrial-dysfunction",
+        "strength": "strong"
+      },
+      {
+        "from": "disabled-macroautophagy",
+        "to": "chronic-inflammation",
+        "strength": "moderate"
+      },
+      {
+        "from": "mitochondrial-dysfunction",
+        "to": "cellular-senescence",
+        "strength": "disputed"
+      },
+      {
+        "from": "mitochondrial-dysfunction",
+        "to": "chronic-inflammation",
+        "strength": "moderate"
+      },
+      {
+        "from": "mitochondrial-dysfunction",
+        "to": "loss-of-proteostasis",
+        "strength": "moderate"
+      },
+      {
+        "from": "loss-of-proteostasis",
+        "to": "neurodegeneration",
+        "strength": "strong"
+      },
+      {
+        "from": "chronic-inflammation",
+        "to": "stem-cell-exhaustion",
+        "strength": "moderate"
+      },
+      {
+        "from": "chronic-inflammation",
+        "to": "atherosclerosis",
+        "strength": "strong"
+      },
+      {
+        "from": "chronic-inflammation",
+        "to": "clonal-hematopoiesis",
+        "strength": "moderate"
+      },
+      {
+        "from": "chronic-inflammation",
+        "to": "sarcopenia",
+        "strength": "moderate"
+      },
+      {
+        "from": "dysbiosis",
+        "to": "chronic-inflammation",
+        "strength": "moderate"
+      },
+      {
+        "from": "dysbiosis",
+        "to": "altered-intercellular-communication",
+        "strength": "moderate"
+      },
+      {
+        "from": "altered-intercellular-communication",
+        "to": "stem-cell-exhaustion",
+        "strength": "weak"
+      },
+      {
+        "from": "stem-cell-exhaustion",
+        "to": "sarcopenia",
+        "strength": "strong"
+      },
+      {
+        "from": "stem-cell-exhaustion",
+        "to": "immunosenescence",
+        "strength": "strong"
+      },
+      {
+        "from": "stem-cell-exhaustion",
+        "to": "chronic-inflammation",
+        "strength": "moderate"
+      },
+      {
+        "from": "clonal-hematopoiesis",
+        "to": "atherosclerosis",
+        "strength": "moderate"
+      },
+      {
+        "from": "genomic-instability",
+        "to": "cancer",
+        "strength": "strong"
+      },
+      {
+        "from": "epigenetic-alterations",
+        "to": "cancer",
+        "strength": "moderate"
+      },
+      {
+        "from": "chronic-inflammation",
+        "to": "cancer",
+        "strength": "moderate"
+      },
+      {
+        "from": "immunosenescence",
+        "to": "cancer",
+        "strength": "moderate"
+      }
+    ]
+  };
+
+/* ============================ Derived constants ========================== */
+const AGE0 = MODEL.meta.ageRange[0];      // 20
+const AGE1 = MODEL.meta.ageRange[1];      // 100
+const DT   = MODEL.meta.dt;               // 1
+const AGES = [];
+for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
+const N_AGE = AGES.length;
+
+const LAYER_ORDER = ["tier1", "tier2", "tier3", "phenotype"];
+function getCss(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888"; }
+const LAYER_COLOR = {
+  tier1: getCss("--c-tier1"),
+  tier2: getCss("--c-tier2"),
+  tier3: getCss("--c-tier3"),
+  phenotype: getCss("--c-phenotype")
+};
+
+// index nodes by id
+const NODES = MODEL.nodes;
+const NODE_BY_ID = {};
+NODES.forEach((n, i) => { n._idx = i; NODE_BY_ID[n.id] = n; });
+
+// Coupling gain matrix G[to][from] = strengthToGain[edge.strength].
+const NN = NODES.length;
+const G = Array.from({ length: NN }, () => new Array(NN).fill(0));
+MODEL.edges.forEach(e => {
+  const to = NODE_BY_ID[e.to], from = NODE_BY_ID[e.from];
+  if (!to || !from) return;
+  G[to._idx][from._idx] = MODEL.strengthToGain[e.strength];
+});
+const COUPLE_ITERS = (MODEL.coupling && MODEL.coupling.iterations) || 60;
+
+// Cause order for the six-way decomposition + the stacked panel.
+const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "residual"];
+const CAUSE_COLOR = {
+  extrinsic:         getCss("--cause-extrinsic"),
+  cardiovascular:    getCss("--cause-cardiovascular"),
+  cancer:            getCss("--cause-cancer"),
+  neurodegeneration: getCss("--cause-neurodegeneration"),
+  infection:         getCss("--cause-infection"),
+  residual:          getCss("--cause-residual")
+};
+const CAUSE_LABEL = {
+  extrinsic:         "Extrinsic (accidents/lifestyle)",
+  cardiovascular:    "Cardiovascular",
+  cancer:            "Cancer",
+  neurodegeneration: "Neurodegeneration",
+  infection:         "Infection",
+  residual:          "Other causes"
+};
+
+/* ============================ Curve evaluation =========================== */
+function clamp01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+// piecewise-linear interpolation of [[age,val],...] ascending; clamped to endpoints.
+function interp(arr, age){
+  if (age <= arr[0][0]) return arr[0][1];
+  if (age >= arr[arr.length - 1][0]) return arr[arr.length - 1][1];
+  for (let i = 0; i < arr.length - 1; i++){
+    const a0 = arr[i][0], r0 = arr[i][1], a1 = arr[i + 1][0], r1 = arr[i + 1][1];
+    if (age >= a0 && age <= a1){
+      const f = (a1 === a0) ? 0 : (age - a0) / (a1 - a0);
+      return r0 + f * (r1 - r0);
+    }
+  }
+  return arr[arr.length - 1][1];
+}
+
+// Pick params for a node given sex: female override if present, else base params.
+function paramsFor(node, sex){
+  if (sex === "female" && node.curve.female) return node.curve.female;
+  return node.curve.params;
+}
+// Intrinsic baseline trajectory T(node, sex, age), clamped to [0,1].
+function T(node, age, sex){
+  const c = node.curve;
+  if (c.form === "table"){
+    if (sex === "female" && c.female && c.female.byAge) return clamp01(interp(c.female.byAge, age));
+    return clamp01(interp(c.byAge, age));
+  }
+  const p = paramsFor(node, sex);
+  const x = age - AGE0;
+  let v;
+  switch (c.form){
+    case "linear":      v = p.t0 + p.slope * x; break;
+    case "exponential": v = p.A * (Math.exp(p.r * x) - 1); break;
+    case "sigmoid":     v = p.L / (1 + Math.exp(-p.k * (age - p.mid))); break;
+    case "ushaped":     v = p.t0 + p.amp * Math.pow((age - p.mid) / p.scale, 2); break;
+    default:            v = 0;
+  }
+  return clamp01(v);
+}
+
+// Extrinsic per-year rate (parallel non-cascading channel), per-sex.
+function E(age, sex){ return interp(MODEL.mortality.extrinsic.byAge[sex], age); }
+
+/* ============================ State ====================================== */
+let state = {
+  sex: "male",
+  couple: MODEL.meta.couple,
+  lifestyle: MODEL.mortality.extrinsic.lifestyleMult,  // extrinsic-risk multiplier (1.0 = US avg)
+  interventions: {},   // id -> {startAge, efficacy in [0,1]}
+  selected: null,
+  codMode: "share"     // "share" | "abs"
+};
+
+/* ============================ Core simulation ============================
+   Coupling: bounded fixed point.
+     - prim[node] = primary deviation accumulated from the node's OWN intervention.
+     - At each age, solve D = prim + couple*(G·D) by iteration (D = (I-couple*G)^-1 prim).
+     - B[node] = clamp(T(node,sex,age) + D[node], 0, 1).
+     - Then accumulate the next step's prim:  for active interventions at age>=startAge:
+         prim[node] -= efficacy * (T(node,sex,age+1) - T(node,sex,age)).
+   Baseline (no interventions): prim≡0 ⇒ D≡0 ⇒ B≡T exactly.
+
+   Mortality: sex-specific competing hazards (v0.3 — NO sex scalar).
+     extrinsic   = E_sex(age)*lifestyle
+     frailtyMult = exp(beta_frail * (B[sarcopenia] - T[sarcopenia]))
+     causeHaz_c  = Rmax_c[sex] * B[node(c)]
+     residual    = interp(residual.byAgePerYear[sex])
+     intrinsic   = frailtyMult * (Σ causeHaz_c + residual_sex)
+     h(age)      = extrinsic + intrinsic
+   ========================================================================= */
+function simulate(sex, couple, interventions, lifestyle){
+  if (lifestyle === undefined) lifestyle = MODEL.mortality.extrinsic.lifestyleMult;
+
+  // Precompute baseline T over all ages.
+  const Tarr = NODES.map(node => AGES.map(a => T(node, a, sex)));
+
+  // B[i][k], with bounded fixed-point coupling per age.
+  const B = NODES.map(() => new Array(N_AGE));
+  const prim = new Array(NN).fill(0);
+
+  for (let k = 0; k < N_AGE; k++){
+    const age = AGES[k];
+    // Solve deviation vector D = prim + couple*(G·D) by fixed-point iteration.
+    let D = prim.slice();
+    for (let it = 0; it < COUPLE_ITERS; it++){
+      const ND = new Array(NN);
+      for (let i = 0; i < NN; i++){
+        let s = 0;
+        const Gi = G[i];
+        for (let j = 0; j < NN; j++){ if (Gi[j] !== 0) s += Gi[j] * D[j]; }
+        ND[i] = prim[i] + couple * s;
+      }
+      D = ND;
+    }
+    for (let i = 0; i < NN; i++) B[i][k] = clamp01(Tarr[i][k] + D[i]);
+
+    // Accumulate primary deviation for the NEXT step from active interventions.
+    if (k < N_AGE - 1){
+      for (let i = 0; i < NN; i++){
+        const iv = interventions[NODES[i].id];
+        if (iv && age >= iv.startAge){
+          prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
+        }
+      }
+    }
+  }
+
+  // Mortality — sex-specific competing hazards + per-age six-way decomposition.
+  // v0.3: no sex scalar. Rmax, residual, and extrinsic are all per-sex.
+  const fr = MODEL.mortality.frailty;
+  const frIdx = NODE_BY_ID[fr.node]._idx;
+  const causes = MODEL.mortality.causes;            // {causeName: {node, RmaxPerYear:{male,female}}}
+  const causeNames = Object.keys(causes);
+  const residTable = MODEL.mortality.residual.byAgePerYear[sex];
+
+  const hazard = new Array(N_AGE);
+  const contrib = new Array(N_AGE);   // contrib[k] = { parts:{causeKey:hazard}, total }
+
+  for (let k = 0; k < N_AGE; k++){
+    const age = AGES[k];
+    const extrinsic = E(age, sex) * lifestyle;
+    const frailtyMult = Math.exp(fr.beta * (B[frIdx][k] - Tarr[frIdx][k]));
+    const resid = interp(residTable, age);
+
+    const parts = { extrinsic: extrinsic };
+    let causeSum = 0;
+    for (const cn of causeNames){
+      const c = causes[cn];
+      const ch = c.RmaxPerYear[sex] * B[NODE_BY_ID[c.node]._idx][k];
+      causeSum += ch;
+      parts[cn] = frailtyMult * ch;
+    }
+    parts.residual = frailtyMult * resid;
+
+    const intrinsic = frailtyMult * (causeSum + resid);
+    hazard[k] = extrinsic + intrinsic;
+    contrib[k] = { parts: parts, total: hazard[k] };
+  }
+
+  // Survival + life expectancy.
+  const S = new Array(N_AGE);
+  let cum = 0, leSum = 0;
+  for (let k = 0; k < N_AGE; k++){
+    cum += hazard[k] * DT;
+    S[k] = Math.exp(-cum);
+    leSum += S[k] * DT;
+  }
+  const lifeExpectancy = AGE0 + leSum;
+
+  return { T: Tarr, B, hazard, S, lifeExpectancy, contrib };
+}
+
+/* ============================ Layout for graph =========================== */
+const GRAPH_W = 560, GRAPH_H = 640;
+const COL_PAD_X = 90, COL_PAD_TOP = 30, COL_PAD_BOT = 30;
+const graphPos = {}; // id -> {x, y}
+(function layoutGraph(){
+  const cols = LAYER_ORDER.map(L => NODES.filter(n => n.layer === L));
+  const nCols = LAYER_ORDER.length;
+  const usableW = GRAPH_W - 2 * COL_PAD_X;
+  cols.forEach((colNodes, ci) => {
+    const x = COL_PAD_X + (nCols === 1 ? 0 : (usableW * ci) / (nCols - 1));
+    const m = colNodes.length;
+    const usableH = GRAPH_H - COL_PAD_TOP - COL_PAD_BOT;
+    colNodes.forEach((node, ri) => {
+      const y = COL_PAD_TOP + (m === 1 ? usableH / 2 : (usableH * ri) / (m - 1));
+      graphPos[node.id] = { x: x, y: y };
+    });
+  });
+})();
+
+/* ============================ Rendering ================================== */
+const tooltip = document.getElementById("tooltip");
+function showTip(x, y, html){
+  tooltip.innerHTML = html;
+  tooltip.style.left = (x + 12) + "px";
+  tooltip.style.top  = (y + 12) + "px";
+  tooltip.style.opacity = 1;
+}
+function hideTip(){ tooltip.style.opacity = 0; }
+
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+// Human-readable role descriptor for a node (frontmatter `role`).
+function roleLabel(node){
+  if (node.role === "mortality-cause") return "mortality cause: " + (node.mortalityCause || "?");
+  if (node.role === "frailty-multiplier") return "frailty multiplier (amplifies all intrinsic causes)";
+  if (node.role === "driver") return "driver (no own death line)";
+  return null;
+}
+// Small glyph for role.
+function roleGlyph(node){
+  if (node.role === "mortality-cause") return "†";       // dagger
+  if (node.role === "frailty-multiplier") return "×";    // multiplication
+  if (node.role === "driver") return "▸";                // small triangle
+  return null;
+}
+
+// ---- Graph panel ----
+function renderGraph(){
+  const svg = document.getElementById("graphSvg");
+  svg.innerHTML = "";
+
+  const defs = el("defs", {}, svg);
+  const marker = el("marker", {
+    id: "arrow", viewBox: "0 0 10 10", refX: "9", refY: "5",
+    markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse"
+  }, defs);
+  el("path", { d: "M0,0 L10,5 L0,10 z", fill: "#9aa" }, marker);
+
+  const NODE_R = 9;
+
+  MODEL.edges.forEach(e => {
+    const a = graphPos[e.from], b = graphPos[e.to];
+    if (!a || !b) return;
+    const gain = MODEL.strengthToGain[e.strength];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len, uy = dy / len;
+    const x1 = a.x + ux * NODE_R, y1 = a.y + uy * NODE_R;
+    const x2 = b.x - ux * (NODE_R + 4), y2 = b.y - uy * (NODE_R + 4);
+    const mx = (x1 + x2) / 2 - uy * 14;
+    const my = (y1 + y2) / 2 + ux * 14;
+    el("path", {
+      d: `M${x1},${y1} Q${mx},${my} ${x2},${y2}`,
+      fill: "none",
+      stroke: "#b9bfc7",
+      "stroke-width": (0.6 + gain * 9).toFixed(2),
+      "marker-end": "url(#arrow)",
+      opacity: "0.75"
+    }, svg);
+  });
+
+  NODES.forEach(node => {
+    const p = graphPos[node.id];
+    const g = el("g", { class: "nodeg", transform: `translate(${p.x},${p.y})` }, svg);
+    const isSel = state.selected === node.id;
+    const iv = state.interventions[node.id];
+    const active = iv && iv.efficacy > 0;
+
+    let strokeW = 1.5, dash = "none";
+    if (node.tractability === "high")          { strokeW = 3;   dash = "none"; }
+    else if (node.tractability === "moderate") { strokeW = 1.8; dash = "none"; }
+    else                                       { strokeW = 1.5; dash = "3,2"; }   // low
+
+    if (isSel){
+      el("circle", { r: NODE_R + 5, fill: "none", stroke: "#111", "stroke-width": "1.5" }, g);
+    }
+    if (active){
+      el("circle", { r: NODE_R + 3, fill: "none", stroke: "#1e8449", "stroke-width": "2.5" }, g);
+    }
+
+    el("circle", {
+      r: NODE_R,
+      fill: LAYER_COLOR[node.layer],
+      stroke: "#333",
+      "stroke-width": strokeW,
+      "stroke-dasharray": dash
+    }, g);
+
+    // role glyph (small, inside-right of node) — distinguishes mortality-cause / frailty / driver
+    const glyph = roleGlyph(node);
+    if (glyph){
+      const gl = el("text", {
+        x: 0, y: 3.2, "text-anchor": "middle",
+        "font-size": "9", fill: "#fff", "font-weight": "700"
+      }, g);
+      gl.textContent = glyph;
+    }
+
+    if (active){
+      const fl = el("text", {
+        x: 0, y: -NODE_R - 6, "text-anchor": "middle",
+        "font-size": "13", fill: "#1e8449"
+      }, g);
+      fl.textContent = "❄";
+    }
+
+    const labelLeft = node.layer === "tier1";
+    const tx = labelLeft ? -(NODE_R + 5) : (NODE_R + 5);
+    const txt = el("text", {
+      x: tx, y: 3.5,
+      "text-anchor": labelLeft ? "end" : "start",
+      "font-size": "10",
+      fill: "#333"
+    }, g);
+    txt.textContent = node.label;
+
+    g.addEventListener("click", () => selectNode(node.id));
+    g.addEventListener("mousemove", (ev) => {
+      const rl = roleLabel(node);
+      showTip(ev.clientX, ev.clientY,
+        `<b>${node.label}</b><br>layer: ${node.layer}<br>tractability: ${node.tractability}` +
+        `<br>provenance: ${node.provenance}` +
+        (rl ? `<br>role: ${rl}` : "") +
+        (active ? `<br><span style="color:#7fe">&#10052; freeze ${Math.round(iv.efficacy*100)}% from age ${iv.startAge}</span>` : ""));
+    });
+    g.addEventListener("mouseleave", hideTip);
+  });
+}
+
+// ---- Cause-of-death stacked-area panel ----
+const CW = 1080, CH = 320;
+const C_M = { l: 52, r: 14, t: 12, b: 28 };
+function cx(age){ return C_M.l + (CW - C_M.l - C_M.r) * (age - AGE0) / (AGE1 - AGE0); }
+
+function renderCauseOfDeath(sim){
+  const svg = document.getElementById("codSvg");
+  svg.innerHTML = "";
+  const share = (state.codMode === "share");
+
+  // Per-age stack values (clamp negatives to 0). In abs mode, scale to max total.
+  const totals = new Array(N_AGE);
+  let maxTotal = 0;
+  for (let k = 0; k < N_AGE; k++){
+    let t = 0;
+    for (const key of CAUSE_KEYS) t += Math.max(0, sim.contrib[k].parts[key]);
+    totals[k] = t;
+    if (t > maxTotal) maxTotal = t;
+  }
+  if (maxTotal <= 0) maxTotal = 1;
+
+  const plotTop = C_M.t, plotBot = CH - C_M.b;
+  const plotH = plotBot - plotTop;
+  // y position of a stacked cumulative value at age index k
+  function yAt(cum, k){
+    if (share){
+      const denom = totals[k] > 0 ? totals[k] : 1;
+      return plotBot - plotH * (cum / denom);
+    } else {
+      return plotBot - plotH * (cum / maxTotal);
+    }
+  }
+
+  // grid + y-axis labels
+  for (let f = 0; f <= 1.0001; f += 0.25){
+    const y = plotBot - plotH * f;
+    el("line", { x1: C_M.l, y1: y, x2: CW - C_M.r, y2: y, stroke: "#eee" }, svg);
+    const t = el("text", { x: C_M.l - 6, y: y + 3, "text-anchor": "end", "font-size": "10", fill: "#999" }, svg);
+    t.textContent = share ? Math.round(f * 100) + "%" : (maxTotal * f).toExponential(1);
+  }
+  for (let age = AGE0; age <= AGE1; age += 10){
+    const x = cx(age);
+    el("line", { x1: x, y1: plotTop, x2: x, y2: plotBot, stroke: "#f6f6f6" }, svg);
+    const t = el("text", { x: x, y: plotBot + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
+    t.textContent = age;
+  }
+
+  // Build stacked bands bottom-up in CAUSE_KEYS order.
+  const cum = new Array(N_AGE).fill(0);
+  for (const key of CAUSE_KEYS){
+    // band polygon: top edge = cum+val, bottom edge = cum (reversed)
+    let dTop = "", dBot = "";
+    const newCum = new Array(N_AGE);
+    for (let k = 0; k < N_AGE; k++){
+      const v = Math.max(0, sim.contrib[k].parts[key]);
+      const lo = cum[k], hi = cum[k] + v;
+      newCum[k] = hi;
+      const x = cx(AGES[k]);
+      dTop += (k === 0 ? "M" : "L") + x.toFixed(1) + "," + yAt(hi, k).toFixed(1) + " ";
+    }
+    for (let k = N_AGE - 1; k >= 0; k--){
+      const x = cx(AGES[k]);
+      dBot += "L" + x.toFixed(1) + "," + yAt(cum[k], k).toFixed(1) + " ";
+    }
+    el("path", {
+      d: dTop + dBot + "Z",
+      fill: CAUSE_COLOR[key],
+      stroke: "none",
+      opacity: "0.9",
+      class: "codband", "data-key": key
+    }, svg);
+    for (let k = 0; k < N_AGE; k++) cum[k] = newCum[k];
+  }
+
+  // axis label
+  el("text", { x: (C_M.l + CW - C_M.r)/2, y: CH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
+    .textContent = "age (years)";
+
+  // hover guideline + readout
+  const guide = el("line", { x1: 0, y1: plotTop, x2: 0, y2: plotBot, stroke: "#222", "stroke-width": "1", opacity: "0", "stroke-dasharray": "3,3" }, svg);
+  const hit = el("rect", { x: C_M.l, y: plotTop, width: CW - C_M.l - C_M.r, height: plotH, fill: "transparent" }, svg);
+  hit.addEventListener("mousemove", (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const sxp = (ev.clientX - rect.left) * (CW / rect.width);
+    let age = AGE0 + (sxp - C_M.l) / (CW - C_M.l - C_M.r) * (AGE1 - AGE0);
+    age = Math.max(AGE0, Math.min(AGE1, Math.round(age)));
+    const k = age - AGE0;
+    guide.setAttribute("x1", cx(age)); guide.setAttribute("x2", cx(age));
+    guide.setAttribute("opacity", "0.6");
+    const parts = sim.contrib[k].parts;
+    const tot = totals[k] > 0 ? totals[k] : 1;
+    let rows = CAUSE_KEYS.map(key => {
+      const v = Math.max(0, parts[key]);
+      const pct = (v / tot * 100);
+      return { key, v, pct };
+    }).sort((a, b) => b.v - a.v);
+    let html = `Age <b>${age}</b> &mdash; `;
+    html += rows.map(r =>
+      `<span style="color:${CAUSE_COLOR[r.key]};font-weight:600">${CAUSE_LABEL[r.key]}</span> ${r.pct.toFixed(0)}%`
+    ).join(" &middot; ");
+    document.getElementById("codReadout").innerHTML = html;
+  });
+  hit.addEventListener("mouseleave", () => {
+    guide.setAttribute("opacity", "0");
+    document.getElementById("codReadout").textContent = "Hover the chart to read the cause breakdown at a given age.";
+  });
+}
+
+function buildCodLegend(){
+  const wrap = document.getElementById("codLegend");
+  wrap.innerHTML = CAUSE_KEYS.map(key =>
+    `<span class="item"><span class="swatch" style="background:${CAUSE_COLOR[key]}"></span>${CAUSE_LABEL[key]}</span>`
+  ).join("");
+}
+
+// ---- Burden timeline ----
+const BW = 1080, BH = 360;
+const B_M = { l: 46, r: 12, t: 12, b: 28 };
+function bx(age){ return B_M.l + (BW - B_M.l - B_M.r) * (age - AGE0) / (AGE1 - AGE0); }
+function by(v){ return B_M.t + (BH - B_M.t - B_M.b) * (1 - v); }
+
+function renderBurden(sim){
+  const svg = document.getElementById("burdenSvg");
+  svg.innerHTML = "";
+
+  for (let v = 0; v <= 1.0001; v += 0.25){
+    const y = by(v);
+    el("line", { x1: B_M.l, y1: y, x2: BW - B_M.r, y2: y, stroke: "#eee" }, svg);
+    const t = el("text", { x: B_M.l - 6, y: y + 3, "text-anchor": "end", "font-size": "10", fill: "#999" }, svg);
+    t.textContent = v.toFixed(2);
+  }
+  for (let age = AGE0; age <= AGE1; age += 10){
+    const x = bx(age);
+    el("line", { x1: x, y1: B_M.t, x2: x, y2: BH - B_M.b, stroke: "#f3f3f3" }, svg);
+    const t = el("text", { x: x, y: BH - B_M.b + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
+    t.textContent = age;
+  }
+  el("text", { x: (B_M.l + BW - B_M.r)/2, y: BH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
+    .textContent = "age (years)";
+
+  NODES.forEach((node, i) => {
+    let d = "";
+    for (let k = 0; k < N_AGE; k++){
+      const x = bx(AGES[k]), y = by(sim.B[i][k]);
+      d += (k === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1) + " ";
+    }
+    const isSel = state.selected === node.id;
+    el("path", {
+      d: d, fill: "none",
+      stroke: LAYER_COLOR[node.layer],
+      "stroke-width": isSel ? 3 : 1.4,
+      opacity: isSel ? 1 : 0.7,
+      class: "bline", "data-id": node.id
+    }, svg);
+  });
+
+  const guide = el("line", { x1: 0, y1: B_M.t, x2: 0, y2: BH - B_M.b, stroke: "#333", "stroke-width": "1", opacity: "0", "stroke-dasharray": "3,3" }, svg);
+  const hit = el("rect", { x: B_M.l, y: B_M.t, width: BW - B_M.l - B_M.r, height: BH - B_M.t - B_M.b, fill: "transparent" }, svg);
+  hit.addEventListener("mousemove", (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const sxp = (ev.clientX - rect.left) * (BW / rect.width);
+    let age = AGE0 + (sxp - B_M.l) / (BW - B_M.l - B_M.r) * (AGE1 - AGE0);
+    age = Math.max(AGE0, Math.min(AGE1, Math.round(age)));
+    const k = age - AGE0;
+    guide.setAttribute("x1", bx(age)); guide.setAttribute("x2", bx(age));
+    guide.setAttribute("opacity", "0.6");
+    updateLimitReadout(sim, k, age);
+  });
+  hit.addEventListener("mouseleave", () => {
+    guide.setAttribute("opacity", "0");
+    document.getElementById("limitReadout").textContent = "Hover the chart to see the limiting factor at a given age.";
+  });
+}
+
+// Largest contributor at age index k from the six-way competing-hazards decomposition.
+function updateLimitReadout(sim, k, age){
+  const parts = sim.contrib[k].parts;
+  const total = sim.contrib[k].total || 0;
+  let bestKey = null, bestVal = -Infinity;
+  for (const key of CAUSE_KEYS){
+    const v = Math.max(0, parts[key]);
+    if (v > bestVal){ bestVal = v; bestKey = key; }
+  }
+  const ro = document.getElementById("limitReadout");
+  if (bestKey === null){ ro.textContent = `Age ${age}: no dominant hazard contributor.`; return; }
+  const label = CAUSE_LABEL[bestKey], color = CAUSE_COLOR[bestKey];
+  const pct = total > 0 ? (bestVal / total * 100) : 0;
+  ro.innerHTML = `Age <b>${age}</b>: limiting factor = ` +
+    `<span style="color:${color};font-weight:600">${label}</span>` +
+    (isFinite(pct) && pct > 0 ? ` (~${pct.toFixed(0)}% of total hazard)` : "") + `.`;
+}
+
+// ---- Survival panel ----
+const SW = 520, SH = 220;
+const S_M = { l: 40, r: 12, t: 10, b: 26 };
+function sx(age){ return S_M.l + (SW - S_M.l - S_M.r) * (age - AGE0) / (AGE1 - AGE0); }
+function sy(v){ return S_M.t + (SH - S_M.t - S_M.b) * (1 - v); }
+
+function renderSurvival(sim, baselineLE){
+  const svg = document.getElementById("survSvg");
+  svg.innerHTML = "";
+  for (let v = 0; v <= 1.0001; v += 0.25){
+    const y = sy(v);
+    el("line", { x1: S_M.l, y1: y, x2: SW - S_M.r, y2: y, stroke: "#eee" }, svg);
+    const t = el("text", { x: S_M.l - 5, y: y + 3, "text-anchor": "end", "font-size": "9", fill: "#999" }, svg);
+    t.textContent = v.toFixed(2);
+  }
+  for (let age = AGE0; age <= AGE1; age += 10){
+    const x = sx(age);
+    el("text", { x: x, y: SH - S_M.b + 13, "text-anchor": "middle", "font-size": "9", fill: "#999" }, svg).textContent = age;
+  }
+
+  if (baselineLE.S){
+    let d0 = "";
+    for (let k = 0; k < N_AGE; k++){
+      d0 += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(baselineLE.S[k]).toFixed(1) + " ";
+    }
+    el("path", { d: d0, fill: "none", stroke: "#bbb", "stroke-width": "1.4", "stroke-dasharray": "4,3" }, svg);
+  }
+
+  let d = "";
+  for (let k = 0; k < N_AGE; k++){
+    d += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(sim.S[k]).toFixed(1) + " ";
+  }
+  el("path", { d: d, fill: "none", stroke: "#2c3e50", "stroke-width": "2.2" }, svg);
+
+  document.getElementById("survSub").innerHTML =
+    `Solid = current scenario; dashed grey = no-intervention baseline (${state.sex}, lifestyle &times;1.0).`;
+}
+
+/* ============================ Controls glue ============================== */
+function selectNode(id){
+  state.selected = id;
+  syncIntervControls();
+  renderAll();
+}
+
+function syncIntervControls(){
+  const id = state.selected;
+  const startS = document.getElementById("startSlider");
+  const effS   = document.getElementById("effSlider");
+  const clearB = document.getElementById("clearNode");
+  const nameEl = document.getElementById("selName");
+  const metaEl = document.getElementById("selMeta");
+
+  if (!id){
+    startS.disabled = effS.disabled = clearB.disabled = true;
+    nameEl.textContent = "none selected";
+    metaEl.textContent = "Click a node in the graph to configure a freeze/slow intervention.";
+    return;
+  }
+  const node = NODE_BY_ID[id];
+  nameEl.textContent = node.label;
+  const tcol = LAYER_COLOR[node.layer];
+  const rl = roleLabel(node);
+  metaEl.innerHTML = `<span class="badge" style="background:${tcol}">${node.layer}</span> ` +
+    `tractability: <b>${node.tractability}</b> &middot; provenance: ${node.provenance}` +
+    (rl ? ` &middot; ${rl}` : "");
+
+  startS.disabled = effS.disabled = clearB.disabled = false;
+  const iv = state.interventions[id] || { startAge: 50, efficacy: 0 };
+  startS.value = iv.startAge;
+  effS.value = Math.round(iv.efficacy * 100);
+  document.getElementById("startVal").textContent = iv.startAge;
+  document.getElementById("effVal").textContent = Math.round(iv.efficacy * 100) + "%";
+}
+
+function applyIntervFromControls(){
+  const id = state.selected;
+  if (!id) return;
+  const startAge = +document.getElementById("startSlider").value;
+  const eff = (+document.getElementById("effSlider").value) / 100;
+  document.getElementById("startVal").textContent = startAge;
+  document.getElementById("effVal").textContent = Math.round(eff * 100) + "%";
+  if (eff <= 0){
+    delete state.interventions[id];
+  } else {
+    state.interventions[id] = { startAge: startAge, efficacy: eff };
+  }
+  renderAll();
+}
+
+/* ============================ Master render ============================== */
+function renderAll(){
+  const sim = simulate(state.sex, state.couple, state.interventions, state.lifestyle);
+  // ΔLE baseline: no node interventions AND lifestyle = 1.0 for current sex.
+  const base = simulate(state.sex, state.couple, {}, MODEL.mortality.extrinsic.lifestyleMult);
+
+  renderGraph();
+  renderCauseOfDeath(sim);
+  renderBurden(sim);
+  renderSurvival(sim, base);
+
+  const le = sim.lifeExpectancy;
+  document.getElementById("leVal").textContent = le.toFixed(1);
+  const dEl = document.getElementById("leDelta");
+  const delta = le - base.lifeExpectancy;
+  if (Math.abs(delta) < 0.05){
+    dEl.textContent = "(baseline)"; dEl.className = "le-delta zero";
+  } else if (delta > 0){
+    dEl.textContent = "+" + delta.toFixed(1) + " yrs"; dEl.className = "le-delta pos";
+  } else {
+    dEl.textContent = delta.toFixed(1) + " yrs"; dEl.className = "le-delta neg";
+  }
+}
+
+/* ============================ Legend ===================================== */
+function buildLegend(){
+  const wrap = document.getElementById("legend");
+  let html = "<div style='margin-bottom:4px'>";
+  LAYER_ORDER.forEach(L => {
+    html += `<span class="item"><span class="swatch" style="background:${LAYER_COLOR[L]}"></span>${L}</span>`;
+  });
+  html += "</div><div style='margin-bottom:4px'>" +
+    `<span class="item"><svg width="22" height="14"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="3"/></svg>high tractability</span>` +
+    `<span class="item"><svg width="22" height="14"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.8"/></svg>moderate</span>` +
+    `<span class="item"><svg width="22" height="14"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.5" stroke-dasharray="3,2"/></svg>low</span>` +
+    `<span class="item">&#10052; = active freeze</span>` +
+    "</div><div style='margin-bottom:4px'>" +
+    `<span class="item">&#8224; mortality cause</span>` +
+    `<span class="item">&#215; frailty multiplier</span>` +
+    `<span class="item">&#9656; driver (no death line)</span>` +
+    "</div>" +
+    `<div class="hint">Border weight/style = clinical tractability; fill color = biological layer; in-node glyph = role. ` +
+    `<code>ordinal-default</code> parameters are illustrative only. ` +
+    `Mortality is a v0.3 sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; ` +
+    `female CVD-onset delay &amp; male external excess emerge from data), amplified by a ` +
+    `sarcopenia frailty multiplier; clonal-hematopoiesis is a driver with no own death line. ` +
+    `The extrinsic channel (accidents / lifestyle) is non-cascading and scaled by the Lifestyle slider.</div>`;
+  wrap.innerHTML = html;
+}
+
+/* ============================ Wire up controls =========================== */
+document.querySelectorAll("#sexSeg button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#sexSeg button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.sex = btn.dataset.sex;
+    renderAll();
+  });
+});
+
+document.querySelectorAll("#codModeSeg button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#codModeSeg button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.codMode = btn.dataset.mode;
+    renderAll();
+  });
+});
+
+const coupleSlider = document.getElementById("coupleSlider");
+coupleSlider.value = state.couple;
+document.getElementById("coupleVal").textContent = state.couple.toFixed(2);
+coupleSlider.addEventListener("input", () => {
+  state.couple = +coupleSlider.value;
+  document.getElementById("coupleVal").textContent = state.couple.toFixed(2);
+  renderAll();
+});
+
+const lifestyleSlider = document.getElementById("lifestyleSlider");
+function lifestyleLabel(v){
+  if (v < 0.5)  return "low-risk";
+  if (v < 1.5)  return "US avg";
+  if (v < 4)    return "elevated";
+  return "high-risk";
+}
+function syncLifestyleVal(){
+  document.getElementById("lifestyleVal").textContent =
+    "×" + state.lifestyle.toFixed(1) + " (" + lifestyleLabel(state.lifestyle) + ")";
+}
+lifestyleSlider.value = state.lifestyle;
+syncLifestyleVal();
+lifestyleSlider.addEventListener("input", () => {
+  state.lifestyle = +lifestyleSlider.value;
+  syncLifestyleVal();
+  renderAll();
+});
+
+document.getElementById("startSlider").addEventListener("input", applyIntervFromControls);
+document.getElementById("effSlider").addEventListener("input", applyIntervFromControls);
+document.getElementById("clearNode").addEventListener("click", () => {
+  if (state.selected) delete state.interventions[state.selected];
+  syncIntervControls();
+  renderAll();
+});
+document.getElementById("resetAll").addEventListener("click", () => {
+  state.interventions = {};
+  state.couple = MODEL.meta.couple;
+  state.lifestyle = MODEL.mortality.extrinsic.lifestyleMult;
+  state.selected = null;
+  coupleSlider.value = state.couple;
+  document.getElementById("coupleVal").textContent = state.couple.toFixed(2);
+  lifestyleSlider.value = state.lifestyle;
+  syncLifestyleVal();
+  syncIntervControls();
+  renderAll();
+});
+
+/* ============================ Self-check ================================= */
+(function selfCheck(){
+  // 1. Baseline invariant: with no interventions, B must reproduce T exactly.
+  const sim = simulate("male", state.couple, {});
+  let maxDev = 0;
+  for (let i = 0; i < NODES.length; i++)
+    for (let k = 0; k < N_AGE; k++)
+      maxDev = Math.max(maxDev, Math.abs(sim.B[i][k] - sim.T[i][k]));
+
+  // 2. Structure counts.
+  const okNodes = (NODES.length === 18), okEdges = (MODEL.edges.length === 38);
+  const okVer = (MODEL.meta.version === "v0.3");
+
+  // 3. Baseline LE sanity (target ≈ 75.3 M / 80.4 F).
+  const lm = MODEL.mortality.extrinsic.lifestyleMult;
+  const leM = simulate("male",   state.couple, {}, lm).lifeExpectancy;
+  const leF = simulate("female", state.couple, {}, lm).lifeExpectancy;
+
+  if (maxDev > 1e-12){
+    console.error("Self-check FAILED: baseline run does not reproduce intrinsic curves. maxDev=", maxDev);
+  } else if (!okNodes || !okEdges || !okVer){
+    console.error("Self-check FAILED: structure counts.", { nodes: NODES.length, edges: MODEL.edges.length, version: MODEL.meta.version });
+  } else {
+    console.log("Self-check OK: v0.3 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
+                "nodes=" + NODES.length + " edges=" + MODEL.edges.length + ";",
+                "baseline LE male=" + leM.toFixed(2) + " female=" + leF.toFixed(2) + " (target 75.3 / 80.4).");
+  }
+})();
+
+/* ============================ Boot ======================================= */
+buildLegend();
+buildCodLegend();
+syncIntervControls();
+renderAll();
+</script>
+</body>
+</html>
