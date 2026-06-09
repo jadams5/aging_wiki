@@ -2,7 +2,7 @@
 type: organ-system
 aliases: [immune system, lymphatic-system, lymphatic system, immune-lymphatic system]
 key-organs: []
-key-tissues: ["[[bone-marrow]]"]
+key-tissues: ["[[bone-marrow]]", "[[thymus]]"]
 key-cell-types: ["[[hematopoietic-stem-cells]]", "[[microglia]]", "[[langerhans-cells]]"]
 key-aging-phenotypes: ["[[immunosenescence]]", "[[clonal-hematopoiesis]]"]
 related-hallmarks: ["[[chronic-inflammation]]", "[[cellular-senescence]]", "[[stem-cell-exhaustion]]"]
@@ -16,6 +16,7 @@ Navigational overlay for innate and adaptive immunity, the lymphoid organs, and 
 ## Tissues & organs
 
 - [[bone-marrow]] — source of all immune cells (shared with [[hematopoietic-system]])
+- [[thymus]] — site of T-cell maturation; thymic involution drives immunosenescence. CT-derived [[thymic-health-score|thymic health]] is prognostic for mortality and cancer-immunotherapy response (Bernatz 2026)
 
 ## Cell types
 
@@ -44,7 +45,7 @@ SORT file.name
 
 ## Missing / planned pages
 
-- [[thymus]] (thymic involution — central to immunosenescence) and [[spleen]] — now seeded as **stubs** (need full content)
+- [[thymus]] — now written out (thymic involution + CT thymic-health biomarker). [[spleen]] — still a **stub** (needs full content)
 - `[[lymph-nodes]]`, `[[lymphatic-vessels]]`, `[[tonsils]]` — lymphoid organs not yet seeded #stub
 - `[[t-cells]]`, `[[b-cells]]`, `[[macrophages]]`, `[[neutrophils]]`, `[[nk-cells]]`, `[[dendritic-cells]]` — immune cell types not yet seeded #stub
 
