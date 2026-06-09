@@ -42,8 +42,8 @@ const tests = [];
 const num = (name, got, target, tol) => tests.push({ name, got, target, tol });
 const str = (name, got, target) => tests.push({ name, got, target, tol: null });
 
-num("Baseline LE male", simulate(MODEL, { sex: "male" }).LE, 75.31, 0.05);
-num("Baseline LE female", simulate(MODEL, { sex: "female" }).LE, 80.37, 0.05);
+num("Baseline LE male", simulate(MODEL, { sex: "male" }).LE, 75.95, 0.05);
+num("Baseline LE female", simulate(MODEL, { sex: "female" }).LE, 81.07, 0.05);
 
 num("Baseline max|B-T| male", maxAbsBT("male"), 0, 0);
 num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
@@ -51,16 +51,16 @@ num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
 num("genomic-instability freeze@40 eff0.1 ΔLE", dLE("genomic-instability", { efficacy: 0.1 }), 0.11, 0.03);
 num("genomic-instability freeze@40 eff0.2 ΔLE", dLE("genomic-instability", { efficacy: 0.2 }), 0.21, 0.03);
 num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.43, 0.03);
-num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.10, 0.03);
+num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.17, 0.03);
 
-num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.10, 0.05);
+num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.01, 0.05);
 num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 3.15, 0.05); // B2: cause-specific frailty
 num("cancer freeze@40 100% ΔLE", dLE("cancer"), 2.10, 0.05);
 num("sarcopenia freeze@40 100% ΔLE", dLE("sarcopenia"), 3.68, 0.05); // B2: cause-specific frailty (larger effective β than flat 0.6)
 num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.18, 0.05);
 
 num("lifestyle male 0× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 0 }) - baseM, 2.44, 0.1);
-num("lifestyle male 10× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 10 }) - baseM, -16.61, 0.1);
+num("lifestyle male 10× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 10 }) - baseM, -17.09, 0.1);
 
 str("decomposition top male age 25", topContributor(25), "extrinsic");
 str("decomposition top male age 55", topContributor(55), "residual");

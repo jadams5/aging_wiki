@@ -17,17 +17,36 @@ export function clamp01(v) {
 }
 
 // Piecewise-linear interpolation of [[age,val],...] ascending; clamped to endpoints.
+// Monotone cubic (Fritsch–Carlson PCHIP) interpolation of an [[age,value],…]
+// table: passes through every anchor, smooth between them, and monotone (no
+// overshoot — cause rates stay ≥0, mediators don't overshoot). This is what
+// makes the table-driven curves (mediators, CDC cause rates, cause-node burdens)
+// render smoothly instead of in blocky 10-year linear segments.
 export function interp(arr, age) {
+  const n = arr.length;
   if (age <= arr[0][0]) return arr[0][1];
-  if (age >= arr[arr.length - 1][0]) return arr[arr.length - 1][1];
-  for (let i = 0; i < arr.length - 1; i++) {
-    const a0 = arr[i][0], r0 = arr[i][1], a1 = arr[i + 1][0], r1 = arr[i + 1][1];
-    if (age >= a0 && age <= a1) {
-      const f = a1 === a0 ? 0 : (age - a0) / (a1 - a0);
-      return r0 + f * (r1 - r0);
-    }
+  if (age >= arr[n - 1][0]) return arr[n - 1][1];
+  let i = 0;
+  while (i < n - 1 && age > arr[i + 1][0]) i++;
+  if (n === 2) {
+    const f = (age - arr[0][0]) / (arr[1][0] - arr[0][0]);
+    return arr[0][1] + f * (arr[1][1] - arr[0][1]);
   }
-  return arr[arr.length - 1][1];
+  const h = new Array(n - 1), d = new Array(n - 1);
+  for (let k = 0; k < n - 1; k++) { h[k] = arr[k + 1][0] - arr[k][0]; d[k] = (arr[k + 1][1] - arr[k][1]) / h[k]; }
+  const m = new Array(n);
+  m[0] = d[0]; m[n - 1] = d[n - 2];
+  for (let k = 1; k < n - 1; k++) m[k] = (d[k - 1] * d[k] <= 0) ? 0 : (d[k - 1] + d[k]) / 2;
+  for (let k = 0; k < n - 1; k++) {
+    if (d[k] === 0) { m[k] = 0; m[k + 1] = 0; continue; }
+    const a = m[k] / d[k], b = m[k + 1] / d[k], s = a * a + b * b;
+    if (s > 9) { const t = 3 / Math.sqrt(s); m[k] = t * a * d[k]; m[k + 1] = t * b * d[k]; }
+  }
+  const t = (age - arr[i][0]) / h[i], t2 = t * t, t3 = t2 * t;
+  return (2*t3 - 3*t2 + 1) * arr[i][1]
+       + (t3 - 2*t2 + t) * h[i] * m[i]
+       + (-2*t3 + 3*t2) * arr[i + 1][1]
+       + (t3 - t2) * h[i] * m[i + 1];
 }
 
 // Pick parametric params for a node given sex: female override if present.
