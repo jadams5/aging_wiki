@@ -36,15 +36,15 @@
     font-size: 14px;
   }
   header {
-    padding: 12px 18px 8px;
+    padding: 8px 14px 6px;
     border-bottom: 1px solid var(--line);
     background: var(--panel);
   }
-  header h1 { margin: 0 0 2px; font-size: 20px; }
-  .disclaimer { color: var(--muted); font-size: 12px; max-width: 1100px; }
+  header h1 { margin: 0 0 2px; font-size: 18px; }
+  .disclaimer { color: var(--muted); font-size: 11px; max-width: 1100px; line-height: 1.35; }
   .topbar {
-    display: flex; flex-wrap: wrap; gap: 18px; align-items: center;
-    padding: 8px 18px; border-bottom: 1px solid var(--line); background: var(--panel);
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    padding: 6px 14px; border-bottom: 1px solid var(--line); background: var(--panel);
   }
   .topbar label { font-size: 13px; }
   .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
@@ -54,18 +54,31 @@
   .seg button.active { background: #34495e; color: #fff; }
   .layout {
     display: grid;
-    grid-template-columns: minmax(380px, 1fr) minmax(380px, 1fr);
-    gap: 14px;
-    padding: 14px 18px;
+    grid-template-columns: minmax(300px, 0.85fr) minmax(360px, 1.15fr);
+    gap: 10px;
+    padding: 10px 14px;
     align-items: start;
   }
   .panel {
     background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
-    padding: 10px 12px;
+    padding: 7px 10px;
   }
-  .panel h2 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
-  .panel .sub { color: var(--muted); font-size: 11px; margin: -4px 0 6px; }
-  .graph-panel { grid-row: span 2; }
+  .panel h2 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+  .panel .sub { color: var(--muted); font-size: 10px; margin: -3px 0 5px; line-height: 1.3; }
+  /* Right column row 1 = controls + survival stacked; place them in the right
+     column beside the (now short) graph so row 1 fits on one screen. */
+  .graph-panel { grid-column: 1; grid-row: 1; }
+  .right-stack { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 10px; }
+  .right-stack > .panel { margin: 0; }
+  /* Row 2: mediators (left) + cause-of-death (right). Row 3: burden full width.
+     B-layer compact full-width strip below the graph row. */
+  .row2-left  { grid-column: 1; }
+  .row2-right { grid-column: 2; }
+  .full-row   { grid-column: 1 / -1; }
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: 1fr; }
+    .graph-panel, .right-stack, .row2-left, .row2-right, .full-row { grid-column: 1; grid-row: auto; }
+  }
   svg { display: block; width: 100%; height: auto; }
   .readout { font-size: 12px; color: var(--muted); min-height: 16px; margin-top: 4px; }
   .le-big { font-size: 26px; font-weight: 700; }
@@ -123,10 +136,6 @@
   .labgrid { display: grid; grid-template-columns: repeat(2, auto 1fr); gap: 6px 10px; align-items: center; font-size: 12px; }
   .labgrid label { color: var(--muted); }
   .labnote { font-size: 11px; color: var(--muted); margin-top: 6px; font-style: italic; }
-  @media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; }
-    .graph-panel { grid-row: auto; }
-  }
 </style>
 </head>
 <body>
@@ -171,15 +180,16 @@
 
 <div class="layout">
 
-  <!-- LEFT COLUMN: causal graph (spans two rows) -->
+  <!-- LEFT COLUMN ROW 1: causal graph (now short) -->
   <div class="panel graph-panel">
     <h2>Causal graph (control surface)</h2>
     <div class="sub">Click a node to select it for intervention. &#10052; = active freeze. Border = tractability. Glyph = node role.</div>
-    <svg id="graphSvg" viewBox="0 0 560 640" preserveAspectRatio="xMidYMin meet"></svg>
+    <svg id="graphSvg" viewBox="0 0 560 340" preserveAspectRatio="xMidYMin meet"></svg>
     <div class="legend" id="legend"></div>
   </div>
 
-  <!-- RIGHT COLUMN ROW 1: intervention controls -->
+  <!-- RIGHT COLUMN ROW 1: intervention controls + survival/LE, stacked -->
+  <div class="right-stack">
   <div class="panel">
     <h2>Intervention &mdash; <span class="sel-name" id="selName">none selected</span></h2>
     <div class="sub" id="selMeta">Click a node in the graph to configure a freeze/slow intervention.</div>
@@ -205,20 +215,21 @@
     </div>
   </div>
 
-  <!-- RIGHT COLUMN ROW 2: survival + LE -->
-  <div class="panel" style="grid-column: 2;">
+  <!-- RIGHT COLUMN ROW 1 (stacked under controls): survival + LE -->
+  <div class="panel">
     <h2>Survival &amp; life expectancy</h2>
     <div class="sub" id="survSub"></div>
-    <svg id="survSvg" viewBox="0 0 520 220" preserveAspectRatio="xMidYMin meet"></svg>
+    <svg id="survSvg" viewBox="0 0 520 170" preserveAspectRatio="xMidYMin meet"></svg>
     <div>
       <span class="le-big" id="leVal">&mdash;</span>
       <span style="color:var(--muted);font-size:13px;">yrs life expectancy</span>
       <span class="le-delta zero" id="leDelta"></span>
     </div>
   </div>
+  </div><!-- /.right-stack -->
 
   <!-- B-LAYER panel: Lifestyle & environment + Labs (full width, collapsible) -->
-  <div class="panel" style="grid-column: 1 / -1;">
+  <div class="panel full-row">
     <details class="blayer" id="blayerDetails">
       <summary>Lifestyle &amp; environment &middot; Labs <span style="font-weight:400;color:var(--muted);font-size:12px;">(B-layer &mdash; drives mediator values &amp; their mortality multipliers)</span></summary>
       <div class="sub" style="margin-top:6px;">
@@ -248,17 +259,17 @@
     </details>
   </div>
 
-  <!-- MEDIATOR readout panel (full width) -->
-  <div class="panel" style="grid-column: 1 / -1;">
+  <!-- MEDIATOR readout panel (row 2 left) -->
+  <div class="panel row2-left">
     <h2>Mediator trajectories &mdash; person vs population baseline</h2>
     <div class="sub">LDL (mg/dL), systolic BP (mmHg), HbA1c (%) over age. Solid = current scenario (inputs/treatments/labs); dashed = population baseline for this sex. Vertical mark = current age.</div>
-    <svg id="medSvg" viewBox="0 0 1080 260" preserveAspectRatio="xMidYMin meet"></svg>
+    <svg id="medSvg" viewBox="0 0 1080 180" preserveAspectRatio="xMidYMin meet"></svg>
     <div class="legend" id="medLegend"></div>
     <div class="readout" id="medReadout">Hover the chart to read mediator values at a given age.</div>
   </div>
 
-  <!-- headline panel: cause of death by age (full width) -->
-  <div class="panel" style="grid-column: 1 / -1;">
+  <!-- headline panel: cause of death by age (row 2 right) -->
+  <div class="panel row2-right">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
       <div>
         <h2 style="display:inline;">Cause of death by age</h2>
@@ -269,16 +280,16 @@
         <button data-mode="abs">Absolute hazard</button>
       </span>
     </div>
-    <svg id="codSvg" viewBox="0 0 1080 320" preserveAspectRatio="xMidYMin meet"></svg>
+    <svg id="codSvg" viewBox="0 0 1080 210" preserveAspectRatio="xMidYMin meet"></svg>
     <div class="legend" id="codLegend"></div>
     <div class="readout" id="codReadout">Hover the chart to read the cause breakdown at a given age.</div>
   </div>
 
   <!-- Burden timeline spans full width below -->
-  <div class="panel" style="grid-column: 1 / -1;">
+  <div class="panel full-row">
     <h2>Burden timeline</h2>
     <div class="sub">One line per node (color matches graph). Hover to read the largest mortality-hazard contributor at that age (six-way competing-hazards decomposition).</div>
-    <svg id="burdenSvg" viewBox="0 0 1080 360" preserveAspectRatio="xMidYMin meet"></svg>
+    <svg id="burdenSvg" viewBox="0 0 1080 210" preserveAspectRatio="xMidYMin meet"></svg>
     <div class="readout" id="limitReadout">Hover the chart to see the limiting factor at a given age.</div>
   </div>
 
@@ -2789,8 +2800,8 @@ function baselineOpts(){
 }
 
 /* ============================ Layout for graph =========================== */
-const GRAPH_W = 560, GRAPH_H = 640;
-const COL_PAD_X = 90, COL_PAD_TOP = 30, COL_PAD_BOT = 30;
+const GRAPH_W = 560, GRAPH_H = 340;
+const COL_PAD_X = 90, COL_PAD_TOP = 16, COL_PAD_BOT = 16;
 const graphPos = {}; // id -> {x, y}
 (function layoutGraph(){
   const cols = LAYER_ORDER.map(L => NODES.filter(n => n.layer === L));
@@ -2947,8 +2958,8 @@ function renderGraph(){
 function partsAt(sim, k){ return sim.decomposition[k].parts; }
 
 // ---- Cause-of-death stacked-area panel ----
-const CW = 1080, CH = 320;
-const C_M = { l: 52, r: 14, t: 12, b: 28 };
+const CW = 1080, CH = 210;
+const C_M = { l: 52, r: 14, t: 10, b: 24 };
 function cx(age){ return C_M.l + (CW - C_M.l - C_M.r) * (age - AGE0) / (AGE1 - AGE0); }
 
 function renderCauseOfDeath(sim){
@@ -3060,8 +3071,8 @@ function buildCodLegend(){
 }
 
 // ---- Burden timeline ----
-const BW = 1080, BH = 360;
-const B_M = { l: 46, r: 12, t: 12, b: 28 };
+const BW = 1080, BH = 210;
+const B_M = { l: 46, r: 12, t: 10, b: 24 };
 function bx(age){ return B_M.l + (BW - B_M.l - B_M.r) * (age - AGE0) / (AGE1 - AGE0); }
 function by(v){ return B_M.t + (BH - B_M.t - B_M.b) * (1 - v); }
 
@@ -3138,8 +3149,8 @@ function updateLimitReadout(sim, k, age){
 }
 
 // ---- Survival panel ----
-const SW = 520, SH = 220;
-const S_M = { l: 40, r: 12, t: 10, b: 26 };
+const SW = 520, SH = 170;
+const S_M = { l: 40, r: 12, t: 8, b: 22 };
 function sx(age){ return S_M.l + (SW - S_M.l - S_M.r) * (age - AGE0) / (AGE1 - AGE0); }
 function sy(v){ return S_M.t + (SH - S_M.t - S_M.b) * (1 - v); }
 
@@ -3176,8 +3187,8 @@ function renderSurvival(sim, base){
 }
 
 // ---- Mediator readout panel (LDL / SBP / HbA1c vs baseline) ----
-const MW = 1080, MH = 260;
-const M_M = { l: 46, r: 14, t: 12, b: 28 };
+const MW = 1080, MH = 180;
+const M_M = { l: 46, r: 14, t: 10, b: 24 };
 function mx(age){ return M_M.l + (MW - M_M.l - M_M.r) * (age - AGE0) / (AGE1 - AGE0); }
 // Each mediator is scaled to its own [min,max] band so all share the plot.
 const MED_SCALE = {
