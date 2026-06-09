@@ -2618,6 +2618,7 @@ const TREATMENTS = B.treatments;          // [{id,label,to,...}]
 const MED_COLOR = {
   LDL:        getCss("--med-LDL"),
   systolicBP: getCss("--med-systolicBP"),
+  BMI:        "#7e57c2",
   HbA1c:      getCss("--med-HbA1c")
 };
 
@@ -3130,14 +3131,15 @@ function renderSurvival(sim, base){
 const MW = 1080, MH = 260;
 const M_M = { l: 46, r: 14, t: 12, b: 28 };
 function mx(age){ return M_M.l + (MW - M_M.l - M_M.r) * (age - AGE0) / (AGE1 - AGE0); }
-// Each mediator is scaled to its own [min,max] band so all three share the plot.
+// Each mediator is scaled to its own [min,max] band so all share the plot.
 const MED_SCALE = {
   LDL:        { lo: 40,  hi: 220 },
   systolicBP: { lo: 90,  hi: 200 },
+  BMI:        { lo: 15,  hi: 45 },
   HbA1c:      { lo: 4.5, hi: 9.5 }
 };
 function myFor(medId, v){
-  const s = MED_SCALE[medId];
+  const s = MED_SCALE[medId] || { lo: 0, hi: 1 };   // fallback so an unscaled mediator can't crash the whole render
   const f = (v - s.lo) / (s.hi - s.lo);
   const ff = f < 0 ? 0 : f > 1 ? 1 : f;
   return M_M.t + (MH - M_M.t - M_M.b) * (1 - ff);
