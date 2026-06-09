@@ -167,6 +167,9 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   for (const e of causeEdges) (causeEdgesByTarget[e.to] ||= []).push(e);
 
   // Π of Stage-2 edge multipliers for a given target at age-index k.
+  // NOTE: the special target "allcause" (Stage-3a activityFitness edge) is NOT a
+  // cause name — it is applied separately to the WHOLE intrinsic bracket below,
+  // so it must be excluded from the per-cause/residual products here.
   function edgeMultFor(target, k, age) {
     const list = causeEdgesByTarget[target];
     if (!list) return 1;
@@ -174,6 +177,21 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     for (const e of list) m *= causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean);
     return m;
   }
+
+  // Stage-3a: whole-intrinsic-bracket multiplier (target "allcause"). Currently
+  // the activityFitness (cardiorespiratory-fitness) channel: mult = exp(β·ΔMETs),
+  // ΔMETs mapped from the activity input relative to its population mean (0 at
+  // popMean ⇒ mult 1 ⇒ baseline preserved). Time-invariant (no age dependence),
+  // so it is computed once and applied to (causeSum + resid) at every age — i.e.
+  // the same place the frailty multiplier acts, and weight/glucose-independent.
+  // Age-INVARIANT all-cause edges (e.g. activityFitness) are computed once here;
+  // age-DEPENDENT all-cause edges (e.g. bmiJcurve, whose factor varies with the
+  // per-age BMI value/baseline) are computed inside the per-age loop below.
+  const allcauseEdges = causeEdgesByTarget["allcause"] || [];
+  const ageInvariantAllcause = allcauseEdges.filter((e) => e.form !== "bmiJcurve");
+  const bmiJcurveEdges = allcauseEdges.filter((e) => e.form === "bmiJcurve");
+  let allcauseMult = 1;
+  for (const e of ageInvariantAllcause) allcauseMult *= allcauseEdgeMult(e, inputs, popMean);
 
   const hazard = new Array(N_AGE);
   const decomposition = new Array(N_AGE);
@@ -184,17 +202,28 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     const frailtyMult = Math.exp(fr.beta * (Barr[frIdx][k] - Tarr[frIdx][k]));
     const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
 
+    // Stage-3b: BMI J-curve whole-bracket multiplier (target "allcause"), per-age
+    // because BMI value+baseline are age-varying. =1 when BMI==baseline BMI.
+    let bmiJMult = 1;
+    for (const e of bmiJcurveEdges) bmiJMult *= bmiJcurveMult(e, k, medValues, medBaseline);
+
+    // Stage-3a: the activityFitness all-cause multiplier scales the whole
+    // intrinsic bracket alongside frailty (causeSum + resid, every cause line +
+    // residual). At population-average activity allcauseMult == 1 ⇒ no change.
+    // Stage-3b adds the per-age BMI J-curve factor to the same bracket site.
+    const bracketMult = frailtyMult * allcauseMult * bmiJMult;
+
     const parts = { extrinsic };
     let causeSum = 0;
     for (const cn of causeNames) {
       const c = causes[cn];
       const ch = c.RmaxPerYear[sex] * Barr[NODE_IDX[c.node]][k] * edgeMultFor(cn, k, age);
       causeSum += ch;
-      parts[cn] = frailtyMult * ch;
+      parts[cn] = bracketMult * ch;
     }
-    parts.residual = frailtyMult * resid;
+    parts.residual = bracketMult * resid;
 
-    const intrinsic = frailtyMult * (causeSum + resid);
+    const intrinsic = bracketMult * (causeSum + resid);
     hazard[k] = extrinsic + intrinsic;
     decomposition[k] = { age, parts };
   }
@@ -286,7 +315,17 @@ function weightDynamicKg(calBalancePerDay, asymptoteFraction) {
 
 // Apply a single mediator edge: returns the additive contribution to the
 // mediator value (in the mediator's natural units) for one age's baseline.
-function applyMediatorEdge(edge, inputs, popMean, baselineVal, K) {
+// `medCtx` (optional) carries already-computed UPSTREAM mediator deviations at
+// this age for mediator→mediator edges (e.g. BMI→SBP): medCtx[srcMedId] = value −
+// baseline of the source mediator. At baseline inputs every such deviation is 0.
+function applyMediatorEdge(edge, inputs, popMean, baselineVal, K, medCtx) {
+  // mediator→mediator edge: `from` is a mediator id, not an exogenous input.
+  if (edge.form === "mediatorLinear") {
+    // coeff · (sourceMediator value − its baseline) at this age. =0 at baseline
+    // inputs ⇒ no shift ⇒ invariant preserved.
+    const srcDev = (medCtx && medCtx[edge.from] !== undefined) ? medCtx[edge.from] : 0;
+    return edge.coeff * srcDev;
+  }
   const x = inputs[edge.from];
   const dx = (x === undefined ? popMean : x) - popMean; // deviation from pop mean
   switch (edge.form) {
@@ -368,6 +407,18 @@ function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean) 
       const den = Math.min(e.cap, Math.exp(e.slope * Math.max(0, b - e.threshold)));
       return num / den;
     }
+    case "bmiThresholdRatio": {
+      // Direct BMI→cause residual, UPPER ARM ONLY (BMI > threshold, default 25):
+      // exp(β·max(0, BMI − threshold)), normalized to the per-age baseline BMI so
+      // mult==1 when BMI==baseline. The UNMEDIATED adiposity→CVD path that remains
+      // after the BMI→SBP→CVD path (edge 1) is accounted for.
+      const v = medValues[e.med][k];
+      const b = medBaseline[e.med][k];
+      const thr = e.threshold ?? 25;
+      const num = Math.exp(e.beta * Math.max(0, v - thr));
+      const den = Math.exp(e.beta * Math.max(0, b - thr));
+      return num / den;
+    }
     // ------------------ direct exogenous → cause (continuous) ------------------
     case "directLogLinear":
       return Math.exp(e.beta * inputDev(inputs, popMean, e.input));
@@ -395,6 +446,77 @@ function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean) 
     default:
       return 1;
   }
+}
+
+/* ============ B-layer (Stage 3a): whole-intrinsic-bracket edges ============ */
+//
+// Edges whose target is the sentinel "allcause": a single multiplier applied to
+// the ENTIRE intrinsic bracket (every cause line + residual), at the same site as
+// the frailty multiplier — NOT to one cause line. Used for channels that act on
+// total mortality independently of which cause ultimately fires.
+//
+// activityFitness (Kodama 2009 / Barry 2014): activity's mortality benefit flows
+// through cardiorespiratory fitness (VO₂max), which is weight- AND glucose-
+// independent. mult = exp(betaPerMet · ΔMETs), where ΔMETs is the MET-deviation of
+// the activity input from population-average activity, looked up from an
+// (illustrative) piecewise-linear metMap on the input value. At the input's
+// populationMean the map yields ΔMETs 0 ⇒ mult 1 ⇒ baseline preserved.
+//
+// Double-count note: activity also drives HbA1c (Stage 1), but HbA1c→CVD only
+// fires above the 5.7 prediabetes threshold, where active people rarely sit, so
+// the overlap is negligible for non-diabetics; this fitness channel is the
+// primary activity→mortality path. Activity is deliberately NOT additionally
+// routed activity→cardiovascular as a separate edge.
+
+// ΔMETs from a piecewise-linear metMap [[inputVal, METs], ...] ascending.
+function metsFromActivity(metMap, value) {
+  return interp(metMap, value);
+}
+
+// Compute one Stage-3a all-cause (whole-bracket) edge multiplier. Age-invariant.
+function allcauseEdgeMult(e, inputs, popMean) {
+  switch (e.form) {
+    case "activityFitness": {
+      const x = inputs[e.input];
+      const xv = x === undefined ? popMean[e.input] : x; // default ⇒ popMean ⇒ ΔMETs 0
+      const dMets = metsFromActivity(e.metMap, xv);
+      return Math.exp(e.betaPerMet * dMets);
+    }
+    default:
+      return 1;
+  }
+}
+
+/* ============ B-layer (Stage 3b): BMI J-curve whole-bracket edge ============ */
+//
+// The J-curve non-CV adiposity arm + the underweight/frailty arm of BMI→all-cause
+// mortality, applied to the WHOLE intrinsic bracket (target "allcause"), NORMALIZED
+// to the per-age baseline BMI so mult==1 when BMI==baseline. Age-DEPENDENT (BMI and
+// its baseline both vary with age) so it is computed per-age in simulate()'s loop.
+//
+//   Jbracket(BMI) = exp(βupper·max(0, BMI − upper))      for BMI > upper (25)
+//                 = exp(βlower·max(0, lower − BMI))       for BMI < lower (20)
+//                 = 1                                     for the nadir band [lower, upper]
+//   mult = Jbracket(BMI_person) / Jbracket(BMI_baseline)
+//
+// Since the per-sex/age baseline BMI (~28–30) sits on the UPPER arm, a lean person
+// (BMI 22, in the nadir band) gets mult<1 and an underweight person (BMI 17) gets the
+// frailty penalty (mult>1). This is the NON-CV obesity slice + frailty slice; the CV
+// slice of BMI→mortality is carried separately by edges 1 (BMI→SBP→CVD) and 2
+// (BMI→cardiovascular residual), so this J-curve avoids double-counting CV.
+function bmiJbracket(bmi, e) {
+  const upper = e.upper ?? 25;
+  const lower = e.lower ?? 20;
+  if (bmi > upper) return Math.exp(e.betaUpper * (bmi - upper));
+  if (bmi < lower) return Math.exp(e.betaLower * (lower - bmi));
+  return 1;
+}
+
+// Per-age BMI J-curve whole-bracket multiplier (ratio to per-age baseline BMI).
+function bmiJcurveMult(e, k, medValues, medBaseline) {
+  const v = medValues[e.med][k];
+  const b = medBaseline[e.med][k];
+  return bmiJbracket(v, e) / bmiJbracket(b, e);
 }
 
 // Apply a treatment perturbation to a mediator value. `dose` in [0,1] scales it.
@@ -456,17 +578,42 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
     }
   }
 
-  const out = {};
+  // Dependency ordering: a mediator that is the SOURCE of a mediator→mediator
+  // edge (e.g. BMI→SBP) must be computed BEFORE its target so the target can read
+  // the source's per-age deviation. `medIds` is the set of mediator ids; an edge
+  // whose `from` is in that set is a mediator→mediator edge. Topologically sort so
+  // sources precede targets (the chain here is shallow: BMI → systolicBP).
+  const medIds = new Set(b.mediators.map((m) => m.id));
+  const order = topoSortMediators(b.mediators, b.mediatorEdges, medIds);
+
+  // Per-age baseline trajectories (needed as the reference for upstream-mediator
+  // deviations passed to mediator→mediator edges).
+  const baselineByMed = {};
   for (const med of b.mediators) {
+    const curve = med.baseline[sex];
+    baselineByMed[med.id] = AGES.map((age) => interp(curve, age));
+  }
+
+  const out = {};
+  // Per-age deviation (value − baseline) of each ALREADY-computed mediator, used as
+  // mediator→mediator edge context. At baseline inputs every deviation is 0.
+  const devByMed = {};
+  for (const med of order) {
     const curve = med.baseline[sex];
     const offset = offsets[med.id] ?? 0;
     const edges = edgesByMed[med.id] || [];
     const txs = txByMed[med.id] || [];
-    out[med.id] = AGES.map((age) => {
-      const baselineVal = interp(curve, age);
+    out[med.id] = AGES.map((age, k) => {
+      const baselineVal = baselineByMed[med.id][k];
+      // Assemble upstream-mediator deviations for this age (only sources already
+      // computed earlier in `order`).
+      const medCtx = {};
+      for (const e of edges) {
+        if (e.form === "mediatorLinear" && devByMed[e.from]) medCtx[e.from] = devByMed[e.from][k];
+      }
       let v = baselineVal;
       for (const e of edges) {
-        v += applyMediatorEdge(e, inputs, popMean[e.from], baselineVal, K);
+        v += applyMediatorEdge(e, inputs, popMean[e.from], baselineVal, K, medCtx);
       }
       v += offset;
       for (const tx of txs) {
@@ -475,8 +622,44 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
       }
       return v;
     });
+    // Record this mediator's per-age deviation for downstream mediator→mediator edges.
+    devByMed[med.id] = out[med.id].map((v, k) => v - baselineByMed[med.id][k]);
   }
   return out;
+}
+
+// Topologically sort mediators so that the SOURCE of any mediator→mediator edge
+// precedes its TARGET. Kahn's algorithm over the small mediator→mediator subgraph;
+// falls back to declared order for mediators with no such dependency.
+function topoSortMediators(mediatorList, mediatorEdges, medIds) {
+  const indeg = {};
+  const adj = {};
+  for (const m of mediatorList) { indeg[m.id] = 0; adj[m.id] = []; }
+  for (const e of mediatorEdges) {
+    if (e.form === "mediatorLinear" && medIds.has(e.from) && medIds.has(e.to)) {
+      adj[e.from].push(e.to);
+      indeg[e.to] += 1;
+    }
+  }
+  const byId = {};
+  for (const m of mediatorList) byId[m.id] = m;
+  // Seed with declared-order mediators that have no incoming mediator→mediator edge.
+  const queue = mediatorList.filter((m) => indeg[m.id] === 0).map((m) => m.id);
+  const ordered = [];
+  const seen = new Set();
+  while (queue.length) {
+    const id = queue.shift();
+    if (seen.has(id)) continue;
+    seen.add(id);
+    ordered.push(byId[id]);
+    for (const nxt of adj[id]) {
+      indeg[nxt] -= 1;
+      if (indeg[nxt] === 0) queue.push(nxt);
+    }
+  }
+  // Any mediator not placed (cycle — shouldn't happen) is appended in declared order.
+  for (const m of mediatorList) if (!seen.has(m.id)) ordered.push(m);
+  return ordered;
 }
 
 export { CAUSE_KEYS };

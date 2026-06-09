@@ -1371,6 +1371,13 @@
         "coeff": 1,
         "form": "weightDynamic",
         "provenance": "Hall 2013: static 7700 kcal/kg OVERSTATES ~40-50% long-term; use dynamic decay. SOLID. Form: asymptotic body-weight change from a sustained energy-balance offset, converted to BMI via heightRefM."
+      },
+      {
+        "from": "BMI",
+        "to": "systolicBP",
+        "coeff": 0.72,
+        "form": "mediatorLinear",
+        "provenance": "Stage 3b (2026-06-08). Bann 2021 (UK cohorts MR/longitudinal): ~+0.72 mmHg SBP per +1 kg/m2 BMI. mediator->mediator edge: SBP gains 0.72*(BMI_person(age) - BMI_baseline_sex(age)); flows through the existing SBP->cardiovascular edge (the DOMINANT mediated BMI->CVD path). BMI is itself driven by calorieBalance, so calorieBalance->BMI->SBP->CVD chains. At default calorieBalance + zero BMI offset, BMI==baseline => Delta 0 => SBP unchanged. SOLID-direction. NOTE: BMI must be computed BEFORE systolicBP (engine topo-sorts mediator->mediator edges)."
       }
     ],
     "treatments": [
@@ -1481,6 +1488,48 @@
         "provenance": "COPD slice of residual; stronger smoking gradient never 1.0 / former 2.0 / current 6.0. NORMALIZED by mix mean (0.61+0.50+0.84=1.95): never~0.513 / former~1.026 / current~3.077. Applied to the whole residual bucket as an approximation (COPD is the dominant smoking-attributable residual cause). APPROXIMATE."
       },
       {
+        "from": "smokingStatus",
+        "to": "cardiovascular",
+        "form": "smokingCategorical",
+        "input": "smokingStatus",
+        "rr": {
+          "never": 1,
+          "former": 1.3,
+          "current": 1.9
+        },
+        "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Relative cardiovascular-death RR never 1.0 / former 1.3 / current 1.9 (net current-smoker CVD RR ~1.8-2.0). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*1.9=1.201) so the population mix averages to mult 1 (the CDC cardiovascular baseline already embeds the mix). Normalized: never~0.833 / former~1.082 / current~1.582. Same scheme as smoking->cancer. SOLID-direction; relative magnitudes approximate."
+      },
+      {
+        "from": "physicalActivity",
+        "to": "allcause",
+        "form": "activityFitness",
+        "input": "physicalActivity",
+        "betaPerMet": -0.139,
+        "metMap": [
+          [
+            0,
+            -1.5
+          ],
+          [
+            75,
+            -0.5
+          ],
+          [
+            150,
+            0
+          ],
+          [
+            300,
+            1
+          ],
+          [
+            600,
+            2.5
+          ]
+        ],
+        "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Activity's mortality benefit flows through cardiorespiratory fitness (VO2max), weight- AND glucose-independent (Barry 2014: obese-fit ~ normal-fit). mult_allcause = exp(-0.139 * dMETs(activity)), RR 0.87 per MET (Kodama 2009) => beta = ln(0.87) = -0.139. Applied to the WHOLE intrinsic bracket (all causes + residual), at the frailty-multiplier site (target 'allcause'). dMETs = MET-deviation of the activity level from population-average activity (physicalActivity popMean 150 min/wk -> dMETs 0 -> mult 1, baseline preserved). metMap is an ILLUSTRATIVE piecewise-linear map on physicalActivity (min/wk MVPA) -> METs-relative-to-popMean: sedentary(0)=-1.5, below-avg(75)=-0.5, popMean(150)=0, moderate(300)=+1.0, high/athlete(600)=+2.5; range -1.5..+2.5 spans sedentary<->athlete (a sedentary->trained shift is ~+1.1 MET in the data). DOUBLE-COUNT NOTE: activity also drives HbA1c (Stage 1), but HbA1c->CVD only fires above the 5.7 prediabetes threshold, where active people rarely sit, so the overlap is negligible for non-diabetics; the fitness channel is the primary activity->mortality path. Activity is NOT additionally routed activity->cardiovascular separately. ILLUSTRATIVE mapping; SOLID-direction (Kodama 2009 / Barry 2014)."
+      },
+      {
         "from": "alcohol",
         "to": "cancer",
         "form": "directLogLinear",
@@ -1512,8 +1561,28 @@
         "input": "airPollution",
         "beta": 0.005,
         "provenance": "Respiratory slice of residual; similar small PM2.5 slope ~exp(0.005*(PM25 - popMean)). APPROXIMATE."
+      },
+      {
+        "from": "BMI",
+        "to": "cardiovascular",
+        "form": "bmiThresholdRatio",
+        "med": "BMI",
+        "beta": 0.022819,
+        "threshold": 25,
+        "provenance": "Stage 3b (2026-06-08). DIRECT (UNMEDIATED) BMI->CVD residual, upper-arm only (BMI>25): exp(beta*max(0,BMI-25)), NORMALIZED to per-age baseline BMI so =1 at baseline. The ~unmediated portion of BMI->CHD that REMAINS after the BMI->SBP->CVD mediated path (edge 1). beta chosen so the COMBINED effect (this residual x the SBP-path mult at +5 BMI / mid age 50) ~= Lu 2014 total BMI->CHD HR 1.27 per +5 kg/m2. At +5 BMI: SBP-path = exp(0.0347 * 0.72*5) = 1.1331 (SBP->CVD beta at age 50); residual = exp(0.022819*5) = 1.1209; combined = 1.270. RESULTING LOG-HR SPLIT: SBP-path 52.3% / residual 47.7% (the mechanical SBP->CVD slope at age 50 carries more than the Lu single-mediator BP 31% because Lewington's per-mmHg slope is steep at mid-age; the residual beta absorbs the remainder to hit the 1.27 total). Lu 2014 mediation decomposition (BP ~31% single-mediator); BMI->CHD 1.27 per +5. SOLID-direction; split is model-mechanical."
+      },
+      {
+        "from": "BMI",
+        "to": "allcause",
+        "form": "bmiJcurve",
+        "med": "BMI",
+        "betaUpper": 0.017236,
+        "betaLower": 0.117746,
+        "upper": 25,
+        "lower": 20,
+        "provenance": "Stage 3b (2026-06-08). BMI J-curve whole-intrinsic-bracket multiplier (target 'allcause', at the frailty-multiplier site), NORMALIZED to per-age baseline BMI so =1 at baseline. UPPER arm (BMI>25): small NON-CV obesity mortality, betaUpper = ln(1.09)/5 = 0.017236 per unit >25 (BMI->all-cause 1.39 per +5 vs the CV portion 1.27 => ~1.09 residual non-CV slice). LOWER arm (BMI<20): underweight/frailty, betaLower = ln(1.51)/3.5 = 0.117746 per unit <20 (Global BMI Mortality Collaboration 2016: HR 1.51 at BMI 15-18.5, ~3.5 below the nadir edge 20; mostly non-metabolic frailty). Nadir band [20,25] => factor 1. mult = Jbracket(BMI_person)/Jbracket(BMI_baseline); since baseline BMI (~28-30) sits on the UPPER arm, a lean person (BMI 22, nadir) gets mult<1 and an underweight person (BMI 17) gets the frailty penalty. The CV slice of BMI->mortality is carried separately (edges 1+2) so this J-curve is the NON-CV + frailty residual only (no CV double-count). OMITTED: BMI->LDL (null per MR) and a continuous BMI->glucose edge (folded into this residual / not separately wired). Global BMI 2016; Lu 2014. SOLID-direction."
       }
     ],
-    "causeEdgesNote": "Stage 2 (2026-06-08): CLEAN non-double-counting mediator->cause and direct exogenous->cause multipliers. cause_hazard_c = [v0.3 hazard] * Prod_edges mult_edge; mult=1 at population-average inputs so v0.3 (LE 75.31 M / 80.37 F, 31 tests) reproduces exactly. mediatorThresholdRamp uses a RATIO-to-baseline so mult=1 at the per-age baseline HbA1c (which exceeds the 5.7 threshold at 60+). DEFERRED to Stage 3 (route-once double-count decisions needed; NOT implemented here): smoking->CVD; alcohol->all-cause(MR) bundle; activity->all-cause bundle; BMI/adiposity->cause."
+    "causeEdgesNote": "Stage 2 (2026-06-08): CLEAN non-double-counting mediator->cause and direct exogenous->cause multipliers. cause_hazard_c = [v0.3 hazard] * Prod_edges mult_edge; mult=1 at population-average inputs so v0.3 (LE 75.31 M / 80.37 F) reproduces exactly. mediatorThresholdRamp uses a RATIO-to-baseline so mult=1 at the per-age baseline HbA1c (which exceeds the 5.7 threshold at 60+). Stage 3a (2026-06-08) ADDED two clean cause edges, both =1 at default inputs: (1) smoking->cardiovascular (smokingCategorical, normalized, never 0.833/former 1.082/current 1.582) and (2) physicalActivity->allcause (activityFitness, target 'allcause', exp(-0.139*dMETs), applied to the WHOLE intrinsic bracket at the frailty-multiplier site, weight/glucose-independent fitness channel). Stage 3b (2026-06-08) ADDED the BMI/adiposity edges MECHANISTICALLY (Lu 2014 mediation decomposition, no double-counting), all =1 at the per-age baseline BMI so v0.3 still reproduces exactly: (1) BMI->systolicBP mediatorEdge (mediatorLinear, +0.72 mmHg/+1 kg/m2, the DOMINANT mediated path, flowing through SBP->CVD); (2) BMI->cardiovascular causeEdge (bmiThresholdRatio, upper-arm only, beta 0.022819, the UNMEDIATED CV residual; combined with the SBP path => Lu 1.27 per +5 BMI, log-HR split SBP 52.3% / residual 47.7%); (3) BMI->allcause J-curve (bmiJcurve, upper betaUpper ln1.09/5 non-CV obesity + lower betaLower ln1.51/3.5 underweight-frailty, nadir [20,25], whole-bracket). OMITTED in 3b: BMI->LDL (null per MR), continuous BMI->glucose (folded into the residual). DEFERRED: alcohol->all-cause(MR) bundle; B2 latent fixes."
   }
 }

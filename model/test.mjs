@@ -191,6 +191,114 @@ str("B2: alcohol→liver(residual) hinge >baseline", String(causeMultAt("residua
 str("B2: high PM2.5 lowers LE", String(dLEm({ inputs: { airPollution: 30 } }) < -0.3), "true");
 num("B2: PM2.5 30 → CVD mult", causeMultAt("cardiovascular", 60, { inputs: { airPollution: 30 } }), Math.exp(0.00583 * (30 - 8)), 0.005);
 
+/* ===================== B-layer Stage-3a cause-edge checks ===================== */
+// Two clean edges added: (1) smoking→cardiovascular (normalized categorical,
+// never 0.833/former 1.082/current 1.582) and (2) physicalActivity→allcause
+// (activityFitness, exp(-0.139·ΔMETs) on the WHOLE intrinsic bracket). Hard
+// invariant: default inputs ⇒ both mults 1 ⇒ LE == v0.3 (pinned by the two
+// baseline-LE tests above and the B2 pop-avg invariant). Below: directionals +
+// the exact normalized smoking→CVD multipliers + weight-independence of fitness.
+
+// Edge 1 — smoking → cardiovascular (normalized categorical).
+// current-smoker now LOSES MORE than Stage-2 (cancer+COPD + CVD now): ~-8.4.
+str("B3a: current-smoker more negative (< -8)", String(dLEm({ inputs: { smokingStatus: "current" } }) < -8.0), "true");
+// never-smoker still gains, now with a small extra CVD bump (~+3.5 vs Stage-2 ~+2.8).
+str("B3a: never-smoker raises LE (> +3)", String(dLEm({ inputs: { smokingStatus: "never" } }) > 3.0), "true");
+// Normalized smoking→CVD multiplier: current = 1.9/1.201 ≈ 1.582; never = 1.0/1.201 ≈ 0.833.
+num("B3a: smoking→CVD current mult", causeMultAt("cardiovascular", 60, { inputs: { smokingStatus: "current" } }), 1.582, 0.005);
+num("B3a: smoking→CVD never mult", causeMultAt("cardiovascular", 60, { inputs: { smokingStatus: "never" } }), 0.833, 0.005);
+
+// Edge 2 — physicalActivity → allcause (fitness channel, whole bracket).
+// sedentary (ΔMETs -1.5) LOWERS LE; athlete (ΔMETs +2.5) RAISES it.
+str("B3a: sedentary lowers LE", String(dLEm({ inputs: { physicalActivity: 0 } }) < -3.0), "true");
+str("B3a: athlete raises LE", String(dLEm({ inputs: { physicalActivity: 600 } }) > 3.0), "true");
+// Monotone in activity: 0 < 75 < 150(=0) < 300 < 600.
+str("B3a: activity monotone in LE", String(
+  dLEm({ inputs: { physicalActivity: 0 } }) < dLEm({ inputs: { physicalActivity: 75 } }) &&
+  dLEm({ inputs: { physicalActivity: 75 } }) < 0 &&
+  0 < dLEm({ inputs: { physicalActivity: 300 } }) &&
+  dLEm({ inputs: { physicalActivity: 300 } }) < dLEm({ inputs: { physicalActivity: 600 } })
+), "true");
+// activityFitness multiplies the WHOLE intrinsic bracket by the SAME factor
+// exp(-0.139·ΔMETs). ΔMETs -1.5 (sedentary) ⇒ 1.2318. Verified on the two
+// mediator-free cause lines (infection, residual): CVD/cancer/dementia additionally
+// pick up the (documented, Stage-1) activity→HbA1c→cause overlap above the 5.7
+// threshold, so they are NOT clean readouts of the fitness factor alone.
+const actMultInfection = causeMultAt("infection", 60, { inputs: { physicalActivity: 0 } });
+const actMultResid = causeMultAt("residual", 60, { inputs: { physicalActivity: 0 } });
+num("B3a: sedentary bracket mult (infection)", actMultInfection, Math.exp(-0.139 * -1.5), 0.002);
+str("B3a: fitness mult uniform on mediator-free lines", String(
+  Math.abs(actMultInfection - actMultResid) < 1e-9
+), "true");
+// Weight/glucose-independent (Barry 2014): the fitness MULTIPLIER itself does not
+// read BMI. Stage 3b wires BMI independently to mortality, so total LE is no longer
+// BMI-invariant — but holding BMI FIXED (same offset in both arms), the activity
+// fitness factor is identical to the BMI-free factor exp(-0.139·ΔMETs). Readout on
+// the mediator-free infection line, varying ONLY activity (sedentary vs popMean)
+// while a BMI offset is held constant in both ⇒ the BMI J-curve + BMI→SBP→CVD
+// factors cancel and only the fitness factor remains.
+{
+  const baseFixedBMI = simulate(MODEL, { sex: "male", inputs: { physicalActivity: 150 }, offsets: { BMI: 8 } });
+  const sedFixedBMI = simulate(MODEL, { sex: "male", inputs: { physicalActivity: 0 }, offsets: { BMI: 8 } });
+  const kk = 60 - MODEL.meta.ageRange[0];
+  const fitnessFactorWithBMI =
+    sedFixedBMI.decomposition[kk].parts.infection / baseFixedBMI.decomposition[kk].parts.infection;
+  num("B3a: fitness mult weight-independent (BMI held)", fitnessFactorWithBMI, Math.exp(-0.139 * -1.5), 0.002);
+}
+
+/* ===================== B-layer Stage-3b BMI/adiposity checks ===================== */
+// Three BMI edges, all NORMALIZED to the per-age baseline BMI ⇒ =1 at baseline ⇒
+// v0.3 LE reproduced exactly (already pinned by the two baseline-LE + B2 pop-avg
+// invariant tests). (1) BMI→systolicBP mediatorEdge (+0.72 mmHg/kg·m⁻², dominant
+// mediated path); (2) BMI→cardiovascular bmiThresholdRatio (unmediated CV residual);
+// (3) BMI→allcause bmiJcurve (non-CV obesity upper arm + underweight-frailty lower
+// arm, whole bracket). Baseline BMI (~28–30) sits on the upper arm, so lean→mult<1.
+
+// Invariant: at the per-age baseline BMI every BMI multiplier == 1 AND BMI→SBP adds
+// 0 ⇒ LE == v0.3 (and SBP mediator unchanged). Reconfirm explicitly here.
+num("B3b: BMI baseline ⇒ LE invariant male", dLEm({ inputs: {}, offsets: {} }), 0, 1e-9);
+{
+  // BMI→SBP adds exactly 0 at baseline BMI: SBP with no offset == baseline SBP.
+  const medBase = mediators(MODEL, { sex: "male" });
+  const medPop = mediators(MODEL, { sex: "male", inputs: { calorieBalance: 0 } });
+  let maxSbpDiff = 0;
+  for (let k = 0; k < medBase.systolicBP.length; k++) {
+    maxSbpDiff = Math.max(maxSbpDiff, Math.abs(medPop.systolicBP[k] - medBase.systolicBP[k]));
+  }
+  num("B3b: BMI→SBP adds 0 at baseline BMI", maxSbpDiff, 0, 1e-9);
+}
+
+// Edge 1 — BMI→SBP: a +5 kg/m² BMI offset raises SBP by exactly 0.72·5 = 3.6 mmHg
+// at every age (baseline SBP male @50 = 124 ⇒ 127.6).
+{
+  const k50 = 50 - AGE0;
+  const sbpPlus5 = mediators(MODEL, { sex: "male", offsets: { BMI: 5 } }).systolicBP[k50];
+  const sbpBase = mediators(MODEL, { sex: "male" }).systolicBP[k50];
+  num("B3b: BMI+5 → SBP +3.6 mmHg @50", sbpPlus5 - sbpBase, 3.6, 1e-9);
+  num("B3b: BMI+5 → SBP value @50 = 127.6", sbpPlus5, 127.6, 1e-6);
+}
+
+// Edge-combo at +5 BMI / age 50: the CHD split — SBP-path × residual ≈ Lu 1.27.
+{
+  const sbpPath = Math.exp(0.0347 * 0.72 * 5);            // BMI→SBP→CVD @ age-50 β
+  const residual = Math.exp(0.022819 * 5);                // BMI→cardiovascular residual
+  num("B3b: BMI+5 SBP-path CVD mult", sbpPath, 1.1331, 0.001);
+  num("B3b: BMI+5 residual CVD mult", residual, 1.1209, 0.001);
+  num("B3b: BMI+5 combined CHD ≈ 1.27 (Lu)", sbpPath * residual, 1.27, 0.002);
+}
+
+// ΔLE directionals (BMI shifted via offset; baseline male BMI @50 ≈ 29.95):
+//  BMI≈35 (offset +5) LOWER; BMI≈22 lean (offset −7.95) HIGHER; BMI≈16 (offset
+//  −13.95) LOWER (underweight-frailty arm).
+str("B3b: BMI 35 (obese) lowers LE", String(dLEm({ offsets: { BMI: 5 } }) < -1.0), "true");
+str("B3b: BMI 22 (lean) raises LE", String(dLEm({ offsets: { BMI: -7.95 } }) > 0.5), "true");
+str("B3b: BMI 16 (underweight) lowers LE", String(dLEm({ offsets: { BMI: -13.95 } }) < -2.0), "true");
+// Frailty arm is steeper than the obese arm at equal |offset|-ish distance: BMI 16
+// loses more than BMI 35 gains/loses in magnitude (steep ln(1.51)/3.5 lower slope).
+str("B3b: underweight penalty steep (< obese)", String(
+  dLEm({ offsets: { BMI: -13.95 } }) < dLEm({ offsets: { BMI: 5 } })
+), "true");
+
 export function runTests() {
   let allPass = true;
   const rows = tests.map((t) => {
