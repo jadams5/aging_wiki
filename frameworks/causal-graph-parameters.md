@@ -30,7 +30,7 @@ The honest claim the simulator makes is therefore **conditional**: *given* these
 
 ## Integrator definition
 
-State: each node *i* carries a burden `B_i(age) ∈ [0,1]` over `age ∈ [20,100]`, `dt = 1 yr`.
+State: each node *i* carries a burden `B_i(age) ∈ [0,1]` over `age ∈ [20,130]`, `dt = 1 yr`. (Range extended 100→130 so survival reaches ~0 past 110 and lifespan can extend past 100 under interventions; past the CDC open-ended 85+ band a Gompertz old-age tail keeps disease + residual hazards rising — see `mortality.oldAgeTail`.)
 
 Each node has an **intrinsic baseline trajectory** `T_i(age)` (the "average human" curve). The actual burden is `B_i = clamp(T_i + Δ_i, 0, 1)`, where `Δ_i` is the node's **deviation from baseline** caused by interventions cascading through the graph. At baseline (no interventions) all `Δ_i = 0`, so `B_i ≡ T_i` exactly — the average-human invariant.
 

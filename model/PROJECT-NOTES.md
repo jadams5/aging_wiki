@@ -7,7 +7,7 @@
 > the mistakes already fixed (don't repeat them), current state, and the roadmap.
 >
 > **Status:** working interactive tool. Engine 73/73 tests green. Baseline LE
-> reproduces empirical 2022 ≈ **75.95 M / 81.07 F**. All commits are **LOCAL and
+> reproduces empirical 2022 ≈ **75.82 M / 80.89 F**. All commits are **LOCAL and
 > UNPUSHED** (user controls pushes). Not wired into Quartz.
 >
 > **What it is:** an interactive, evidence-tagged *sensitivity explorer* (NOT a
@@ -60,7 +60,7 @@ sim files; never `git add -A` (the repo has unrelated user changes).
 Four layers, all unified by ONE discipline: **everything acts on deviations from
 the population average, so at population-average inputs every deviation is 0,
 every multiplier is 1, and the model reproduces the empirical CDC baseline exactly
-(75.95 / 81.07).** This invariant is the load-bearing guard — *every change must
+(75.82 / 80.89).** This invariant is the load-bearing guard — *every change must
 preserve it*, and `test.mjs` pins it.
 
 1. **Latent hallmark nodes** (18 nodes / 38 edges; structure inherited from the
@@ -187,7 +187,18 @@ NOT as a bundled BMI→all-cause HR (which would double-count the mediated porti
    shifts the baseline (interp, frailty restructure, new edges) requires updating
    the affected test targets. Don't assume tests are wrong — confirm the new value
    is physiologically sane, then re-baseline (and update the self-checks in
-   `build-app.mjs` + the app's init log + this doc's 75.95/81.07).
+   `build-app.mjs` + the app's init log + this doc's 75.82/80.89).
+8. **Plateau at 90 + the renormalization trap.** Disease/residual hazards flat-lined
+   past ~90 because the CDC bands stop at the open-ended **85+** bucket and the
+   burden curves saturate at 1.0. First fix attempt *renormalized* the cause curves
+   to age 100, which silently scaled `Rmax` ~2.38× and **amplified every latent
+   intervention** (a gi-freeze jumped ΔLE 1.17→2.63) — a bad side effect from a
+   cosmetic change. Reverted. Correct fix = a **Gompertz old-age tail FACTOR**
+   (`mortality.oldAgeTail`: `exp(0.0866·(age−90))`, ~2.38×/decade, MRDT≈8 yr)
+   multiplied onto the disease + residual hazard lines only. `Rmax` and the burden
+   curves are untouched, so interventions stay stable (gi 1.15, smoking −8.29) while
+   hazards keep rising past 90. Lesson: carry the old-age acceleration in a
+   *separate multiplicative factor*, never by rescaling the calibrated `Rmax`.
 
 **Other gotchas:** activity has overlapping channels (fitness→all-cause +
 HbA1c→CVD + SBP→CVD) — acknowledged *minor* double-count, mitigated because
@@ -210,9 +221,18 @@ already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseli
   crash).
 - **Cubic interpolation** smoothing done.
 - **App consumes the engine** (dual-implementation killed via build-app inlining).
+- **Age range extended 20→130** (`meta.ageRange`) + **Gompertz old-age tail**
+  (`mortality.oldAgeTail`) so survival reaches ~0 past 110 instead of plateauing at
+  90; lifespan now extends past 100 under interventions (healthy profile ~7% alive
+  at 105, LE ~87 vs 75.8 baseline). Data arrays computed over the full 20–130 span.
+- **Dynamic x-axis** (app render layer): `computeXMax(sim)` = largest age where
+  survival > 0.005, rounded up to 5, clamped [100,130]; `renderAll` sets `X_MAX`
+  per render and every x-mapping (cause/burden/survival/mediator), gridline loop,
+  hover handler, and path cap reads it. Baseline `X_MAX=105`; grows to 110 under a
+  life-extending scenario. Engine untouched by this (pure UI), so tests unaffected.
+- **Layout pass** done: causal-graph height halved (viewBox 560×340) + denser
+  multi-column grid to fit everything on one screen.
 - 73/73 tests; leak-gate clean; **all commits local/unpushed**.
-- **In progress when this was written:** a layout pass (halve the causal-graph
-  height + denser multi-column grid to fit more on screen). Pure render layer.
 
 ---
 
@@ -268,7 +288,7 @@ Livingston/Lancet-2024 (dementia PAF), Islami/GBD/de-Martel + Tomasetti-Vogelste
 ```
 node model/build-params.mjs     # .md json block → params.json
 node model/test.mjs             # 73 regression tests (must be green)
-node model/cli.mjs le --sex male    # → ~75.95
+node model/cli.mjs le --sex male    # → ~75.82
 node model/build-app.mjs        # inline engine into the html
 # open viz/aging-simulator.html by double-click (file://, no server needed)
 ```
@@ -279,6 +299,6 @@ the app's `<script>` in node with a Proxy-based stub `document`/`window`
 confirm init completes with no throw. (This is how the BMI/MED_SCALE crash was
 found — see commit history.)
 
-**The guard for any change:** baseline must stay ≈ 75.95 M / 81.07 F and
+**The guard for any change:** baseline must stay ≈ 75.82 M / 80.89 F and
 `test.mjs` must pass. If LE shifts, re-baseline the targets *and* the self-checks
 *and* this doc.

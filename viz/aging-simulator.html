@@ -2643,6 +2643,36 @@ const AGES = [];
 for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
 const N_AGE = AGES.length;
 
+// Dynamic x-axis max for the four time-charts (survival / mediators /
+// cause-of-death / burden). renderAll() recomputes this each render from the
+// CURRENT scenario's survival curve so life-extending interventions visibly
+// extend the plotted age window. Data still spans AGE0..AGE1 (20..130); this
+// only changes the display window. Defaults to AGE1 until first computed.
+let X_MAX = AGE1;
+// Largest age where survival > 0.5%, rounded UP to nearest 5, clamped to
+// [100, AGE1]. Never shrinks below 100, never exceeds the model's max (130).
+function computeXMax(sim){
+  let lastAge = AGE0;
+  if (sim && sim.survival){
+    for (let k = 0; k < N_AGE; k++){
+      if (sim.survival[k] > 0.005) lastAge = AGES[k];
+    }
+  }
+  let m = Math.ceil(lastAge / 5) * 5;
+  if (m < 100) m = 100;
+  if (m > AGE1) m = AGE1;
+  return m;
+}
+// Decade gridline/label ticks for the time-charts: every 10 yrs up to X_MAX,
+// plus a final label at X_MAX itself if it isn't already a decade (X_MAX is
+// rounded to 5, so it may be e.g. 115).
+function xTicks(){
+  const ticks = [];
+  for (let age = AGE0; age <= X_MAX; age += 10) ticks.push(age);
+  if (ticks[ticks.length - 1] !== X_MAX) ticks.push(X_MAX);
+  return ticks;
+}
+
 const LAYER_ORDER = ["tier1", "tier2", "tier3", "phenotype"];
 function getCss(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888"; }
 const LAYER_COLOR = {
@@ -2972,7 +3002,7 @@ function partsAt(sim, k){ return sim.decomposition[k].parts; }
 // ---- Cause-of-death stacked-area panel ----
 const CW = 1080, CH = 210;
 const C_M = { l: 52, r: 14, t: 10, b: 24 };
-function cx(age){ return C_M.l + (CW - C_M.l - C_M.r) * (age - AGE0) / (AGE1 - AGE0); }
+function cx(age){ return C_M.l + (CW - C_M.l - C_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 
 function renderCauseOfDeath(sim){
   const svg = document.getElementById("codSvg");
@@ -3009,26 +3039,28 @@ function renderCauseOfDeath(sim){
     const t = el("text", { x: C_M.l - 6, y: y + 3, "text-anchor": "end", "font-size": "10", fill: "#999" }, svg);
     t.textContent = share ? Math.round(f * 100) + "%" : (maxTotal * f).toExponential(1);
   }
-  for (let age = AGE0; age <= AGE1; age += 10){
+  for (const age of xTicks()){
     const x = cx(age);
     el("line", { x1: x, y1: plotTop, x2: x, y2: plotBot, stroke: "#f6f6f6" }, svg);
     const t = el("text", { x: x, y: plotBot + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
     t.textContent = age;
   }
 
-  // Build stacked bands bottom-up in CAUSE_KEYS order.
+  // Build stacked bands bottom-up in CAUSE_KEYS order. Only plot up to X_MAX so
+  // bands don't overflow the dynamic window.
+  const kMax = X_MAX - AGE0;
   const cum = new Array(N_AGE).fill(0);
   for (const key of CAUSE_KEYS){
     let dTop = "", dBot = "";
     const newCum = new Array(N_AGE);
-    for (let k = 0; k < N_AGE; k++){
+    for (let k = 0; k <= kMax; k++){
       const v = Math.max(0, partsAt(sim, k)[key]);
       const hi = cum[k] + v;
       newCum[k] = hi;
       const x = cx(AGES[k]);
       dTop += (k === 0 ? "M" : "L") + x.toFixed(1) + "," + yAt(hi, k).toFixed(1) + " ";
     }
-    for (let k = N_AGE - 1; k >= 0; k--){
+    for (let k = kMax; k >= 0; k--){
       const x = cx(AGES[k]);
       dBot += "L" + x.toFixed(1) + "," + yAt(cum[k], k).toFixed(1) + " ";
     }
@@ -3051,8 +3083,8 @@ function renderCauseOfDeath(sim){
   hit.addEventListener("mousemove", (ev) => {
     const rect = svg.getBoundingClientRect();
     const sxp = (ev.clientX - rect.left) * (CW / rect.width);
-    let age = AGE0 + (sxp - C_M.l) / (CW - C_M.l - C_M.r) * (AGE1 - AGE0);
-    age = Math.max(AGE0, Math.min(AGE1, Math.round(age)));
+    let age = AGE0 + (sxp - C_M.l) / (CW - C_M.l - C_M.r) * (X_MAX - AGE0);
+    age = Math.max(AGE0, Math.min(X_MAX, Math.round(age)));
     const k = age - AGE0;
     guide.setAttribute("x1", cx(age)); guide.setAttribute("x2", cx(age));
     guide.setAttribute("opacity", "0.6");
@@ -3085,7 +3117,7 @@ function buildCodLegend(){
 // ---- Burden timeline ----
 const BW = 1080, BH = 210;
 const B_M = { l: 46, r: 12, t: 10, b: 24 };
-function bx(age){ return B_M.l + (BW - B_M.l - B_M.r) * (age - AGE0) / (AGE1 - AGE0); }
+function bx(age){ return B_M.l + (BW - B_M.l - B_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 function by(v){ return B_M.t + (BH - B_M.t - B_M.b) * (1 - v); }
 
 function renderBurden(sim){
@@ -3098,7 +3130,7 @@ function renderBurden(sim){
     const t = el("text", { x: B_M.l - 6, y: y + 3, "text-anchor": "end", "font-size": "10", fill: "#999" }, svg);
     t.textContent = v.toFixed(2);
   }
-  for (let age = AGE0; age <= AGE1; age += 10){
+  for (const age of xTicks()){
     const x = bx(age);
     el("line", { x1: x, y1: B_M.t, x2: x, y2: BH - B_M.b, stroke: "#f3f3f3" }, svg);
     const t = el("text", { x: x, y: BH - B_M.b + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
@@ -3110,7 +3142,7 @@ function renderBurden(sim){
   NODES.forEach((node) => {
     const series = sim.B[node.id];
     let d = "";
-    for (let k = 0; k < N_AGE; k++){
+    for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
       const x = bx(AGES[k]), y = by(series[k]);
       d += (k === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1) + " ";
     }
@@ -3129,8 +3161,8 @@ function renderBurden(sim){
   hit.addEventListener("mousemove", (ev) => {
     const rect = svg.getBoundingClientRect();
     const sxp = (ev.clientX - rect.left) * (BW / rect.width);
-    let age = AGE0 + (sxp - B_M.l) / (BW - B_M.l - B_M.r) * (AGE1 - AGE0);
-    age = Math.max(AGE0, Math.min(AGE1, Math.round(age)));
+    let age = AGE0 + (sxp - B_M.l) / (BW - B_M.l - B_M.r) * (X_MAX - AGE0);
+    age = Math.max(AGE0, Math.min(X_MAX, Math.round(age)));
     const k = age - AGE0;
     guide.setAttribute("x1", bx(age)); guide.setAttribute("x2", bx(age));
     guide.setAttribute("opacity", "0.6");
@@ -3163,7 +3195,7 @@ function updateLimitReadout(sim, k, age){
 // ---- Survival panel ----
 const SW = 520, SH = 170;
 const S_M = { l: 40, r: 12, t: 8, b: 22 };
-function sx(age){ return S_M.l + (SW - S_M.l - S_M.r) * (age - AGE0) / (AGE1 - AGE0); }
+function sx(age){ return S_M.l + (SW - S_M.l - S_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 function sy(v){ return S_M.t + (SH - S_M.t - S_M.b) * (1 - v); }
 
 function renderSurvival(sim, base){
@@ -3175,21 +3207,21 @@ function renderSurvival(sim, base){
     const t = el("text", { x: S_M.l - 5, y: y + 3, "text-anchor": "end", "font-size": "9", fill: "#999" }, svg);
     t.textContent = v.toFixed(2);
   }
-  for (let age = AGE0; age <= AGE1; age += 10){
+  for (const age of xTicks()){
     const x = sx(age);
     el("text", { x: x, y: SH - S_M.b + 13, "text-anchor": "middle", "font-size": "9", fill: "#999" }, svg).textContent = age;
   }
 
   if (base.survival){
     let d0 = "";
-    for (let k = 0; k < N_AGE; k++){
+    for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
       d0 += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(base.survival[k]).toFixed(1) + " ";
     }
     el("path", { d: d0, fill: "none", stroke: "#bbb", "stroke-width": "1.4", "stroke-dasharray": "4,3" }, svg);
   }
 
   let d = "";
-  for (let k = 0; k < N_AGE; k++){
+  for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
     d += (k===0?"M":"L") + sx(AGES[k]).toFixed(1) + "," + sy(sim.survival[k]).toFixed(1) + " ";
   }
   el("path", { d: d, fill: "none", stroke: "#2c3e50", "stroke-width": "2.2" }, svg);
@@ -3201,7 +3233,7 @@ function renderSurvival(sim, base){
 // ---- Mediator readout panel (LDL / SBP / HbA1c vs baseline) ----
 const MW = 1080, MH = 180;
 const M_M = { l: 46, r: 14, t: 10, b: 24 };
-function mx(age){ return M_M.l + (MW - M_M.l - M_M.r) * (age - AGE0) / (AGE1 - AGE0); }
+function mx(age){ return M_M.l + (MW - M_M.l - M_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 // Each mediator is scaled to its own [min,max] band so all share the plot.
 const MED_SCALE = {
   LDL:        { lo: 40,  hi: 220 },
@@ -3221,7 +3253,7 @@ function renderMediators(sim){
   svg.innerHTML = "";
 
   // gridlines (age)
-  for (let age = AGE0; age <= AGE1; age += 10){
+  for (const age of xTicks()){
     const x = mx(age);
     el("line", { x1: x, y1: M_M.t, x2: x, y2: MH - M_M.b, stroke: "#f3f3f3" }, svg);
     const t = el("text", { x: x, y: MH - M_M.b + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
@@ -3241,20 +3273,20 @@ function renderMediators(sim){
     const color = MED_COLOR[id] || "#888";
     // baseline (dashed)
     let d0 = "";
-    for (let k = 0; k < N_AGE; k++){
+    for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
       d0 += (k===0?"M":"L") + mx(AGES[k]).toFixed(1) + "," + myFor(id, baseMed[id][k]).toFixed(1) + " ";
     }
     el("path", { d: d0, fill: "none", stroke: color, "stroke-width": "1.2", opacity: "0.5", "stroke-dasharray": "4,3" }, svg);
     // person (solid)
     let d1 = "";
-    for (let k = 0; k < N_AGE; k++){
+    for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
       d1 += (k===0?"M":"L") + mx(AGES[k]).toFixed(1) + "," + myFor(id, personMed[id][k]).toFixed(1) + " ";
     }
     el("path", { d: d1, fill: "none", stroke: color, "stroke-width": "2.1" }, svg);
   }
 
   // current-age vertical marker
-  const cAge = Math.max(AGE0, Math.min(AGE1, Math.round(state.currentAge)));
+  const cAge = Math.max(AGE0, Math.min(X_MAX, Math.round(state.currentAge)));
   const cxpos = mx(cAge);
   el("line", { x1: cxpos, y1: M_M.t, x2: cxpos, y2: MH - M_M.b, stroke: "#111", "stroke-width": "1", opacity: "0.45", "stroke-dasharray": "2,2" }, svg);
   el("text", { x: cxpos + 3, y: M_M.t + 10, "font-size": "9", fill: "#555" }, svg).textContent = "age " + cAge;
@@ -3265,8 +3297,8 @@ function renderMediators(sim){
   hit.addEventListener("mousemove", (ev) => {
     const rect = svg.getBoundingClientRect();
     const sxp = (ev.clientX - rect.left) * (MW / rect.width);
-    let age = AGE0 + (sxp - M_M.l) / (MW - M_M.l - M_M.r) * (AGE1 - AGE0);
-    age = Math.max(AGE0, Math.min(AGE1, Math.round(age)));
+    let age = AGE0 + (sxp - M_M.l) / (MW - M_M.l - M_M.r) * (X_MAX - AGE0);
+    age = Math.max(AGE0, Math.min(X_MAX, Math.round(age)));
     const k = age - AGE0;
     guide.setAttribute("x1", mx(age)); guide.setAttribute("x2", mx(age));
     guide.setAttribute("opacity", "0.6");
@@ -3467,6 +3499,9 @@ function renderAll(){
   const opts = currentOpts();
   const sim = run(opts);
   const base = run(baselineOpts());
+
+  // Dynamic x-axis window from the CURRENT scenario's survival curve.
+  X_MAX = computeXMax(sim);
 
   renderGraph();
   renderMediators(sim);
