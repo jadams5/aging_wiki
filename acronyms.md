@@ -16,6 +16,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **AD** — Alzheimer's Disease
 - **ADP** — Adenosine Diphosphate
 - **ADSC** — Adipose-Derived Stem Cell (used in skin / hyaluronan-delivery studies)
+- **ADORA2A / A2AR** — Adenosine A2A Receptor (Gs-coupled GPCR; target of PDRN/polynucleotide biostimulators) → [[adora2a]]
 - **AF** — Autofluorescence (bulk fluorescent-AGE readout in skin/retina studies; non-specific to glucosepane)
 - **AF3** — AlphaFold 3 (biomolecular-structure prediction model with protein-ligand / nucleic-acid complex support)
 - **AGE** — Advanced Glycation End-product → [[advanced-glycation-end-products]]
@@ -49,6 +50,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **BCL-2** — B-Cell Lymphoma 2 (anti-apoptotic)
 - **BCL-xL** — BCL-2-like 1 (anti-apoptotic; senolytic target)
 - **BDNF** — Brain-Derived Neurotrophic Factor
+- **BEMT** — Bemotrizinol / Bis-Ethylhexyloxyphenol Methoxyphenyl Triazine (broad-spectrum UV filter; also "Tinosorb S") → [[bemotrizinol]]
 - **BENEFICIAL** — Alagebrium Phase 3 heart-failure trial (failed primary endpoint)
 - **BER** — Base Excision Repair
 - **BH3** — BCL-2 Homology domain 3
@@ -66,6 +68,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **CAZyme** — Carbohydrate-Active enZYME (CAZy-classified carbohydrate-binding or carbohydrate-modifying enzyme)
 - **CBM** — Carbohydrate-Binding Module (noncatalytic CAZyme domain that binds carbohydrate substrates)
 - **CE** — Carbohydrate Esterase in CAZy contexts; also CE marking in regulatory/product contexts
+- **CaHA** — Calcium Hydroxylapatite (biostimulatory dermal filler, e.g. Radiesse; in aesthetics — distinct from pathological vascular/ectopic calcification) → [[biostimulatory-fillers]]
 - **CD** — Cluster of Differentiation (cell-surface marker prefix; e.g., CD34, CD90)
 - **CDK** — Cyclin-Dependent Kinase
 - **CDKN1A** — Cyclin-Dependent Kinase Inhibitor 1A (gene encoding p21)
@@ -99,6 +102,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **DAF-16** — *Dauer formation*-defective 16 (C. elegans FOXO ortholog)
 - **DAMP** — Damage-Associated Molecular Pattern
 - **DB** — Dumbbell (resistance-training equipment; distinct from BB = barbell)
+- **DBT** — Diethylhexyl Butamido Triazone (iscotrizinol; UV filter; also "Uvasorb HEB" / "HDT") → [[iscotrizinol]]
 - **DDR** — DNA Damage Response → [[dna-damage-response]]
 - **DCCT/EDIC** — Diabetes Control and Complications Trial / Epidemiology of Diabetes Interventions and Complications (longitudinal type 1 diabetes cohort)
 - **DDAH** — Dimethylarginine Dimethylaminohydrolase (guanidino-modifying hydrolase)
@@ -112,6 +116,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **DOI** — Digital Object Identifier
 - **DOMS** — Delayed-Onset Muscle Soreness (24–72h post-eccentric-loading; resolved across successive sessions via the repeated-bout effect / RBE)
 - **DRP1** — Dynamin-Related Protein 1 (mitochondrial fission)
+- **DRT** — Drometrizole Trisiloxane (UV filter; also "Mexoryl XL") → [[drometrizole-trisiloxane]]
 - **DSB** — Double-Strand Break (DNA)
 
 ## E
@@ -128,6 +133,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **ERCC** — Excision Repair Cross-Complementation group (DNA-repair gene family)
 - **ERK** — Extracellular signal-Regulated Kinase
 - **ETC** — Electron Transport Chain → [[oxphos]]
+- **EV** — Extracellular Vesicle (exosomes / microvesicles; cell-derived paracrine cargo carriers) → [[exosome-skin-therapy]]
 
 ## F
 
@@ -252,11 +258,13 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **mAb** — Monoclonal Antibody
 - **MAPK** — Mitogen-Activated Protein Kinase
 - **MAVS** — Mitochondrial Antiviral Signaling protein
+- **MBBT** — Methylene Bis-Benzotriazolyl Tetramethylbutylphenol (bisoctrizole; UV filter; also "Tinosorb M") → [[bisoctrizole]]
 - **MD** — Molecular Dynamics (atomistic simulation of molecular motion)
 - **MEK** — MAPK/ERK Kinase (MAP2K1/MAP2K2; activates ERK1/2; trametinib target)
 - **MG** — Methylglyoxal
 - **MG-H1** — Methylglyoxal-derived Hydroimidazolone 1 (arginine-derived AGE adduct)
 - **MGI** — Mouse Genome Informatics (Jackson Lab)
+- **MISEV** — Minimal Information for Studies of Extracellular Vesicles (ISEV characterization-standards guidelines; MISEV2018 / MISEV2023)
 - **MFN1/2** — Mitofusin 1/2 (mitochondrial fusion)
 - **MLSP** — Maximum Lifespan (comparative-aging studies)
 - **MMP** — Matrix Metalloproteinase
@@ -339,6 +347,13 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **PDR** — Proliferative Diabetic Retinopathy
 - **PDH** — Pyruvate Dehydrogenase
 - **PDGF-AA** — Platelet-Derived Growth Factor AA
+- **PCL** — Polycaprolactone (biodegradable-polyester biostimulatory filler, e.g. Ellansé) → [[biostimulatory-fillers]]
+- **PDLLA** — Poly-(D,L)-Lactic Acid (amorphous polylactide biostimulator) → [[biostimulatory-fillers]]
+- **PDO** — Polydioxanone (biodegradable-polymer biostimulator / suspension thread) → [[biostimulatory-fillers]]
+- **PDRN** — Polydeoxyribonucleotide (salmon/trout-DNA biostimulator; adenosine A2A agonist) → [[pdrn]]
+- **PLLA** — Poly-(L)-Lactic Acid (semicrystalline polylactide biostimulator, e.g. Sculptra) → [[biostimulatory-fillers]]
+- **PN** — Polynucleotide(s) (high-molecular-weight DNA-fragment biostimulator; overlaps PDRN) → [[pdrn]]
+- **PRP** — Platelet-Rich Plasma (autologous blood-derived regenerative injectable)
 - **PGC-1α** — PPARγ Coactivator 1α (mitobiogenesis master regulator)
 - **PI3K** — Phosphoinositide 3-Kinase
 - **PINK1** — PTEN-Induced Kinase 1 (mitophagy)
@@ -417,6 +432,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **STING** — Stimulator of Interferon Genes → [[cgas-sting]]
 - **STZ** — Streptozotocin (diabetogenic compound used in rodent models)
 - **STRING** — Search Tool for the Retrieval of Interacting Genes/Proteins
+- **SVF** — Stromal Vascular Fraction (adipose-derived heterogeneous regenerative cell mixture; autologous injectable)
 
 ## T
 
@@ -426,6 +442,8 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **TAME** — Targeting Aging with Metformin (clinical trial)
 - **TAZ** — Transcriptional coactivator with PDZ-binding motif (WWTR1; Hippo pathway effector, commonly paired as YAP/TAZ)
 - **TBK1** — TANK-Binding Kinase 1
+- **TBPT** — Tris-Biphenyl Triazine (UV filter; also "Tinosorb A2B") → [[tinosorb-a2b]]
+- **TDSA** — Terephthalylidene Dicamphor Sulfonic Acid (ecamsule; UV filter; also "Mexoryl SX") → [[ecamsule]]
 - **TERC** — Telomerase RNA Component
 - **TERT** — Telomerase Reverse Transcriptase
 - **TET** — Ten-Eleven Translocation methylcytosine dioxygenase

@@ -37,6 +37,7 @@ Navigational overlay for skin and its appendages. Skin is the most visible aging
 
 - [[retinoids]] (class), [[tretinoin]], [[tazarotene]], [[bakuchiol]] — collagen-stimulating topicals
 - Procedural: [[dermatologic-resurfacing]], [[microneedling]], [[chemical-peels]]
+- Injectable: [[injectable-skin-boosters]] (class), [[pdrn]], [[biostimulatory-fillers]], [[exosome-skin-therapy]] — intradermal biostimulators / fillers
 - ECM: [[col1a1|collagen I]], [[mmp-1]]; [[uv-protection]]
 
 ## Auto-aggregated tissue members

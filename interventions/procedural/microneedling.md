@@ -100,7 +100,7 @@ A 2024 narrative review (Jaiswal & Jawade, *Cureus*) provides a balanced overvie
 
 ## Confounding — the central evidence problem
 
-A large fraction of published "microneedling rejuvenation" studies are actually **microneedling + something**: PRP, topical vitamin C / ascorbic acid, peptide serums, growth-factor cocktails, stem-cell-conditioned media, or exosomes delivered through the channels. Because the needling *itself* enhances transdermal delivery of those agents, these studies **cannot isolate the wounding-response contribution** from the pharmacological contribution of the co-applied agent. When the literature reports "microneedling improved photoaging," the honest question is almost always: *microneedling, or the vitamin C you drove into the dermis with it, or both, or neither beyond placebo?* The field has largely not run the monotherapy-vs-sham trial that would answer this. This is why the [next-experiment](#frontmatter) on this page specifies a **sham-controlled monotherapy** design.
+A large fraction of published "microneedling rejuvenation" studies are actually **microneedling + something**: PRP, topical vitamin C / ascorbic acid, peptide serums, growth-factor cocktails, stem-cell-conditioned media, or [[exosome-skin-therapy|exosomes]] delivered through the channels (exosomes are a common post-microneedling adjunct). Because the needling *itself* enhances transdermal delivery of those agents, these studies **cannot isolate the wounding-response contribution** from the pharmacological contribution of the co-applied agent. When the literature reports "microneedling improved photoaging," the honest question is almost always: *microneedling, or the vitamin C you drove into the dermis with it, or both, or neither beyond placebo?* The field has largely not run the monotherapy-vs-sham trial that would answer this. This is why the [next-experiment](#frontmatter) on this page specifies a **sham-controlled monotherapy** design.
 
 ---
 
@@ -151,6 +151,8 @@ This is where microneedling earns its place rather than its hype:
 
 - [[dermatologic-resurfacing]] — parent class page (microneedling as one of seven device-mediated wounding modalities); RF-microneedling and laser/IPL/HIFU evidence lives there
 - [[chemical-peels]] — mechanistic parallel (acid-mediated controlled wounding)
+- [[injectable-skin-boosters]] — injectable collagen-induction class; overlapping neocollagenesis goal via a biostimulatory rather than wounding vector
+- [[exosome-skin-therapy]] — exosomes are a common post-microneedling adjunct (and a recurring confound in the rejuvenation literature)
 - [[wound-healing]] — the shared mechanistic anchor
 - [[skin-aging]] — phenotype page; the clinical target
 - [[dermal-fibroblasts]] — primary cell type activated by the wounding cascade

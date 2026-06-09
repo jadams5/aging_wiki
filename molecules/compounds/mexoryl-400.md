@@ -11,7 +11,7 @@ molecular-weight-da: 322.4
 mechanisms: [UV-filter-absorption, ultra-long-UVA-I-coverage]
 targets: []
 hallmarks: ["[[genomic-instability]]", "[[loss-of-proteostasis]]", "[[chronic-inflammation]]"]
-clinical-stage: fda-approved
+clinical-stage: approved-ex-us
 human-evidence-level: limited
 translation-gap: human-evidence-strong
 next-experiment: "Independent (non-L'Oréal) head-to-head intra-individual hemiface RCT comparing UVMune 400 (containing MCE) vs an SPF 50+ EU-stack comparator without MCE (e.g., Tinosorb S + Mexoryl SX/XL + Uvinul A Plus + avobenzone), with biopsy CPD + 8-OHdG + dermal MMP-1 IHC at 6 mo — would directly test whether 380–400 nm coverage translates to hard photoaging endpoints rather than pigmentation surrogates."

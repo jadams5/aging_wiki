@@ -580,6 +580,31 @@ WHERE contains(mechanisms, "dna-pk-inhibition")
 
 ---
 
+### adenosine-A2A-receptor-agonism
+
+**Added:** 2026-06-09 — first compound page: [[molecules/compounds/pdrn]] (PDRN/polynucleotide as selective ADORA2A agonist)
+
+**Definition:** Selective agonism of the adenosine A2A receptor (ADORA2A / A2AR), a Gs-coupled GPCR whose activation raises intracellular cAMP, suppresses NF-κB-driven inflammation, and promotes pro-angiogenic gene expression (VEGF-A upregulation). In the context of wound healing and tissue repair, A2A receptor agonism reduces pro-inflammatory cytokines (TNF-α, IL-12), promotes neovascularization, and supports tissue remodelling. PDRN (polydeoxyribonucleotide) acts as an A2A agonist after partial degradation to nucleosides, and as a nucleotide substrate supply source (salvage pathway). The A2A receptor agonism hypothesis for PDRN is supported by reversal of PDRN effects by the selective A2A antagonist DMPX in rodent ischemia/thermal-injury models (Bitto 2008, Galeano 2008). The downstream dermal-rejuvenation relay was characterized in 2025: A2AR → ↑cAMP → PKA → CREB → PCK1 upregulation in macrophages → M2 polarization → paracrine TGF-β/SMAD and STAT3 signalling to fibroblasts → type I/III collagen synthesis [Byun 2025, doi:10.3390/ijms26178720]. (The upstream CD73/ecto-5′-nucleotidase step that would liberate free adenosine from PN is plausible but not established for PN specifically — flagged `#gap/no-mechanism` on the atomic pages, not asserted here.)
+
+**Note on scope:** This class is specific to compounds whose primary pharmacodynamic mechanism involves the adenosine purinergic receptor subtype A2A. It is distinct from `anti-inflammatory` (NF-κB-centric) and from `immunomodulation` (immune cell phenotype), though all three often co-occur downstream. Use this class when A2A receptor engagement is the primary upstream pharmacological event. When A2A agonism is one of multiple proposed mechanisms (as with PDRN), list this class alongside `anti-inflammatory` and `extracellular-matrix-remodeling`.
+
+**Canonical values in use:** `adenosine-A2A-receptor-agonism`
+
+**Merge note (2026-06-09):** a parallel seeder briefly created a broader duplicate entry (`adenosine-receptor-agonism` / `a2ar-agonism`) for the same biology; that entry was merged here and those value strings deprecated. Use `adenosine-A2A-receptor-agonism` only. The Dataview below also catches the deprecated strings so any legacy frontmatter still resolves.
+
+**Hallmarks primarily targeted:** [[chronic-inflammation]], [[altered-intercellular-communication]], [[loss-of-proteostasis]] (dermal collagen, indirect via fibroblast relay)
+
+**Constituent compound pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "adenosine-A2A-receptor-agonism")
+  OR contains(mechanisms, "adenosine-receptor-agonism")
+  OR contains(mechanisms, "a2ar-agonism")
+```
+
+---
+
 ### extracellular-matrix-remodeling
 
 **Added:** 2026-05-12 — first compound pages: [[molecules/compounds/ghk-cu]] (collagen synthesis), [[molecules/compounds/hyaluronic-acid]] (HA-ECM homeostasis)
@@ -1745,7 +1770,7 @@ This convention should be picked up in the next CLAUDE.md cleanup as a formal ad
 
 This class is primarily relevant to `type: intervention` pages in `interventions/lifestyle/` covering sunscreen + behavioral photoprotection. Compound-level pages for specific UV filters (zinc oxide, avobenzone, tinosorb) are out-of-scope for the intervention class page; the class page covers the portfolio-level prevention strategy.
 
-**Canonical values in use:** `UV-filter-absorption-scattering`, `photoaging-prevention`
+**Canonical values in use:** `UV-filter-absorption-scattering`, `photoaging-prevention`. (The shorter `UV-filter-absorption` is an accepted equivalent value: the individual UV-filter compound pages — triasorb, mexoryl-400, bemotrizinol, drometrizole-trisiloxane, iscotrizinol — use it, optionally with a filter-specific descriptor such as `ultra-long-UVA-I-coverage`, `UVA-broadband-coverage`, `avobenzone-photostabilization`, or `UVA-II-short-UVA-I-coverage`. The Dataview below catches both forms.)
 
 **Note on overlap with other classes:** When a formulation also contains antioxidant actives (vitamin C, vitamin E, ferulic acid), those components engage the `antioxidant` class. When a formulation contains a retinoid, the `RAR-agonist` / `AP-1-transrepression` classes apply to the retinoid component. UV protection and retinoid/antioxidant adjuncts are often co-deployed; list all applicable class values on combined-product pages.
 
@@ -1756,6 +1781,7 @@ This class is primarily relevant to `type: intervention` pages in `interventions
 ```dataview
 LIST FROM "molecules/compounds" OR "interventions"
 WHERE contains(mechanisms, "UV-filter-absorption-scattering")
+  OR contains(mechanisms, "UV-filter-absorption")
   OR contains(mechanisms, "photoaging-prevention")
 ```
 
@@ -2128,6 +2154,77 @@ WHERE contains(mechanisms, "sclerostin-inhibition")
 ```dataview
 LIST FROM "molecules/compounds" OR "interventions"
 WHERE contains(mechanisms, "gamma-carboxylation-cofactor")
+```
+
+---
+
+### dermal-biostimulation
+
+**Added:** 2026-06-09 — first intervention page: [[interventions/pharmacological/injectable-skin-boosters]]
+
+**Definition:** Pharmacological stimulation of dermal collagen and extracellular matrix neosynthesis by injectable biodegradable polymers or biological scaffolds, operating through a sustained mechanical + inflammatory-resolution signalling cascade rather than direct receptor pharmacology. The canonical mechanism is: intradermal polymer depot (PLLA, PDLLA, PCL, PDO, CaHA microspheres) → foreign body / inflammatory response → fibroblast recruitment and activation → TGF-β/SMAD signalling → type I/III collagen synthesis and deposition → gradual scaffold degradation leaves collagen-enriched replacement matrix. Distinct from `extracellular-matrix-remodeling` (which covers receptor-level ECM modulation including HA/GHK-Cu) and from `controlled-wounding-collagen-stimulation` (which is needle/energy-mediated acute wound response). The biostimulation mechanism operates over weeks-to-months via a sustained polymer-driven signalling cascade, not via transient wound healing.
+
+**Aging relevance:** Injectable biostimulators directly address the hallmark of loss-of-proteostasis in the dermis — the progressive collagen fragmentation and reduced neocollagenesis of aged skin. Poly-L-lactic acid (Sculptra) was FDA-approved in 2009 for facial lipoatrophy, establishing the first clinical-grade validation of the class. Age-associated dermal atrophy is the primary aging indication. No systemic hallmark target is established.
+
+**Sub-classes:**
+- **Polylactic acid / polyester family** — PLLA (Sculptra/Galderma; FDA 2009 lipoatrophy), PDLLA, PCL (Ellanse), PDO threads — all operate via TGF-β/SMAD fibroblast activation after inflammatory scaffold resorption
+- **CaHA (calcium hydroxylapatite)** — Radiesse; dual mechanism: immediate volume fill + long-term biostimulation via CaHA microsphere degradation releasing Ca²⁺ → fibroblast collagen induction; distinct from polyesters in mineral-scaffold chemistry
+
+**Canonical values in use:** `dermal-biostimulation`
+
+**Hallmarks primarily targeted:** [[loss-of-proteostasis]] (dermal collagen neosynthesis in aged ECM)
+
+**Secondary association:** [[altered-intercellular-communication]] (TGF-β/SMAD paracrine axis from macrophage/fibroblast cross-talk during biostimulation)
+
+**Constituent intervention pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "dermal-biostimulation")
+```
+
+---
+
+### paracrine-cargo-delivery
+
+**Added:** 2026-06-09 — first intervention page: [[interventions/pharmacological/exosome-skin-therapy]]
+
+**Definition:** Delivery of biologically active cargo (miRNA, mRNA, growth factors, signalling proteins, lipids) to recipient cells via extracellular vesicles (exosomes, microvesicles) or cell-conditioned media, producing downstream ECM-remodelling, anti-inflammatory, or anti-senescence effects without the delivered agent being a single defined small molecule. The canonical aging-relevant mechanism is MSC/stem-cell-derived EV cargo (e.g., miR-29b-3p → MMP-2 suppression; miR-125b-5p → TGF-β1/SMAD modulation) acting on aged/photodamaged dermal fibroblasts to restore collagen I/III and elastin and downregulate p53/p21/p16. Distinct from `extracellular-matrix-remodeling` (the downstream ECM output, which this class drives indirectly) and from direct receptor agonism: the defining feature is heterogeneous biological cargo transferred between cells. **Evidence-quality caveat:** preparations marketed as "exosomes" frequently fail MISEV2018/2023 characterization standards, and much "exosome" clinical literature actually tests conditioned media; the class label does not certify rigorous EV identity.
+
+**Canonical values in use:** `paracrine-cargo-delivery`
+
+**Hallmarks primarily targeted:** [[altered-intercellular-communication]] (EV/paracrine signalling is the archetypal intercellular-communication channel), [[cellular-senescence]] (anti-senescence cargo), [[loss-of-proteostasis]] (downstream dermal ECM restoration)
+
+**Constituent intervention pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "paracrine-cargo-delivery")
+```
+
+---
+
+### blood-pressure-modulation
+
+**Added:** 2026-06-09 — first intervention page: [[interventions/dietary/sodium-restriction]]
+
+**Definition:** Interventions that modulate blood pressure through dietary electrolyte manipulation — primarily sodium restriction, potassium repletion, and/or magnesium repletion — operating through the extracellular fluid volume, renal tubular reabsorption, and vascular tone axes. The primary proximal mechanism of sodium restriction is reduction of extracellular fluid volume (Na⁺ drives osmotic water retention; reduced Na⁺ → reduced intravascular volume → reduced cardiac output and preload → lower BP). Secondary mechanisms include: reduced renal tubular Na⁺/K⁺ antiporter activity, reduced wall-stress-driven arterial stiffening, and reduced left ventricular hypertrophic remodeling. Potassium counters sodium by increasing renal Na⁺ excretion (through Na⁺/K⁺-ATPase and ROMK channel activation), inducing vasodilation via hyperpolarization of vascular smooth muscle, and reducing arterial stiffness. The RAAS (renin-angiotensin-aldosterone system) is the counter-regulatory axis — activated modestly at low sodium intake; the sustained BP-lowering benefit of moderate restriction indicates that RAAS compensation is incomplete at physiological intakes. Mechanistically distinct from pharmacological antihypertensives (ACE inhibitors, ARBs, diuretics), which block RAAS nodes directly. Distinct from `nitric-oxide-signaling` (which operates via eNOS/endothelial vasodilation) and from `anti-inflammatory` (which is NF-κB/cytokine-centric). Overlaps with DASH dietary pattern and Mediterranean diet via potassium and magnesium co-delivery.
+
+**Canonical values in use:** `dietary-sodium-restriction`, `potassium-repletion`, `blood-pressure-modulation`
+
+**Note on class scope:** This class covers diet-level interventions whose primary aging-relevant pharmacodynamic endpoint is blood-pressure reduction via electrolyte balance. Salt substitute interventions (NaCl/KCl mixtures) deploy two mechanisms simultaneously (sodium reduction + potassium repletion) and should list both `dietary-sodium-restriction` and `potassium-repletion`. Pharmacological agents that modulate the same axis (ACE inhibitors, thiazide diuretics) are already covered in the medical armamentarium and do NOT use this dietary-mechanism class — they would use their own pharmacological mechanism values when seeded.
+
+**Hallmarks primarily targeted:** [[chronic-inflammation]] (via downstream arterial stiffness reduction, reduced vascular oxidative stress, and lower cardiac hypertrophy), [[altered-intercellular-communication]] (vascular smooth muscle → endothelium paracrine signaling is disrupted by sustained hypertension)
+
+**Translation-gap note:** The cardiovascular-aging connection is epidemiologically and RCT-validated (see SSaSS, DASH-Sodium, Kong 2025 umbrella review). The direct hallmarks-of-aging mechanism framing is an extrapolation: hypertension drives the [[arterial-stiffening]] and [[cardiovascular-aging]] phenotypes which in turn accelerate biological aging, but `blood-pressure-modulation` does not map to a single López-Otín hallmark directly. The closest mechanistic anchors are `[[chronic-inflammation]]` (hypertension-driven vascular inflammation) and `[[altered-intercellular-communication]]` (vascular paracrine disruption under sustained pressure load).
+
+**Constituent intervention pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "dietary-sodium-restriction")
+  OR contains(mechanisms, "potassium-repletion")
+  OR contains(mechanisms, "blood-pressure-modulation")
 ```
 
 ---

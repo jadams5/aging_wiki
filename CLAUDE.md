@@ -106,6 +106,8 @@ Every page begins with YAML frontmatter. The `type` field is mandatory.
 
 When the aging-context choice differs sharply from max-druggability, document the rationale in the body. The same aging-context convention applies to `clinical-stage:` on intervention class pages — `[[mtor-inhibitors]]` uses `phase-2` (Mannick immune-aging trials), not `fda-approved` (rapamycin's transplant/cancer indication).
 
+**Ex-US regulatory-approval convention (R52).** `clinical-stage: approved-ex-us` denotes a compound/agent **approved for the relevant aging/aesthetic indication by a stringent non-US regulator** — EMA/EU (incl. CE marking), UK MHRA, Japan PMDA, South Korea MFDS, etc. — but **not FDA-approved**. Use it in place of a `phase-N` surrogate whenever real-world ex-US approval exists (e.g. `[[pdrn]]` polynucleotide injectables; EU-approved next-generation sunscreen UV filters such as bemotrizinol/bisoctrizole). Name the specific jurisdiction(s) in the body. **Ex-US approval is not a weaker signal than FDA approval — and is sometimes stronger or earlier**: the US OTC-monograph backlog (decades-stalled sunscreen filters) and FDA's drug-vs-cosmetic classification mean "not FDA-approved" frequently reflects US regulatory *lag*, not weak evidence. When an agent is approved in BOTH the US and elsewhere, use `fda-approved` (note the other jurisdictions in the body); `approved-ex-us` is specifically the *US-gap* case. Applies to `type: compound` and to `clinical-stage:` on `type: intervention` class pages.
+
 **Literature-recency convention.** Atomic-content page types carry a `literature-checked-through:` field tracking the last seeder/verifier date-filtered PubMed + Europe PMC search. Required vs optional + cadence per type are tabulated in § Lint pass.
 
 **Verification discipline.** Atomic-content pages carry a four-field verified block (`verified`, `verified-date`, `verified-by`, optional `verified-scope`). Framework pages and experiment/protocol/assessment pages do not. See § AI-extracted vs human-verified content.
@@ -208,7 +210,7 @@ molecular-weight-da:              # optional; daltons; useful for biologics + pe
 mechanisms: [senolytic, antioxidant]
 targets: ["[[bcl-xl]]", "[[pi3k-akt-pathway]]"]
 hallmarks: ["[[cellular-senescence]]"]
-clinical-stage: preclinical | phase-1 | phase-2 | phase-3 | fda-approved | supplement
+clinical-stage: preclinical | phase-1 | phase-2 | phase-3 | approved-ex-us | fda-approved | supplement
 human-evidence-level: none | preclinical-only | limited | limited-negative | strong   # `limited-negative` for classes where multiple Phase 2/3 trials reported null/negative on primary endpoints (e.g., STACs / sirtuin-activators)
 translation-gap:                  # categorical: phase-3-rct-needed | biomarker-only | preclinical-only | human-evidence-strong | translation-blocked-safety | translation-blocked-cost
 next-experiment:                  # free-text one-liner: what single experiment would resolve the human-evidence gap?

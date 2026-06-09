@@ -193,6 +193,7 @@ Reducing HA degradation (rather than topping up HA) is a distinct strategy: a 20
 ### Interventional aesthetics (not pharmacological aging reversal)
 
 - **Laser resurfacing, IPL:** ablative/non-ablative stimulation of collagen neosynthesis; primarily reduces wrinkles and lentigines; mechanism is wounding response, not aging-hallmark targeting. Outside scope of this page.
+- **Injectable skin boosters:** intradermal biostimulators that aim to drive dermal collagen/ECM remodelling rather than fill volume — see [[injectable-skin-boosters]] for the class, with [[pdrn]] (polynucleotide/salmon-DNA) and [[biostimulatory-fillers]] (PLLA/PCL/PDO/CaHA) as the principal approaches. Evidence is largely uncontrolled/Korean-European aesthetic literature; mechanism is wounding/biostimulation, not aging-hallmark targeting.
 - **Topical antioxidants (vitamin C, vitamin E, niacinamide):** reduce UV-induced ROS; limited clinical trial evidence for wrinkle reversal; strong evidence for pigmentation reduction (niacinamide inhibits melanin transfer). #gap/dose-response-unclear
 
 ---

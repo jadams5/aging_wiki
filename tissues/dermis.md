@@ -154,6 +154,7 @@ For full treatment see [[skin-aging]] § Intrinsic vs photoaging. The tissue-lev
 - [[advanced-glycation-end-products]] (existing process page) — AGE formation on dermal collagen
 - [[glucosepane]] (existing process page) — dominant AGE cross-link on long-lived collagen I
 - [[hyaluronic-acid]] (existing compound page) — GAG component of dermal ECM; reviewed in therapeutic context
+- [[injectable-skin-boosters]] · [[biostimulatory-fillers]] — intradermal interventions acting on dermal collagen/ECM (biostimulation of fibroblast collagen synthesis)
 - [[col1a1]], [[col1a2]], [[col3a1]], [[eln]], [[fbn1]] (R40 implicit stubs — protein pages not yet created)
 - [[hair-greying]] (planned page) — hair follicle bulge in the reticular dermis; McSC biology
 - [[fisetin]], [[dasatinib]], [[quercetin]] (existing) — senolytics; skin-relevant senolytic candidates targeting dermal fibroblast senescence

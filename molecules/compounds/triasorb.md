@@ -11,7 +11,7 @@ molecular-weight-da: 540.6
 mechanisms: [UV-filter-absorption, visible-light-absorption, visible-light-reflectance]
 targets: []
 hallmarks: ["[[genomic-instability]]", "[[loss-of-proteostasis]]", "[[chronic-inflammation]]"]
-clinical-stage: fda-approved
+clinical-stage: approved-ex-us
 human-evidence-level: limited
 translation-gap: human-evidence-strong
 next-experiment: "Independent (non-Pierre-Fabre) RCT comparing TriAsorB-containing SPF 50+ vs an SPF 50+ formula with iron oxides but without TriAsorB, intra-individual hemiface, with biopsy + outdoor melasma endpoint over 12 wk — would isolate whether TriAsorB's HEV absorption + reflectance is biologically additive over iron-oxide pigments alone."

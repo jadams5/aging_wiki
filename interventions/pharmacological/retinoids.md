@@ -100,17 +100,17 @@ Practical consequence: patients unable to tolerate tretinoin are typically stepp
 
 ### Mandatory co-intervention: sunscreen
 
-All topical retinoids increase photosensitivity (tretinoin's photodegradation also necessitates evening application). Sunscreen with SPF ≥30 is a mandatory co-intervention in any retinoid photoaging protocol — not optional. See [[uv-protection]] (R42 forward-ref; page pending).
+All topical retinoids increase photosensitivity (tretinoin's photodegradation also necessitates evening application). Sunscreen with SPF ≥30 is a mandatory co-intervention in any retinoid photoaging protocol — not optional. See [[uv-protection]].
 
 ### Tolerability buffers
 
-- **[[niacinamide]]** (R42 forward-ref; page pending) — barrier-repair niacinamide reduces retinoid irritation in combination use; mechanisms include ceramide synthesis upregulation and potential mild AP-1 suppression in its own right.
+- **[[niacinamide]]** — barrier-repair niacinamide reduces retinoid irritation in combination use; mechanisms include ceramide synthesis upregulation and potential mild AP-1 suppression in its own right.
 - Ceramide-containing moisturisers — supportive barrier repair without mechanistic crosstalk.
 - Low-frequency initiation (every-other-night → nightly) is the standard tolerability-adaptation strategy for tretinoin.
 
 ### Complementary mechanisms
 
-- **[[ascorbic-acid]] / vitamin C** (R42 forward-ref; page pending) — complementary collagen-synthesis stimulus via hydroxylation-cofactor and AP-1-independent TGF-β pathway; combination with tretinoin is theoretically additive.
+- **[[ascorbic-acid]] / vitamin C** — complementary collagen-synthesis stimulus via hydroxylation-cofactor and AP-1-independent TGF-β pathway; combination with tretinoin is theoretically additive.
 
 ### Escalation ladder
 
@@ -193,13 +193,13 @@ The mechanism class `topical retinoid / RAR agonist` has been registered in [[fr
 - [[bakuchiol]] — non-retinoid functional analog; R41 compound page
 - [[studies/fisher-1996-photoaging-ap1-mmp]] — canonical AP-1/MMP mechanism extraction
 - [[studies/sumita-2018-tretinoin-photoaging]] — within-person split tretinoin RCT (n=24)
-- [[skin-aging]] — hallmark/phenotype page (forward-ref; page pending)
+- [[skin-aging]] — hallmark/phenotype page
 - [[mmp-1]] — key downstream effector
 - [[dermal-fibroblasts]] — primary cell type for collagen synthesis arm
 - [[keratinocytes]] — primary cell type for AP-1 transrepression arm
-- [[uv-protection]] — mandatory co-intervention (R42 forward-ref; page pending)
-- [[niacinamide]] — tolerability buffer combination (R42 forward-ref; page pending)
-- [[ascorbic-acid]] — complementary collagen-synthesis compound (R42 forward-ref; page pending)
+- [[uv-protection]] — mandatory co-intervention
+- [[niacinamide]] — tolerability buffer combination
+- [[ascorbic-acid]] — complementary collagen-synthesis compound
 - [[frameworks/intervention-classes]] — class registry entry added R41
 - [[ap-1-pathway]] — signalling pathway (forward-ref; page pending)
 

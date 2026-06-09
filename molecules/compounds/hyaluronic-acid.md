@@ -252,4 +252,5 @@ The critical barrier between Zhang 2023 and a human intervention:
 - [[altered-intercellular-communication]] — ECM-level paracrine signaling
 - [[cancer-aging-tradeoffs]] — cancer-resistance mechanism in context of aging biology
 - [[firmicutes-bacteroidetes-ratio]] — microbiome biomarker modulated in nmrHas2 mice
+- [[injectable-skin-boosters]] — non-cross-linked HA is the prototypical injectable "skin booster" agent; the class page contextualises HA alongside [[pdrn]] and [[biostimulatory-fillers]]
 - [[interventions/gene-therapy/aav-tert]] — comparator gene-therapy approach to aging intervention
