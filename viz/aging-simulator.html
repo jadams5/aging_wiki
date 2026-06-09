@@ -143,7 +143,7 @@
   <h1>Aging causal-graph simulator (v0.3 + B-layer)</h1>
   <div class="disclaimer">
     Illustrative sensitivity model &mdash; parameters are mostly illustrative (see causal-graph-parameters.md).
-    <b>v0.3 &mdash; sex-specific competing hazards (CDC WONDER 2022); no sex scalar &mdash; female CVD-onset delay &amp; male external excess emerge from data.</b>
+    <b>v0.4 &mdash; sex-specific competing hazards (CDC WONDER 2022); no sex scalar &mdash; female CVD-onset delay &amp; male external excess emerge from data. Old-age escalation is now burden-driven (no age-keyed Gompertz factor): cause hazards use an odds link Rmax&middot;B/(1&minus;B) on reserve-depletion burden, so interventions bend the &gt;90 mortality curve.</b>
     Mortality sums a per-sex extrinsic channel (accidents / suicide / homicide, scaled by the Lifestyle slider) and a
     per-sex intrinsic bracket of named CDC causes + a residual, amplified by a sarcopenia-driven frailty multiplier.
     Coupling propagates intervention relief through the graph as a bounded algebraic fixed point.
@@ -288,9 +288,9 @@
   <!-- Burden timeline spans full width below -->
   <div class="panel full-row">
     <h2>Burden timeline</h2>
-    <div class="sub">One line per node (color matches graph). Hover to read the largest mortality-hazard contributor at that age (six-way competing-hazards decomposition).</div>
+    <div class="sub">One line per node (color matches graph). Hover to identify the nearest line + its burden; click to select that node for an intervention. Readout also shows the largest mortality-hazard contributor at that age.</div>
     <svg id="burdenSvg" viewBox="0 0 1080 210" preserveAspectRatio="xMidYMin meet"></svg>
-    <div class="readout" id="limitReadout">Hover the chart to see the limiting factor at a given age.</div>
+    <div class="readout" id="limitReadout">Hover a line to identify it; click to select it for an intervention.</div>
   </div>
 
 </div>
@@ -531,21 +531,25 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   // `beta`/`default` for backward-compat. All =1 at baseline (frailtyDev 0).
   const frBeta = fr.betaByCause || {};
   const frDefault = (frBeta.default !== undefined) ? frBeta.default : (fr.beta || 0);
-  // Old-age Gompertz tail: past the CDC 85+ band (fromAge≈90), disease-cause +
-  // residual hazards keep rising as exp(rate·(age−fromAge)). Cause burdens saturate
-  // at 1, so this multiplicative FACTOR carries the rise (interventions still scale
-  // it via the burden). Extrinsic is NOT tailed. Lets survival run to ~0 past 110
-  // so lifespan / the chart x-axis can extend past 100 under interventions.
-  const oat = MODEL.mortality.oldAgeTail || { rate: 0, fromAge: 90 };
+  // Old-age escalation is BURDEN-DRIVEN, not age-keyed (v0.4). Each cause hazard
+  // uses the odds link Rmax·B/(1−B): the cause-node burden tables store a
+  // RESERVE-DEPLETION fraction in [0,1) that asymptotes toward 1 (B=0.5 at age 90,
+  // →0.97 by 130), and the odds link converts that back to a hazard. This is
+  // algebraically identical to the former `Rmax·B·gompTail` at population-baseline
+  // (B_reserve = h/(1+h) where h was the old normalized rate; the >90 anchors
+  // E/(1+E), E=exp(0.0866·(age−90)), reproduce the prior MRDT-8yr Gompertz tail
+  // EXACTLY) — but the escalation now lives in B, so interventions that slow burden
+  // accumulation bend the >90 mortality curve instead of being overridden by a
+  // chronological-age factor. Residual (the explicitly-UNMODELED remainder) keeps
+  // its escalation baked into its own age table; extrinsic is still un-escalated.
 
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
-    const gompTail = age > oat.fromAge ? Math.exp(oat.rate * (age - oat.fromAge)) : 1;
     const extrinsic = interp(extrTable, age) * lifestyle;
     const frailtyDev = Barr[frIdx][k] - Tarr[frIdx][k];
     const frailtyMultFor = (cn) =>
       Math.exp((frBeta[cn] !== undefined ? frBeta[cn] : frDefault) * frailtyDev);
-    const resid = interp(residTable, age) * edgeMultFor("residual", k, age) * gompTail;
+    const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
 
     // Stage-3b: BMI J-curve whole-bracket multiplier (target "allcause"), per-age.
     let bmiJMult = 1;
@@ -559,7 +563,8 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
     let intrinsic = 0;
     for (const cn of causeNames) {
       const c = causes[cn];
-      const ch = c.RmaxPerYear[sex] * Barr[NODE_IDX[c.node]][k] * edgeMultFor(cn, k, age) * gompTail;
+      const Bc = Barr[NODE_IDX[c.node]][k];
+      const ch = c.RmaxPerYear[sex] * (Bc / Math.max(1 - Bc, 1e-3)) * edgeMultFor(cn, k, age);
       const p = bracketMult * frailtyMultFor(cn) * ch;
       parts[cn] = p;
       intrinsic += p;
@@ -1010,7 +1015,7 @@ function topoSortMediators(mediatorList, mediatorEdges, medIds) {
 /* ---- MODEL (model/params.json) ---- */
 const MODEL = {
   "meta": {
-    "version": "v0.3",
+    "version": "v0.4",
     "ageRange": [
       20,
       130
@@ -1185,6 +1190,22 @@ const MODEL = {
           [
             90,
             0.055532
+          ],
+          [
+            100,
+            0.132021
+          ],
+          [
+            110,
+            0.313864
+          ],
+          [
+            120,
+            0.746174
+          ],
+          [
+            130,
+            1.773942
           ]
         ],
         "female": [
@@ -1219,6 +1240,22 @@ const MODEL = {
           [
             90,
             0.04114
+          ],
+          [
+            100,
+            0.097806
+          ],
+          [
+            110,
+            0.232521
+          ],
+          [
+            120,
+            0.552791
+          ],
+          [
+            130,
+            1.314197
           ]
         ]
       },
@@ -1226,9 +1263,9 @@ const MODEL = {
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
-      "rate": 0.0866,
+      "rate": 0,
       "fromAge": 90,
-      "note": "Gompertz old-age continuation: past the CDC 85+ band (age 90), disease-cause + residual hazards keep rising as exp(rate*(age-90)) (MRDT ~8yr → ~2.38x/decade) instead of plateauing. Applied as a hazard FACTOR (cause burdens stay in [0,1], saturating; interventions still scale the hazard). Extrinsic NOT tailed (accidents don't Gompertz). Lets survival run to ~0 past 110 so lifespan/x-axis can extend past 100 under interventions."
+      "note": "DEPRECATED v0.4 (2026-06-09): old-age escalation is no longer an age-keyed hazard factor. It now emerges from the cause-node RESERVE-DEPLETION burden tables (B asymptotes toward 1; odds link Rmax*B/(1-B) in engine.mjs converts reserve->hazard) so interventions that slow burden accumulation bend the >90 mortality curve. rate kept 0 for back-compat; nothing in the engine multiplies by it anymore. Residual (unmodeled remainder) carries its own escalation in its age table."
     }
   },
   "nodes": [
@@ -1430,31 +1467,55 @@ const MODEL = {
           ],
           [
             30,
-            0.002285
+            0.00228
           ],
           [
             40,
-            0.007916
+            0.007854
           ],
           [
             50,
-            0.023345
+            0.022812
           ],
           [
             60,
-            0.059632
+            0.056276
           ],
           [
             70,
-            0.121294
+            0.108173
+          ],
+          [
+            75,
+            0.140209
           ],
           [
             80,
-            0.286352
+            0.222608
+          ],
+          [
+            85,
+            0.378453
           ],
           [
             90,
-            1
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
@@ -1465,31 +1526,55 @@ const MODEL = {
             ],
             [
               30,
-              0.001448
+              0.001446
             ],
             [
               40,
-              0.004914
+              0.00489
             ],
             [
               50,
-              0.01303
+              0.012862
             ],
             [
               60,
-              0.033255
+              0.032185
             ],
             [
               70,
-              0.077676
+              0.072077
+            ],
+            [
+              75,
+              0.099407
             ],
             [
               80,
-              0.231733
+              0.188136
+            ],
+            [
+              85,
+              0.365608
             ],
             [
               90,
-              1
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -1508,70 +1593,118 @@ const MODEL = {
         "byAge": [
           [
             20,
-            0.001705
+            0.001702
           ],
           [
             30,
-            0.003641
+            0.003628
           ],
           [
             40,
-            0.010092
+            0.009991
           ],
           [
             50,
-            0.036406
+            0.035127
           ],
           [
             60,
-            0.1247
+            0.110874
           ],
           [
             70,
-            0.285023
+            0.221804
+          ],
+          [
+            75,
+            0.28366
           ],
           [
             80,
-            0.543917
+            0.352297
+          ],
+          [
+            85,
+            0.4317
           ],
           [
             90,
-            1
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
           "byAge": [
             [
               20,
-              0.002081
+              0.002077
             ],
             [
               30,
-              0.006484
+              0.006442
             ],
             [
               40,
-              0.023533
+              0.022992
             ],
             [
               50,
-              0.068919
+              0.064475
             ],
             [
               60,
-              0.183943
+              0.155365
             ],
             [
               70,
-              0.360202
+              0.264815
+            ],
+            [
+              75,
+              0.332445
             ],
             [
               80,
-              0.656688
+              0.396386
+            ],
+            [
+              85,
+              0.45218
             ],
             [
               90,
-              1
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -1606,19 +1739,43 @@ const MODEL = {
           ],
           [
             60,
-            0.004081
+            0.004064
           ],
           [
             70,
-            0.028259
+            0.027482
+          ],
+          [
+            75,
+            0.054381
           ],
           [
             80,
-            0.187196
+            0.157679
+          ],
+          [
+            85,
+            0.355236
           ],
           [
             90,
-            1
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
@@ -1641,19 +1798,43 @@ const MODEL = {
             ],
             [
               60,
-              0.003034
+              0.003025
             ],
             [
               70,
-              0.022594
+              0.022095
+            ],
+            [
+              75,
+              0.045206
             ],
             [
               80,
-              0.166392
+              0.142655
+            ],
+            [
+              85,
+              0.347488
             ],
             [
               90,
-              1
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -1672,70 +1853,118 @@ const MODEL = {
         "byAge": [
           [
             20,
-            0.001244
+            0.001242
           ],
           [
             30,
-            0.004561
+            0.00454
           ],
           [
             40,
-            0.010574
+            0.010463
           ],
           [
             50,
-            0.024881
+            0.024277
           ],
           [
             60,
-            0.06158
+            0.058008
           ],
           [
             70,
-            0.13954
+            0.122453
+          ],
+          [
+            75,
+            0.168144
           ],
           [
             80,
-            0.337757
+            0.25248
+          ],
+          [
+            85,
+            0.390198
           ],
           [
             90,
-            1
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
           "byAge": [
             [
               20,
-              0.001768
+              0.001765
             ],
             [
               30,
-              0.0056
+              0.005569
             ],
             [
               40,
-              0.012084
+              0.01194
             ],
             [
               50,
-              0.028883
+              0.028072
             ],
             [
               60,
-              0.06985
+              0.06529
             ],
             [
               70,
-              0.153551
+              0.133112
+            ],
+            [
+              75,
+              0.181065
             ],
             [
               80,
-              0.358385
+              0.263832
+            ],
+            [
+              85,
+              0.394634
             ],
             [
               90,
-              1
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -3004,12 +3233,25 @@ const CW = 1080, CH = 210;
 const C_M = { l: 52, r: 14, t: 10, b: 24 };
 function cx(age){ return C_M.l + (CW - C_M.l - C_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 
+// Plain (non-exponential) hazard label, units yr^-1. Decimals scale with
+// magnitude so small-window maxima (~0.3) and larger ones (~5) both read cleanly.
+function fmtHaz(v){
+  if (!isFinite(v) || v === 0) return "0";
+  const a = Math.abs(v);
+  const dec = a >= 1 ? 2 : a >= 0.1 ? 3 : a >= 0.01 ? 4 : 5;
+  return v.toFixed(dec);
+}
+
 function renderCauseOfDeath(sim){
   const svg = document.getElementById("codSvg");
   svg.innerHTML = "";
   const share = (state.codMode === "share");
 
-  // Per-age stack values (clamp negatives to 0). In abs mode, scale to max total.
+  // Per-age stack values (clamp negatives to 0). In abs mode, scale to the max
+  // total WITHIN THE VISIBLE WINDOW (ages AGE0..X_MAX) — not the full 20..130
+  // data span, whose age-105+ Gompertz tail would otherwise reserve ~90% of the
+  // axis for off-screen ages and squash the drawn bands into the bottom sliver.
+  const kMaxVis = X_MAX - AGE0;
   const totals = new Array(N_AGE);
   let maxTotal = 0;
   for (let k = 0; k < N_AGE; k++){
@@ -3017,7 +3259,7 @@ function renderCauseOfDeath(sim){
     const parts = partsAt(sim, k);
     for (const key of CAUSE_KEYS) t += Math.max(0, parts[key]);
     totals[k] = t;
-    if (t > maxTotal) maxTotal = t;
+    if (k <= kMaxVis && t > maxTotal) maxTotal = t;
   }
   if (maxTotal <= 0) maxTotal = 1;
 
@@ -3037,7 +3279,7 @@ function renderCauseOfDeath(sim){
     const y = plotBot - plotH * f;
     el("line", { x1: C_M.l, y1: y, x2: CW - C_M.r, y2: y, stroke: "#eee" }, svg);
     const t = el("text", { x: C_M.l - 6, y: y + 3, "text-anchor": "end", "font-size": "10", fill: "#999" }, svg);
-    t.textContent = share ? Math.round(f * 100) + "%" : (maxTotal * f).toExponential(1);
+    t.textContent = share ? Math.round(f * 100) + "%" : fmtHaz(maxTotal * f);
   }
   for (const age of xTicks()){
     const x = cx(age);
@@ -3139,6 +3381,7 @@ function renderBurden(sim){
   el("text", { x: (B_M.l + BW - B_M.r)/2, y: BH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
     .textContent = "age (years)";
 
+  const lineEls = {};
   NODES.forEach((node) => {
     const series = sim.B[node.id];
     let d = "";
@@ -3147,7 +3390,7 @@ function renderBurden(sim){
       d += (k === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1) + " ";
     }
     const isSel = state.selected === node.id;
-    el("path", {
+    lineEls[node.id] = el("path", {
       d: d, fill: "none",
       stroke: LAYER_COLOR[node.layer],
       "stroke-width": isSel ? 3 : 1.4,
@@ -3156,26 +3399,75 @@ function renderBurden(sim){
     }, svg);
   });
 
+  // Transient hover emphasis: bring the nearest line forward and dim the rest so
+  // it's legible among ~20 overlapping series. Falls back to the persistent
+  // state.selected styling when no line is hovered.
+  function styleLines(hoverId){
+    for (const node of NODES){
+      const path = lineEls[node.id];
+      const sel = state.selected === node.id;
+      const hov = hoverId === node.id;
+      path.setAttribute("stroke-width", hov ? 3.5 : sel ? 3 : 1.4);
+      path.setAttribute("opacity", hov ? 1 : sel ? 1 : (hoverId ? 0.2 : 0.7));
+    }
+  }
+  // Nearest line to the cursor by vertical distance at the hovered age — hovering
+  // individual 1.4px lines directly is impractical, so we snap to the closest.
+  function nearestNodeAt(k, myp){
+    let best = null, bestDy = Infinity;
+    for (const node of NODES){
+      const dy = Math.abs(by(sim.B[node.id][k]) - myp);
+      if (dy < bestDy){ bestDy = dy; best = node; }
+    }
+    return best;
+  }
+
   const guide = el("line", { x1: 0, y1: B_M.t, x2: 0, y2: BH - B_M.b, stroke: "#333", "stroke-width": "1", opacity: "0", "stroke-dasharray": "3,3" }, svg);
-  const hit = el("rect", { x: B_M.l, y: B_M.t, width: BW - B_M.l - B_M.r, height: BH - B_M.t - B_M.b, fill: "transparent" }, svg);
+  const hit = el("rect", { x: B_M.l, y: B_M.t, width: BW - B_M.l - B_M.r, height: BH - B_M.t - B_M.b, fill: "transparent", style: "cursor:pointer" }, svg);
+  let hoverId = null;
   hit.addEventListener("mousemove", (ev) => {
     const rect = svg.getBoundingClientRect();
     const sxp = (ev.clientX - rect.left) * (BW / rect.width);
+    const myp = (ev.clientY - rect.top) * (BH / rect.height);
     let age = AGE0 + (sxp - B_M.l) / (BW - B_M.l - B_M.r) * (X_MAX - AGE0);
     age = Math.max(AGE0, Math.min(X_MAX, Math.round(age)));
     const k = age - AGE0;
     guide.setAttribute("x1", bx(age)); guide.setAttribute("x2", bx(age));
     guide.setAttribute("opacity", "0.6");
-    updateLimitReadout(sim, k, age);
+
+    const node = nearestNodeAt(k, myp);
+    hoverId = node ? node.id : null;
+    styleLines(hoverId);
+
+    const ro = document.getElementById("limitReadout");
+    if (node){
+      const col = LAYER_COLOR[node.layer], bval = sim.B[node.id][k];
+      const rl = roleLabel(node);
+      ro.innerHTML =
+        `Age <b>${age}</b> &middot; ` +
+        `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${col};vertical-align:middle"></span> ` +
+        `<span style="color:${col};font-weight:600">${node.label}</span> ` +
+        `burden <b>${bval.toFixed(2)}</b>` +
+        (rl ? ` &middot; ${rl}` : "") +
+        ` &middot; <span style="color:#999">click to select</span>` +
+        ` &middot; <span style="color:#999">${limitFactorHtml(sim, k)}</span>`;
+    } else {
+      updateLimitReadout(sim, k, age);
+    }
   });
   hit.addEventListener("mouseleave", () => {
     guide.setAttribute("opacity", "0");
-    document.getElementById("limitReadout").textContent = "Hover the chart to see the limiting factor at a given age.";
+    hoverId = null;
+    styleLines(null);
+    document.getElementById("limitReadout").textContent =
+      "Hover a line to identify it; click to select it for an intervention.";
   });
+  hit.addEventListener("click", () => { if (hoverId) selectNode(hoverId); });
 }
 
-// Largest contributor at age index k from the six-way competing-hazards decomposition.
-function updateLimitReadout(sim, k, age){
+// Largest contributor at age index k from the six-way competing-hazards
+// decomposition, as an HTML fragment (no leading "Age N:" — callers prepend it).
+function limitFactorHtml(sim, k){
   const parts = partsAt(sim, k);
   const total = sim.hazard[k] || 0;
   let bestKey = null, bestVal = -Infinity;
@@ -3183,13 +3475,14 @@ function updateLimitReadout(sim, k, age){
     const v = Math.max(0, parts[key]);
     if (v > bestVal){ bestVal = v; bestKey = key; }
   }
-  const ro = document.getElementById("limitReadout");
-  if (bestKey === null){ ro.textContent = `Age ${age}: no dominant hazard contributor.`; return; }
+  if (bestKey === null) return "no dominant hazard contributor";
   const label = CAUSE_LABEL[bestKey], color = CAUSE_COLOR[bestKey];
   const pct = total > 0 ? (bestVal / total * 100) : 0;
-  ro.innerHTML = `Age <b>${age}</b>: limiting factor = ` +
-    `<span style="color:${color};font-weight:600">${label}</span>` +
-    (isFinite(pct) && pct > 0 ? ` (~${pct.toFixed(0)}% of total hazard)` : "") + `.`;
+  return `limiting factor = <span style="color:${color};font-weight:600">${label}</span>` +
+    (isFinite(pct) && pct > 0 ? ` (~${pct.toFixed(0)}% of total hazard)` : "");
+}
+function updateLimitReadout(sim, k, age){
+  document.getElementById("limitReadout").innerHTML = `Age <b>${age}</b>: ` + limitFactorHtml(sim, k) + ".";
 }
 
 // ---- Survival panel ----

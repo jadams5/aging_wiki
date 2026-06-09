@@ -221,21 +221,25 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   // `beta`/`default` for backward-compat. All =1 at baseline (frailtyDev 0).
   const frBeta = fr.betaByCause || {};
   const frDefault = (frBeta.default !== undefined) ? frBeta.default : (fr.beta || 0);
-  // Old-age Gompertz tail: past the CDC 85+ band (fromAge≈90), disease-cause +
-  // residual hazards keep rising as exp(rate·(age−fromAge)). Cause burdens saturate
-  // at 1, so this multiplicative FACTOR carries the rise (interventions still scale
-  // it via the burden). Extrinsic is NOT tailed. Lets survival run to ~0 past 110
-  // so lifespan / the chart x-axis can extend past 100 under interventions.
-  const oat = MODEL.mortality.oldAgeTail || { rate: 0, fromAge: 90 };
+  // Old-age escalation is BURDEN-DRIVEN, not age-keyed (v0.4). Each cause hazard
+  // uses the odds link Rmax·B/(1−B): the cause-node burden tables store a
+  // RESERVE-DEPLETION fraction in [0,1) that asymptotes toward 1 (B=0.5 at age 90,
+  // →0.97 by 130), and the odds link converts that back to a hazard. This is
+  // algebraically identical to the former `Rmax·B·gompTail` at population-baseline
+  // (B_reserve = h/(1+h) where h was the old normalized rate; the >90 anchors
+  // E/(1+E), E=exp(0.0866·(age−90)), reproduce the prior MRDT-8yr Gompertz tail
+  // EXACTLY) — but the escalation now lives in B, so interventions that slow burden
+  // accumulation bend the >90 mortality curve instead of being overridden by a
+  // chronological-age factor. Residual (the explicitly-UNMODELED remainder) keeps
+  // its escalation baked into its own age table; extrinsic is still un-escalated.
 
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
-    const gompTail = age > oat.fromAge ? Math.exp(oat.rate * (age - oat.fromAge)) : 1;
     const extrinsic = interp(extrTable, age) * lifestyle;
     const frailtyDev = Barr[frIdx][k] - Tarr[frIdx][k];
     const frailtyMultFor = (cn) =>
       Math.exp((frBeta[cn] !== undefined ? frBeta[cn] : frDefault) * frailtyDev);
-    const resid = interp(residTable, age) * edgeMultFor("residual", k, age) * gompTail;
+    const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
 
     // Stage-3b: BMI J-curve whole-bracket multiplier (target "allcause"), per-age.
     let bmiJMult = 1;
@@ -249,7 +253,8 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     let intrinsic = 0;
     for (const cn of causeNames) {
       const c = causes[cn];
-      const ch = c.RmaxPerYear[sex] * Barr[NODE_IDX[c.node]][k] * edgeMultFor(cn, k, age) * gompTail;
+      const Bc = Barr[NODE_IDX[c.node]][k];
+      const ch = c.RmaxPerYear[sex] * (Bc / Math.max(1 - Bc, 1e-3)) * edgeMultFor(cn, k, age);
       const p = bracketMult * frailtyMultFor(cn) * ch;
       parts[cn] = p;
       intrinsic += p;

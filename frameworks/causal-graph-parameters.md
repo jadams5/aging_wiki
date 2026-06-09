@@ -30,7 +30,7 @@ The honest claim the simulator makes is therefore **conditional**: *given* these
 
 ## Integrator definition
 
-State: each node *i* carries a burden `B_i(age) ∈ [0,1]` over `age ∈ [20,130]`, `dt = 1 yr`. (Range extended 100→130 so survival reaches ~0 past 110 and lifespan can extend past 100 under interventions; past the CDC open-ended 85+ band a Gompertz old-age tail keeps disease + residual hazards rising — see `mortality.oldAgeTail`.)
+State: each node *i* carries a burden `B_i(age) ∈ [0,1]` over `age ∈ [20,130]`, `dt = 1 yr`. (Range extended 100→130 so survival reaches ~0 past 110 and lifespan can extend past 100 under interventions. **v0.4 (2026-06-09):** past the CDC open-ended 85+ band, disease-cause hazards keep rising because the cause-node burdens are now **reserve-depletion** fractions that asymptote toward 1 and feed an **odds link** `Rmax·B/(1−B)` — so the old-age escalation is burden-driven and intervention-responsive, replacing the former age-keyed `mortality.oldAgeTail` Gompertz factor. The residual channel keeps its escalation in its own age table.)
 
 Each node has an **intrinsic baseline trajectory** `T_i(age)` (the "average human" curve). The actual burden is `B_i = clamp(T_i + Δ_i, 0, 1)`, where `Δ_i` is the node's **deviation from baseline** caused by interventions cascading through the graph. At baseline (no interventions) all `Δ_i = 0`, so `B_i ≡ T_i` exactly — the average-human invariant.
 
@@ -130,7 +130,9 @@ Phenotype edges added beyond the hallmark-to-hallmark set (all traceable to the 
 
 ## Mortality parameters
 
-v0.3 uses **sex-specific cause-specific competing hazards** calibrated to **CDC WONDER 2022** age×sex×cause rates — no Gompertz, **no sex scalar**. Each named cause's absolute hazard = `Rmax_{c,sex} · B_node(c),sex`. `Rmax` is per-sex; the residual and external channels are per-sex tables; `β_frail` and the coupling gains remain the only illustrative pieces.
+v0.3 uses **sex-specific cause-specific competing hazards** calibrated to **CDC WONDER 2022** age×sex×cause rates — no Gompertz, **no sex scalar**. `Rmax` is per-sex; the residual and external channels are per-sex tables; `β_frail` and the coupling gains remain the only illustrative pieces.
+
+**v0.4 (2026-06-09) — burden-driven old-age escalation.** Each named cause's absolute hazard is now an **odds link** `Rmax_{c,sex} · B/(1−B)` (was the linear `Rmax · B`), where the cause-node burden table stores a **reserve-depletion** fraction in `[0,1)` that asymptotes toward 1 (`B = 0.5` at age 90; the >90 anchors `E/(1+E)`, `E = exp(0.0866·(age−90))`). This is algebraically identical to the v0.3 `Rmax·B·oldAgeTail` at population-baseline (`B_reserve = h/(1+h)` where `h` was the v0.3 normalized rate; baseline LE reproduced to ±0.01, M 75.82 / F 80.89) — but the >90 escalation now lives in the *intervention-reachable* burden state instead of an age-keyed factor, so interventions that slow burden accumulation bend the old-age mortality curve. `Rmax` is preserved exactly (no renormalization). `mortality.oldAgeTail` is deprecated (`rate: 0`); the residual remainder keeps its escalation baked into its own age table — the one intentionally age-keyed term, as it has no burden node to attach to.
 
 | param | male | female | provenance |
 |---|---|---|---|
@@ -376,10 +378,14 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
-      "rate": 0.0866,
+      "rate": 0,
       "fromAge": 90,
-      "note": "Gompertz old-age continuation: past the CDC 85+ band (age 90), disease-cause + residual hazards keep rising as exp(rate*(age-90)) (MRDT ~8yr → ~2.38x/decade) instead of plateauing. Applied as a hazard FACTOR (cause burdens stay in [0,1], saturating; interventions still scale the hazard). Extrinsic NOT tailed (accidents don't Gompertz). Lets survival run to ~0 past 110 so lifespan/x-axis can extend past 100 under interventions."
+      "note": "DEPRECATED v0.4 (2026-06-09): old-age escalation is no longer an age-keyed hazard factor. It now emerges from the cause-node RESERVE-DEPLETION burden tables (B asymptotes toward 1; odds link Rmax*B/(1-B) converts reserve->hazard) so interventions bend the >90 mortality curve. rate kept 0 for back-compat; nothing in the engine multiplies by it. Residual carries its own escalation in its age table."
     }
+    // NOTE: the cause-node `byAge` tables and the residual table snapshotted above
+    // predate the v0.4 reserve-depletion transform (B' = h/(1+h) with >90 anchors,
+    // residual extended to 130). model/params.json is canonical; this doc snapshot
+    // illustrates structure, not current numerics.
   },
   "nodes": [
     {

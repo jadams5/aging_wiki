@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-// test.mjs — v0.3 regression suite. Pins the verified-model targets the
+// test.mjs — v0.4 regression suite. Pins the verified-model targets the
 // engine must reproduce exactly. Prints a pass/fail table and exits 1 on
 // any failure. Importable: `runTests()` returns true (all pass) / false.
+// v0.4 (2026-06-09): old-age escalation is burden-driven (odds link on reserve-
+// depletion cause burdens), not an age-keyed Gompertz factor — see the v0.4 block.
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -48,16 +50,32 @@ num("Baseline LE female", simulate(MODEL, { sex: "female" }).LE, 80.89, 0.05);
 num("Baseline max|B-T| male", maxAbsBT("male"), 0, 0);
 num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
 
-num("genomic-instability freeze@40 eff0.1 ΔLE", dLE("genomic-instability", { efficacy: 0.1 }), 0.11, 0.03);
-num("genomic-instability freeze@40 eff0.2 ΔLE", dLE("genomic-instability", { efficacy: 0.2 }), 0.21, 0.03);
-num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.43, 0.03);
-num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.17, 0.03);
+// v0.4: upstream-node freeze ΔLEs ROSE vs v0.3 because old-age escalation is now
+// burden-driven, not age-keyed. In v0.3 the cause-node burden was clamped at 1
+// above age 90 and an age-keyed Gompertz factor carried the >90 hazard, so an
+// upstream intervention's coupling relief was ERASED by the clamp and could not
+// bend the >90 curve. In v0.4 (odds link on reserve-depletion burden) it does, so
+// freezing an upstream driver buys more life. Direct cause-node freezes (athero/
+// cancer/sarcopenia) barely changed: their benefit is dominated by <90 ages where
+// both models agree, and the >90 tail holds few survivors.
+num("genomic-instability freeze@40 eff0.1 ΔLE", dLE("genomic-instability", { efficacy: 0.1 }), 0.16, 0.03);
+num("genomic-instability freeze@40 eff0.2 ΔLE", dLE("genomic-instability", { efficacy: 0.2 }), 0.32, 0.03);
+num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.64, 0.03);
+num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.61, 0.03);
 
-num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.01, 0.05);
-num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 3.15, 0.05); // B2: cause-specific frailty
-num("cancer freeze@40 100% ΔLE", dLE("cancer"), 2.10, 0.05);
-num("sarcopenia freeze@40 100% ΔLE", dLE("sarcopenia"), 3.83, 0.05); // B2: cause-specific frailty (larger effective β than flat 0.6)
-num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.18, 0.05);
+num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.04, 0.05);
+num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 3.97, 0.05); // v0.4 tail-bend + B2 cause-specific frailty
+num("cancer freeze@40 100% ΔLE", dLE("cancer"), 2.08, 0.05);
+num("sarcopenia freeze@40 100% ΔLE", dLE("sarcopenia"), 3.85, 0.05); // B2: cause-specific frailty (larger effective β than flat 0.6)
+num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.28, 0.05);
+
+// ---- v0.4 burden-driven old-age escalation (replaces age-keyed Gompertz tail) ----
+const _b = simulate(MODEL, { sex: "male" });
+const S100 = (opts) => simulate(MODEL, opts).survival[100 - MODEL.meta.ageRange[0]];
+num("v0.4: cause reserve B@90 = 0.5 (odds-link anchor)", _b.B["atherosclerosis"][90 - MODEL.meta.ageRange[0]], 0.5, 1e-6);
+str("v0.4: cause reserve B<1 at 130 (asymptotes, no clamp pile-up)", String(_b.B["atherosclerosis"][130 - MODEL.meta.ageRange[0]] < 1), "true");
+str("v0.4: cause freeze bends >90 survival (S@100 rises)", String(S100({ sex: "male", interventions: { cancer: { startAge: 40, efficacy: 1 } } }) > S100({ sex: "male" }) + 0.005), "true");
+str("v0.4: oldAgeTail neutralized (rate 0; not age-keyed)", String(MODEL.mortality.oldAgeTail.rate === 0), "true");
 
 num("lifestyle male 0× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 0 }) - baseM, 2.44, 0.1);
 num("lifestyle male 10× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 10 }) - baseM, -17.09, 0.1);

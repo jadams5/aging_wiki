@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "v0.3",
+    "version": "v0.4",
     "ageRange": [
       20,
       130
@@ -24,7 +24,7 @@
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
       "lifestyleMult": 1,
-      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
+      "note": "Non-biological parallel channel: (unintentional injury \u2212 falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
       "byAge": {
         "male": [
           [
@@ -175,6 +175,22 @@
           [
             90,
             0.055532
+          ],
+          [
+            100,
+            0.132021
+          ],
+          [
+            110,
+            0.313864
+          ],
+          [
+            120,
+            0.746174
+          ],
+          [
+            130,
+            1.773942
           ]
         ],
         "female": [
@@ -209,16 +225,32 @@
           [
             90,
             0.04114
+          ],
+          [
+            100,
+            0.097806
+          ],
+          [
+            110,
+            0.232521
+          ],
+          [
+            120,
+            0.552791
+          ],
+          [
+            130,
+            1.314197
           ]
         ]
       },
-      "note": "all-cause − modeled causes − extrinsic, per SEX (CDC WONDER 2022). Long tail: COPD, diabetes, kidney, liver, falls, etc. Keeps baseline total = empirical sex-specific all-cause mortality."
+      "note": "all-cause \u2212 modeled causes \u2212 extrinsic, per SEX (CDC WONDER 2022). Long tail: COPD, diabetes, kidney, liver, falls, etc. Keeps baseline total = empirical sex-specific all-cause mortality."
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
-      "rate": 0.0866,
+      "rate": 0,
       "fromAge": 90,
-      "note": "Gompertz old-age continuation: past the CDC 85+ band (age 90), disease-cause + residual hazards keep rising as exp(rate*(age-90)) (MRDT ~8yr → ~2.38x/decade) instead of plateauing. Applied as a hazard FACTOR (cause burdens stay in [0,1], saturating; interventions still scale the hazard). Extrinsic NOT tailed (accidents don't Gompertz). Lets survival run to ~0 past 110 so lifespan/x-axis can extend past 100 under interventions."
+      "note": "DEPRECATED v0.4 (2026-06-09): old-age escalation is no longer an age-keyed hazard factor. It now emerges from the cause-node RESERVE-DEPLETION burden tables (B asymptotes toward 1; odds link Rmax*B/(1-B) in engine.mjs converts reserve->hazard) so interventions that slow burden accumulation bend the >90 mortality curve. rate kept 0 for back-compat; nothing in the engine multiplies by it anymore. Residual (unmodeled remainder) carries its own escalation in its age table."
     }
   },
   "nodes": [
@@ -420,31 +452,55 @@
           ],
           [
             30,
-            0.002285
+            0.00228
           ],
           [
             40,
-            0.007916
+            0.007854
           ],
           [
             50,
-            0.023345
+            0.022812
           ],
           [
             60,
-            0.059632
+            0.056276
           ],
           [
             70,
-            0.121294
+            0.108173
+          ],
+          [
+            75,
+            0.140209
           ],
           [
             80,
-            0.286352
+            0.222608
+          ],
+          [
+            85,
+            0.378453
           ],
           [
             90,
-            1
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
@@ -455,31 +511,55 @@
             ],
             [
               30,
-              0.001448
+              0.001446
             ],
             [
               40,
-              0.004914
+              0.00489
             ],
             [
               50,
-              0.01303
+              0.012862
             ],
             [
               60,
-              0.033255
+              0.032185
             ],
             [
               70,
-              0.077676
+              0.072077
+            ],
+            [
+              75,
+              0.099407
             ],
             [
               80,
-              0.231733
+              0.188136
+            ],
+            [
+              85,
+              0.365608
             ],
             [
               90,
-              1
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -498,70 +578,118 @@
         "byAge": [
           [
             20,
-            0.001705
+            0.001702
           ],
           [
             30,
-            0.003641
+            0.003628
           ],
           [
             40,
-            0.010092
+            0.009991
           ],
           [
             50,
-            0.036406
+            0.035127
           ],
           [
             60,
-            0.1247
+            0.110874
           ],
           [
             70,
-            0.285023
+            0.221804
+          ],
+          [
+            75,
+            0.28366
           ],
           [
             80,
-            0.543917
+            0.352297
+          ],
+          [
+            85,
+            0.4317
           ],
           [
             90,
-            1
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
           "byAge": [
             [
               20,
-              0.002081
+              0.002077
             ],
             [
               30,
-              0.006484
+              0.006442
             ],
             [
               40,
-              0.023533
+              0.022992
             ],
             [
               50,
-              0.068919
+              0.064475
             ],
             [
               60,
-              0.183943
+              0.155365
             ],
             [
               70,
-              0.360202
+              0.264815
+            ],
+            [
+              75,
+              0.332445
             ],
             [
               80,
-              0.656688
+              0.396386
+            ],
+            [
+              85,
+              0.45218
             ],
             [
               90,
-              1
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -584,11 +712,11 @@
           ],
           [
             30,
-            0.000018
+            1.8e-05
           ],
           [
             40,
-            0.000044
+            4.4e-05
           ],
           [
             50,
@@ -596,19 +724,43 @@
           ],
           [
             60,
-            0.004081
+            0.004064
           ],
           [
             70,
-            0.028259
+            0.027482
+          ],
+          [
+            75,
+            0.054381
           ],
           [
             80,
-            0.187196
+            0.157679
+          ],
+          [
+            85,
+            0.355236
           ],
           [
             90,
-            1
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
@@ -623,7 +775,7 @@
             ],
             [
               40,
-              0.000032
+              3.2e-05
             ],
             [
               50,
@@ -631,19 +783,43 @@
             ],
             [
               60,
-              0.003034
+              0.003025
             ],
             [
               70,
-              0.022594
+              0.022095
+            ],
+            [
+              75,
+              0.045206
             ],
             [
               80,
-              0.166392
+              0.142655
+            ],
+            [
+              85,
+              0.347488
             ],
             [
               90,
-              1
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -662,70 +838,118 @@
         "byAge": [
           [
             20,
-            0.001244
+            0.001242
           ],
           [
             30,
-            0.004561
+            0.00454
           ],
           [
             40,
-            0.010574
+            0.010463
           ],
           [
             50,
-            0.024881
+            0.024277
           ],
           [
             60,
-            0.06158
+            0.058008
           ],
           [
             70,
-            0.13954
+            0.122453
+          ],
+          [
+            75,
+            0.168144
           ],
           [
             80,
-            0.337757
+            0.25248
+          ],
+          [
+            85,
+            0.390198
           ],
           [
             90,
-            1
+            0.5
+          ],
+          [
+            100,
+            0.703913
+          ],
+          [
+            110,
+            0.849668
+          ],
+          [
+            120,
+            0.930733
+          ],
+          [
+            130,
+            0.969646
           ]
         ],
         "female": {
           "byAge": [
             [
               20,
-              0.001768
+              0.001765
             ],
             [
               30,
-              0.0056
+              0.005569
             ],
             [
               40,
-              0.012084
+              0.01194
             ],
             [
               50,
-              0.028883
+              0.028072
             ],
             [
               60,
-              0.06985
+              0.06529
             ],
             [
               70,
-              0.153551
+              0.133112
+            ],
+            [
+              75,
+              0.181065
             ],
             [
               80,
-              0.358385
+              0.263832
+            ],
+            [
+              85,
+              0.394634
             ],
             [
               90,
-              1
+              0.5
+            ],
+            [
+              100,
+              0.703913
+            ],
+            [
+              110,
+              0.849668
+            ],
+            [
+              120,
+              0.930733
+            ],
+            [
+              130,
+              0.969646
             ]
           ]
         }
@@ -957,7 +1181,7 @@
   ],
   "bLayer": {
     "version": "B-stage1",
-    "note": "Stage-1 endogenous-mediator tier (2026-06-08). Exogenous behavioral/environmental inputs drive emergent mediator VALUES (LDL, SBP, BMI, HbA1c). NOT YET wired to mortality — mortality math is unchanged v0.3. mediator(age) = baseline_{med,sex}(age) + Σ_x coeff_{x→med}·form(input_x − populationMean_x) + personal_offset. At population-average inputs + zero offset, mediator == baseline (invariant). Numbers transcribed from § B-layer parameters; interpolations flagged in provenance.",
+    "note": "Stage-1 endogenous-mediator tier (2026-06-08). Exogenous behavioral/environmental inputs drive emergent mediator VALUES (LDL, SBP, BMI, HbA1c). NOT YET wired to mortality \u2014 mortality math is unchanged v0.3. mediator(age) = baseline_{med,sex}(age) + \u03a3_x coeff_{x\u2192med}\u00b7form(input_x \u2212 populationMean_x) + personal_offset. At population-average inputs + zero offset, mediator == baseline (invariant). Numbers transcribed from \u00a7 B-layer parameters; interpolations flagged in provenance.",
     "exogenousInputs": [
       {
         "id": "smoking",
@@ -979,11 +1203,11 @@
           "former",
           "current"
         ],
-        "note": "Categorical smoking status for the direct smoking->cancer/COPD cause edges (Stage 2). Sentinel populationMean 'population' (and undefined) maps to the US smoker mix (61% never / 25% former / 14% current), normalized so the mix averages to a multiplier of 1 — the CDC cause baselines already embed this mix."
+        "note": "Categorical smoking status for the direct smoking->cancer/COPD cause edges (Stage 2). Sentinel populationMean 'population' (and undefined) maps to the US smoker mix (61% never / 25% former / 14% current), normalized so the mix averages to a multiplier of 1 \u2014 the CDC cause baselines already embed this mix."
       },
       {
         "id": "calorieBalance",
-        "label": "Caloric balance (intake − expenditure)",
+        "label": "Caloric balance (intake \u2212 expenditure)",
         "unit": "kcal/day",
         "populationMean": 0,
         "range": [
@@ -1054,7 +1278,7 @@
       {
         "id": "airPollution",
         "label": "Air pollution",
-        "unit": "µg/m³ PM2.5",
+        "unit": "\u00b5g/m\u00b3 PM2.5",
         "populationMean": 8,
         "range": [
           2,
@@ -1435,7 +1659,7 @@
     "constants": {
       "heightRefM": 1.7,
       "weightAsymptoteFraction": 0.55,
-      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
+      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (\u0394BMI = \u0394kg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
     },
     "causeEdges": [
       {

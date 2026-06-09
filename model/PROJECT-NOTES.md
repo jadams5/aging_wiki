@@ -200,6 +200,26 @@ NOT as a bundled BMI→all-cause HR (which would double-count the mediated porti
    hazards keep rising past 90. Lesson: carry the old-age acceleration in a
    *separate multiplicative factor*, never by rescaling the calibrated `Rmax`.
 
+   **SUPERSEDED by v0.4 (2026-06-09).** The Gompertz tail FACTOR fixed the plateau
+   but was keyed to *chronological age* and intervention-invariant: above 90 the
+   cause burden was clamped at 1, so an upstream intervention's coupling relief was
+   erased by the clamp and the `exp(0.0866·(age−90))` factor ran regardless — no
+   intervention could bend the >90 curve (user's objection: "any outcome tied to age
+   regardless of input is incorrect"). v0.4 folds the escalation INTO burden via an
+   **odds link** `hazard_c = Rmax·B/(1−B)` on cause-node **reserve-depletion** tables
+   (`B' = h/(1+h)` where `h` was the old normalized rate; `B'=0.5` at 90, the >90
+   anchors `E/(1+E)`, `E=exp(0.0866·(age−90))`, reproduce the former MRDT-8yr tail
+   EXACTLY). Crucially this does NOT fall into the renormalization trap above: `Rmax`
+   is preserved EXACTLY and baseline LE is reproduced to ±0.01 (M 75.82 / F 80.89),
+   yet the tail is now burden-driven so interventions bend it (gi-freeze 1.17→1.61,
+   chronic-inflammation 3.15→3.97; direct cause freezes barely move because their
+   benefit is dominated by <90 ages). `oldAgeTail.rate` set to 0 (deprecated, kept
+   for back-compat; nothing multiplies by it). Residual (the unmodeled remainder)
+   keeps its escalation baked into its own age table — the one remaining age-keyed
+   term, defensible because it has no burden node to attach to. Lesson refinement:
+   old-age acceleration belongs in the *intervention-reachable* burden state via a
+   convex (pole-at-1) link, not an age factor and not a rescaled `Rmax`.
+
 **Other gotchas:** activity has overlapping channels (fitness→all-cause +
 HbA1c→CVD + SBP→CVD) — acknowledged *minor* double-count, mitigated because
 HbA1c→CVD is threshold-gated (>5.7) so it's ~inert for active people; the
@@ -221,10 +241,17 @@ already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseli
   crash).
 - **Cubic interpolation** smoothing done.
 - **App consumes the engine** (dual-implementation killed via build-app inlining).
-- **Age range extended 20→130** (`meta.ageRange`) + **Gompertz old-age tail**
-  (`mortality.oldAgeTail`) so survival reaches ~0 past 110 instead of plateauing at
-  90; lifespan now extends past 100 under interventions (healthy profile ~7% alive
-  at 105, LE ~87 vs 75.8 baseline). Data arrays computed over the full 20–130 span.
+- **Age range extended 20→130** (`meta.ageRange`); survival reaches ~0 past 110
+  instead of plateauing at 90; lifespan extends past 100 under interventions. Data
+  arrays computed over the full 20–130 span.
+- **v0.4 burden-driven old-age escalation** (2026-06-09): replaced the age-keyed
+  Gompertz tail factor with an **odds link** `Rmax·B/(1−B)` on cause-node
+  reserve-depletion burdens, so interventions now bend the >90 mortality curve
+  (see FIXED-MISTAKES §8 supersession). Baseline LE unchanged (M 75.82 / F 80.89);
+  +4 v0.4 lock tests in `test.mjs` (77/77 pass). App-layer (same session): burden
+  timeline gained nearest-line hover-identify + click-to-select; cause-of-death
+  Absolute-hazard axis scales to the visible window with plain (non-exponential)
+  labels.
 - **Dynamic x-axis** (app render layer): `computeXMax(sim)` = largest age where
   survival > 0.005, rounded up to 5, clamped [100,130]; `renderAll` sets `X_MAX`
   per render and every x-mapping (cause/burden/survival/mediator), gridline loop,
