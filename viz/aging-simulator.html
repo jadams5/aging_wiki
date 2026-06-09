@@ -42,6 +42,13 @@
   }
   header h1 { margin: 0 0 2px; font-size: 18px; }
   .disclaimer { color: var(--muted); font-size: 11px; max-width: 1100px; line-height: 1.35; }
+  .experiment-note {
+    max-width: 1100px; margin: 8px 0 0; padding: 10px 14px;
+    border: 1px solid #b8860b; border-left: 4px solid #d4a017;
+    background: rgba(212, 160, 23, 0.10); border-radius: 6px;
+    font-size: 12px; line-height: 1.45; color: var(--fg);
+  }
+  .experiment-note strong { color: #d4a017; }
   .topbar {
     display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
     padding: 6px 14px; border-bottom: 1px solid var(--line); background: var(--panel);
@@ -150,6 +157,13 @@
     The <b>B-layer</b> (Lifestyle &amp; environment + Labs) drives emergent mediator values (LDL / SBP / HbA1c) and
     their clean mediator&rarr;cause / direct exogenous&rarr;cause mortality multipliers.
     All numbers come from <code>model/engine.mjs</code> (the single source of truth). Not prediction, not medical advice.
+  </div>
+  <div class="experiment-note">
+    <strong>⚠ This is an experiment, not a health tool.</strong>
+    It is built on real, open-access population data (CDC WONDER, NHANES, published dose-response literature),
+    but it is a simplified sensitivity explorer for understanding how causal factors interact &mdash;
+    <strong>not a personal predictor and not a source of actionable medical insight.</strong>
+    Do not use any output to make health, lifestyle, or treatment decisions. Consult a qualified clinician for those.
   </div>
 </header>
 
