@@ -221,14 +221,21 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   // `beta`/`default` for backward-compat. All =1 at baseline (frailtyDev 0).
   const frBeta = fr.betaByCause || {};
   const frDefault = (frBeta.default !== undefined) ? frBeta.default : (fr.beta || 0);
+  // Old-age Gompertz tail: past the CDC 85+ band (fromAge≈90), disease-cause +
+  // residual hazards keep rising as exp(rate·(age−fromAge)). Cause burdens saturate
+  // at 1, so this multiplicative FACTOR carries the rise (interventions still scale
+  // it via the burden). Extrinsic is NOT tailed. Lets survival run to ~0 past 110
+  // so lifespan / the chart x-axis can extend past 100 under interventions.
+  const oat = MODEL.mortality.oldAgeTail || { rate: 0, fromAge: 90 };
 
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
+    const gompTail = age > oat.fromAge ? Math.exp(oat.rate * (age - oat.fromAge)) : 1;
     const extrinsic = interp(extrTable, age) * lifestyle;
     const frailtyDev = Barr[frIdx][k] - Tarr[frIdx][k];
     const frailtyMultFor = (cn) =>
       Math.exp((frBeta[cn] !== undefined ? frBeta[cn] : frDefault) * frailtyDev);
-    const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
+    const resid = interp(residTable, age) * edgeMultFor("residual", k, age) * gompTail;
 
     // Stage-3b: BMI J-curve whole-bracket multiplier (target "allcause"), per-age.
     let bmiJMult = 1;
@@ -242,7 +249,7 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     let intrinsic = 0;
     for (const cn of causeNames) {
       const c = causes[cn];
-      const ch = c.RmaxPerYear[sex] * Barr[NODE_IDX[c.node]][k] * edgeMultFor(cn, k, age);
+      const ch = c.RmaxPerYear[sex] * Barr[NODE_IDX[c.node]][k] * edgeMultFor(cn, k, age) * gompTail;
       const p = bracketMult * frailtyMultFor(cn) * ch;
       parts[cn] = p;
       intrinsic += p;

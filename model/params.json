@@ -3,7 +3,7 @@
     "version": "v0.3",
     "ageRange": [
       20,
-      100
+      130
     ],
     "dt": 1,
     "couple": 1,
@@ -214,7 +214,12 @@
       },
       "note": "all-cause − modeled causes − extrinsic, per SEX (CDC WONDER 2022). Long tail: COPD, diabetes, kidney, liver, falls, etc. Keeps baseline total = empirical sex-specific all-cause mortality."
     },
-    "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar."
+    "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
+    "oldAgeTail": {
+      "rate": 0.0866,
+      "fromAge": 90,
+      "note": "Gompertz old-age continuation: past the CDC 85+ band (age 90), disease-cause + residual hazards keep rising as exp(rate*(age-90)) (MRDT ~8yr → ~2.38x/decade) instead of plateauing. Applied as a hazard FACTOR (cause burdens stay in [0,1], saturating; interventions still scale the hazard). Extrinsic NOT tailed (accidents don't Gompertz). Lets survival run to ~0 past 110 so lifespan/x-axis can extend past 100 under interventions."
+    }
   },
   "nodes": [
     {
