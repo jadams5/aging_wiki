@@ -1354,9 +1354,9 @@
       {
         "from": "dietSodium",
         "to": "systolicBP",
-        "coeff": -5.8,
+        "coeff": 5.8,
         "form": "sodiumConvex",
-        "provenance": "He 2013: -5.8 mmHg per -100 mmol/day; CONVEX, effect-modified (HTN -5.4 / normo -1.0; steeper older/Black). SOLID. Form scales by baseline-SBP (older/higher = steeper)."
+        "provenance": "He 2013: +5.8 mmHg SBP per +100 mmol/day (slope POSITIVE; the '-5.8 per -100' reduction framing). CONVEX, effect-modified (steeper older/higher-SBP). SOLID. [sign-fixed 2026-06-08]"
       },
       {
         "from": "alcohol",
@@ -1378,6 +1378,20 @@
         "coeff": 0.72,
         "form": "mediatorLinear",
         "provenance": "Stage 3b (2026-06-08). Bann 2021 (UK cohorts MR/longitudinal): ~+0.72 mmHg SBP per +1 kg/m2 BMI. mediator->mediator edge: SBP gains 0.72*(BMI_person(age) - BMI_baseline_sex(age)); flows through the existing SBP->cardiovascular edge (the DOMINANT mediated BMI->CVD path). BMI is itself driven by calorieBalance, so calorieBalance->BMI->SBP->CVD chains. At default calorieBalance + zero BMI offset, BMI==baseline => Delta 0 => SBP unchanged. SOLID-direction. NOTE: BMI must be computed BEFORE systolicBP (engine topo-sorts mediator->mediator edges)."
+      },
+      {
+        "from": "physicalActivity",
+        "to": "systolicBP",
+        "coeff": -3.8,
+        "form": "exerciseScaled",
+        "provenance": "Cornelissen 2013 aerobic-training meta: ~-3.8 mmHg SBP (sedentary->trained); scaled by activity deviation (exerciseScale). =0 at popMean activity. NOTE: partial mortality overlap with the fitness->all-cause channel (the BP-mediated slice of exercise's benefit); acknowledged minor double-count, fit-harness to reconcile."
+      },
+      {
+        "from": "BMI",
+        "to": "HbA1c",
+        "coeff": 0.025,
+        "form": "mediatorLinear",
+        "provenance": "~+0.025% HbA1c per +1 kg/m2 BMI (continuous slope WEAK/#gap, cross-sectional; the SOLID glycemic-BMI signal is incident-T2D RR). Enables calorieBalance->BMI->HbA1c (adiposity->insulin-resistance). =0 at baseline BMI. Small overlap with the BMI->CVD residual glucose-mediation (~15% per Lu 2014); fit-harness reconciles."
       }
     ],
     "treatments": [

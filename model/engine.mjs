@@ -338,6 +338,8 @@ function applyMediatorEdge(edge, inputs, popMean, baselineVal, K, medCtx) {
     }
     case "exerciseHbA1c":
       return edge.coeff * exerciseScale(dx);
+    case "exerciseScaled":          // generic activity-scaled mediator shift (e.g. activity→SBP)
+      return edge.coeff * exerciseScale(dx);
     case "sodiumConvex":
       // coeff is per 100 mmol; convex + baseline-SBP effect-modified.
       return edge.coeff * (dx / 100) * sodiumMod(baselineVal);

@@ -116,8 +116,8 @@ num("B: exercise +150min → ΔHbA1c", dMed("HbA1c", 50, { inputs: { physicalAct
 // low-baseline (young normotensive) — effect-modification.
 const dNaYoung = dMed("systolicBP", 30, { inputs: { dietSodium: 50 } }); // base ~119
 const dNaOld = dMed("systolicBP", 75, { inputs: { dietSodium: 50 } });   // base ~154
-str("B: sodium−100 lowers SBP (young)", String(dNaYoung > 0 && dNaYoung < 5), "true");
-str("B: sodium−100 effect-modified (old > young)", String(dNaOld > dNaYoung + 2), "true");
+str("B: sodium−100 lowers SBP (young)", String(dNaYoung < 0 && dNaYoung > -5), "true");
+str("B: sodium−100 effect-modified (old > young)", String(Math.abs(dNaOld) > Math.abs(dNaYoung) + 2), "true");
 
 // Statin intervention → LDL down ~40% (50→base*0.6, floored at 50).
 const dStat = dMed("LDL", 50, { treatments: { statin: true } });

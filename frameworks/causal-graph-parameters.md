@@ -1113,14 +1113,21 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "label": "Smoking",
         "unit": "cigarettes/day",
         "populationMean": 2,
-        "range": [0, 40]
+        "range": [
+          0,
+          40
+        ]
       },
       {
         "id": "smokingStatus",
         "label": "Smoking status (categorical)",
         "unit": "never|former|current",
         "populationMean": "population",
-        "range": ["never", "former", "current"],
+        "range": [
+          "never",
+          "former",
+          "current"
+        ],
         "note": "Categorical smoking status for the direct smoking->cancer/COPD cause edges (Stage 2). Sentinel populationMean 'population' (and undefined) maps to the US smoker mix (61% never / 25% former / 14% current), normalized so the mix averages to a multiplier of 1 — the CDC cause baselines already embed this mix."
       },
       {
@@ -1128,56 +1135,80 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "label": "Caloric balance (intake − expenditure)",
         "unit": "kcal/day",
         "populationMean": 0,
-        "range": [-1000, 1000]
+        "range": [
+          -1000,
+          1000
+        ]
       },
       {
         "id": "physicalActivity",
         "label": "Physical activity",
         "unit": "min/week MVPA",
         "populationMean": 150,
-        "range": [0, 600]
+        "range": [
+          0,
+          600
+        ]
       },
       {
         "id": "dietSatFat",
         "label": "Saturated fat",
         "unit": "% energy",
         "populationMean": 11,
-        "range": [3, 25]
+        "range": [
+          3,
+          25
+        ]
       },
       {
         "id": "dietFiber",
         "label": "Soluble fiber",
         "unit": "g/day",
         "populationMean": 3,
-        "range": [0, 30]
+        "range": [
+          0,
+          30
+        ]
       },
       {
         "id": "dietSodium",
         "label": "Dietary sodium",
         "unit": "mmol/day",
         "populationMean": 150,
-        "range": [40, 300]
+        "range": [
+          40,
+          300
+        ]
       },
       {
         "id": "alcohol",
         "label": "Alcohol",
         "unit": "drinks/day",
         "populationMean": 1,
-        "range": [0, 10]
+        "range": [
+          0,
+          10
+        ]
       },
       {
         "id": "sleep",
         "label": "Sleep",
         "unit": "hours/night",
         "populationMean": 7,
-        "range": [3, 11]
+        "range": [
+          3,
+          11
+        ]
       },
       {
         "id": "airPollution",
         "label": "Air pollution",
         "unit": "µg/m³ PM2.5",
         "populationMean": 8,
-        "range": [2, 60]
+        "range": [
+          2,
+          60
+        ]
       }
     ],
     "mediators": [
@@ -1187,8 +1218,66 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "unit": "mg/dL",
         "sd": 35,
         "baseline": {
-          "male": [[25, 115], [35, 115], [45, 115], [55, 115], [65, 108], [75, 100], [85, 100]],
-          "female": [[25, 115], [35, 115], [45, 116], [55, 120], [65, 116], [75, 115], [85, 115]]
+          "male": [
+            [
+              25,
+              115
+            ],
+            [
+              35,
+              115
+            ],
+            [
+              45,
+              115
+            ],
+            [
+              55,
+              115
+            ],
+            [
+              65,
+              108
+            ],
+            [
+              75,
+              100
+            ],
+            [
+              85,
+              100
+            ]
+          ],
+          "female": [
+            [
+              25,
+              115
+            ],
+            [
+              35,
+              115
+            ],
+            [
+              45,
+              116
+            ],
+            [
+              55,
+              120
+            ],
+            [
+              65,
+              116
+            ],
+            [
+              75,
+              115
+            ],
+            [
+              85,
+              115
+            ]
+          ]
         },
         "provenance": "JAMA Cardiol lipid-trends; PMC9615374; db515. Only crude <65 vs >=65 published (M<65 114.8/M>=65 100.0(treated-low); F<65 114.8/F>=65 114.6). INTERPOLATED to per-year: male flat ~115 to 55 then decline to ~100 (treated-low >=65); female menopausal rise 45-55 to ~120 peak then ~115, overtaking male >=65."
       },
@@ -1198,8 +1287,66 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "unit": "mmHg",
         "sd": 16,
         "baseline": {
-          "male": [[25, 119], [35, 119], [45, 124], [55, 124], [65, 133], [75, 154], [85, 154]],
-          "female": [[25, 110], [35, 110], [45, 122], [55, 122], [65, 139], [75, 159], [85, 159]]
+          "male": [
+            [
+              25,
+              119
+            ],
+            [
+              35,
+              119
+            ],
+            [
+              45,
+              124
+            ],
+            [
+              55,
+              124
+            ],
+            [
+              65,
+              133
+            ],
+            [
+              75,
+              154
+            ],
+            [
+              85,
+              154
+            ]
+          ],
+          "female": [
+            [
+              25,
+              110
+            ],
+            [
+              35,
+              110
+            ],
+            [
+              45,
+              122
+            ],
+            [
+              55,
+              122
+            ],
+            [
+              65,
+              139
+            ],
+            [
+              75,
+              159
+            ],
+            [
+              85,
+              159
+            ]
+          ]
         },
         "provenance": "NHSR-35 2001-08 untreated-HTN/total strata. 3 published bands -> INTERPOLATED piecewise-linear. Female SBP crossover at 60s (F139 > M133) encoded."
       },
@@ -1209,8 +1356,66 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "unit": "kg/m^2",
         "sd": 6,
         "baseline": {
-          "male": [[25, 27.6], [35, 30.3], [45, 30.1], [55, 29.8], [65, 29.9], [75, 29.2], [85, 27.6]],
-          "female": [[25, 28.3], [35, 29.9], [45, 30.7], [55, 30.3], [65, 30.3], [75, 29.8], [85, 28.0]]
+          "male": [
+            [
+              25,
+              27.6
+            ],
+            [
+              35,
+              30.3
+            ],
+            [
+              45,
+              30.1
+            ],
+            [
+              55,
+              29.8
+            ],
+            [
+              65,
+              29.9
+            ],
+            [
+              75,
+              29.2
+            ],
+            [
+              85,
+              27.6
+            ]
+          ],
+          "female": [
+            [
+              25,
+              28.3
+            ],
+            [
+              35,
+              29.9
+            ],
+            [
+              45,
+              30.7
+            ],
+            [
+              55,
+              30.3
+            ],
+            [
+              65,
+              30.3
+            ],
+            [
+              75,
+              29.8
+            ],
+            [
+              85,
+              28.0
+            ]
+          ]
         },
         "provenance": "Fryar 2015-18 (~untreated biology; right-skewed). Direct per-band table, band-center ages."
       },
@@ -1220,8 +1425,66 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "unit": "%",
         "sd": 0.6,
         "baseline": {
-          "male": [[25, 5.3], [35, 5.3], [45, 5.6], [55, 5.6], [65, 5.9], [75, 5.9], [85, 5.9]],
-          "female": [[25, 5.3], [35, 5.3], [45, 5.5], [55, 5.5], [65, 5.8], [75, 5.8], [85, 5.8]]
+          "male": [
+            [
+              25,
+              5.3
+            ],
+            [
+              35,
+              5.3
+            ],
+            [
+              45,
+              5.6
+            ],
+            [
+              55,
+              5.6
+            ],
+            [
+              65,
+              5.9
+            ],
+            [
+              75,
+              5.9
+            ],
+            [
+              85,
+              5.9
+            ]
+          ],
+          "female": [
+            [
+              25,
+              5.3
+            ],
+            [
+              35,
+              5.3
+            ],
+            [
+              45,
+              5.5
+            ],
+            [
+              55,
+              5.5
+            ],
+            [
+              65,
+              5.8
+            ],
+            [
+              75,
+              5.8
+            ],
+            [
+              85,
+              5.8
+            ]
+          ]
         },
         "provenance": "Selvin 2005-10 (sexes ~equal; rising secular trend). Direct per-band table, band-center ages."
       }
@@ -1251,9 +1514,9 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       {
         "from": "dietSodium",
         "to": "systolicBP",
-        "coeff": -5.8,
+        "coeff": 5.8,
         "form": "sodiumConvex",
-        "provenance": "He 2013: -5.8 mmHg per -100 mmol/day; CONVEX, effect-modified (HTN -5.4 / normo -1.0; steeper older/Black). SOLID. Form scales by baseline-SBP (older/higher = steeper)."
+        "provenance": "He 2013: +5.8 mmHg SBP per +100 mmol/day (slope POSITIVE; the '-5.8 per -100' reduction framing). CONVEX, effect-modified (steeper older/higher-SBP). SOLID. [sign-fixed 2026-06-08]"
       },
       {
         "from": "alcohol",
@@ -1275,6 +1538,20 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "coeff": 0.72,
         "form": "mediatorLinear",
         "provenance": "Stage 3b (2026-06-08). Bann 2021 (UK cohorts MR/longitudinal): ~+0.72 mmHg SBP per +1 kg/m2 BMI. mediator->mediator edge: SBP gains 0.72*(BMI_person(age) - BMI_baseline_sex(age)); flows through the existing SBP->cardiovascular edge (the DOMINANT mediated BMI->CVD path). BMI is itself driven by calorieBalance, so calorieBalance->BMI->SBP->CVD chains. At default calorieBalance + zero BMI offset, BMI==baseline => Delta 0 => SBP unchanged. SOLID-direction. NOTE: BMI must be computed BEFORE systolicBP (engine topo-sorts mediator->mediator edges)."
+      },
+      {
+        "from": "physicalActivity",
+        "to": "systolicBP",
+        "coeff": -3.8,
+        "form": "exerciseScaled",
+        "provenance": "Cornelissen 2013 aerobic-training meta: ~-3.8 mmHg SBP (sedentary->trained); scaled by activity deviation (exerciseScale). =0 at popMean activity. NOTE: partial mortality overlap with the fitness->all-cause channel (the BP-mediated slice of exercise's benefit); acknowledged minor double-count, fit-harness to reconcile."
+      },
+      {
+        "from": "BMI",
+        "to": "HbA1c",
+        "coeff": 0.025,
+        "form": "mediatorLinear",
+        "provenance": "~+0.025% HbA1c per +1 kg/m2 BMI (continuous slope WEAK/#gap, cross-sectional; the SOLID glycemic-BMI signal is incident-T2D RR). Enables calorieBalance->BMI->HbA1c (adiposity->insulin-resistance). =0 at baseline BMI. Small overlap with the BMI->CVD residual glucose-mediation (~15% per Lu 2014); fit-harness reconciles."
       }
     ],
     "treatments": [
@@ -1311,79 +1588,172 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     },
     "causeEdges": [
       {
-        "from": "LDL", "to": "cardiovascular", "form": "mediatorLogLinear", "med": "LDL",
+        "from": "LDL",
+        "to": "cardiovascular",
+        "form": "mediatorLogLinear",
+        "med": "LDL",
         "beta": 0.00643,
         "provenance": "CTT 2010: RR 0.78 per -1 mmol/L LDL = exp(-0.2485/38.67 mg/dL) => beta=0.00643 per mg/dL. Acts on (LDL value - per-sex/age baseline); =1 at baseline. SOLID."
       },
       {
-        "from": "systolicBP", "to": "cardiovascular", "form": "mediatorLogLinear", "med": "systolicBP",
-        "beta": 0.0347, "betaAgeMod": { "refAge": 50, "halfPer": 20 },
+        "from": "systolicBP",
+        "to": "cardiovascular",
+        "form": "mediatorLogLinear",
+        "med": "systolicBP",
+        "beta": 0.0347,
+        "betaAgeMod": {
+          "refAge": 50,
+          "halfPer": 20
+        },
         "provenance": "Lewington 2002: ~2x CVD per +20 mmHg (>=115) => beta=ln(2)/20=0.0347 per mmHg at age 50; relative slope HALVES per ~2 decades (betaAgeMod refAge 50, halfPer 20). Acts on (SBP value - baseline). SOLID."
       },
       {
-        "from": "HbA1c", "to": "cardiovascular", "form": "mediatorThresholdRamp", "med": "HbA1c",
-        "slope": 1.052, "threshold": 5.7, "cap": 3.0,
+        "from": "HbA1c",
+        "to": "cardiovascular",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "slope": 1.052,
+        "threshold": 5.7,
+        "cap": 3.0,
         "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 reached at HbA1c 6.5 => exp(1.052*(6.5-5.7))=2.32; ramp from 5.7, capped 3.0. Ratio-to-baseline so =1 at the per-age baseline HbA1c. SOLID."
       },
       {
-        "from": "HbA1c", "to": "cancer", "form": "mediatorThresholdRamp", "med": "HbA1c",
-        "slope": 0.27893, "threshold": 5.7, "cap": 1.25,
+        "from": "HbA1c",
+        "to": "cancer",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "slope": 0.27893,
+        "threshold": 5.7,
+        "cap": 1.25,
         "provenance": "ERFC 2011: diabetes->cancer death HR 1.25 at HbA1c>=6.5 => slope=ln(1.25)/0.8=0.27893; ramp from 5.7, cap 1.25. Ratio-to-baseline. SOLID."
       },
       {
-        "from": "HbA1c", "to": "neurodegeneration", "form": "mediatorThresholdRamp", "med": "HbA1c",
-        "slope": 0.68515, "threshold": 5.7, "cap": 1.73,
+        "from": "HbA1c",
+        "to": "neurodegeneration",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "slope": 0.68515,
+        "threshold": 5.7,
+        "cap": 1.73,
         "provenance": "Gudala 2013: diabetes->dementia RR 1.73 at HbA1c>=6.5 => slope=ln(1.73)/0.8=0.68515; ramp from 5.7, cap 1.73. Ratio-to-baseline. SOLID."
       },
       {
-        "from": "smokingStatus", "to": "cancer", "form": "smokingCategorical", "input": "smokingStatus",
-        "rr": { "never": 1.0, "former": 1.3, "current": 2.2 },
+        "from": "smokingStatus",
+        "to": "cancer",
+        "form": "smokingCategorical",
+        "input": "smokingStatus",
+        "rr": {
+          "never": 1.0,
+          "former": 1.3,
+          "current": 2.2
+        },
         "provenance": "Relative cancer-death RR never 1.0 / former 1.3 / current 2.2 (PAF 28.8%). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*2.2=1.243) so the population mix averages to mult 1 (the CDC cancer baseline already embeds the mix). Normalized: never~0.804 / former~1.046 / current~1.770. SOLID-direction; relative magnitudes approximate."
       },
       {
-        "from": "smokingStatus", "to": "residual", "form": "smokingCategorical", "input": "smokingStatus",
-        "rr": { "never": 1.0, "former": 2.0, "current": 6.0 },
+        "from": "smokingStatus",
+        "to": "residual",
+        "form": "smokingCategorical",
+        "input": "smokingStatus",
+        "rr": {
+          "never": 1.0,
+          "former": 2.0,
+          "current": 6.0
+        },
         "provenance": "COPD slice of residual; stronger smoking gradient never 1.0 / former 2.0 / current 6.0. NORMALIZED by mix mean (0.61+0.50+0.84=1.95): never~0.513 / former~1.026 / current~3.077. Applied to the whole residual bucket as an approximation (COPD is the dominant smoking-attributable residual cause). APPROXIMATE."
       },
       {
-        "from": "smokingStatus", "to": "cardiovascular", "form": "smokingCategorical", "input": "smokingStatus",
-        "rr": { "never": 1.0, "former": 1.3, "current": 1.9 },
+        "from": "smokingStatus",
+        "to": "cardiovascular",
+        "form": "smokingCategorical",
+        "input": "smokingStatus",
+        "rr": {
+          "never": 1.0,
+          "former": 1.3,
+          "current": 1.9
+        },
         "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Relative cardiovascular-death RR never 1.0 / former 1.3 / current 1.9 (net current-smoker CVD RR ~1.8-2.0). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*1.9=1.201) so the population mix averages to mult 1 (the CDC cardiovascular baseline already embeds the mix). Normalized: never~0.833 / former~1.082 / current~1.582. Same scheme as smoking->cancer. SOLID-direction; relative magnitudes approximate."
       },
       {
-        "from": "physicalActivity", "to": "allcause", "form": "activityFitness", "input": "physicalActivity",
+        "from": "physicalActivity",
+        "to": "allcause",
+        "form": "activityFitness",
+        "input": "physicalActivity",
         "betaPerMet": -0.139,
-        "metMap": [ [0, -1.5], [75, -0.5], [150, 0.0], [300, 1.0], [600, 2.5] ],
+        "metMap": [
+          [
+            0,
+            -1.5
+          ],
+          [
+            75,
+            -0.5
+          ],
+          [
+            150,
+            0.0
+          ],
+          [
+            300,
+            1.0
+          ],
+          [
+            600,
+            2.5
+          ]
+        ],
         "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Activity's mortality benefit flows through cardiorespiratory fitness (VO2max), weight- AND glucose-independent (Barry 2014: obese-fit ~ normal-fit). mult_allcause = exp(-0.139 * dMETs(activity)), RR 0.87 per MET (Kodama 2009) => beta = ln(0.87) = -0.139. Applied to the WHOLE intrinsic bracket (all causes + residual), at the frailty-multiplier site (target 'allcause'). dMETs = MET-deviation of the activity level from population-average activity (physicalActivity popMean 150 min/wk -> dMETs 0 -> mult 1, baseline preserved). metMap is an ILLUSTRATIVE piecewise-linear map on physicalActivity (min/wk MVPA) -> METs-relative-to-popMean: sedentary(0)=-1.5, below-avg(75)=-0.5, popMean(150)=0, moderate(300)=+1.0, high/athlete(600)=+2.5; range -1.5..+2.5 spans sedentary<->athlete (a sedentary->trained shift is ~+1.1 MET in the data). DOUBLE-COUNT NOTE: activity also drives HbA1c (Stage 1), but HbA1c->CVD only fires above the 5.7 prediabetes threshold, where active people rarely sit, so the overlap is negligible for non-diabetics; the fitness channel is the primary activity->mortality path. Activity is NOT additionally routed activity->cardiovascular separately. ILLUSTRATIVE mapping; SOLID-direction (Kodama 2009 / Barry 2014)."
       },
       {
-        "from": "alcohol", "to": "cancer", "form": "directLogLinear", "input": "alcohol",
+        "from": "alcohol",
+        "to": "cancer",
+        "form": "directLogLinear",
+        "input": "alcohol",
         "beta": 0.05,
         "provenance": "Bagnardi 2015 (breast/CRC/liver-driven): small all-cancer slope ~exp(0.05*(drinks/day - popMean)). APPROXIMATE (per-drink all-cancer slope not line-verified)."
       },
       {
-        "from": "alcohol", "to": "residual", "form": "directHinge", "input": "alcohol",
-        "slope": 0.15, "knee": 2,
+        "from": "alcohol",
+        "to": "residual",
+        "form": "directHinge",
+        "input": "alcohol",
+        "slope": 0.15,
+        "knee": 2,
         "provenance": "Liver slice of residual; supralinear in heavy drinkers ~exp(0.15*max(0, drinks/day - 2)); negligible at/below ~2 drinks/day. APPROXIMATE."
       },
       {
-        "from": "airPollution", "to": "cardiovascular", "form": "directLogLinear", "input": "airPollution",
+        "from": "airPollution",
+        "to": "cardiovascular",
+        "form": "directLogLinear",
+        "input": "airPollution",
         "beta": 0.00583,
         "provenance": "Pope 2002: RR 1.06 per +10 ug/m3 PM2.5 => beta=ln(1.06)/10=0.00583 per ug/m3 (deviation from popMean ~8). SOLID*-direction (per-10 not PDF-line-verified)."
       },
       {
-        "from": "airPollution", "to": "residual", "form": "directLogLinear", "input": "airPollution",
+        "from": "airPollution",
+        "to": "residual",
+        "form": "directLogLinear",
+        "input": "airPollution",
         "beta": 0.005,
         "provenance": "Respiratory slice of residual; similar small PM2.5 slope ~exp(0.005*(PM25 - popMean)). APPROXIMATE."
       },
       {
-        "from": "BMI", "to": "cardiovascular", "form": "bmiThresholdRatio", "med": "BMI",
-        "beta": 0.022819, "threshold": 25,
+        "from": "BMI",
+        "to": "cardiovascular",
+        "form": "bmiThresholdRatio",
+        "med": "BMI",
+        "beta": 0.022819,
+        "threshold": 25,
         "provenance": "Stage 3b (2026-06-08). DIRECT (UNMEDIATED) BMI->CVD residual, upper-arm only (BMI>25): exp(beta*max(0,BMI-25)), NORMALIZED to per-age baseline BMI so =1 at baseline. The ~unmediated portion of BMI->CHD that REMAINS after the BMI->SBP->CVD mediated path (edge 1). beta chosen so the COMBINED effect (this residual x the SBP-path mult at +5 BMI / mid age 50) ~= Lu 2014 total BMI->CHD HR 1.27 per +5 kg/m2. At +5 BMI: SBP-path = exp(0.0347 * 0.72*5) = 1.1331 (SBP->CVD beta at age 50); residual = exp(0.022819*5) = 1.1209; combined = 1.270. RESULTING LOG-HR SPLIT: SBP-path 52.3% / residual 47.7% (the mechanical SBP->CVD slope at age 50 carries more than the Lu single-mediator BP 31% because Lewington's per-mmHg slope is steep at mid-age; the residual beta absorbs the remainder to hit the 1.27 total). Lu 2014 mediation decomposition (BP ~31% single-mediator); BMI->CHD 1.27 per +5. SOLID-direction; split is model-mechanical."
       },
       {
-        "from": "BMI", "to": "allcause", "form": "bmiJcurve", "med": "BMI",
-        "betaUpper": 0.017236, "betaLower": 0.117746, "upper": 25, "lower": 20,
+        "from": "BMI",
+        "to": "allcause",
+        "form": "bmiJcurve",
+        "med": "BMI",
+        "betaUpper": 0.017236,
+        "betaLower": 0.117746,
+        "upper": 25,
+        "lower": 20,
         "provenance": "Stage 3b (2026-06-08). BMI J-curve whole-intrinsic-bracket multiplier (target 'allcause', at the frailty-multiplier site), NORMALIZED to per-age baseline BMI so =1 at baseline. UPPER arm (BMI>25): small NON-CV obesity mortality, betaUpper = ln(1.09)/5 = 0.017236 per unit >25 (BMI->all-cause 1.39 per +5 vs the CV portion 1.27 => ~1.09 residual non-CV slice). LOWER arm (BMI<20): underweight/frailty, betaLower = ln(1.51)/3.5 = 0.117746 per unit <20 (Global BMI Mortality Collaboration 2016: HR 1.51 at BMI 15-18.5, ~3.5 below the nadir edge 20; mostly non-metabolic frailty). Nadir band [20,25] => factor 1. mult = Jbracket(BMI_person)/Jbracket(BMI_baseline); since baseline BMI (~28-30) sits on the UPPER arm, a lean person (BMI 22, nadir) gets mult<1 and an underweight person (BMI 17) gets the frailty penalty. The CV slice of BMI->mortality is carried separately (edges 1+2) so this J-curve is the NON-CV + frailty residual only (no CV double-count). OMITTED: BMI->LDL (null per MR) and a continuous BMI->glucose edge (folded into this residual / not separately wired). Global BMI 2016; Lu 2014. SOLID-direction."
       }
     ],
