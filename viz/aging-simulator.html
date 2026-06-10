@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aging causal-graph simulator (v0.4 + B-layer)</title>
+<title>Aging causal-graph simulator (v0.4)</title>
 <style>
   :root {
     /* Layer palette */
@@ -61,7 +61,7 @@
   .seg button.active { background: #34495e; color: #fff; }
   .layout {
     display: grid;
-    grid-template-columns: minmax(300px, 0.85fr) minmax(360px, 1.15fr);
+    grid-template-columns: minmax(340px, 0.85fr) minmax(460px, 1.15fr);
     gap: 10px;
     padding: 10px 14px;
     align-items: start;
@@ -72,19 +72,20 @@
   }
   .panel h2 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
   .panel .sub { color: var(--muted); font-size: 10px; margin: -3px 0 5px; line-height: 1.3; }
-  /* Right column row 1 = controls + survival stacked; place them in the right
-     column beside the (now short) graph so row 1 fits on one screen. */
-  .graph-panel { grid-column: 1; grid-row: 1; }
+  /* LEFT column: one "modifiers" panel — an always-visible LE headline plus a
+     tab toggle that swaps the two modifier surfaces (causal graph + intervention
+     vs. Lifestyle/environment + Labs) into a single shared location. */
+  .left-modifiers { grid-column: 1; grid-row: 1; }
+  /* RIGHT column: mediators → cause-of-death/survival → burden, stacked. */
   .right-stack { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 10px; }
   .right-stack > .panel { margin: 0; }
-  /* Row 2: mediators (left) + cause-of-death (right). Row 3: burden full width.
-     B-layer compact full-width strip below the graph row. */
-  .row2-left  { grid-column: 1; }
-  .row2-right { grid-column: 2; }
-  .full-row   { grid-column: 1 / -1; }
+  /* Modifiers-panel internals */
+  .le-headline { border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 8px; }
+  .modtabs { margin-bottom: 8px; }
+  .modtab-divider { border: none; border-top: 1px solid var(--line); margin: 12px 0 8px; }
   @media (max-width: 1100px) {
     .layout { grid-template-columns: 1fr; }
-    .graph-panel, .right-stack, .row2-left, .row2-right, .full-row { grid-column: 1; grid-row: auto; }
+    .left-modifiers, .right-stack { grid-column: 1; grid-row: auto; }
   }
   svg { display: block; width: 100%; height: auto; }
   .readout { font-size: 12px; color: var(--muted); min-height: 16px; margin-top: 4px; }
@@ -114,6 +115,14 @@
   .nodeg { cursor: pointer; }
   .nodeg text { pointer-events: none; }
   .hint { color: var(--muted); font-style: italic; }
+  .infodot {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #b7c0cc; color: #fff; font-size: 10px; font-weight: 700;
+    font-style: italic; font-family: Georgia, "Times New Roman", serif;
+    cursor: help; vertical-align: middle; margin-left: 5px; user-select: none;
+  }
+  .infodot:hover { background: #34495e; }
   table.params { font-size: 11px; border-collapse: collapse; }
   .seg-mini { display: inline-flex; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; font-size: 11px; }
   .seg-mini button { border: none; background: #fff; padding: 3px 9px; cursor: pointer; font-size: 11px; }
@@ -130,24 +139,26 @@
     padding: 2px 0; user-select: none;
   }
   details.blayer > summary:hover { color: #000; }
-  .bgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; margin-top: 8px; }
-  @media (max-width: 720px) { .bgrid { grid-template-columns: 1fr; } }
+  /* Single column: the B-layer now lives in the narrow left "modifiers" panel,
+     so a 2-up grid overflows it (the old 720px viewport media-query never fires
+     because the viewport stays wide while the column is narrow). */
+  .bgrid { display: grid; grid-template-columns: 1fr; gap: 4px 18px; margin-top: 8px; }
   .brow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 12px; }
-  .brow > label.bl { width: 150px; flex: none; color: var(--muted); }
+  .brow > label.bl { width: 140px; flex: none; color: var(--muted); }
   .brow input[type=range] { flex: 1; min-width: 60px; }
   .brow input[type=number] { width: 72px; }
   .brow .bval { width: 78px; text-align: right; font-variant-numeric: tabular-nums; color: #444; }
   .bsub { font-size: 11px; color: var(--muted); margin: 10px 0 2px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
   .txtoggles { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 0; font-size: 12px; }
   .txtoggles label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
-  .labgrid { display: grid; grid-template-columns: repeat(2, auto 1fr); gap: 6px 10px; align-items: center; font-size: 12px; }
+  .labgrid { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; font-size: 12px; }
   .labgrid label { color: var(--muted); }
   .labnote { font-size: 11px; color: var(--muted); margin-top: 6px; font-style: italic; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Aging causal-graph simulator (v0.4 + B-layer)</h1>
+  <h1>Aging causal-graph simulator (v0.4)</h1>
   <div class="disclaimer">
     Illustrative sensitivity model &mdash; parameters are mostly illustrative (see causal-graph-parameters.md).
     <b>v0.4 &mdash; sex-specific competing hazards (CDC WONDER 2022); no sex scalar &mdash; female CVD-onset delay &amp; male external excess emerge from data. Old-age escalation is now burden-driven (no age-keyed Gompertz factor): cause hazards use an odds link Rmax&middot;B/(1&minus;B) on reserve-depletion burden, so interventions bend the &gt;90 mortality curve.</b>
@@ -167,91 +178,95 @@
   </div>
 </header>
 
-<div class="topbar">
-  <div>
-    <label>Sex:</label>
-    <span class="seg" id="sexSeg">
-      <button data-sex="male" class="active">Male</button>
-      <button data-sex="female">Female</button>
-    </span>
-  </div>
-  <div style="display:flex; align-items:center; gap:8px; min-width:260px; flex:1; max-width:420px;">
-    <label for="coupleSlider" style="white-space:nowrap;">Coupling (couple):</label>
-    <input type="range" id="coupleSlider" min="0" max="2" step="0.05" style="flex:1;">
-    <span class="val" id="coupleVal" style="width:40px;"></span>
-  </div>
-  <div style="display:flex; align-items:center; gap:8px; min-width:300px; flex:1; max-width:480px;">
-    <label for="lifestyleSlider" style="white-space:nowrap;" title="Scales the extrinsic (non-biological) mortality channel: accidents + suicide + homicide. Does not cascade through hallmarks.">Lifestyle / extrinsic risk:</label>
-    <span style="font-size:10px; color:var(--muted); white-space:nowrap;">low</span>
-    <input type="range" id="lifestyleSlider" min="0" max="10" step="0.1" style="flex:1;">
-    <span style="font-size:10px; color:var(--muted); white-space:nowrap;">high</span>
-    <span class="val" id="lifestyleVal" style="width:96px;"></span>
-  </div>
-  <button id="resetAll" style="border:1px solid var(--line); background:#fff; border-radius:5px; padding:5px 12px; cursor:pointer;">
-    Reset all
-  </button>
-</div>
-
 <div class="layout">
 
-  <!-- LEFT COLUMN ROW 1: causal graph (now short) -->
-  <div class="panel graph-panel">
-    <h2>Causal graph (control surface)</h2>
-    <div class="sub">Click a node to select it for intervention. &#10052; = active freeze. Border = tractability. Glyph = node role.</div>
-    <svg id="graphSvg" viewBox="0 0 560 340" preserveAspectRatio="xMidYMin meet"></svg>
-    <div class="legend" id="legend"></div>
-  </div>
+  <!-- LEFT COLUMN: the "modifiers" panel — always-visible LE headline + a tab
+       toggle sharing one location for both modifier surfaces. -->
+  <div class="panel left-modifiers">
 
-  <!-- RIGHT COLUMN ROW 1: intervention controls + survival/LE, stacked -->
-  <div class="right-stack">
-  <div class="panel">
-    <h2>Intervention &mdash; <span class="sel-name" id="selName">none selected</span></h2>
-    <div class="sub" id="selMeta">Click a node in the graph to configure a freeze/slow intervention.</div>
-    <div class="controls" id="interv">
-      <div class="row">
-        <label for="startSlider">Start age</label>
-        <input type="range" id="startSlider" min="20" max="100" step="1" value="50" disabled>
-        <span class="val" id="startVal">50</span>
+    <!-- always-visible life-expectancy headline; sex selector as a left column -->
+    <div class="le-headline" style="display:flex; align-items:center; gap:16px;">
+      <div style="flex:none;">
+        <label style="display:block; font-size:11px; color:var(--muted); margin-bottom:3px;">Sex</label>
+        <span class="seg" id="sexSeg">
+          <button data-sex="male" class="active">Male</button>
+          <button data-sex="female">Female</button>
+        </span>
       </div>
-      <div class="row">
-        <label for="effSlider">Efficacy</label>
-        <input type="range" id="effSlider" min="0" max="100" step="1" value="0" disabled>
-        <span class="val" id="effVal">0%</span>
-      </div>
-      <div class="row">
-        <button id="clearNode" disabled>Clear this node's intervention</button>
-      </div>
-      <div class="hint" style="font-size:11px;">
-        Efficacy slows the node's intrinsic accumulation from the start age on (100% fully freezes
-        further accrual). The relief propagates downstream as a bounded fixed-point deviation through
-        the coupling &mdash; smoothly and monotonically with efficacy (no step/cliff).
+      <div style="flex:1;">
+        <span class="le-big" id="leVal">&mdash;</span>
+        <span style="color:var(--muted);font-size:13px;">yrs life expectancy</span>
+        <span class="le-delta zero" id="leDelta"></span>
+        <div class="sub" id="survSub" style="margin-top:4px;"></div>
       </div>
     </div>
-  </div>
 
-  <!-- RIGHT COLUMN ROW 1 (stacked under controls): survival + LE -->
-  <div class="panel">
-    <h2>Life expectancy</h2>
-    <div>
-      <span class="le-big" id="leVal">&mdash;</span>
-      <span style="color:var(--muted);font-size:13px;">yrs life expectancy</span>
-      <span class="le-delta zero" id="leDelta"></span>
+    <!-- tab toggle (both modifier surfaces share this location) + Reset all -->
+    <div class="modtabs" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+      <span class="seg" id="modTabSeg">
+        <button data-tab="graph" class="active">Causal graph &amp; intervention</button>
+        <button data-tab="blayer">Lifestyle &amp; environment &middot; Labs</button>
+      </span>
+      <button id="resetAll" style="border:1px solid var(--line); background:#fff; border-radius:5px; padding:5px 12px; cursor:pointer;">
+        Reset all
+      </button>
     </div>
-    <div class="sub" id="survSub" style="margin-top:6px;"></div>
-  </div>
-  </div><!-- /.right-stack -->
 
-  <!-- B-LAYER panel: Lifestyle & environment + Labs (full width, collapsible) -->
-  <div class="panel full-row">
-    <details class="blayer" id="blayerDetails">
-      <summary>Lifestyle &amp; environment &middot; Labs <span style="font-weight:400;color:var(--muted);font-size:12px;">(B-layer &mdash; drives mediator values &amp; their mortality multipliers)</span></summary>
-      <div class="sub" style="margin-top:6px;">
+    <!-- TAB 1: causal graph (top) + intervention (below) -->
+    <div class="modtab-panel" id="modtab-graph">
+      <h2>Causal graph (control surface) <span class="infodot" id="graphInfo" role="img" aria-label="legend and model details">i</span></h2>
+      <div class="sub">Click a node to select it for intervention. &#10052; = active freeze.</div>
+      <svg id="graphSvg" viewBox="0 0 524 272" preserveAspectRatio="xMidYMin meet"></svg>
+      <div class="legend" id="legend"></div>
+
+      <hr class="modtab-divider">
+
+      <h2>Intervention &mdash; <span class="sel-name" id="selName">none selected</span></h2>
+      <div class="sub" id="selMeta">Click a node in the graph to configure a freeze/slow intervention.</div>
+      <div class="controls" id="interv">
+        <div class="row">
+          <label for="startSlider">Start age</label>
+          <input type="range" id="startSlider" min="20" max="100" step="1" value="50" disabled>
+          <span class="val" id="startVal">50</span>
+        </div>
+        <div class="row">
+          <label for="effSlider">Efficacy</label>
+          <input type="range" id="effSlider" min="0" max="100" step="1" value="0" disabled>
+          <span class="val" id="effVal">0%</span>
+        </div>
+        <div class="row">
+          <button id="clearNode" disabled>Clear this node's intervention</button>
+        </div>
+        <div class="hint" style="font-size:11px;">
+          Efficacy slows the node's intrinsic accumulation from the start age on (100% fully freezes
+          further accrual). The relief propagates downstream as a bounded fixed-point deviation through
+          the coupling &mdash; smoothly and monotonically with efficacy (no step/cliff).
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <label for="coupleSlider" style="width:auto; flex:none;">Coupling <span class="infodot" id="coupleInfo" role="img" aria-label="what the coupling slider does">i</span></label>
+          <input type="range" id="coupleSlider" min="0" max="2" step="0.05" style="flex:1;">
+          <span class="val" id="coupleVal" style="width:40px;"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Lifestyle & environment + Labs (B-layer) -->
+    <div class="modtab-panel" id="modtab-blayer" style="display:none;">
+      <h2>Lifestyle &amp; environment &middot; Labs <span style="font-weight:400;color:var(--muted);font-size:11px;">(B-layer &mdash; drives mediator values &amp; their mortality multipliers)</span></h2>
+      <div class="sub" style="margin-top:2px;">
         Defaults are each input's population mean, so the all-default state reproduces the v0.4 baseline exactly.
         Lab fields anchor a person's mediator curve to a measured value at the chosen current age (held forward).
         &Delta;LE is read vs the all-default baseline.
       </div>
 
       <div class="bsub">Exogenous inputs</div>
+      <div class="brow" title="Scales the extrinsic (non-biological) mortality channel: accidents + suicide + homicide. Does not cascade through hallmarks.">
+        <label class="bl" for="lifestyleSlider">Lifestyle / extrinsic risk</label>
+        <span style="font-size:10px; color:var(--muted);">low</span>
+        <input type="range" id="lifestyleSlider" min="0" max="10" step="0.1">
+        <span style="font-size:10px; color:var(--muted);">high</span>
+        <span class="bval" id="lifestyleVal" style="width:auto; white-space:nowrap;"></span>
+      </div>
       <div class="bgrid" id="inputsGrid"><!-- populated --></div>
 
       <div class="bsub">Treatments</div>
@@ -269,42 +284,48 @@
         Enter a measured value to pin that mediator's curve to it at the current age (offset = measured &minus; engine-predicted).
         Clear a field to revert to the engine's computed value.
       </div>
-    </details>
-  </div>
-
-  <!-- MEDIATOR readout panel (row 2 left) -->
-  <div class="panel row2-left">
-    <h2>Mediator trajectories &mdash; person vs population baseline</h2>
-    <div class="sub">LDL (mg/dL), systolic BP (mmHg), HbA1c (%) over age. Solid = current scenario (inputs/treatments/labs); dashed = population baseline for this sex. Vertical mark = current age.</div>
-    <svg id="medSvg" viewBox="0 0 1080 180" preserveAspectRatio="xMidYMin meet"></svg>
-    <div class="legend" id="medLegend"></div>
-    <div class="readout" id="medReadout">Hover the chart to read mediator values at a given age.</div>
-  </div>
-
-  <!-- headline panel: cause of death by age (row 2 right) -->
-  <div class="panel row2-right">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
-      <div>
-        <h2 style="display:inline;">Cause of death &amp; survival by age</h2>
-        <div class="sub">Stacked hazard decomposition (<b>left axis</b>) with the survival curve overlaid (<b>right axis</b>, 0&ndash;100%): solid navy = current scenario, dashed grey = all-default baseline. Shared age x-axis. External causes dominate youth &rarr; cancer &amp; cardiovascular rise in midlife &rarr; cardiovascular dominates old age.</div>
-      </div>
-      <span class="seg-mini" id="codModeSeg">
-        <button data-mode="share" class="active">Share of total</button>
-        <button data-mode="abs">Absolute hazard</button>
-      </span>
     </div>
-    <svg id="codSvg" viewBox="0 0 1080 210" preserveAspectRatio="xMidYMin meet"></svg>
-    <div class="legend" id="codLegend"></div>
-    <div class="readout" id="codReadout">Hover the chart to read the cause breakdown at a given age.</div>
-  </div>
 
-  <!-- Burden timeline spans full width below -->
-  <div class="panel full-row">
-    <h2>Burden timeline</h2>
-    <div class="sub">One line per node (color matches graph). Hover to identify the nearest line + its burden; click to select that node for an intervention. Readout also shows the largest mortality-hazard contributor at that age.</div>
-    <svg id="burdenSvg" viewBox="0 0 1080 210" preserveAspectRatio="xMidYMin meet"></svg>
-    <div class="readout" id="limitReadout">Hover a line to identify it; click to select it for an intervention.</div>
-  </div>
+  </div><!-- /.left-modifiers -->
+
+  <!-- RIGHT COLUMN: mediators → cause-of-death/survival → burden -->
+  <div class="right-stack">
+
+    <!-- MEDIATOR readout panel -->
+    <div class="panel">
+      <h2>Mediator trajectories &mdash; person vs population baseline</h2>
+      <div class="sub">LDL (mg/dL), systolic BP (mmHg), HbA1c (%) over age. Solid = current scenario (inputs/treatments/labs); dashed = population baseline for this sex. Vertical mark = current age.</div>
+      <svg id="medSvg" viewBox="0 0 1080 206" preserveAspectRatio="xMidYMin meet"></svg>
+      <div class="legend" id="medLegend"></div>
+      <div class="readout" id="medReadout">Hover the chart to read mediator values at a given age.</div>
+    </div>
+
+    <!-- headline panel: cause of death by age -->
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+        <div>
+          <h2 style="display:inline;">Cause of death &amp; survival by age</h2>
+          <div class="sub">Stacked hazard decomposition (<b>left axis</b>) with the survival curve overlaid (<b>right axis</b>, 0&ndash;100%): solid navy = current scenario, dashed grey = all-default baseline. Shared age x-axis. External causes dominate youth &rarr; cancer &amp; cardiovascular rise in midlife &rarr; cardiovascular dominates old age.</div>
+        </div>
+        <span class="seg-mini" id="codModeSeg">
+          <button data-mode="share" class="active">Share of total</button>
+          <button data-mode="abs">Absolute hazard</button>
+        </span>
+      </div>
+      <svg id="codSvg" viewBox="0 0 1080 236" preserveAspectRatio="xMidYMin meet"></svg>
+      <div class="legend" id="codLegend"></div>
+      <div class="readout" id="codReadout">Hover the chart to read the cause breakdown at a given age.</div>
+    </div>
+
+    <!-- Burden timeline -->
+    <div class="panel">
+      <h2>Burden timeline</h2>
+      <div class="sub">One line per node (color matches graph). Hover to identify the nearest line + its burden; click to select that node for an intervention. Readout also shows the largest mortality-hazard contributor at that age.</div>
+      <svg id="burdenSvg" viewBox="0 0 1080 236" preserveAspectRatio="xMidYMin meet"></svg>
+      <div class="readout" id="limitReadout">Hover a line to identify it; click to select it for an intervention.</div>
+    </div>
+
+  </div><!-- /.right-stack -->
 
 </div>
 
@@ -3294,11 +3315,15 @@ const MODEL = {
             1
           ],
           [
+            450,
+            1.6
+          ],
+          [
             600,
-            2.5
+            1.9
           ]
         ],
-        "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Activity's mortality benefit flows through cardiorespiratory fitness (VO2max), weight- AND glucose-independent (Barry 2014: obese-fit ~ normal-fit). mult_allcause = exp(-0.139 * dMETs(activity)), RR 0.87 per MET (Kodama 2009) => beta = ln(0.87) = -0.139. Applied to the WHOLE intrinsic bracket (all causes + residual), at the frailty-multiplier site (target 'allcause'). dMETs = MET-deviation of the activity level from population-average activity (physicalActivity popMean 150 min/wk -> dMETs 0 -> mult 1, baseline preserved). metMap is an ILLUSTRATIVE piecewise-linear map on physicalActivity (min/wk MVPA) -> METs-relative-to-popMean: sedentary(0)=-1.5, below-avg(75)=-0.5, popMean(150)=0, moderate(300)=+1.0, high/athlete(600)=+2.5; range -1.5..+2.5 spans sedentary<->athlete (a sedentary->trained shift is ~+1.1 MET in the data). DOUBLE-COUNT NOTE: activity also drives HbA1c (Stage 1), but HbA1c->CVD only fires above the 5.7 prediabetes threshold, where active people rarely sit, so the overlap is negligible for non-diabetics; the fitness channel is the primary activity->mortality path. Activity is NOT additionally routed activity->cardiovascular separately. ILLUSTRATIVE mapping; SOLID-direction (Kodama 2009 / Barry 2014)."
+        "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Stage 3c (2026-06-10) PLATEAU refinement at the high-volume end (see below). Activity's mortality benefit flows through cardiorespiratory fitness (VO2max), weight- AND glucose-independent (Barry 2014: obese-fit ~ normal-fit). mult_allcause = exp(-0.139 * dMETs(activity)), RR 0.87 per MET (Kodama 2009) => beta = ln(0.87) = -0.139. Applied to the WHOLE intrinsic bracket (all causes + residual), at the frailty-multiplier site (target 'allcause'). dMETs = MET-deviation of the activity level from population-average activity (physicalActivity popMean 150 min/wk -> dMETs 0 -> mult 1, baseline preserved). metMap is an ILLUSTRATIVE piecewise-linear map on physicalActivity (min/wk MVPA) -> METs-relative-to-popMean: sedentary(0)=-1.5, below-avg(75)=-0.5, popMean(150)=0, moderate(300)=+1.0, high(450)=+1.6, athlete(600)=+1.9; range -1.5..+1.9 spans sedentary<->athlete (a sedentary->trained shift is ~+1.1 MET in the data). PLATEAU (Stage 3c): the map now DECELERATES above 300 min/wk (slope 0.0067 METs/min over 150-300, 0.0040 over 300-450, 0.0020 over 450-600) rather than the prior near-linear climb to +2.5 at 600. Rationale: the dose-response to ALL-CAUSE MORTALITY flattens beyond ~3-5x guideline volume (Arem 2015, pooled 6 US cohorts n>650k: benefit flattens beyond 3-5x guidelines, NO increased risk at >10x => the J-curve/reverse-J concern for extreme exercise is NOT supported for mortality) while cardiorespiratory FITNESS itself has no demonstrated upper benefit limit (Mandsager 2018, n=122k: elite fitness beats high fitness). The deceleration encodes the DIMINISHING-RETURNS of activity-VOLUME->fitness (each added weekly minute buys less VO2max at the top), keeping the curve MONOTONIC (no upturn). Deliberately NOT a U-shape: the genuine extreme-endurance harms (atrial fibrillation ~2-5x, elevated but stable coronary-artery-calcium) are MORBIDITY endpoints not captured by this all-cause-mortality channel; the small Schnohr 2015 strenuous-jogger subgroup mortality signal (n~40, wide CI) did not replicate in the large cohorts. Consistent with interventions/lifestyle/exercise.md (Arem 2015 section). DOUBLE-COUNT NOTE: activity also drives HbA1c (Stage 1), but HbA1c->CVD only fires above the 5.7 prediabetes threshold, where active people rarely sit, so the overlap is negligible for non-diabetics; the fitness channel is the primary activity->mortality path. Activity is NOT additionally routed activity->cardiovascular separately. ILLUSTRATIVE mapping; SOLID-direction (Kodama 2009 / Barry 2014); plateau-shape SOLID (Arem 2015 / Mandsager 2018)."
       },
       {
         "from": "alcohol",
@@ -3610,15 +3635,18 @@ function baselineOpts(){
 }
 
 /* ============================ Layout for graph =========================== */
-const GRAPH_W = 560, GRAPH_H = 340;
-const COL_PAD_X = 90, COL_PAD_TOP = 16, COL_PAD_BOT = 16;
+const GRAPH_W = 524, GRAPH_H = 272;   // height shrunk 20% (340 → 272); viewBox matches
+// All node labels sit to the RIGHT of their node, so the leftmost (tier1) column
+// needs only a thin left margin (node radius); the right margin holds the dense
+// phenotype column's two-line labels. Narrower total width ⇒ larger rendered text.
+const COL_PAD_L = 20, COL_PAD_R = 120, COL_PAD_TOP = 16, COL_PAD_BOT = 16;
 const graphPos = {}; // id -> {x, y}
 (function layoutGraph(){
   const cols = LAYER_ORDER.map(L => NODES.filter(n => n.layer === L));
   const nCols = LAYER_ORDER.length;
-  const usableW = GRAPH_W - 2 * COL_PAD_X;
+  const usableW = GRAPH_W - COL_PAD_L - COL_PAD_R;
   cols.forEach((colNodes, ci) => {
-    const x = COL_PAD_X + (nCols === 1 ? 0 : (usableW * ci) / (nCols - 1));
+    const x = COL_PAD_L + (nCols === 1 ? 0 : (usableW * ci) / (nCols - 1));
     const m = colNodes.length;
     const usableH = GRAPH_H - COL_PAD_TOP - COL_PAD_BOT;
     colNodes.forEach((node, ri) => {
@@ -3627,6 +3655,23 @@ const graphPos = {}; // id -> {x, y}
     });
   });
 })();
+
+// Wrap a node label into at most two BALANCED lines: split at the inter-word
+// space that minimizes the longer resulting line. Short (≤14 char) or
+// single-word labels stay on one line. Keeps every word (no truncation) while
+// halving horizontal reach so adjacent-column labels stop colliding.
+function wrapLabel(s){
+  if (s.length <= 14) return [s];
+  const spaces = [];
+  for (let i = 0; i < s.length; i++) if (s[i] === " ") spaces.push(i);
+  if (!spaces.length) return [s];   // single long word — can't split
+  let best = spaces[0], bestMax = Infinity;
+  for (const i of spaces){
+    const mx = Math.max(i, s.length - i - 1);
+    if (mx < bestMax){ bestMax = mx; best = i; }
+  }
+  return [s.slice(0, best), s.slice(best + 1)];
+}
 
 /* ============================ Rendering ================================== */
 const tooltip = document.getElementById("tooltip");
@@ -3741,15 +3786,22 @@ function renderGraph(){
       fl.textContent = "❄";
     }
 
-    const labelLeft = node.layer === "tier1";
-    const tx = labelLeft ? -(NODE_R + 5) : (NODE_R + 5);
+    const tx = NODE_R + 5;   // all labels uniformly to the RIGHT of the node
+    const lines = wrapLabel(node.label);
     const txt = el("text", {
-      x: tx, y: 3.5,
-      "text-anchor": labelLeft ? "end" : "start",
-      "font-size": "10",
-      fill: "#333"
+      x: tx, y: lines.length > 1 ? -1 : 3.5,
+      "text-anchor": "start",
+      "font-size": "9",
+      fill: "#000"
     }, g);
-    txt.textContent = node.label;
+    if (lines.length === 1) {
+      txt.textContent = lines[0];
+    } else {
+      lines.forEach((ln, li) => {
+        const ts = el("tspan", { x: tx, dy: li === 0 ? 0 : 10 }, txt);
+        ts.textContent = ln;
+      });
+    }
 
     g.addEventListener("click", () => selectNode(node.id));
     g.addEventListener("mousemove", (ev) => {
@@ -3768,8 +3820,8 @@ function renderGraph(){
 function partsAt(sim, k){ return sim.decomposition[k].parts; }
 
 // ---- Cause-of-death stacked-area panel (with survival overlay, right axis) ----
-const CW = 1080, CH = 210;
-const C_M = { l: 52, r: 44, t: 10, b: 24 };
+const CW = 1080, CH = 236;
+const C_M = { l: 52, r: 44, t: 28, b: 44 };
 function cx(age){ return C_M.l + (CW - C_M.l - C_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 
 // Plain (non-exponential) hazard label, units yr^-1. Decimals scale with
@@ -3817,13 +3869,13 @@ function renderCauseOfDeath(sim, base){
   for (let f = 0; f <= 1.0001; f += 0.25){
     const y = plotBot - plotH * f;
     el("line", { x1: C_M.l, y1: y, x2: CW - C_M.r, y2: y, stroke: "#eee" }, svg);
-    const t = el("text", { x: C_M.l - 6, y: y + 3, "text-anchor": "end", "font-size": "10", fill: "#999" }, svg);
+    const t = el("text", { x: C_M.l - 8, y: y + 3, "text-anchor": "end", "font-size": "13", fill: "#000" }, svg);
     t.textContent = share ? Math.round(f * 100) + "%" : fmtHaz(maxTotal * f);
   }
   for (const age of xTicks()){
     const x = cx(age);
     el("line", { x1: x, y1: plotTop, x2: x, y2: plotBot, stroke: "#f6f6f6" }, svg);
-    const t = el("text", { x: x, y: plotBot + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
+    const t = el("text", { x: x, y: plotBot + 16, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg);
     t.textContent = age;
   }
 
@@ -3860,13 +3912,13 @@ function renderCauseOfDeath(sim, base){
   for (let f = 0; f <= 1.0001; f += 0.25){
     const y = survY(f);
     el("line", { x1: CW - C_M.r, y1: y, x2: CW - C_M.r + 4, y2: y, stroke: "#1a2533" }, svg);
-    el("text", { x: CW - C_M.r + 7, y: y + 3, "text-anchor": "start", "font-size": "10", fill: "#1a2533" }, svg)
+    el("text", { x: CW - C_M.r + 7, y: y + 3, "text-anchor": "start", "font-size": "13", fill: "#1a2533" }, svg)
       .textContent = Math.round(f * 100) + "%";
   }
   // axis titles: left = cause scale, right = survival
-  el("text", { x: C_M.l - 2, y: plotTop - 2, "text-anchor": "end", "font-size": "9", fill: "#999" }, svg)
+  el("text", { x: C_M.l - 2, y: plotTop - 11, "text-anchor": "end", "font-size": "12", fill: "#000" }, svg)
     .textContent = share ? "% of deaths" : "hazard/yr";
-  el("text", { x: CW - C_M.r + 2, y: plotTop - 2, "text-anchor": "start", "font-size": "9", fill: "#1a2533" }, svg)
+  el("text", { x: CW - C_M.r + 2, y: plotTop - 11, "text-anchor": "start", "font-size": "12", fill: "#1a2533" }, svg)
     .textContent = "survival";
   // baseline survival (dashed grey)
   if (base && base.survival){
@@ -3882,7 +3934,7 @@ function renderCauseOfDeath(sim, base){
   el("path", { d: ds, fill: "none", stroke: "#fff", "stroke-width": "4", opacity: "0.6" }, svg);
   el("path", { d: ds, fill: "none", stroke: "#1a2533", "stroke-width": "2.4" }, svg);
 
-  el("text", { x: (C_M.l + CW - C_M.r)/2, y: CH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
+  el("text", { x: (C_M.l + CW - C_M.r)/2, y: CH - 4, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg)
     .textContent = "age (years)";
 
   // hover guideline + readout
@@ -3925,8 +3977,8 @@ function buildCodLegend(){
 }
 
 // ---- Burden timeline ----
-const BW = 1080, BH = 210;
-const B_M = { l: 46, r: 12, t: 10, b: 24 };
+const BW = 1080, BH = 236;
+const B_M = { l: 46, r: 12, t: 16, b: 44 };
 function bx(age){ return B_M.l + (BW - B_M.l - B_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 function by(v){ return B_M.t + (BH - B_M.t - B_M.b) * (1 - v); }
 
@@ -3937,16 +3989,16 @@ function renderBurden(sim){
   for (let v = 0; v <= 1.0001; v += 0.25){
     const y = by(v);
     el("line", { x1: B_M.l, y1: y, x2: BW - B_M.r, y2: y, stroke: "#eee" }, svg);
-    const t = el("text", { x: B_M.l - 6, y: y + 3, "text-anchor": "end", "font-size": "10", fill: "#999" }, svg);
+    const t = el("text", { x: B_M.l - 8, y: y + 3, "text-anchor": "end", "font-size": "13", fill: "#000" }, svg);
     t.textContent = v.toFixed(2);
   }
   for (const age of xTicks()){
     const x = bx(age);
     el("line", { x1: x, y1: B_M.t, x2: x, y2: BH - B_M.b, stroke: "#f3f3f3" }, svg);
-    const t = el("text", { x: x, y: BH - B_M.b + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
+    const t = el("text", { x: x, y: BH - B_M.b + 16, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg);
     t.textContent = age;
   }
-  el("text", { x: (B_M.l + BW - B_M.r)/2, y: BH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
+  el("text", { x: (B_M.l + BW - B_M.r)/2, y: BH - 4, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg)
     .textContent = "age (years)";
 
   const lineEls = {};
@@ -4063,8 +4115,8 @@ function renderSurvival(sim, base){
 }
 
 // ---- Mediator readout panel (LDL / SBP / HbA1c vs baseline) ----
-const MW = 1080, MH = 180;
-const M_M = { l: 46, r: 14, t: 10, b: 24 };
+const MW = 1080, MH = 206;
+const M_M = { l: 46, r: 14, t: 16, b: 44 };
 function mx(age){ return M_M.l + (MW - M_M.l - M_M.r) * (age - AGE0) / (X_MAX - AGE0); }
 // Each mediator is scaled to its own [min,max] band so all share the plot.
 const MED_SCALE = {
@@ -4088,10 +4140,10 @@ function renderMediators(sim){
   for (const age of xTicks()){
     const x = mx(age);
     el("line", { x1: x, y1: M_M.t, x2: x, y2: MH - M_M.b, stroke: "#f3f3f3" }, svg);
-    const t = el("text", { x: x, y: MH - M_M.b + 14, "text-anchor": "middle", "font-size": "10", fill: "#999" }, svg);
+    const t = el("text", { x: x, y: MH - M_M.b + 16, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg);
     t.textContent = age;
   }
-  el("text", { x: (M_M.l + MW - M_M.r)/2, y: MH - 2, "text-anchor": "middle", "font-size": "10", fill: "#777" }, svg)
+  el("text", { x: (M_M.l + MW - M_M.r)/2, y: MH - 4, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg)
     .textContent = "age (years)";
 
   // population baseline mediators (no inputs/treatments/offsets) for this sex.
@@ -4370,15 +4422,42 @@ function buildLegend(){
     `<span class="item">&#8224; mortality cause</span>` +
     `<span class="item">&#215; frailty multiplier</span>` +
     `<span class="item">&#9656; driver (no death line)</span>` +
-    "</div>" +
-    `<div class="hint">Border weight/style = clinical tractability; fill color = biological layer; in-node glyph = role. ` +
-    `<code>ordinal-default</code> parameters are illustrative only. ` +
-    `Mortality is a v0.4 sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; ` +
-    `female CVD-onset delay &amp; male external excess emerge from data), amplified by a ` +
-    `sarcopenia frailty multiplier; clonal-hematopoiesis is a driver with no own death line. ` +
-    `The extrinsic channel (accidents / lifestyle) is non-cascading and scaled by the Lifestyle slider.</div>`;
+    "</div>";
   wrap.innerHTML = html;
 }
+
+// (i) info tooltip next to the graph title — carries the legend + model-notes
+// prose that used to sit as a block under the legend. Reuses the graph's
+// fixed-position tooltip (showTip/hideTip) so the <code>/markup renders.
+(function wireGraphInfo(){
+  const info = document.getElementById("graphInfo");
+  if (!info) return;
+  const html =
+    "Border weight/style = clinical tractability; fill color = biological layer; in-node glyph = role. " +
+    "<code>ordinal-default</code> parameters are illustrative only. " +
+    "Mortality is a v0.4 sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; " +
+    "female CVD-onset delay &amp; male external excess emerge from data), amplified by a " +
+    "sarcopenia frailty multiplier; clonal-hematopoiesis is a driver with no own death line. " +
+    "The extrinsic channel (accidents / lifestyle) is non-cascading and scaled by the Lifestyle slider.";
+  info.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY, html));
+  info.addEventListener("mouseleave", hideTip);
+})();
+
+// (i) info tooltip on the Coupling slider — explains the deviation-propagation
+// gain and the (non-obvious) no-op-without-an-active-intervention behavior.
+(function wireCoupleInfo(){
+  const info = document.getElementById("coupleInfo");
+  if (!info) return;
+  const html =
+    "Global gain on how strongly a change at one node propagates <i>downstream</i> through the causal graph. " +
+    "The engine solves <code>D = prim + couple&middot;(G&middot;D)</code> and burden <code>B = clamp(T + D)</code>: " +
+    "<b>0</b> severs the edges (each node ages in isolation), <b>1.0</b> is the calibrated baseline, " +
+    "<b>2.0</b> doubles the cascade. " +
+    "<b>Note:</b> with no intervention active the primary deviation is 0, so the slider has no visible effect on the baseline &mdash; " +
+    "it only matters once you select a node and set a non-zero freeze/slow efficacy.";
+  info.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY, html));
+  info.addEventListener("mouseleave", hideTip);
+})();
 
 /* ============================ Wire up controls =========================== */
 document.querySelectorAll("#sexSeg button").forEach(btn => {
@@ -4396,6 +4475,18 @@ document.querySelectorAll("#codModeSeg button").forEach(btn => {
     btn.classList.add("active");
     state.codMode = btn.dataset.mode;
     renderAll();
+  });
+});
+
+// Modifiers-panel tab toggle: graph+intervention vs. B-layer (Lifestyle/Labs).
+// Both surfaces are always populated in the DOM; we only swap visibility.
+document.querySelectorAll("#modTabSeg button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#modTabSeg button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab = btn.dataset.tab;
+    document.getElementById("modtab-graph").style.display  = (tab === "graph")  ? "" : "none";
+    document.getElementById("modtab-blayer").style.display = (tab === "blayer") ? "" : "none";
   });
 });
 
