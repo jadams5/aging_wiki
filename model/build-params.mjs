@@ -35,7 +35,7 @@ export function extractModelJson(mdText) {
 function main() {
   const md = readFileSync(MD_PATH, "utf8");
   const model = extractModelJson(md);
-  // Sanity: v0.5, 22 nodes, 38 edges.
+  // Sanity: v0.5, 23 nodes (22 + frailty-mortality Op-B 2026-06-11), 38 edges.
   const v = model.meta?.version;
   const nNodes = model.nodes?.length;
   const nEdges = model.edges?.length;
@@ -44,7 +44,7 @@ function main() {
     `Wrote ${OUT_PATH}\n  version=${v}  nodes=${nNodes}  edges=${nEdges}\n`
   );
   if (v !== "v0.5") console.warn(`WARN: expected version v0.5, got ${v}`);
-  if (nNodes !== 22) console.warn(`WARN: expected 22 nodes, got ${nNodes}`);
+  if (nNodes !== 23) console.warn(`WARN: expected 23 nodes, got ${nNodes}`);
   if (nEdges !== 38) console.warn(`WARN: expected 38 edges, got ${nEdges}`);
 }
 

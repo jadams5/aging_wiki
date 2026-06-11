@@ -82,7 +82,8 @@ export function curveT(node, sex, age, AGE0 = 20) {
 // Cause order for the competing-hazards decomposition (v0.4.1: residual split into
 // named CDC causes — diabetes/COPD/CKD/liver — so the stacked chart + readout show
 // them; residual stays last as the unmodeled remainder).
-const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "diabetes", "copd", "ckd", "liver", "residual"];
+// Op B 2026-06-11: added "frailty" (falls W00-W19 + malnutrition E40-E46) before "residual".
+const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "diabetes", "copd", "ckd", "liver", "frailty", "residual"];
 
 /**
  * simulate(MODEL, opts) — integrate the v0.3 model forward over age.
