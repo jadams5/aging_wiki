@@ -5011,11 +5011,13 @@ const EDGE_STYLE = {
   driver:   { stroke: "#138d75", dash: "none" },
   augment:  { stroke: "#8e44ad", dash: "5,3" },
   cause:    { stroke: "#c0392b", dash: "none" },
+  frailty:  { stroke: "#e67e22", dash: "2,3" },
   terminal: { stroke: "#7b241c", dash: "none" }
 };
 const EDGE_CAT_LABEL = {
   latent: "hallmark coupling", mediator: "input→mediator", driver: "driver→state",
-  augment: "state→mediator (feedback)", cause: "→ cause hazard", terminal: "cause → mortality"
+  augment: "state→mediator (feedback)", cause: "→ cause hazard",
+  frailty: "frailty amplifies cause (×)", terminal: "cause → mortality"
 };
 // A mortality cause-key (causeEdge target) → the latent node that carries that death
 // line (cardiovascular = atherosclerosis; allcause = the synthetic mortality sink).
@@ -5050,6 +5052,16 @@ const UNI = (function buildUnifiedGraph(){
   });
   // terminal edges: every node that carries a death line → the mortality sink.
   NODES.forEach(n => { if (n.role === "mortality-cause") edges.push({ from: n.id, to: "_mortality", cat: "terminal" }); });
+  // frailty multiplier: the frailty-multiplier node (sarcopenia) amplifies EVERY intrinsic cause
+  // hazard via mortality.frailty.betaByCause (Peng 2022 cause-specific frail-vs-robust HRs). This is
+  // a real sarcopenia→mortality coupling implemented as a per-cause multiplier, not a driver edge —
+  // emit it so the graph shows it (otherwise sarcopenia and the frailty cause look disconnected).
+  const _frMult = NODES.find(n => n.role === "frailty-multiplier");
+  const _frBeta = (MODEL.mortality.frailty && MODEL.mortality.frailty.betaByCause) || {};
+  if (_frMult) NODES.forEach(n => {
+    if (n.role === "mortality-cause" && _frBeta[n.mortalityCause] !== undefined)
+      edges.push({ from: _frMult.id, to: n.id, cat: "frailty" });
+  });
 
   const byId = {}; nodes.forEach(n => byId[n.id] = n);
   // Greying: a node is "planned/future" (greyed) if NO non-disabled edge touches it
@@ -6179,6 +6191,7 @@ function buildLegend(){
     `<span class="item">${eline(EDGE_STYLE.driver.stroke)}driver→state</span>` +
     `<span class="item">${eline(EDGE_STYLE.augment.stroke, "5,3")}state→mediator feedback</span>` +
     `<span class="item">${eline(EDGE_STYLE.cause.stroke)}→ cause / mortality</span>` +
+    `<span class="item">${eline(EDGE_STYLE.frailty.stroke, "2,3")}frailty amplifies cause</span>` +
     `<span class="item">${eline("#cfd6dd", "4,3")}disabled (coeff 0)</span>`;
   // Row 3: tractability ring + glyphs (each tractability level gets an (i) bubble)
   html += "</div><div style='margin-bottom:4px'>" +
