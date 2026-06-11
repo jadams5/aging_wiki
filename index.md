@@ -35,6 +35,9 @@ New here and just want to read? While the intent is to point a local agent like 
 - [[heterocephalus-glaber|naked mole-rat]] — a rodent that barely ages; what it teaches us
 - [[information-theory-of-aging|information theory of aging]] — a leading theory of *why* we age
 
+**Try the model:**
+- [**The interactive aging simulator**](https://jadams5.github.io/aging_wiki/simulator/) — a causal-graph dynamical model: adjust lifestyle, labs, and a hypothetical intervention and watch life expectancy, the projected cause-of-death breakdown, and every factor's trajectory respond. Each node links back to the wiki page behind it. *(An illustrative sensitivity tool — not a predictor, not medical advice; see [[causal-graph-parameters]] for the model's assumptions.)*
+
 Or use search, follow the graph, or browse the full catalog below. For how the wiki is built and how to run an agent in it, see the [project README](https://github.com/jadams5/aging_wiki#readme).
 
 ---

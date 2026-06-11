@@ -78,6 +78,13 @@ jobs:
           # Copy the public wiki into Quartz's content dir. Excludes:
           #  - protocols / protocols-template : private + meta scaffolding
           #  - tooling/config dirs            : not wiki content
+          #  - model                          : simulator engine/code + dev architecture
+          #                                     docs (engine.mjs/params.json/*.md) — not
+          #                                     reader-facing wiki content
+          #  - viz                            : the simulator front-end (aging-simulator.html)
+          #                                     is a self-contained app, not Quartz markdown;
+          #                                     published separately into /simulator/ (see the
+          #                                     "Publish the interactive simulator" step below)
           #  - CLAUDE.local.md                : git-ignored private layer (belt-and-suspenders)
           rsync -a \
             --exclude '.git' \
@@ -88,6 +95,8 @@ jobs:
             --exclude '.codex' \
             --exclude 'protocols' \
             --exclude 'protocols-template' \
+            --exclude 'model' \
+            --exclude 'viz' \
             --exclude 'CLAUDE.local.md' \
             wiki/ quartz/content/
           echo "Pages to render: $(find quartz/content -name '*.md' | wc -l)"
@@ -115,6 +124,16 @@ jobs:
       - name: Build site
         working-directory: quartz
         run: npx quartz build
+
+      - name: Publish the interactive simulator
+        # viz/aging-simulator.html is a single self-contained file (inline CSS +
+        # JS + model params; no external assets). Copy it into the built site at a
+        # clean URL: https://<base>/simulator/ . Linked from index.md + the
+        # causal-graph-parameters page. Guard fails the build if the source moves.
+        run: |
+          test -f wiki/viz/aging-simulator.html || { echo "::error::viz/aging-simulator.html not found"; exit 1; }
+          mkdir -p quartz/public/simulator
+          cp wiki/viz/aging-simulator.html quartz/public/simulator/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

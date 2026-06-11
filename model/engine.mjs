@@ -174,11 +174,38 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   // deviation is 0 and every direct-input deviation is 0 ⇒ every multiplier == 1
   // ⇒ the v0.3 mortality math is reproduced exactly.
   const hasB = !!MODEL.bLayer;
-  const medValues = hasB ? mediators(MODEL, { sex, inputs, treatments, offsets }) : {};
+  // B0 (node-burden access): expose node-layer burdens to the state-node phase so state
+  // nodes can read a node as a driver (e.g. cellular-senescence → arterial-stiffness), now
+  // an ordinary edge — dismantling the node↔state-node seam. `Live` carries interventions;
+  // `Base` is the no-intervention reference (== Tarr) for the mediator-baseline pass.
+  const nodeBurdensLive = {}, nodeBurdensBase = {};
+  for (let i = 0; i < NN; i++) { nodeBurdensLive[NODES[i].id] = Barr[i]; nodeBurdensBase[NODES[i].id] = Tarr[i]; }
+  const medValues = hasB ? mediators(MODEL, { sex, inputs, treatments, offsets, nodeBurdens: nodeBurdensLive }) : {};
   // Baseline mediator trajectories (default inputs/treatments/offsets) — the
   // reference against which Stage-2 continuous mediator→cause edges take their
   // deviation. At default inputs medValues === medBaseline ⇒ deviation 0.
-  const medBaseline = hasB ? mediators(MODEL, { sex }) : {};
+  const medBaseline = hasB ? mediators(MODEL, { sex, nodeBurdens: nodeBurdensBase }) : {};
+
+  // A4: stiffness → SBP (the BP-MEDIATED slice of stiffness→CVD). Augment the live SBP by
+  // βstiff·(NON-GLYCEMIC stiffness deviation) — the crosslink slice is excluded because its
+  // CVD is already in the decomposed HbA1c→CVD + the B3 direct edge (no glycemia re-double-
+  // count). Deviation-form ⇒ =0 at the pop stiffness trajectory, so the SBP baseline and the
+  // Lewington SBP→CVD calibration (shared by BMI/Lu + sodium) are preserved EXACTLY. Mutates
+  // medValues.systolicBP in place; the SBP→CVD/CKD edges then read the augmented value vs the
+  // un-augmented medBaseline. Complements the B3 BP-independent edge (B3 + A4 = total, split).
+  const s2sbp = hasB && MODEL.bLayer.stiffnessToSBP;
+  if (s2sbp && medValues["arterial-stiffness"] && medValues.systolicBP) {
+    const beta = (s2sbp.betaPerUnit && s2sbp.betaPerUnit[sex]) || 0;
+    const stL = medValues["arterial-stiffness"], stB = medBaseline["arterial-stiffness"];
+    const exId = s2sbp.excludeDriver, exW = s2sbp.excludeWeight || 0;
+    const exL = exId && medValues[exId], exB = exId && medBaseline[exId];
+    const sbp = medValues.systolicBP;
+    for (let k = 0; k < sbp.length; k++) {
+      let dStiff = stL[k] - stB[k];
+      if (exL) dStiff -= exW * (exL[k] - exB[k]);   // remove the glycemic (crosslink) slice
+      sbp[k] += beta * dStiff;
+    }
+  }
   // popMean lookup for direct exogenous→cause edges.
   const popMean = {};
   if (hasB) for (const inp of MODEL.bLayer.exogenousInputs) popMean[inp.id] = inp.populationMean;
@@ -380,9 +407,14 @@ function applyMediatorEdge(edge, inputs, popMean, baselineVal, K, medCtx) {
       return edge.coeff * exerciseScale(dx);
     case "exerciseScaled":          // generic activity-scaled mediator shift (e.g. activity→SBP)
       return edge.coeff * exerciseScale(dx);
-    case "sodiumConvex":
-      // coeff is per 100 mmol; convex + baseline-SBP effect-modified.
-      return edge.coeff * (dx / 100) * sodiumMod(baselineVal);
+    case "sodiumConvex": {
+      // coeff is per 100 mmol; convex + baseline-SBP effect-modified. Cap the SBP shift at a
+      // physiological ±20 mmHg so an out-of-range sodium can't blow up SBP/LE (the slider
+      // clamps [40,300] ⇒ in-range shift is ~[−6,+9] mmHg, well inside the cap, so this is a
+      // robustness floor only — never bites for real inputs).
+      const shift = edge.coeff * (dx / 100) * sodiumMod(baselineVal);
+      return shift < -20 ? -20 : shift > 20 ? 20 : shift;
+    }
     case "alcoholThreshold": {
       const intake = x === undefined ? popMean : x;
       return alcoholThreshold(intake, edge.coeff) - alcoholThreshold(popMean, edge.coeff);
@@ -436,7 +468,13 @@ function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean) 
         const { refAge, halfPer } = e.betaAgeMod; // slope halves per `halfPer` years
         beta = e.beta * Math.pow(0.5, (age - refAge) / halfPer);
       }
-      const dev = medValues[e.med][k] - medBaseline[e.med][k];
+      // Optional benefit floor: the log-linear association only holds down to a
+      // source-defined value (e.g. Lewington SBP ≥115 mmHg). Below it, clamp the
+      // value so there is NO further benefit — the curve plateaus rather than
+      // extrapolating an unbounded benefit toward physiologically impossible levels.
+      let v = medValues[e.med][k];
+      if (e.benefitFloor != null && v < e.benefitFloor) v = e.benefitFloor;
+      const dev = v - medBaseline[e.med][k];
       return Math.exp(beta * dev);
     }
     case "mediatorThresholdRamp": {
@@ -524,6 +562,25 @@ function allcauseEdgeMult(e, inputs, popMean) {
       const dMets = metsFromActivity(e.metMap, xv);
       return Math.exp(e.betaPerMet * dMets);
     }
+    case "uShape": {
+      // U-shaped all-cause risk: mult = exp(β · dist^power), =1 across a NADIR BAND and rising
+      // outside it. `nadir` is a point (number) OR a band [low, high] (flat-optimal between —
+      // e.g. sleep 7–8 h, both penalty-free). `beta` is a scalar (symmetric arms) OR
+      // {low, high} (ASYMMETRIC: long-sleep mortality rises steeper than short — Cappuccio
+      // 2010). dist = how far OUTSIDE the band (0 inside). The input's populationMean must lie
+      // in the band so mult==1 at default ⇒ baseline preserved EXACTLY. Reusable for any
+      // U-shaped exposure (sleep now; IGF-1/nutrient-sensing later).
+      const x = inputs[e.input];
+      const xv = x === undefined ? popMean[e.input] : x;
+      const lo = Array.isArray(e.nadir) ? e.nadir[0] : e.nadir;
+      const hi = Array.isArray(e.nadir) ? e.nadir[1] : e.nadir;
+      const bLo = typeof e.beta === "object" ? e.beta.low : e.beta;
+      const bHi = typeof e.beta === "object" ? e.beta.high : e.beta;
+      let dist = 0, beta = 0;
+      if (xv < lo) { dist = lo - xv; beta = bLo; }
+      else if (xv > hi) { dist = xv - hi; beta = bHi; }
+      return dist === 0 ? 1 : Math.exp(beta * Math.pow(dist, e.power || 1));
+    }
     default:
       return 1;
   }
@@ -590,7 +647,7 @@ function applyTreatment(tx, value, dose) {
  * Invariant: inputs={} (or every input == populationMean), treatments={},
  * offsets={} ⇒ each mediator value == its baseline curve at that age.
  */
-export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {} } = {}) {
+export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nodeBurdens = null } = {}) {
   if (sex !== "male" && sex !== "female") {
     throw new Error(`mediators: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
   }
@@ -667,7 +724,137 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
     // Record this mediator's per-age deviation for downstream mediator→mediator edges.
     devByMed[med.id] = out[med.id].map((v, k) => v - baselineByMed[med.id][k]);
   }
+
+  // ---- Uniform state nodes: ∫ rate·dt over the age grid (the migration substrate) ----
+  // A state node ACCUMULATES: value(age_{k+1}) = value(age_k) + rate_k·DT, where rate_k =
+  // Σ terms and each term is `linear` (coeff·driver) or `product` (coeff·∏drivers). A driver
+  // is a MEDIATOR id or another STATE-NODE id, read at each age — so accumulation is INPUT-
+  // driven, NOT age-driven, and the age-correlation EMERGES from the integral (e.g. ECM
+  // crosslink = ∫ coeff·HbA1c dt). This is the seed of the unified node schema (class/units/
+  // rate) and generalises the former ad-hoc `stocks`. State nodes are exposed in the same
+  // `out` map (keyed by id) so mediators and other state nodes can read them. They integrate
+  // AFTER all mediators, in topological order (drivers before dependents). `stocks` is
+  // accepted as a back-compat alias for the old single-driver shape.
+  // B0: expose node-layer burdens (if provided) in `out` so state-node rate/value terms can
+  // reference a node id as a driver (cellular-senescence → arterial-stiffness etc.). Done
+  // BEFORE the state-node phase. When absent (standalone mediators() calls that don't need
+  // state nodes — e.g. lab-anchor prediction), such drivers resolve to 0.
+  if (nodeBurdens) for (const id in nodeBurdens) out[id] = nodeBurdens[id];
+
+  // PER-AGE MARCH (n-body forward-Euler). Rather than process each node fully across all ages
+  // (which only works when no node feeds back into a mediator), we advance ALL state nodes one
+  // age-step at a time. This lets a state node's ACCUMULATED value be injected back INTO a
+  // mediator mid-march via `b.stateAugments` (e.g. β-cell-decline → HbA1c), so that downstream
+  // integrals reading that mediator (crosslink = ∫HbA1c) see the AUGMENTED value at the same
+  // age — the diabetes-spiral feedback. With no augments this is bit-identical to the former
+  // per-node loop: within a step, integrated nodes publish their accumulator, algebraic nodes
+  // (topo-ordered) compute Σ value-terms, then integrated nodes advance by rate(k)·DT.
+  const stateNodes = b.stateNodes || b.stocks || [];
+  const ordered = topoSortStateNodes(stateNodes);
+  const integ = {};                                   // running accumulators for integrated nodes
+  for (const s of ordered) { out[s.id] = new Array(AGES.length); if (!s.value) integ[s.id] = s.initial ?? 0; }
+  const augments = b.stateAugments || [];             // {fromState, mediator, coeff} — empty ⇒ no-op
+  for (let k = 0; k < AGES.length; k++) {
+    // 1. publish integrated accumulators at this age.
+    for (const s of ordered) if (!s.value) out[s.id][k] = integ[s.id];
+    // 2. inject state→mediator augments (reads the just-published accumulated state at age k).
+    // coeff may be a number or a {male,female} map (sex-specific augment magnitude).
+    for (const a of augments) {
+      if (out[a.mediator] && out[a.fromState]) {
+        const c = typeof a.coeff === "object" ? (a.coeff[sex] ?? 0) : a.coeff;
+        out[a.mediator][k] += c * out[a.fromState][k];
+      }
+    }
+    // 3. publish algebraic node values (topo-ordered; may read augmented mediators + integ state).
+    for (const s of ordered) if (s.value) out[s.id][k] = termsSum(s.value.terms, out, k);
+    // 4. advance integrated states by rate(k)·DT (rate reads augmented mediators at this age).
+    for (const s of ordered) if (!s.value) integ[s.id] += stateNodeRate(s, out, k) * DT;
+  }
+
   return out;
+}
+
+// A rate-term driver is either an id string, or an object {id, minus?, floor?} where the
+// resolved value is `out[id][k] − minus`, optionally clamped at `floor` (used e.g. for
+// pulse pressure = SBP − DBP_ref). Returns the driver's id (for topo/ordering).
+function driverId(d) { return typeof d === "string" ? d : d.id; }
+function driverValueAt(d, out, k) {
+  const arr = out[driverId(d)];
+  let v = arr ? arr[k] : 0;
+  if (typeof d === "object" && d !== null) {
+    if (d.minus !== undefined) v -= d.minus;
+    if (d.floor !== undefined) v = Math.max(d.floor, v);
+    if (d.cap !== undefined) v = Math.min(d.cap, v);   // ceiling — bounds runaway feedback (glucotox)
+  }
+  return v;
+}
+
+// State-node driver ids (mediator or state-node) referenced by a node's rate/value law.
+// Accepts {rate:{terms:[...]}} (integrated) AND {value:{terms:[...]}} (algebraic) AND the
+// back-compat single-driver {driver, ratePerUnit} stock shape. Used for topo-ordering.
+function stateNodeDriverIds(node) {
+  const refs = [];
+  if (node.driver) refs.push(node.driver);
+  for (const block of [node.rate, node.value]) {
+    for (const t of (block && block.terms) || []) {
+      for (const d of t.drivers || []) refs.push(driverId(d));
+    }
+  }
+  return refs;
+}
+
+// Σ over terms at age-index k. `linear` term = coeff·drivers[0](k); `product` term =
+// coeff·∏ drivers[i](k). A driver resolves via driverValueAt (id or {id,minus,floor}); a
+// missing driver contributes 0. Shared by integrated `rate` laws and algebraic `value` laws.
+function termsSum(terms, out, k) {
+  let r = 0;
+  for (const t of terms || []) {
+    const drivers = t.drivers || [];
+    if (t.op === "product") {
+      let p = t.coeff || 0;
+      for (const d of drivers) p *= driverValueAt(d, out, k);
+      r += p;
+    } else { // "linear" (default)
+      r += (t.coeff || 0) * driverValueAt(drivers[0], out, k);
+    }
+  }
+  return r;
+}
+
+// Rate of an integrated state node at age-index k. Back-compat: a bare {driver, ratePerUnit}
+// is treated as one linear term.
+function stateNodeRate(node, out, k) {
+  if (node.rate === undefined && node.driver !== undefined) {
+    const d = out[node.driver];
+    return (node.ratePerUnit || 0) * (d ? d[k] : 0);
+  }
+  return termsSum(node.rate && node.rate.terms, out, k);
+}
+
+// Order state nodes drivers-before-dependents (a node whose rate references ANOTHER state
+// node is computed after it). Mediators are already in `out`, so only state-node→state-node
+// references constrain order. Kahn's algorithm; falls back to declared order on a cycle
+// (cross-time feedback like stiffness→SBP→fatigue is handled per-age elsewhere, not here).
+function topoSortStateNodes(stateNodes) {
+  const ids = new Set(stateNodes.map((s) => s.id));
+  const byId = {};
+  for (const s of stateNodes) byId[s.id] = s;
+  const indeg = {};
+  const adj = {};
+  for (const s of stateNodes) { indeg[s.id] = 0; adj[s.id] = []; }
+  for (const s of stateNodes) {
+    for (const ref of stateNodeDriverIds(s)) {
+      if (ids.has(ref) && ref !== s.id) { adj[ref].push(s.id); indeg[s.id] += 1; }
+    }
+  }
+  const queue = stateNodes.filter((s) => indeg[s.id] === 0).map((s) => s.id);
+  const order = [];
+  while (queue.length) {
+    const id = queue.shift();
+    order.push(byId[id]);
+    for (const m of adj[id]) if (--indeg[m] === 0) queue.push(m);
+  }
+  return order.length === stateNodes.length ? order : stateNodes; // cycle ⇒ declared order
 }
 
 // Topologically sort mediators so that the SOURCE of any mediator→mediator edge

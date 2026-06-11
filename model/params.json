@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "v0.4.1",
+    "version": "v0.5",
     "ageRange": [
       20,
       130
@@ -1683,7 +1683,9 @@
         "range": [
           0,
           40
-        ]
+        ],
+        "unwired": true,
+        "note": "DEFERRED PLACEHOLDER: the categorical `smokingStatus` (never/former/current) is used instead (Stage-2), so this continuous cig/day input has no edges and is not in PANEL_INPUT_IDS — inert. Kept as the slot for a future dose-resolved smoking model."
       },
       {
         "id": "smokingStatus",
@@ -1705,7 +1707,8 @@
         "range": [
           -1000,
           1000
-        ]
+        ],
+        "info": "Your <b>habitual</b> daily surplus/deficit vs. the intake that maintains your baseline weight. A sustained surplus doesn't add weight forever &mdash; you burn more as you gain and settle at a <b>new stable weight</b> (Hall 2013), so the slider shifts the whole BMI curve to that equilibrium (a level shift) rather than making BMI diverge with age. <b>0 = weight-stable</b> on the population baseline (overweight on average); &lt;0 = leaner equilibrium, &gt;0 = heavier. Assumes the balance is held lifelong (no mid-life onset). To pin an actual BMI, use the BMI field under Labs."
       },
       {
         "id": "physicalActivity",
@@ -1765,7 +1768,8 @@
         "range": [
           3,
           11
-        ]
+        ],
+        "note": "WIRED 2026-06-10: sleep→allcause via the `uShape` form (nadir BAND 7-8 h, ASYMMETRIC arms — both short and long sleep raise all-cause mortality, long steeper; Cappuccio 2010). 7 h and 8 h are both penalty-free (the reference band). Exposed as a panel slider. The first U-shaped pathway; the banded/asymmetric `uShape` form is reusable for the planned IGF-1 nutrient-sensing U-shape."
       },
       {
         "id": "airPollution",
@@ -1998,28 +2002,8 @@
               5.3
             ],
             [
-              35,
-              5.3
-            ],
-            [
-              45,
-              5.6
-            ],
-            [
-              55,
-              5.6
-            ],
-            [
-              65,
-              5.9
-            ],
-            [
-              75,
-              5.9
-            ],
-            [
               85,
-              5.9
+              5.3
             ]
           ],
           "female": [
@@ -2028,32 +2012,41 @@
               5.3
             ],
             [
-              35,
-              5.3
-            ],
-            [
-              45,
-              5.5
-            ],
-            [
-              55,
-              5.5
-            ],
-            [
-              65,
-              5.8
-            ],
-            [
-              75,
-              5.8
-            ],
-            [
               85,
-              5.8
+              5.3
             ]
           ]
         },
-        "provenance": "Selvin 2005-10 (sexes ~equal; rising secular trend). Direct per-band table, band-center ages."
+        "provenance": "EMERGENT (2026-06-10, Increment 2 of the β-cell→HbA1c vertical): the HbA1c baseline is now FLAT at the young-healthy value 5.3% (no age-pegging). The empirical age-RISE (Selvin 2005-10: 5.3→5.9 M / 5.8 F across 25→85) EMERGES from the β-cell-decline state node via a stateAugment (HbA1c += coeff·β-cell-decline; coeff 0.6 M / 0.5 F so HbA1c@80 ≈ 5.9/5.8). β-cell-decline integrates an intrinsic attrition rate (Increment 2) + glucotoxicity feedback (Increment 3 — the diabetes spiral), so HbA1c KEEPS RISING past 85 (was clamped flat at 5.9 across 85→130) and an intervention/connection can bend the age-RISE itself, not just add a static deviation. Deviation-form HbA1c→CVD/cancer/dementia edges + crosslink=∫HbA1c are ratio/deviation to the (same-law) baseline ⇒ baseline LE preserved EXACTLY regardless of the emergent shape. The cross-sectional plateau at 5.9 (65→85) is partly survivorship/secular-trend artifact; the emergent monotonic rise tracks the band-centers within ~0.15% and is the more defensible longitudinal trajectory. SD 0.6 (right-skewed)."
+      },
+      {
+        "id": "restingHR",
+        "label": "Resting heart rate",
+        "unit": "bpm",
+        "sd": 10,
+        "baseline": {
+          "male": [
+            [
+              25,
+              65
+            ],
+            [
+              85,
+              65
+            ]
+          ],
+          "female": [
+            [
+              25,
+              68
+            ],
+            [
+              85,
+              68
+            ]
+          ]
+        },
+        "provenance": "Population resting HR ~65 bpm (male) / ~68 (female); FLAT illustrative baseline (NHANES resting HR ~60-70; age-neutral, no age-pegging). Added 2026-06-10 (A2) as a DRIVER for the elastin-fatigue state node — pulsatile mechanical fatigue of elastin scales with cardiac cycles × pressure amplitude, i.e. HR × pulse-pressure. Anchorable via Labs. DEFERRED follow-ups: a restingHR→mortality edge (resting HR is an independent CV/all-cause risk factor) and a physicalActivity→restingHR fitness edge (training lowers resting HR ⇒ slower elastin fatigue) — neither wired yet, so restingHR currently affects nothing but the (still-unwired) elastin-fatigue node."
       }
     ],
     "mediatorEdges": [
@@ -2153,6 +2146,141 @@
       "weightAsymptoteFraction": 0.55,
       "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
     },
+    "stiffnessToSBP": {
+      "betaPerUnit": {
+        "male": 37.6,
+        "female": 52.1
+      },
+      "from": "arterial-stiffness",
+      "to": "systolicBP",
+      "excludeDriver": "ecm-crosslink",
+      "excludeWeight": 0.3,
+      "provenance": "A4 (2026-06-10): the BP-MEDIATED slice of stiffness->CVD. SBP gets += betaPerUnit * (NON-GLYCEMIC stiffness deviation) where non-glycemic = (stiffness - stiffness_pop) - excludeWeight*(crosslink - crosslink_pop). betaPerUnit calibrated as the pop SBP age-rise (119->154 M / 110->159 F) over the pop stiffness rise (0->~1) => ~37.6 mmHg/unit (M) / 52.1 (F). DEVIATION form: =0 at the pop stiffness trajectory, so the SBP baseline + the Lewington SBP->CVD calibration (shared by BMI/Lu + sodium) are PRESERVED EXACTLY; only stiffness deviations move SBP. Crosslink EXCLUDED to avoid re-double-counting glycemia (its CVD is already in the decomposed HbA1c->CVD + the B3 direct stiffness->CVD edge). COMPLEMENTS the B3 direct (BP-independent, Mitchell-adjusted) edge: B3 + A4 = the total stiffness CVD risk, split into the BP-independent and BP-mediated slices (Mitchell 2010 separated them). So a senolytic / low-resting-HR person now ALSO lowers SBP (and CVD via Lewington), on top of the B3 slice. NOT a full de-age-pegging of SBP (the old systolicBP baseline curve REMAINS as the anchor; replacing it with a flat residual needs re-referencing the SBP->CVD deviation form — deferred). The reverse SBP->elastin (pressure-amplitude) coupling stays deferred (it would re-create the B3-direct double-count for SBP-driven stiffness). #gap: glycemic stiffening's SBP-display under-representation (crosslink excluded) is an illustrative simplification. ILLUSTRATIVE beta; SOLID-direction."
+    },
+    "stateNodesNote": "UNIFORM NODE SCHEMA (A1, 2026-06-10; migration step toward one causal graph — see model/age-hardcoding-audit.md § Implementation roadmap). A state node accumulates over the age grid: value(age) = initial + ∫ rate·dt, where rate = Σ terms. Each term is `linear` (coeff·drivers[0]) or `product` (coeff·∏drivers); a driver is a MEDIATOR id or another STATE-NODE id (topo-ordered, drivers before dependents), read at each age — so accumulation is INPUT-driven, NOT age-driven, and the age-correlation EMERGES from the integral. `class`: damage | physiology | pathology. `units`: physical | normalized. This generalises the former ad-hoc `stocks`. Algebraic (non-integrated) physiology nodes + terminal-hazard (pathology) mappings are added in later A/C steps; A1 covers integrated state nodes (ecm-crosslink; elastin-fatigue next).",
+    "stateNodes": [
+      {
+        "id": "ecm-crosslink",
+        "class": "damage",
+        "units": "normalized",
+        "label": "ECM collagen crosslinks (glucosepane/AGE)",
+        "initial": 0,
+        "rate": {
+          "terms": [
+            {
+              "op": "linear",
+              "drivers": [
+                "HbA1c"
+              ],
+              "coeff": 0.00293
+            }
+          ]
+        },
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; migrated to the uniform schema A1) — first node of the age-pegging migration (model/age-hardcoding-audit.md). Glucosepane is the dominant ECM collagen crosslink; formation is mass-action glycation, so dCrosslink/dt = coeff · glycemia, with HbA1c as the mean-glucose proxy (one `linear` term, coeff 0.00293). Integrated over the age grid: crosslink(age) = initial + ∫ coeff · HbA1c dt (driver value INCLUDES inputs/offsets, so elevated glycemia accelerates accumulation). coeff 0.00293 calibrated so the POPULATION trajectory (male baseline HbA1c) reaches ~1.0 (normalized) at age 80 from 0 at age 20; a diabetic (HbA1c ~9) accumulates ~1.7x faster. AGE IS NOT AN INPUT — the age-correlation EMERGES from the integral. NOT YET wired to arterial-stiffness/SBP/mortality (A3/A4: crosslink + elastin-fatigue + senescence -> arterial-stiffness -> SBP residual-split). Illustrative magnitude; SOLID-direction (glucosepane accumulates with age and markedly in diabetes)."
+      },
+      {
+        "id": "elastin-fatigue",
+        "class": "damage",
+        "units": "normalized",
+        "label": "Elastin fiber fatigue fragmentation",
+        "initial": 0,
+        "rate": {
+          "terms": [
+            {
+              "op": "linear",
+              "drivers": [
+                "restingHR"
+              ],
+              "coeff": 0.0002564
+            }
+          ]
+        },
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; A2, simplified at B3). Vascular elastin has ~zero turnover in adult humans, so age-related fragmentation is CUMULATIVE PULSATILE MECHANICAL FATIGUE, not chronological age (phenotypes/arterial-stiffening.md; Sun 2014). FULL mechanism: dFatigue/dt ∝ cardiac-cycles × pressure-amplitude = restingHR × pulse-pressure. **B3 decoupling (2026-06-10):** the pulse-pressure (SBP) driver was REMOVED for now — leaving dFatigue/dt = coeff · restingHR (the cyclic-COUNT part) — because the SBP-driven slice made SBP→elastin→stiffness→CVD double-count the Lewington SBP→CVD hub (which is shared by BMI/Lu + sodium edges, so decomposing it cascades). The pressure-amplitude term + the bidirectional SBP↔stiffness coupling are DEFERRED to A4 (the SBP-residual-split), which reconciles them with Lewington/Lu via mediation-decomposition. #gap/deferred-A4. So today elastin varies only via resting HR (a low-HR / fit person fatigues elastin slower — a clean intervention path with no existing HR→CVD edge to double-count). AGE IS NOT AN INPUT — the age-correlation EMERGES. coeff 2.564e-4 calibrated so the POPULATION male trajectory reaches ~1.0 (normalized) at age 80 (HR 65 flat). Wired downstream: -> arterial-stiffness (A3) -> cardiovascular (B3). Illustrative; SOLID-direction (elastin fatigue is the dominant structural stiffening driver)."
+      },
+      {
+        "id": "beta-cell-decline",
+        "class": "physiology",
+        "units": "normalized",
+        "label": "Pancreatic β-cell functional decline",
+        "initial": 0,
+        "rate": {
+          "terms": [
+            {
+              "op": "product",
+              "drivers": [],
+              "coeff": 0.016667
+            },
+            {
+              "op": "linear",
+              "drivers": [
+                {
+                  "id": "BMI",
+                  "minus": 25,
+                  "floor": 0
+                }
+              ],
+              "coeff": 0
+            },
+            {
+              "op": "linear",
+              "drivers": [
+                {
+                  "id": "HbA1c",
+                  "minus": 6.5,
+                  "floor": 0,
+                  "cap": 3
+                }
+              ],
+              "coeff": 0.012
+            }
+          ]
+        },
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; β-cell→HbA1c vertical, Increment 2). β-cell secretory reserve declines cumulatively with age; the loss is what un-pins fasting/postprandial glycemia (UKPDS: ~4%/yr functional β-cell loss in T2D; lesser in normoglycemia). Modeled as a normalized [0,1+] decline integrating THREE rate terms: (1) an INTRINSIC attrition constant 0.016667/yr (the `product` term with empty drivers = constant) — the unmechanized age-residual, calibrated so ∫ from age 20 reaches ~1.0 (normalized) at age 80, reproducing the population HbA1c rise 5.3→5.9 via the stateAugment (coeff 0.6 M / 0.5 F); (2) a LIPOTOXICITY term ∝ max(0, BMI−25) — adiposity accelerates β-cell stress (coeff 0, DEFERRED: a secondary accelerator, NOT part of the core spiral loop; activating it would re-shape the population HbA1c curve via population BMI>25 and require re-calibrating the intrinsic rate — deferred to keep Increment 3 clean); (3) a GLUCOTOXICITY feedback ∝ min(3, max(0, HbA1c−6.5)) — chronic hyperglycemia is itself β-cell-toxic, the engine of the DIABETES SPIRAL: **ACTIVATED in Increment 3 (2026-06-10), coeff 0.012**. The loop: β-cell-decline ↑ → HbA1c ↑ (stateAugment) → glucotox ↑ → β-cell-decline ↑, resolved per-age across the forward-Euler march (the spiral substrate of Increment 1). The driver is CAPPED at 3 (HbA1c 9.5) so the feedback growth becomes linear (not exponential) past the cap — BOUNDS the spiral to a clinically-plausible ceiling (a poorly-controlled diabetic anchored ~8 at 50 progresses to ~9.1 @80 / ~10.0 @110, UKPDS-plausible ~0.03%/yr; un-capped it ran to 13–17%). Floors at 6.5% (glucotox) / 25 (lipotox) keep both terms EXACTLY 0 in the normoglycemic/lean population (population HbA1c maxes at 6.4 @130 < 6.5) so the population HbA1c baseline — and thus baseline LE — is preserved EXACTLY (verified: POP LE 75.8147 identical with/without the spiral); they only bite for diabetic/obese DEVIATIONS. AGE IS NOT AN INPUT — the rise EMERGES from the integral. Drives HbA1c (stateAugment), which drives crosslink=∫HbA1c → arterial-stiffness → CVD, plus the direct HbA1c→CVD/cancer/dementia edges; so the spiral worsens the diabetic's OLD-AGE glycemia + stiffness + CVD (LE −0.031 on top of the baseline-elevation hit). **Anchor caveat:** a lab-anchored HbA1c is a LIFELONG offset (model semantics for all mediators), so glucotox accumulates retroactively from age 20 — an anchored 8 reads ~8.3 at the current age (mild over-shoot), and the spiral then projects forward. The held-forward anchor no longer pins exactly once the spiral is active; this is the realistic 'glycemia progresses' behavior, documented rather than iterated-away. Illustrative magnitudes; SOLID-direction (β-cell decline → glycemia → micro/macrovascular complications; glucotoxicity is an established T2D mechanism)."
+      },
+      {
+        "id": "arterial-stiffness",
+        "class": "physiology",
+        "units": "normalized",
+        "label": "Large-artery stiffness (cfPWV proxy)",
+        "value": {
+          "terms": [
+            {
+              "op": "linear",
+              "drivers": [
+                "elastin-fatigue"
+              ],
+              "coeff": 0.5
+            },
+            {
+              "op": "linear",
+              "drivers": [
+                "ecm-crosslink"
+              ],
+              "coeff": 0.3
+            },
+            {
+              "op": "linear",
+              "drivers": [
+                "cellular-senescence"
+              ],
+              "coeff": 0.8
+            }
+          ]
+        },
+        "provenance": "ALGEBRAIC physiology node (2026-06-10; A3 + B0). value(age) = Σ contributions AT each age, NOT ∫rate·dt: stiffness is the CURRENT consequence of currently-accumulated damage, and its inputs are themselves time-integrals / burdens. cfPWV proxy = 0.50·elastin-fatigue + 0.30·ecm-crosslink + 0.80·cellular-senescence; weights ILLUSTRATIVE and ELASTIN-DOMINANT (elastin fragmentation is the dominant structural driver, AGE crosslinking secondary — phenotypes/arterial-stiffening.md), normalized so the population male trajectory ~1.0 at age 80, with the senescence term carrying ~20% of stiffness@80 (Clayton 2023: senolytics reverse ~20% aortic PWV in mice). **B0 (2026-06-10) cleared the deferred senescence term**: `cellular-senescence` is a NODE-layer burden (B), now readable from the state-node phase because simulate() passes node burdens into mediators() (the node↔state-node seam dismantled for the node→state-node direction). So a senescence-FREEZE intervention now lowers arterial stiffness — the first node→state-node mechanistic edge. NOT YET wired to SBP/mortality (that is Phase B3: stiffness → SBP/CVD, with mediation-decomposition of the redundant direct edges). Illustrative; SOLID-direction."
+      }
+    ],
+    "stateAugmentsNote": "STATE→MEDIATOR AUGMENTS (2026-06-10; β-cell→HbA1c vertical). Each {fromState, mediator, coeff} injects coeff·stateValue INTO a mediator mid-march (per-age, AFTER the mediator phase + offsets, BEFORE state rates advance), so a state node's accumulated value can re-shape a mediator trajectory that the SAME march's downstream integrals then read. coeff is a number or a {male,female} map. This is the substrate that lets an emergent damage variable un-pin a formerly age-tabled mediator: β-cell-decline → HbA1c replaces the HbA1c age-table with a flat 5.3 baseline + the emergent rise. Anchoring stays exact in Increment 2 because the augment is input-independent (constant base rate), so computeOffsets' post-augment prediction cancels; Increment 3 (glucotox feedback makes the augment input-dependent) revisits anchor semantics.",
+    "stateAugments": [
+      {
+        "fromState": "beta-cell-decline",
+        "mediator": "HbA1c",
+        "coeff": {
+          "male": 0.6,
+          "female": 0.5
+        }
+      }
+    ],
     "causeEdges": [
       {
         "from": "LDL",
@@ -2172,17 +2300,26 @@
           "refAge": 50,
           "halfPer": 20
         },
-        "provenance": "Lewington 2002: ~2x CVD per +20 mmHg (>=115) => beta=ln(2)/20=0.0347 per mmHg at age 50; relative slope HALVES per ~2 decades (betaAgeMod refAge 50, halfPer 20). Acts on (SBP value - baseline). SOLID."
+        "benefitFloor": 115,
+        "provenance": "Lewington 2002: ~2x CVD per +20 mmHg (>=115) => beta=ln(2)/20=0.0347 per mmHg at age 50; relative slope HALVES per ~2 decades (betaAgeMod refAge 50, halfPer 20). Acts on (SBP value - baseline). BENEFIT FLOOR 115 mmHg (2026-06-10): the log-linear association is established only DOWN TO 115 mmHg (Lewington's lower bound); below it the value is clamped so there is NO further CVD benefit (plateau), rather than extrapolating an unbounded benefit toward physiologically impossible SBP. Below ~115 the epidemiology flattens and an observational J-curve appears that is largely reverse-causation (frailty/illness lowers BP); a true harm uptick is NOT modeled here (conservative plateau). SOLID (>=115); floor is the evidence-boundary choice."
       },
       {
         "from": "HbA1c",
         "to": "cardiovascular",
         "form": "mediatorThresholdRamp",
         "med": "HbA1c",
-        "slope": 1.052,
+        "slope": 0.866,
         "threshold": 5.7,
-        "cap": 3,
-        "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 reached at HbA1c 6.5 => exp(1.052*(6.5-5.7))=2.32; ramp from 5.7, capped 3.0. Ratio-to-baseline so =1 at the per-age baseline HbA1c. SOLID."
+        "cap": 2.6,
+        "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 at HbA1c 6.5. **B3 mediation decomposition (2026-06-10):** the glycemic CV risk is partly STRUCTURAL (glycemia->ecm-crosslink->arterial-stiffness->CVD), now carried explicitly by the arterial-stiffness->cardiovascular edge. The stiffness-mediated slice is SUBTRACTED here so the total isn't double-counted: slope reduced 1.052->0.866 so the DIRECT (non-structural: endothelial/microvascular/thrombotic) glycemic HR at 6.5 is ~2.0 (exp(0.866*0.8)=2.0), the ~14% remainder routed through stiffness. Cap 3->2.6. ILLUSTRATIVE split magnitude (#gap: the exact structural fraction of glycemic CVD is uncharacterized); SOLID-direction. Ratio-to-baseline so =1 at the per-age baseline HbA1c."
+      },
+      {
+        "from": "arterial-stiffness",
+        "to": "cardiovascular",
+        "form": "mediatorLogLinear",
+        "med": "arterial-stiffness",
+        "beta": 0.6,
+        "provenance": "B3 (2026-06-10): the CONSOLIDATED arterial-stiffness -> CVD path. Mitchell 2010 (Framingham): cfPWV HR 1.48 per 1 SD, INDEPENDENT of SBP/lipids/smoking/diabetes. 1 SD cfPWV ~0.55 of the normalized stiffness range => beta = ln(1.48)/0.55 ~0.71; set to 0.6 (conservative, to bound the partial overlap of the SBP-driven elastin slice with the Lewington SBP->CVD edge — #gap, reconcile in the A4 SBP-residual-split). Deviation form exp(beta*(stiffness - baseline)) = 1 at the pop stiffness trajectory, so the CDC-calibrated CV baseline is preserved EXACTLY; only stiffness DEVIATIONS move CV hazard. Makes interventions map to reality: a senolytic (less senescence -> less stiffness) and glycemic/BP/crosslink-breaker interventions all bend CV mortality through stiffness, non-double-counted — senescence's stiffness path is a DISTINCT mechanism from its existing inflammation->plaque coupling (senescence->chronic-inflammation->atherosclerosis), the glycemia slice is decomposed out of HbA1c->CVD, and HR has no prior CVD edge. ILLUSTRATIVE beta; SOLID-direction (Mitchell 2010, Clayton 2023)."
       },
       {
         "from": "HbA1c",
@@ -2239,6 +2376,22 @@
           "current": 1.9
         },
         "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Relative cardiovascular-death RR never 1.0 / former 1.3 / current 1.9 (net current-smoker CVD RR ~1.8-2.0). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*1.9=1.201) so the population mix averages to mult 1 (the CDC cardiovascular baseline already embeds the mix). Normalized: never~0.833 / former~1.082 / current~1.582. Same scheme as smoking->cancer. SOLID-direction; relative magnitudes approximate."
+      },
+      {
+        "from": "sleep",
+        "to": "allcause",
+        "form": "uShape",
+        "input": "sleep",
+        "nadir": [
+          7,
+          8
+        ],
+        "beta": {
+          "low": 0.06,
+          "high": 0.13
+        },
+        "power": 1,
+        "provenance": "Sleep duration → all-cause mortality is U-SHAPED (Cappuccio 2010 meta: short sleep <6h HR ~1.12, long sleep >8-9h HR ~1.30 vs the 7-8h REFERENCE). **BANDED + ASYMMETRIC (2026-06-10, user-caught):** the prior symmetric point-nadir at 7 wrongly penalized 8h as much as 6h — but 7-8h is a flat-optimal REFERENCE BAND (8h is not worse than 7h). mult = exp(β·dist) where dist = how far OUTSIDE [7,8] (0 inside ⇒ 7h AND 8h both penalty-free) and β is ASYMMETRIC: short arm (<7h) βlow 0.06, long arm (>8h) βhigh 0.13 (long-sleep mortality rises ~2× steeper per hour — Cappuccio long HR 1.30 vs short 1.12). Resulting: 5h ⇒ exp(0.06·2)=1.13, 6h ⇒ 1.06, 7-8h ⇒ 1.00, 9h ⇒ exp(0.13·1)=1.14, 10h ⇒ exp(0.13·2)=1.30. popMean 7 lies in the band ⇒ mult 1 at default ⇒ baseline preserved EXACTLY. Whole-intrinsic-bracket all-cause multiplier (like physicalActivity→allcause); sleep is a standalone input with no prior edge, so NO double-count. The steeper long arm is partly REVERSE-CAUSATION (illness → long sleep, not long sleep → death) — flagged #gap/contributory-reverse-causation; the model encodes the association as-observed. Wired + exposed 2026-06-10 (was a phantom input); banded/asymmetric same day. SOLID-direction; magnitude illustrative."
       },
       {
         "from": "physicalActivity",
@@ -2350,6 +2503,26 @@
           "current": 1.5
         },
         "provenance": "Smoking->CKD mortality RR ~1.5 current (smoking accelerates nephropathy/CKD progression). smokingCategorical normalized. v0.4.1."
+      },
+      {
+        "from": "HbA1c",
+        "to": "diabetes",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "threshold": 6.5,
+        "slope": 0.55,
+        "cap": 30,
+        "provenance": "HbA1c -> DIRECT diabetes mortality (E10-E14: acute metabolic crises [DKA, hyperosmolar hyperglycemic state] + severe diabetic complications coded to diabetes itself, NOT the diabetic CVD that codes to cardiovascular). Added 2026-06-10 to give the β-cell glucotoxicity spiral a SEVERITY-SCALING terminal endpoint — without it the only HbA1c->mortality edges (cardiovascular/cancer/neurodegeneration) all SATURATE at their caps by HbA1c ~6.8 (they carry the ERFC/Gudala *average-diabetic* macrovascular RR, which genuinely plateaus), so the model treated HbA1c 7 and 14 as identical for death (user-caught, 2026-06-10). This edge is DELIBERATELY STEEP + HIGH-CAP because the diabetes-coded endpoint is dominated by ACUTE crises whose baseline is ~0 at HbA1c 6.5 and explodes at sustained high glycemia: slope 0.55 = RR ~1.73 per +1% HbA1c, cap 30 (saturates at HbA1c ~12.7). This is a DIFFERENT shape from the capped macrovascular edges and is correct — acute hyperglycemic death scales with severity where chronic macrovascular RR plateaus. ratio-to-baseline (threshold 6.5 > population HbA1c max 6.4 @130) so mult EXACTLY 1 in the population => baseline LE preserved EXACTLY. Resulting ladder (M, anchored): HbA1c 7 -4.3 yr / 10 -7.3 / 14 -11.1. ILLUSTRATIVE slope+cap magnitudes (#gap: the exact direct-diabetes-mortality dose-response by HbA1c band is uncharacterized for HbA1c>12); SOLID-direction (acute hyperglycemic + complication mortality rises steeply with sustained hyperglycemia)."
+      },
+      {
+        "from": "HbA1c",
+        "to": "ckd",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "threshold": 6.5,
+        "slope": 0.35,
+        "cap": 10,
+        "provenance": "HbA1c -> CKD mortality (diabetic nephropathy -> renal death, N00-N07/N17-N19/N25-N27). Added 2026-06-10 alongside HbA1c->diabetes as the second severity-scaling glycemic endpoint. Diabetic nephropathy is strongly glycemia-dependent (DCCT/UKPDS: tight control markedly cuts nephropathy progression), so renal death rises with sustained hyperglycemia: slope 0.35 = RR ~1.42 per +1% HbA1c, cap 10 (saturates at HbA1c ~13.1) — gentler than the diabetes edge (nephropathy is a chronic complication, not an acute crisis). ratio-to-baseline (threshold 6.5 > population HbA1c max) => mult EXACTLY 1 in population => baseline LE preserved EXACTLY. Complements the existing smoking->ckd edge (different driver). ILLUSTRATIVE magnitudes (#gap); SOLID-direction (glycemic control governs diabetic nephropathy progression)."
       }
     ],
     "causeEdgesNote": "Stage 2 (2026-06-08): CLEAN non-double-counting mediator->cause and direct exogenous->cause multipliers. cause_hazard_c = [v0.3 hazard] * Prod_edges mult_edge; mult=1 at population-average inputs so v0.3 (LE 75.31 M / 80.37 F) reproduces exactly. mediatorThresholdRamp uses a RATIO-to-baseline so mult=1 at the per-age baseline HbA1c (which exceeds the 5.7 threshold at 60+). Stage 3a (2026-06-08) ADDED two clean cause edges, both =1 at default inputs: (1) smoking->cardiovascular (smokingCategorical, normalized, never 0.833/former 1.082/current 1.582) and (2) physicalActivity->allcause (activityFitness, target 'allcause', exp(-0.139*dMETs), applied to the WHOLE intrinsic bracket at the frailty-multiplier site, weight/glucose-independent fitness channel). Stage 3b (2026-06-08) ADDED the BMI/adiposity edges MECHANISTICALLY (Lu 2014 mediation decomposition, no double-counting), all =1 at the per-age baseline BMI so v0.3 still reproduces exactly: (1) BMI->systolicBP mediatorEdge (mediatorLinear, +0.72 mmHg/+1 kg/m2, the DOMINANT mediated path, flowing through SBP->CVD); (2) BMI->cardiovascular causeEdge (bmiThresholdRatio, upper-arm only, beta 0.022819, the UNMEDIATED CV residual; combined with the SBP path => Lu 1.27 per +5 BMI, log-HR split SBP 52.3% / residual 47.7%); (3) BMI->allcause J-curve (bmiJcurve, upper betaUpper ln1.09/5 non-CV obesity + lower betaLower ln1.51/3.5 underweight-frailty, nadir [20,25], whole-bracket). OMITTED in 3b: BMI->LDL (null per MR), continuous BMI->glucose (folded into the residual). DEFERRED: alcohol->all-cause(MR) bundle; B2 latent fixes."

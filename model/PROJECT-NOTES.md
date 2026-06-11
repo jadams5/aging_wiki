@@ -1,21 +1,46 @@
 # Aging-Simulator — Project Notes / Resume Guide
 
 > Working handoff doc. Read this first when resuming. The **deep design + all
-> parameters + the 18-node audit + citations** live in
+> parameters + the node audit + citations** live in
 > [`frameworks/causal-graph-parameters.md`](../frameworks/causal-graph-parameters.md)
 > — this file is the *operational* overview: how the pieces fit, how to build/test,
 > the mistakes already fixed (don't repeat them), current state, and the roadmap.
 >
-> **Status:** working interactive tool. Engine 73/73 tests green. Baseline LE
-> reproduces empirical 2022 ≈ **75.82 M / 80.89 F**. All commits are **LOCAL and
-> UNPUSHED** (user controls pushes). Not wired into Quartz.
+> **Status:** working interactive tool. Engine **131/131** tests green + **22/22**
+> Playwright browser checks. **Graph/viz overhauled 2026-06-10:** the graph panel is now
+> a UNIFIED causal DAG across all layers (inputs→mediators↔state→hallmarks→causes→mortality,
+> 42 nodes / 76 edges) with edge-category styling, greyed disabled/unlinked nodes (planned
+> work), hover focus/ego mode, live edge weighting (red=raising risk / green=lowering), and
+> wheel-zoom/drag-pan; the former Mediator-trajectory + Burden panels are merged into one
+> normalized "Node trajectories" timeline (mediators + state nodes + burdens, group-toggle
+> chips). Baseline LE reproduces empirical 2022 ≈ **75.815 M /
+> 80.862 F** (the older "75.82/80.89" was rounded). **β-cell→HbA1c vertical landed
+> 2026-06-10** (Increments 1–3): HbA1c is now EMERGENT (flat 5.3 + `β-cell-decline`
+> augment, de-age-pegged — keeps rising past 85) with a live glucotoxicity diabetes
+> spiral; the per-age `stateAugments` march built here is the reusable substrate for
+> de-age-pegging LDL/BMI next. **HbA1c severity endpoints wired** (same day, user-
+> caught): `HbA1c→diabetes` (acute-crisis, steep/cap-30) + `HbA1c→ckd` (nephropathy)
+> fix the formerly-flat hyperglycemia ladder — the 3 macrovascular HbA1c edges all
+> saturate by HbA1c ~6.8, so severe glycemia needs the direct-diabetes + renal
+> endpoints to carry dose-response (HbA1c 14 now −11 yr, was −5). Commits land on
+> `main` (user controls pushes). The public wiki deploys via **Quartz + Pages**; the sim HTML ships
+> as a **static asset under `viz/`** (not a rendered wiki page), and `model/` is excluded
+> from the Quartz content (engine code + dev docs, not wiki pages).
 >
 > **What it is:** an interactive, evidence-tagged *sensitivity explorer* (NOT a
 > predictor) that turns the hallmark causal graph into a dynamical model, computes
 > competing-hazards mortality calibrated to CDC, and lets a person see how
-> lifestyle/labs/interventions shift their cause-of-death profile and life
 > expectancy. Every number is provenance-tagged; do **not** propagate sim outputs
 > onto atomic wiki pages.
+
+> **⚠ Architecture in migration (2026-06-10).** Several conventions below describe the
+> CURRENT two-layer model — **age-pegged baselines + deviation-propagation + the
+> node/mediator split**. These are being superseded by the rate-integration migration
+> toward a **single unified causal graph** (every node a `∫rate·dt` state variable; no age
+> as an input). The target architecture, the no-age-pegging principle, and the residual
+> discipline live in **[`model/age-hardcoding-audit.md`](age-hardcoding-audit.md)** —
+> read it alongside this file. Passages that conflict are tagged **`[MIGRATING]`** below;
+> the current-model description stays accurate until each node is actually migrated.
 
 ---
 
@@ -30,8 +55,12 @@ model/
   params.json       ← generated FROM the .md json block (do not hand-edit).
   build-params.mjs  ← extracts the .md ```json block → params.json.
   build-app.mjs     ← inlines engine.mjs + params.json INTO the html (between markers).
-  test.mjs          ← 73 regression tests. `node model/test.mjs` MUST stay green.
+  test.mjs          ← 129 regression tests. `node model/test.mjs` MUST stay green.
   cli.mjs           ← le / sweep / validate / fit(stub).
+  e2e-playwright.mjs← REAL-browser (Chromium) smoke + interaction test of the rendered app
+                     (23 checks: render, sex toggle, lab anchors, anchor-disable, infodot
+                     tooltip, resting-HR→stiffness→LE, senolytic intervention). Run per its
+                     header. Catches render/wiring bugs the Node Proxy-stub can't.
   README.md         ← one-paragraph pointer.
 viz/aging-simulator.html  ← the app. RENDER layer (UI/CSS/SVG) + an INJECTED engine.
 ```
@@ -63,8 +92,9 @@ every multiplier is 1, and the model reproduces the empirical CDC baseline exact
 (75.82 / 80.89).** This invariant is the load-bearing guard — *every change must
 preserve it*, and `test.mjs` pins it.
 
-1. **Latent hallmark nodes** (18 nodes / 38 edges; structure inherited from the
-   *verified* `frameworks/causal-graph-data.md`). Burden `B_i = clamp(T_i + Δ_i)`.
+1. **Latent hallmark nodes** (22 nodes / 38 edges today — the 18 inherited from the
+   *verified* `frameworks/causal-graph-data.md` + the 4 v0.4.1 named cause nodes).
+   Burden `B_i = clamp(T_i + Δ_i)`.
    `T_i` = baseline curve (parametric for hallmarks; **table** = normalized CDC
    curve for the 4 cause nodes). `Δ_i` = deviation from interventions, propagated
    by a **bounded fixed-point**: `Δ = (I − couple·G)⁻¹·p`, `p` = primary deviation
@@ -104,6 +134,14 @@ LE             = 20 + Σ S,  S = exp(−Σ h)
 - **Deviation, not absolute.** `exp(β·(value−baseline)) = 1` when value==baseline.
   This is why the invariant holds and why we don't double-count the population's
   average smoker/LDL/etc. (already in the CDC baseline).
+  > **`[MIGRATING]`** The *invariant* (mult=1 at pop-avg) is **preserved** by the
+  > migration's calibration-preserving split — but "baseline" is moving from an
+  > **age-pegged curve** to an **emergent population trajectory** (`∫rate·dt` evaluated at
+  > pop-avg inputs). "Average exposure already in the CDC baseline" is precisely the
+  > age-pegging being removed: in the unified graph the average smoker's burden is
+  > *derived* mechanistically, not baked into an age curve. Same discipline (no
+  > double-count; calibrate to the empirical anchor), realized mechanistically. See the
+  > audit doc.
 - **Categorical inputs (smoking) are NORMALIZED** by the population mix so the
   mix averages to 1 (never-smoker comes out PROTECTED, <1).
 - **β derivation:** `β = ln(HR)` per unit of the edge's natural variable. E.g.
@@ -115,9 +153,10 @@ LE             = 20 + Σ S,  S = exp(−Σ h)
 
 ---
 
-## 4. The 18-node fan-out audit → 3 calibration tiers (the evidence backbone)
+## 4. The node fan-out audit → 3 calibration tiers (the evidence backbone)
 
-Full details in the param file § "Node-audit findings". Summary:
+Full details in the param file § "Node-audit findings". (The audit covered the original
+**18 nodes**; v0.4.1 split the residual into 4 named causes → **22 nodes** today.) Summary:
 
 - **C1 — calibrated terminal edges** (real mortality): inflammation→CVD (hsCRP RR
   1.55/SD, *causal* via CANTOS); frailty→all-cause (cause-specific HRs); dementia
@@ -154,6 +193,18 @@ a direct PAF edge, NOT also routed through the genomic-instability latent lever
 for hazard. **Mechanistic-vs-bundled:** BMI is modeled mechanistically (BMI→SBP +
 BMI→HbA1c + a direct CV residual sized to the *un*mediated ~half per Lu 2014),
 NOT as a bundled BMI→all-cause HR (which would double-count the mediated portion).
+
+> **`[MIGRATING]`** "Route-once" is imprecise. The real principle (user 2026-06-10) is
+> **mediation decomposition: making an effect explicit via a mechanism requires SUBTRACTING
+> that slice from the aggregate edge, so the calibrated total is preserved.** If `X→Y` is
+> entirely via mechanism `M` → re-route (drop direct `X→Y`, add `X→M→Y`). If partly via `M`
+> → split: route the `M`-slice and **reduce** the direct `X→Y` by it (residual = the non-`M`
+> pathways). E.g. wiring `HbA1c → arterial-stiffness → SBP → CVD` requires subtracting the
+> structural-arterial slice from the direct `HbA1c→CVD` (ERFC) edge, keeping the
+> endothelial/microvascular residual. The **Mechanistic-vs-bundled** BMI example *is already
+> this template* (BMI→SBP path + BMI→CVD residual = Lu 1.27) — generalise it to every wired
+> mechanism. This is **Phase B** in `model/age-hardcoding-audit.md` (the full re-partition,
+> done all together, not edge-by-edge).
 
 ---
 
@@ -229,6 +280,12 @@ timeline does NOT respond to lifestyle inputs (by design; exogenous→latent is
 unwired). Mediator→cause edges use a RATIO-to-baseline form where the baseline
 already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseline.
 
+> **`[MIGRATING]`** "exogenous→latent is unwired" IS the node/mediator seam, and wiring it
+> is the *central* move of the unified-graph migration (not the "optional" item §8 calls
+> it). When wired, a smoker's genomic-instability rises and the burden timeline responds to
+> lifestyle — and `smoking → genomic-instability → cancer` becomes the route-once path
+> above. See the audit doc § "Target architecture".
+
 ---
 
 ## 7. Current state (what's built)
@@ -268,12 +325,22 @@ already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseli
   life-extending scenario. Engine untouched by this (pure UI), so tests unaffected.
 - **Layout pass** done: causal-graph height halved (viewBox 560×340) + denser
   multi-column grid to fit everything on one screen.
-- 73/73 tests; leak-gate clean; **all commits local/unpushed**.
+- 86/86 tests; leak-gate clean.
 
 ---
 
 ## 8. Roadmap / deferred (next session)
 
+- **Pathway-verification sweep (2026-06-10)** — engine-swept every input/treatment/node-freeze
+  pathway: all behave with sensible direction + magnitude (+ 21 Playwright UI checks). Two
+  findings: (1) **`sleep` — DONE 2026-06-10**: wired `sleep→allcause` via a new reusable `uShape` form
+  (nadir 7 h; both short and long sleep raise all-cause mortality, Cappuccio 2010) and exposed
+  as a panel slider. Baseline preserved (popMean 7 = nadir). The `uShape` form is now available
+  for the planned IGF-1 U-shape. (2) **`sodium→SBP` convex form is UNBOUNDED** out-of-range (−55 yr
+  at 33× the slider max); slider-clamped `[40,300]` so not user-reachable, but add a cap (cf. the
+  SBP benefit-floor) for robustness. Other gaps to evaluate: **IGF-1/nutrient-sensing U-shape**
+  (currently monotonic — known-wrong; see below), **alcohol J-curve** (monotonic-above-threshold;
+  deferred MR bundle), **`restingHR→mortality` direct** + **`physicalActivity→restingHR`** (B5).
 - **Remaining B2 latent fixes** — CHIP→atherosclerosis routed via inflammation +
   virus-weighted immunosenescence→cancer. These are refinements to the **verified**
   `causal-graph-data` edge structure → apply THERE via the seeder/verifier flow,
@@ -374,6 +441,15 @@ iatrogenic, nutritional, and the long tail of small causes. This is the honest
 invented upstream edges (see §6 FIXED-MISTAKES discussion and the "unknown node"
 decision).
 
+> **`[MIGRATING]`** Refined by the **residual discipline** (audit doc): the goal is to
+> drive the residual toward **zero** by modeling every known rate×time mechanism, and to
+> reframe the irreducible remainder as an explicit, labeled unattributed **fraction**, not
+> an **age curve**. "Keep age-keyed" was defensible only while there was no better
+> representation; an unneeded age-keyed residual re-introduces the very age-pegging the
+> migration removes. The instinct here — *don't invent upstream edges for things you can't
+> mechanistically justify* — is still correct and is exactly the residual discipline's
+> "named `#gap/no-mechanism` only" rule.
+
 **Suggested implementation order** (largest + best-anchored first): diabetes →
 COPD → CKD → liver → (extend neuro for Parkinson) → (fold hypertensive/aneurysm
 into CVD). Each is one node + reserve table + recomputed residual + 1–3 anchored
@@ -441,7 +517,7 @@ Livingston/Lancet-2024 (dementia PAF), Islami/GBD/de-Martel + Tomasetti-Vogelste
 
 ```
 node model/build-params.mjs     # .md json block → params.json
-node model/test.mjs             # 73 regression tests (must be green)
+node model/test.mjs             # 129 regression tests (must be green)
 node model/cli.mjs le --sex male    # → ~75.82
 node model/build-app.mjs        # inline engine into the html
 # open viz/aging-simulator.html by double-click (file://, no server needed)
@@ -452,6 +528,16 @@ the app's `<script>` in node with a Proxy-based stub `document`/`window`
 (`createElementNS`, `createTextNode`, `getComputedStyle`, `getElementById`) and
 confirm init completes with no throw. (This is how the BMI/MED_SCALE crash was
 found — see commit history.)
+
+**Real-browser E2E** (`model/e2e-playwright.mjs`) — stronger than the Proxy stub: drives
+the rendered app in Chromium (21 checks). Verified 2026-06-10 (23/23): no console/page
+errors; baseline 75.8 M / 80.9 F; all 4 SVG panels render; sex toggle; BMI lab anchor moves
+LE; **anchor→slider disable** (calorieBalance grays when BMI anchored); **resting-HR field
+now moves LE via the B3/A4 stiffness path** (low/fit→+LE, high→−LE); calorieBalance infodot
+tooltip; **senolytic intervention via the UI → +0.70 LE**. NOTE: the Labs/Lifestyle controls
+sit behind the `#modTabSeg [data-tab="blayer"]` toggle (hidden by default) — activate it
+before driving lab inputs. Run per the file's header (needs `playwright` resolvable +
+`CHROME_PATH`).
 
 **The guard for any change:** baseline must stay ≈ 75.82 M / 80.89 F and
 `test.mjs` must pass. If LE shifts, re-baseline the targets *and* the self-checks

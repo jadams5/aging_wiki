@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aging causal-graph simulator (v0.4)</title>
+<title>Aging causal-graph simulator (v0.5)</title>
 <style>
   :root {
     /* Layer palette */
@@ -109,8 +109,26 @@
     display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 10px;
     color: #fff; vertical-align: middle;
   }
+  /* docked node-description card, top of the graph panel; appears on node hover */
+  #graphNodeInfo {
+    position: absolute; top: 6px; left: 6px; right: 6px; z-index: 6;
+    display: none; pointer-events: auto;
+    background: rgba(255,255,255,0.95); border: 1px solid var(--line);
+    border-radius: 6px; padding: 6px 10px; font-size: 11px; line-height: 1.4;
+    color: var(--ink); box-shadow: 0 1px 5px rgba(0,0,0,0.10);
+  }
+  #graphNodeInfo .gni-name { font-weight: 700; }
+  #graphNodeInfo .gni-kind { color: var(--muted); font-weight: 400; }
+  #graphNodeInfo .gni-desc { color: #333; }
+  #graphNodeInfo a.gni-link {
+    color: #2e86c1; text-decoration: none; font-weight: 600; white-space: nowrap; margin-left: 4px;
+  }
+  #graphNodeInfo a.gni-link:hover { text-decoration: underline; }
   .legend { font-size: 11px; color: var(--muted); }
-  .legend .item { display: inline-flex; align-items: center; gap: 5px; margin: 0 10px 4px 0; }
+  .legend .item { display: inline-block; white-space: nowrap; margin: 0 10px 4px 0; }
+  .legend .item > svg, .legend .swatch, .legend .infodot { vertical-align: middle; }
+  .legend .item > svg, .legend .swatch { margin-right: 5px; }
+  .legend .infodot { margin-left: 4px; }
   .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
   .nodeg { cursor: pointer; }
   .nodeg text { pointer-events: none; }
@@ -148,6 +166,11 @@
   .brow input[type=range] { flex: 1; min-width: 60px; }
   .brow input[type=number] { width: 72px; }
   .brow .bval { width: 78px; text-align: right; font-variant-numeric: tabular-nums; color: #444; }
+  /* A slider whose effect is fully absorbed by an active lab anchor: dim the
+     control, keep the explanatory note crisp. */
+  .brow-disabled > label.bl, .brow-disabled > input, .brow-disabled > .bval { opacity: 0.4; }
+  .brow-disabled input[type=range] { cursor: not-allowed; }
+  .binactive { font-size: 10px; color: var(--muted); font-style: italic; white-space: nowrap; margin-left: 2px; }
   .bsub { font-size: 11px; color: var(--muted); margin: 10px 0 2px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
   .txtoggles { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 0; font-size: 12px; }
   .txtoggles label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
@@ -158,16 +181,20 @@
 </head>
 <body>
 <header>
-  <h1>Aging causal-graph simulator (v0.4)</h1>
+  <h1>Aging causal-graph simulator (v0.5)</h1>
   <div class="disclaimer">
-    Illustrative sensitivity model &mdash; parameters are mostly illustrative (see causal-graph-parameters.md).
-    <b>v0.4 &mdash; sex-specific competing hazards (CDC WONDER 2022); no sex scalar &mdash; female CVD-onset delay &amp; male external excess emerge from data. Old-age escalation is now burden-driven (no age-keyed Gompertz factor): cause hazards use an odds link Rmax&middot;B/(1&minus;B) on reserve-depletion burden, so interventions bend the &gt;90 mortality curve.</b>
-    Mortality sums a per-sex extrinsic channel (accidents / suicide / homicide, scaled by the Lifestyle slider) and a
-    per-sex intrinsic bracket of named CDC causes + a residual, amplified by a sarcopenia-driven frailty multiplier.
-    Coupling propagates intervention relief through the graph as a bounded algebraic fixed point.
-    The <b>B-layer</b> (Lifestyle &amp; environment + Labs) drives emergent mediator values (LDL / SBP / HbA1c) and
-    their clean mediator&rarr;cause / direct exogenous&rarr;cause mortality multipliers.
-    All numbers come from <code>model/engine.mjs</code> (the single source of truth). Not prediction, not medical advice.
+    An interactive map of how the drivers of human aging connect &mdash; from everyday inputs
+    (diet, activity, smoking, sleep) through clinical risk factors (cholesterol, blood pressure,
+    blood sugar) and the molecular hallmarks of aging, down to the diseases people actually die of.
+    Adjust a lifestyle factor, a lab value, or a hypothetical intervention and watch life
+    expectancy, the projected cause-of-death breakdown, and each factor's trajectory over your
+    lifespan respond.
+    Mortality is modelled as sex-specific competing risks calibrated to open population data
+    (CDC WONDER mortality, NHANES, and published dose-response studies): accumulated damage at
+    each node raises the risk of the disease it feeds, and an intervention helps by slowing that
+    accumulation rather than by resetting the clock to a given age.
+    Hover the small <b>(i)</b> icons throughout for the assumptions and math behind any number.
+    This is an exploratory sensitivity tool &mdash; not a prediction and not medical advice.
   </div>
   <div class="experiment-note">
     <strong>⚠ This is an experiment, not a health tool.</strong>
@@ -201,22 +228,28 @@
       </div>
     </div>
 
-    <!-- tab toggle (both modifier surfaces share this location) + Reset all -->
+    <!-- tab toggle (both modifier surfaces share this location) + Fit view / Reset all -->
     <div class="modtabs" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
       <span class="seg" id="modTabSeg">
         <button data-tab="graph" class="active">Causal graph &amp; intervention</button>
         <button data-tab="blayer">Lifestyle &amp; environment &middot; Labs</button>
       </span>
-      <button id="resetAll" style="border:1px solid var(--line); background:#fff; border-radius:5px; padding:5px 12px; cursor:pointer;">
-        Reset all
-      </button>
+      <span style="display:flex; gap:8px;">
+        <button id="graphFit" style="border:1px solid var(--line); background:#fff; border-radius:5px; padding:5px 12px; cursor:pointer;">⤢ Fit view</button>
+        <button id="resetAll" style="border:1px solid var(--line); background:#fff; border-radius:5px; padding:5px 12px; cursor:pointer;">
+          Reset all
+        </button>
+      </span>
     </div>
 
     <!-- TAB 1: causal graph (top) + intervention (below) -->
     <div class="modtab-panel" id="modtab-graph">
       <h2>Causal graph (control surface) <span class="infodot" id="graphInfo" role="img" aria-label="legend and model details">i</span></h2>
-      <div class="sub">Click a node to select it for intervention. &#10052; = active freeze.</div>
-      <svg id="graphSvg" viewBox="0 0 524 272" preserveAspectRatio="xMidYMin meet"></svg>
+      <div class="sub">Scroll to zoom, drag to pan, hover a node to isolate its links. Click a hallmark node to intervene. &#10052; = active freeze.</div>
+      <div id="graphWrap" style="position:relative;">
+        <div id="graphNodeInfo" role="status" aria-live="polite"></div>
+        <svg id="graphSvg" viewBox="0 0 1250 408" preserveAspectRatio="xMidYMid meet" style="height:360px; background:#fcfcfd; border:1px solid #eef0f2; border-radius:6px;"></svg>
+      </div>
       <div class="legend" id="legend"></div>
 
       <hr class="modtab-divider">
@@ -252,11 +285,11 @@
 
     <!-- TAB 2: Lifestyle & environment + Labs (B-layer) -->
     <div class="modtab-panel" id="modtab-blayer" style="display:none;">
-      <h2>Lifestyle &amp; environment &middot; Labs <span style="font-weight:400;color:var(--muted);font-size:11px;">(B-layer &mdash; drives mediator values &amp; their mortality multipliers)</span></h2>
+      <h2>Lifestyle &amp; environment &middot; Labs <span style="font-weight:400;color:var(--muted);font-size:11px;">(your inputs &mdash; these set the clinical risk-factor values)</span></h2>
       <div class="sub" style="margin-top:2px;">
-        Defaults are each input's population mean, so the all-default state reproduces the v0.4 baseline exactly.
-        Lab fields anchor a person's mediator curve to a measured value at the chosen current age (held forward).
-        &Delta;LE is read vs the all-default baseline.
+        Defaults are each input's population mean, so the all-default state reproduces the population baseline exactly.
+        Lab fields anchor that risk factor's curve to a measured value at the chosen current age (held forward).
+        &Delta;LE is the change in life expectancy vs the all-default baseline.
       </div>
 
       <div class="bsub">Exogenous inputs</div>
@@ -291,13 +324,22 @@
   <!-- RIGHT COLUMN: mediators → cause-of-death/survival → burden -->
   <div class="right-stack">
 
-    <!-- MEDIATOR readout panel -->
+    <!-- UNIFIED node-value-over-time panel (merged mediators + state + burdens) -->
     <div class="panel">
-      <h2>Mediator trajectories &mdash; person vs population baseline</h2>
-      <div class="sub">LDL (mg/dL), systolic BP (mmHg), HbA1c (%) over age. Solid = current scenario (inputs/treatments/labs); dashed = population baseline for this sex. Vertical mark = current age.</div>
-      <svg id="medSvg" viewBox="0 0 1080 206" preserveAspectRatio="xMidYMin meet"></svg>
-      <div class="legend" id="medLegend"></div>
-      <div class="readout" id="medReadout">Hover the chart to read mediator values at a given age.</div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+        <div>
+          <h2 style="display:inline;">Node trajectories &mdash; value over age</h2>
+          <div class="sub">Every node's value vs age, each scaled to its own display band (mediators in clinical units, state nodes &amp; hallmark burdens normalized). Solid = current scenario; dashed = population baseline (shown for the hovered/selected line). Vertical mark = current age. Hover to identify the nearest line; click a hallmark line to select it for an intervention.</div>
+        </div>
+        <span class="seg-mini" id="tlGroupSeg" style="white-space:nowrap;">
+          <button data-group="mediator" class="active">Mediators</button>
+          <button data-group="state" class="active">State</button>
+          <button data-group="burden" class="active">Burdens</button>
+        </span>
+      </div>
+      <svg id="timelineSvg" viewBox="0 0 1080 300" preserveAspectRatio="xMidYMin meet"></svg>
+      <div class="legend" id="tlLegend"></div>
+      <div class="readout" id="tlReadout">Hover a line to identify it; click a hallmark line to select it for an intervention.</div>
     </div>
 
     <!-- headline panel: cause of death by age -->
@@ -315,14 +357,6 @@
       <svg id="codSvg" viewBox="0 0 1080 236" preserveAspectRatio="xMidYMin meet"></svg>
       <div class="legend" id="codLegend"></div>
       <div class="readout" id="codReadout">Hover the chart to read the cause breakdown at a given age.</div>
-    </div>
-
-    <!-- Burden timeline -->
-    <div class="panel">
-      <h2>Burden timeline</h2>
-      <div class="sub">One line per node (color matches graph). Hover to identify the nearest line + its burden; click to select that node for an intervention. Readout also shows the largest mortality-hazard contributor at that age.</div>
-      <svg id="burdenSvg" viewBox="0 0 1080 236" preserveAspectRatio="xMidYMin meet"></svg>
-      <div class="readout" id="limitReadout">Hover a line to identify it; click to select it for an intervention.</div>
     </div>
 
   </div><!-- /.right-stack -->
@@ -518,11 +552,38 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   // deviation is 0 and every direct-input deviation is 0 ⇒ every multiplier == 1
   // ⇒ the v0.3 mortality math is reproduced exactly.
   const hasB = !!MODEL.bLayer;
-  const medValues = hasB ? mediators(MODEL, { sex, inputs, treatments, offsets }) : {};
+  // B0 (node-burden access): expose node-layer burdens to the state-node phase so state
+  // nodes can read a node as a driver (e.g. cellular-senescence → arterial-stiffness), now
+  // an ordinary edge — dismantling the node↔state-node seam. `Live` carries interventions;
+  // `Base` is the no-intervention reference (== Tarr) for the mediator-baseline pass.
+  const nodeBurdensLive = {}, nodeBurdensBase = {};
+  for (let i = 0; i < NN; i++) { nodeBurdensLive[NODES[i].id] = Barr[i]; nodeBurdensBase[NODES[i].id] = Tarr[i]; }
+  const medValues = hasB ? mediators(MODEL, { sex, inputs, treatments, offsets, nodeBurdens: nodeBurdensLive }) : {};
   // Baseline mediator trajectories (default inputs/treatments/offsets) — the
   // reference against which Stage-2 continuous mediator→cause edges take their
   // deviation. At default inputs medValues === medBaseline ⇒ deviation 0.
-  const medBaseline = hasB ? mediators(MODEL, { sex }) : {};
+  const medBaseline = hasB ? mediators(MODEL, { sex, nodeBurdens: nodeBurdensBase }) : {};
+
+  // A4: stiffness → SBP (the BP-MEDIATED slice of stiffness→CVD). Augment the live SBP by
+  // βstiff·(NON-GLYCEMIC stiffness deviation) — the crosslink slice is excluded because its
+  // CVD is already in the decomposed HbA1c→CVD + the B3 direct edge (no glycemia re-double-
+  // count). Deviation-form ⇒ =0 at the pop stiffness trajectory, so the SBP baseline and the
+  // Lewington SBP→CVD calibration (shared by BMI/Lu + sodium) are preserved EXACTLY. Mutates
+  // medValues.systolicBP in place; the SBP→CVD/CKD edges then read the augmented value vs the
+  // un-augmented medBaseline. Complements the B3 BP-independent edge (B3 + A4 = total, split).
+  const s2sbp = hasB && MODEL.bLayer.stiffnessToSBP;
+  if (s2sbp && medValues["arterial-stiffness"] && medValues.systolicBP) {
+    const beta = (s2sbp.betaPerUnit && s2sbp.betaPerUnit[sex]) || 0;
+    const stL = medValues["arterial-stiffness"], stB = medBaseline["arterial-stiffness"];
+    const exId = s2sbp.excludeDriver, exW = s2sbp.excludeWeight || 0;
+    const exL = exId && medValues[exId], exB = exId && medBaseline[exId];
+    const sbp = medValues.systolicBP;
+    for (let k = 0; k < sbp.length; k++) {
+      let dStiff = stL[k] - stB[k];
+      if (exL) dStiff -= exW * (exL[k] - exB[k]);   // remove the glycemic (crosslink) slice
+      sbp[k] += beta * dStiff;
+    }
+  }
   // popMean lookup for direct exogenous→cause edges.
   const popMean = {};
   if (hasB) for (const inp of MODEL.bLayer.exogenousInputs) popMean[inp.id] = inp.populationMean;
@@ -724,9 +785,14 @@ function applyMediatorEdge(edge, inputs, popMean, baselineVal, K, medCtx) {
       return edge.coeff * exerciseScale(dx);
     case "exerciseScaled":          // generic activity-scaled mediator shift (e.g. activity→SBP)
       return edge.coeff * exerciseScale(dx);
-    case "sodiumConvex":
-      // coeff is per 100 mmol; convex + baseline-SBP effect-modified.
-      return edge.coeff * (dx / 100) * sodiumMod(baselineVal);
+    case "sodiumConvex": {
+      // coeff is per 100 mmol; convex + baseline-SBP effect-modified. Cap the SBP shift at a
+      // physiological ±20 mmHg so an out-of-range sodium can't blow up SBP/LE (the slider
+      // clamps [40,300] ⇒ in-range shift is ~[−6,+9] mmHg, well inside the cap, so this is a
+      // robustness floor only — never bites for real inputs).
+      const shift = edge.coeff * (dx / 100) * sodiumMod(baselineVal);
+      return shift < -20 ? -20 : shift > 20 ? 20 : shift;
+    }
     case "alcoholThreshold": {
       const intake = x === undefined ? popMean : x;
       return alcoholThreshold(intake, edge.coeff) - alcoholThreshold(popMean, edge.coeff);
@@ -780,7 +846,13 @@ function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean) 
         const { refAge, halfPer } = e.betaAgeMod; // slope halves per `halfPer` years
         beta = e.beta * Math.pow(0.5, (age - refAge) / halfPer);
       }
-      const dev = medValues[e.med][k] - medBaseline[e.med][k];
+      // Optional benefit floor: the log-linear association only holds down to a
+      // source-defined value (e.g. Lewington SBP ≥115 mmHg). Below it, clamp the
+      // value so there is NO further benefit — the curve plateaus rather than
+      // extrapolating an unbounded benefit toward physiologically impossible levels.
+      let v = medValues[e.med][k];
+      if (e.benefitFloor != null && v < e.benefitFloor) v = e.benefitFloor;
+      const dev = v - medBaseline[e.med][k];
       return Math.exp(beta * dev);
     }
     case "mediatorThresholdRamp": {
@@ -868,6 +940,25 @@ function allcauseEdgeMult(e, inputs, popMean) {
       const dMets = metsFromActivity(e.metMap, xv);
       return Math.exp(e.betaPerMet * dMets);
     }
+    case "uShape": {
+      // U-shaped all-cause risk: mult = exp(β · dist^power), =1 across a NADIR BAND and rising
+      // outside it. `nadir` is a point (number) OR a band [low, high] (flat-optimal between —
+      // e.g. sleep 7–8 h, both penalty-free). `beta` is a scalar (symmetric arms) OR
+      // {low, high} (ASYMMETRIC: long-sleep mortality rises steeper than short — Cappuccio
+      // 2010). dist = how far OUTSIDE the band (0 inside). The input's populationMean must lie
+      // in the band so mult==1 at default ⇒ baseline preserved EXACTLY. Reusable for any
+      // U-shaped exposure (sleep now; IGF-1/nutrient-sensing later).
+      const x = inputs[e.input];
+      const xv = x === undefined ? popMean[e.input] : x;
+      const lo = Array.isArray(e.nadir) ? e.nadir[0] : e.nadir;
+      const hi = Array.isArray(e.nadir) ? e.nadir[1] : e.nadir;
+      const bLo = typeof e.beta === "object" ? e.beta.low : e.beta;
+      const bHi = typeof e.beta === "object" ? e.beta.high : e.beta;
+      let dist = 0, beta = 0;
+      if (xv < lo) { dist = lo - xv; beta = bLo; }
+      else if (xv > hi) { dist = xv - hi; beta = bHi; }
+      return dist === 0 ? 1 : Math.exp(beta * Math.pow(dist, e.power || 1));
+    }
     default:
       return 1;
   }
@@ -934,7 +1025,7 @@ function applyTreatment(tx, value, dose) {
  * Invariant: inputs={} (or every input == populationMean), treatments={},
  * offsets={} ⇒ each mediator value == its baseline curve at that age.
  */
-function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {} } = {}) {
+function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nodeBurdens = null } = {}) {
   if (sex !== "male" && sex !== "female") {
     throw new Error(`mediators: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
   }
@@ -1011,7 +1102,137 @@ function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {} } = 
     // Record this mediator's per-age deviation for downstream mediator→mediator edges.
     devByMed[med.id] = out[med.id].map((v, k) => v - baselineByMed[med.id][k]);
   }
+
+  // ---- Uniform state nodes: ∫ rate·dt over the age grid (the migration substrate) ----
+  // A state node ACCUMULATES: value(age_{k+1}) = value(age_k) + rate_k·DT, where rate_k =
+  // Σ terms and each term is `linear` (coeff·driver) or `product` (coeff·∏drivers). A driver
+  // is a MEDIATOR id or another STATE-NODE id, read at each age — so accumulation is INPUT-
+  // driven, NOT age-driven, and the age-correlation EMERGES from the integral (e.g. ECM
+  // crosslink = ∫ coeff·HbA1c dt). This is the seed of the unified node schema (class/units/
+  // rate) and generalises the former ad-hoc `stocks`. State nodes are exposed in the same
+  // `out` map (keyed by id) so mediators and other state nodes can read them. They integrate
+  // AFTER all mediators, in topological order (drivers before dependents). `stocks` is
+  // accepted as a back-compat alias for the old single-driver shape.
+  // B0: expose node-layer burdens (if provided) in `out` so state-node rate/value terms can
+  // reference a node id as a driver (cellular-senescence → arterial-stiffness etc.). Done
+  // BEFORE the state-node phase. When absent (standalone mediators() calls that don't need
+  // state nodes — e.g. lab-anchor prediction), such drivers resolve to 0.
+  if (nodeBurdens) for (const id in nodeBurdens) out[id] = nodeBurdens[id];
+
+  // PER-AGE MARCH (n-body forward-Euler). Rather than process each node fully across all ages
+  // (which only works when no node feeds back into a mediator), we advance ALL state nodes one
+  // age-step at a time. This lets a state node's ACCUMULATED value be injected back INTO a
+  // mediator mid-march via `b.stateAugments` (e.g. β-cell-decline → HbA1c), so that downstream
+  // integrals reading that mediator (crosslink = ∫HbA1c) see the AUGMENTED value at the same
+  // age — the diabetes-spiral feedback. With no augments this is bit-identical to the former
+  // per-node loop: within a step, integrated nodes publish their accumulator, algebraic nodes
+  // (topo-ordered) compute Σ value-terms, then integrated nodes advance by rate(k)·DT.
+  const stateNodes = b.stateNodes || b.stocks || [];
+  const ordered = topoSortStateNodes(stateNodes);
+  const integ = {};                                   // running accumulators for integrated nodes
+  for (const s of ordered) { out[s.id] = new Array(AGES.length); if (!s.value) integ[s.id] = s.initial ?? 0; }
+  const augments = b.stateAugments || [];             // {fromState, mediator, coeff} — empty ⇒ no-op
+  for (let k = 0; k < AGES.length; k++) {
+    // 1. publish integrated accumulators at this age.
+    for (const s of ordered) if (!s.value) out[s.id][k] = integ[s.id];
+    // 2. inject state→mediator augments (reads the just-published accumulated state at age k).
+    // coeff may be a number or a {male,female} map (sex-specific augment magnitude).
+    for (const a of augments) {
+      if (out[a.mediator] && out[a.fromState]) {
+        const c = typeof a.coeff === "object" ? (a.coeff[sex] ?? 0) : a.coeff;
+        out[a.mediator][k] += c * out[a.fromState][k];
+      }
+    }
+    // 3. publish algebraic node values (topo-ordered; may read augmented mediators + integ state).
+    for (const s of ordered) if (s.value) out[s.id][k] = termsSum(s.value.terms, out, k);
+    // 4. advance integrated states by rate(k)·DT (rate reads augmented mediators at this age).
+    for (const s of ordered) if (!s.value) integ[s.id] += stateNodeRate(s, out, k) * DT;
+  }
+
   return out;
+}
+
+// A rate-term driver is either an id string, or an object {id, minus?, floor?} where the
+// resolved value is `out[id][k] − minus`, optionally clamped at `floor` (used e.g. for
+// pulse pressure = SBP − DBP_ref). Returns the driver's id (for topo/ordering).
+function driverId(d) { return typeof d === "string" ? d : d.id; }
+function driverValueAt(d, out, k) {
+  const arr = out[driverId(d)];
+  let v = arr ? arr[k] : 0;
+  if (typeof d === "object" && d !== null) {
+    if (d.minus !== undefined) v -= d.minus;
+    if (d.floor !== undefined) v = Math.max(d.floor, v);
+    if (d.cap !== undefined) v = Math.min(d.cap, v);   // ceiling — bounds runaway feedback (glucotox)
+  }
+  return v;
+}
+
+// State-node driver ids (mediator or state-node) referenced by a node's rate/value law.
+// Accepts {rate:{terms:[...]}} (integrated) AND {value:{terms:[...]}} (algebraic) AND the
+// back-compat single-driver {driver, ratePerUnit} stock shape. Used for topo-ordering.
+function stateNodeDriverIds(node) {
+  const refs = [];
+  if (node.driver) refs.push(node.driver);
+  for (const block of [node.rate, node.value]) {
+    for (const t of (block && block.terms) || []) {
+      for (const d of t.drivers || []) refs.push(driverId(d));
+    }
+  }
+  return refs;
+}
+
+// Σ over terms at age-index k. `linear` term = coeff·drivers[0](k); `product` term =
+// coeff·∏ drivers[i](k). A driver resolves via driverValueAt (id or {id,minus,floor}); a
+// missing driver contributes 0. Shared by integrated `rate` laws and algebraic `value` laws.
+function termsSum(terms, out, k) {
+  let r = 0;
+  for (const t of terms || []) {
+    const drivers = t.drivers || [];
+    if (t.op === "product") {
+      let p = t.coeff || 0;
+      for (const d of drivers) p *= driverValueAt(d, out, k);
+      r += p;
+    } else { // "linear" (default)
+      r += (t.coeff || 0) * driverValueAt(drivers[0], out, k);
+    }
+  }
+  return r;
+}
+
+// Rate of an integrated state node at age-index k. Back-compat: a bare {driver, ratePerUnit}
+// is treated as one linear term.
+function stateNodeRate(node, out, k) {
+  if (node.rate === undefined && node.driver !== undefined) {
+    const d = out[node.driver];
+    return (node.ratePerUnit || 0) * (d ? d[k] : 0);
+  }
+  return termsSum(node.rate && node.rate.terms, out, k);
+}
+
+// Order state nodes drivers-before-dependents (a node whose rate references ANOTHER state
+// node is computed after it). Mediators are already in `out`, so only state-node→state-node
+// references constrain order. Kahn's algorithm; falls back to declared order on a cycle
+// (cross-time feedback like stiffness→SBP→fatigue is handled per-age elsewhere, not here).
+function topoSortStateNodes(stateNodes) {
+  const ids = new Set(stateNodes.map((s) => s.id));
+  const byId = {};
+  for (const s of stateNodes) byId[s.id] = s;
+  const indeg = {};
+  const adj = {};
+  for (const s of stateNodes) { indeg[s.id] = 0; adj[s.id] = []; }
+  for (const s of stateNodes) {
+    for (const ref of stateNodeDriverIds(s)) {
+      if (ids.has(ref) && ref !== s.id) { adj[ref].push(s.id); indeg[s.id] += 1; }
+    }
+  }
+  const queue = stateNodes.filter((s) => indeg[s.id] === 0).map((s) => s.id);
+  const order = [];
+  while (queue.length) {
+    const id = queue.shift();
+    order.push(byId[id]);
+    for (const m of adj[id]) if (--indeg[m] === 0) queue.push(m);
+  }
+  return order.length === stateNodes.length ? order : stateNodes; // cycle ⇒ declared order
 }
 
 // Topologically sort mediators so that the SOURCE of any mediator→mediator edge
@@ -1051,7 +1272,7 @@ function topoSortMediators(mediatorList, mediatorEdges, medIds) {
 /* ---- MODEL (model/params.json) ---- */
 const MODEL = {
   "meta": {
-    "version": "v0.4.1",
+    "version": "v0.5",
     "ageRange": [
       20,
       130
@@ -2734,7 +2955,9 @@ const MODEL = {
         "range": [
           0,
           40
-        ]
+        ],
+        "unwired": true,
+        "note": "DEFERRED PLACEHOLDER: the categorical `smokingStatus` (never/former/current) is used instead (Stage-2), so this continuous cig/day input has no edges and is not in PANEL_INPUT_IDS — inert. Kept as the slot for a future dose-resolved smoking model."
       },
       {
         "id": "smokingStatus",
@@ -2756,7 +2979,8 @@ const MODEL = {
         "range": [
           -1000,
           1000
-        ]
+        ],
+        "info": "Your <b>habitual</b> daily surplus/deficit vs. the intake that maintains your baseline weight. A sustained surplus doesn't add weight forever &mdash; you burn more as you gain and settle at a <b>new stable weight</b> (Hall 2013), so the slider shifts the whole BMI curve to that equilibrium (a level shift) rather than making BMI diverge with age. <b>0 = weight-stable</b> on the population baseline (overweight on average); &lt;0 = leaner equilibrium, &gt;0 = heavier. Assumes the balance is held lifelong (no mid-life onset). To pin an actual BMI, use the BMI field under Labs."
       },
       {
         "id": "physicalActivity",
@@ -2816,7 +3040,8 @@ const MODEL = {
         "range": [
           3,
           11
-        ]
+        ],
+        "note": "WIRED 2026-06-10: sleep→allcause via the `uShape` form (nadir BAND 7-8 h, ASYMMETRIC arms — both short and long sleep raise all-cause mortality, long steeper; Cappuccio 2010). 7 h and 8 h are both penalty-free (the reference band). Exposed as a panel slider. The first U-shaped pathway; the banded/asymmetric `uShape` form is reusable for the planned IGF-1 nutrient-sensing U-shape."
       },
       {
         "id": "airPollution",
@@ -3049,28 +3274,8 @@ const MODEL = {
               5.3
             ],
             [
-              35,
-              5.3
-            ],
-            [
-              45,
-              5.6
-            ],
-            [
-              55,
-              5.6
-            ],
-            [
-              65,
-              5.9
-            ],
-            [
-              75,
-              5.9
-            ],
-            [
               85,
-              5.9
+              5.3
             ]
           ],
           "female": [
@@ -3079,32 +3284,41 @@ const MODEL = {
               5.3
             ],
             [
-              35,
-              5.3
-            ],
-            [
-              45,
-              5.5
-            ],
-            [
-              55,
-              5.5
-            ],
-            [
-              65,
-              5.8
-            ],
-            [
-              75,
-              5.8
-            ],
-            [
               85,
-              5.8
+              5.3
             ]
           ]
         },
-        "provenance": "Selvin 2005-10 (sexes ~equal; rising secular trend). Direct per-band table, band-center ages."
+        "provenance": "EMERGENT (2026-06-10, Increment 2 of the β-cell→HbA1c vertical): the HbA1c baseline is now FLAT at the young-healthy value 5.3% (no age-pegging). The empirical age-RISE (Selvin 2005-10: 5.3→5.9 M / 5.8 F across 25→85) EMERGES from the β-cell-decline state node via a stateAugment (HbA1c += coeff·β-cell-decline; coeff 0.6 M / 0.5 F so HbA1c@80 ≈ 5.9/5.8). β-cell-decline integrates an intrinsic attrition rate (Increment 2) + glucotoxicity feedback (Increment 3 — the diabetes spiral), so HbA1c KEEPS RISING past 85 (was clamped flat at 5.9 across 85→130) and an intervention/connection can bend the age-RISE itself, not just add a static deviation. Deviation-form HbA1c→CVD/cancer/dementia edges + crosslink=∫HbA1c are ratio/deviation to the (same-law) baseline ⇒ baseline LE preserved EXACTLY regardless of the emergent shape. The cross-sectional plateau at 5.9 (65→85) is partly survivorship/secular-trend artifact; the emergent monotonic rise tracks the band-centers within ~0.15% and is the more defensible longitudinal trajectory. SD 0.6 (right-skewed)."
+      },
+      {
+        "id": "restingHR",
+        "label": "Resting heart rate",
+        "unit": "bpm",
+        "sd": 10,
+        "baseline": {
+          "male": [
+            [
+              25,
+              65
+            ],
+            [
+              85,
+              65
+            ]
+          ],
+          "female": [
+            [
+              25,
+              68
+            ],
+            [
+              85,
+              68
+            ]
+          ]
+        },
+        "provenance": "Population resting HR ~65 bpm (male) / ~68 (female); FLAT illustrative baseline (NHANES resting HR ~60-70; age-neutral, no age-pegging). Added 2026-06-10 (A2) as a DRIVER for the elastin-fatigue state node — pulsatile mechanical fatigue of elastin scales with cardiac cycles × pressure amplitude, i.e. HR × pulse-pressure. Anchorable via Labs. DEFERRED follow-ups: a restingHR→mortality edge (resting HR is an independent CV/all-cause risk factor) and a physicalActivity→restingHR fitness edge (training lowers resting HR ⇒ slower elastin fatigue) — neither wired yet, so restingHR currently affects nothing but the (still-unwired) elastin-fatigue node."
       }
     ],
     "mediatorEdges": [
@@ -3204,6 +3418,141 @@ const MODEL = {
       "weightAsymptoteFraction": 0.55,
       "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
     },
+    "stiffnessToSBP": {
+      "betaPerUnit": {
+        "male": 37.6,
+        "female": 52.1
+      },
+      "from": "arterial-stiffness",
+      "to": "systolicBP",
+      "excludeDriver": "ecm-crosslink",
+      "excludeWeight": 0.3,
+      "provenance": "A4 (2026-06-10): the BP-MEDIATED slice of stiffness->CVD. SBP gets += betaPerUnit * (NON-GLYCEMIC stiffness deviation) where non-glycemic = (stiffness - stiffness_pop) - excludeWeight*(crosslink - crosslink_pop). betaPerUnit calibrated as the pop SBP age-rise (119->154 M / 110->159 F) over the pop stiffness rise (0->~1) => ~37.6 mmHg/unit (M) / 52.1 (F). DEVIATION form: =0 at the pop stiffness trajectory, so the SBP baseline + the Lewington SBP->CVD calibration (shared by BMI/Lu + sodium) are PRESERVED EXACTLY; only stiffness deviations move SBP. Crosslink EXCLUDED to avoid re-double-counting glycemia (its CVD is already in the decomposed HbA1c->CVD + the B3 direct stiffness->CVD edge). COMPLEMENTS the B3 direct (BP-independent, Mitchell-adjusted) edge: B3 + A4 = the total stiffness CVD risk, split into the BP-independent and BP-mediated slices (Mitchell 2010 separated them). So a senolytic / low-resting-HR person now ALSO lowers SBP (and CVD via Lewington), on top of the B3 slice. NOT a full de-age-pegging of SBP (the old systolicBP baseline curve REMAINS as the anchor; replacing it with a flat residual needs re-referencing the SBP->CVD deviation form — deferred). The reverse SBP->elastin (pressure-amplitude) coupling stays deferred (it would re-create the B3-direct double-count for SBP-driven stiffness). #gap: glycemic stiffening's SBP-display under-representation (crosslink excluded) is an illustrative simplification. ILLUSTRATIVE beta; SOLID-direction."
+    },
+    "stateNodesNote": "UNIFORM NODE SCHEMA (A1, 2026-06-10; migration step toward one causal graph — see model/age-hardcoding-audit.md § Implementation roadmap). A state node accumulates over the age grid: value(age) = initial + ∫ rate·dt, where rate = Σ terms. Each term is `linear` (coeff·drivers[0]) or `product` (coeff·∏drivers); a driver is a MEDIATOR id or another STATE-NODE id (topo-ordered, drivers before dependents), read at each age — so accumulation is INPUT-driven, NOT age-driven, and the age-correlation EMERGES from the integral. `class`: damage | physiology | pathology. `units`: physical | normalized. This generalises the former ad-hoc `stocks`. Algebraic (non-integrated) physiology nodes + terminal-hazard (pathology) mappings are added in later A/C steps; A1 covers integrated state nodes (ecm-crosslink; elastin-fatigue next).",
+    "stateNodes": [
+      {
+        "id": "ecm-crosslink",
+        "class": "damage",
+        "units": "normalized",
+        "label": "ECM collagen crosslinks (glucosepane/AGE)",
+        "initial": 0,
+        "rate": {
+          "terms": [
+            {
+              "op": "linear",
+              "drivers": [
+                "HbA1c"
+              ],
+              "coeff": 0.00293
+            }
+          ]
+        },
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; migrated to the uniform schema A1) — first node of the age-pegging migration (model/age-hardcoding-audit.md). Glucosepane is the dominant ECM collagen crosslink; formation is mass-action glycation, so dCrosslink/dt = coeff · glycemia, with HbA1c as the mean-glucose proxy (one `linear` term, coeff 0.00293). Integrated over the age grid: crosslink(age) = initial + ∫ coeff · HbA1c dt (driver value INCLUDES inputs/offsets, so elevated glycemia accelerates accumulation). coeff 0.00293 calibrated so the POPULATION trajectory (male baseline HbA1c) reaches ~1.0 (normalized) at age 80 from 0 at age 20; a diabetic (HbA1c ~9) accumulates ~1.7x faster. AGE IS NOT AN INPUT — the age-correlation EMERGES from the integral. NOT YET wired to arterial-stiffness/SBP/mortality (A3/A4: crosslink + elastin-fatigue + senescence -> arterial-stiffness -> SBP residual-split). Illustrative magnitude; SOLID-direction (glucosepane accumulates with age and markedly in diabetes)."
+      },
+      {
+        "id": "elastin-fatigue",
+        "class": "damage",
+        "units": "normalized",
+        "label": "Elastin fiber fatigue fragmentation",
+        "initial": 0,
+        "rate": {
+          "terms": [
+            {
+              "op": "linear",
+              "drivers": [
+                "restingHR"
+              ],
+              "coeff": 0.0002564
+            }
+          ]
+        },
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; A2, simplified at B3). Vascular elastin has ~zero turnover in adult humans, so age-related fragmentation is CUMULATIVE PULSATILE MECHANICAL FATIGUE, not chronological age (phenotypes/arterial-stiffening.md; Sun 2014). FULL mechanism: dFatigue/dt ∝ cardiac-cycles × pressure-amplitude = restingHR × pulse-pressure. **B3 decoupling (2026-06-10):** the pulse-pressure (SBP) driver was REMOVED for now — leaving dFatigue/dt = coeff · restingHR (the cyclic-COUNT part) — because the SBP-driven slice made SBP→elastin→stiffness→CVD double-count the Lewington SBP→CVD hub (which is shared by BMI/Lu + sodium edges, so decomposing it cascades). The pressure-amplitude term + the bidirectional SBP↔stiffness coupling are DEFERRED to A4 (the SBP-residual-split), which reconciles them with Lewington/Lu via mediation-decomposition. #gap/deferred-A4. So today elastin varies only via resting HR (a low-HR / fit person fatigues elastin slower — a clean intervention path with no existing HR→CVD edge to double-count). AGE IS NOT AN INPUT — the age-correlation EMERGES. coeff 2.564e-4 calibrated so the POPULATION male trajectory reaches ~1.0 (normalized) at age 80 (HR 65 flat). Wired downstream: -> arterial-stiffness (A3) -> cardiovascular (B3). Illustrative; SOLID-direction (elastin fatigue is the dominant structural stiffening driver)."
+      },
+      {
+        "id": "beta-cell-decline",
+        "class": "physiology",
+        "units": "normalized",
+        "label": "Pancreatic β-cell functional decline",
+        "initial": 0,
+        "rate": {
+          "terms": [
+            {
+              "op": "product",
+              "drivers": [],
+              "coeff": 0.016667
+            },
+            {
+              "op": "linear",
+              "drivers": [
+                {
+                  "id": "BMI",
+                  "minus": 25,
+                  "floor": 0
+                }
+              ],
+              "coeff": 0
+            },
+            {
+              "op": "linear",
+              "drivers": [
+                {
+                  "id": "HbA1c",
+                  "minus": 6.5,
+                  "floor": 0,
+                  "cap": 3
+                }
+              ],
+              "coeff": 0.012
+            }
+          ]
+        },
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; β-cell→HbA1c vertical, Increment 2). β-cell secretory reserve declines cumulatively with age; the loss is what un-pins fasting/postprandial glycemia (UKPDS: ~4%/yr functional β-cell loss in T2D; lesser in normoglycemia). Modeled as a normalized [0,1+] decline integrating THREE rate terms: (1) an INTRINSIC attrition constant 0.016667/yr (the `product` term with empty drivers = constant) — the unmechanized age-residual, calibrated so ∫ from age 20 reaches ~1.0 (normalized) at age 80, reproducing the population HbA1c rise 5.3→5.9 via the stateAugment (coeff 0.6 M / 0.5 F); (2) a LIPOTOXICITY term ∝ max(0, BMI−25) — adiposity accelerates β-cell stress (coeff 0, DEFERRED: a secondary accelerator, NOT part of the core spiral loop; activating it would re-shape the population HbA1c curve via population BMI>25 and require re-calibrating the intrinsic rate — deferred to keep Increment 3 clean); (3) a GLUCOTOXICITY feedback ∝ min(3, max(0, HbA1c−6.5)) — chronic hyperglycemia is itself β-cell-toxic, the engine of the DIABETES SPIRAL: **ACTIVATED in Increment 3 (2026-06-10), coeff 0.012**. The loop: β-cell-decline ↑ → HbA1c ↑ (stateAugment) → glucotox ↑ → β-cell-decline ↑, resolved per-age across the forward-Euler march (the spiral substrate of Increment 1). The driver is CAPPED at 3 (HbA1c 9.5) so the feedback growth becomes linear (not exponential) past the cap — BOUNDS the spiral to a clinically-plausible ceiling (a poorly-controlled diabetic anchored ~8 at 50 progresses to ~9.1 @80 / ~10.0 @110, UKPDS-plausible ~0.03%/yr; un-capped it ran to 13–17%). Floors at 6.5% (glucotox) / 25 (lipotox) keep both terms EXACTLY 0 in the normoglycemic/lean population (population HbA1c maxes at 6.4 @130 < 6.5) so the population HbA1c baseline — and thus baseline LE — is preserved EXACTLY (verified: POP LE 75.8147 identical with/without the spiral); they only bite for diabetic/obese DEVIATIONS. AGE IS NOT AN INPUT — the rise EMERGES from the integral. Drives HbA1c (stateAugment), which drives crosslink=∫HbA1c → arterial-stiffness → CVD, plus the direct HbA1c→CVD/cancer/dementia edges; so the spiral worsens the diabetic's OLD-AGE glycemia + stiffness + CVD (LE −0.031 on top of the baseline-elevation hit). **Anchor caveat:** a lab-anchored HbA1c is a LIFELONG offset (model semantics for all mediators), so glucotox accumulates retroactively from age 20 — an anchored 8 reads ~8.3 at the current age (mild over-shoot), and the spiral then projects forward. The held-forward anchor no longer pins exactly once the spiral is active; this is the realistic 'glycemia progresses' behavior, documented rather than iterated-away. Illustrative magnitudes; SOLID-direction (β-cell decline → glycemia → micro/macrovascular complications; glucotoxicity is an established T2D mechanism)."
+      },
+      {
+        "id": "arterial-stiffness",
+        "class": "physiology",
+        "units": "normalized",
+        "label": "Large-artery stiffness (cfPWV proxy)",
+        "value": {
+          "terms": [
+            {
+              "op": "linear",
+              "drivers": [
+                "elastin-fatigue"
+              ],
+              "coeff": 0.5
+            },
+            {
+              "op": "linear",
+              "drivers": [
+                "ecm-crosslink"
+              ],
+              "coeff": 0.3
+            },
+            {
+              "op": "linear",
+              "drivers": [
+                "cellular-senescence"
+              ],
+              "coeff": 0.8
+            }
+          ]
+        },
+        "provenance": "ALGEBRAIC physiology node (2026-06-10; A3 + B0). value(age) = Σ contributions AT each age, NOT ∫rate·dt: stiffness is the CURRENT consequence of currently-accumulated damage, and its inputs are themselves time-integrals / burdens. cfPWV proxy = 0.50·elastin-fatigue + 0.30·ecm-crosslink + 0.80·cellular-senescence; weights ILLUSTRATIVE and ELASTIN-DOMINANT (elastin fragmentation is the dominant structural driver, AGE crosslinking secondary — phenotypes/arterial-stiffening.md), normalized so the population male trajectory ~1.0 at age 80, with the senescence term carrying ~20% of stiffness@80 (Clayton 2023: senolytics reverse ~20% aortic PWV in mice). **B0 (2026-06-10) cleared the deferred senescence term**: `cellular-senescence` is a NODE-layer burden (B), now readable from the state-node phase because simulate() passes node burdens into mediators() (the node↔state-node seam dismantled for the node→state-node direction). So a senescence-FREEZE intervention now lowers arterial stiffness — the first node→state-node mechanistic edge. NOT YET wired to SBP/mortality (that is Phase B3: stiffness → SBP/CVD, with mediation-decomposition of the redundant direct edges). Illustrative; SOLID-direction."
+      }
+    ],
+    "stateAugmentsNote": "STATE→MEDIATOR AUGMENTS (2026-06-10; β-cell→HbA1c vertical). Each {fromState, mediator, coeff} injects coeff·stateValue INTO a mediator mid-march (per-age, AFTER the mediator phase + offsets, BEFORE state rates advance), so a state node's accumulated value can re-shape a mediator trajectory that the SAME march's downstream integrals then read. coeff is a number or a {male,female} map. This is the substrate that lets an emergent damage variable un-pin a formerly age-tabled mediator: β-cell-decline → HbA1c replaces the HbA1c age-table with a flat 5.3 baseline + the emergent rise. Anchoring stays exact in Increment 2 because the augment is input-independent (constant base rate), so computeOffsets' post-augment prediction cancels; Increment 3 (glucotox feedback makes the augment input-dependent) revisits anchor semantics.",
+    "stateAugments": [
+      {
+        "fromState": "beta-cell-decline",
+        "mediator": "HbA1c",
+        "coeff": {
+          "male": 0.6,
+          "female": 0.5
+        }
+      }
+    ],
     "causeEdges": [
       {
         "from": "LDL",
@@ -3223,17 +3572,26 @@ const MODEL = {
           "refAge": 50,
           "halfPer": 20
         },
-        "provenance": "Lewington 2002: ~2x CVD per +20 mmHg (>=115) => beta=ln(2)/20=0.0347 per mmHg at age 50; relative slope HALVES per ~2 decades (betaAgeMod refAge 50, halfPer 20). Acts on (SBP value - baseline). SOLID."
+        "benefitFloor": 115,
+        "provenance": "Lewington 2002: ~2x CVD per +20 mmHg (>=115) => beta=ln(2)/20=0.0347 per mmHg at age 50; relative slope HALVES per ~2 decades (betaAgeMod refAge 50, halfPer 20). Acts on (SBP value - baseline). BENEFIT FLOOR 115 mmHg (2026-06-10): the log-linear association is established only DOWN TO 115 mmHg (Lewington's lower bound); below it the value is clamped so there is NO further CVD benefit (plateau), rather than extrapolating an unbounded benefit toward physiologically impossible SBP. Below ~115 the epidemiology flattens and an observational J-curve appears that is largely reverse-causation (frailty/illness lowers BP); a true harm uptick is NOT modeled here (conservative plateau). SOLID (>=115); floor is the evidence-boundary choice."
       },
       {
         "from": "HbA1c",
         "to": "cardiovascular",
         "form": "mediatorThresholdRamp",
         "med": "HbA1c",
-        "slope": 1.052,
+        "slope": 0.866,
         "threshold": 5.7,
-        "cap": 3,
-        "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 reached at HbA1c 6.5 => exp(1.052*(6.5-5.7))=2.32; ramp from 5.7, capped 3.0. Ratio-to-baseline so =1 at the per-age baseline HbA1c. SOLID."
+        "cap": 2.6,
+        "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 at HbA1c 6.5. **B3 mediation decomposition (2026-06-10):** the glycemic CV risk is partly STRUCTURAL (glycemia->ecm-crosslink->arterial-stiffness->CVD), now carried explicitly by the arterial-stiffness->cardiovascular edge. The stiffness-mediated slice is SUBTRACTED here so the total isn't double-counted: slope reduced 1.052->0.866 so the DIRECT (non-structural: endothelial/microvascular/thrombotic) glycemic HR at 6.5 is ~2.0 (exp(0.866*0.8)=2.0), the ~14% remainder routed through stiffness. Cap 3->2.6. ILLUSTRATIVE split magnitude (#gap: the exact structural fraction of glycemic CVD is uncharacterized); SOLID-direction. Ratio-to-baseline so =1 at the per-age baseline HbA1c."
+      },
+      {
+        "from": "arterial-stiffness",
+        "to": "cardiovascular",
+        "form": "mediatorLogLinear",
+        "med": "arterial-stiffness",
+        "beta": 0.6,
+        "provenance": "B3 (2026-06-10): the CONSOLIDATED arterial-stiffness -> CVD path. Mitchell 2010 (Framingham): cfPWV HR 1.48 per 1 SD, INDEPENDENT of SBP/lipids/smoking/diabetes. 1 SD cfPWV ~0.55 of the normalized stiffness range => beta = ln(1.48)/0.55 ~0.71; set to 0.6 (conservative, to bound the partial overlap of the SBP-driven elastin slice with the Lewington SBP->CVD edge — #gap, reconcile in the A4 SBP-residual-split). Deviation form exp(beta*(stiffness - baseline)) = 1 at the pop stiffness trajectory, so the CDC-calibrated CV baseline is preserved EXACTLY; only stiffness DEVIATIONS move CV hazard. Makes interventions map to reality: a senolytic (less senescence -> less stiffness) and glycemic/BP/crosslink-breaker interventions all bend CV mortality through stiffness, non-double-counted — senescence's stiffness path is a DISTINCT mechanism from its existing inflammation->plaque coupling (senescence->chronic-inflammation->atherosclerosis), the glycemia slice is decomposed out of HbA1c->CVD, and HR has no prior CVD edge. ILLUSTRATIVE beta; SOLID-direction (Mitchell 2010, Clayton 2023)."
       },
       {
         "from": "HbA1c",
@@ -3290,6 +3648,22 @@ const MODEL = {
           "current": 1.9
         },
         "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Relative cardiovascular-death RR never 1.0 / former 1.3 / current 1.9 (net current-smoker CVD RR ~1.8-2.0). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*1.9=1.201) so the population mix averages to mult 1 (the CDC cardiovascular baseline already embeds the mix). Normalized: never~0.833 / former~1.082 / current~1.582. Same scheme as smoking->cancer. SOLID-direction; relative magnitudes approximate."
+      },
+      {
+        "from": "sleep",
+        "to": "allcause",
+        "form": "uShape",
+        "input": "sleep",
+        "nadir": [
+          7,
+          8
+        ],
+        "beta": {
+          "low": 0.06,
+          "high": 0.13
+        },
+        "power": 1,
+        "provenance": "Sleep duration → all-cause mortality is U-SHAPED (Cappuccio 2010 meta: short sleep <6h HR ~1.12, long sleep >8-9h HR ~1.30 vs the 7-8h REFERENCE). **BANDED + ASYMMETRIC (2026-06-10, user-caught):** the prior symmetric point-nadir at 7 wrongly penalized 8h as much as 6h — but 7-8h is a flat-optimal REFERENCE BAND (8h is not worse than 7h). mult = exp(β·dist) where dist = how far OUTSIDE [7,8] (0 inside ⇒ 7h AND 8h both penalty-free) and β is ASYMMETRIC: short arm (<7h) βlow 0.06, long arm (>8h) βhigh 0.13 (long-sleep mortality rises ~2× steeper per hour — Cappuccio long HR 1.30 vs short 1.12). Resulting: 5h ⇒ exp(0.06·2)=1.13, 6h ⇒ 1.06, 7-8h ⇒ 1.00, 9h ⇒ exp(0.13·1)=1.14, 10h ⇒ exp(0.13·2)=1.30. popMean 7 lies in the band ⇒ mult 1 at default ⇒ baseline preserved EXACTLY. Whole-intrinsic-bracket all-cause multiplier (like physicalActivity→allcause); sleep is a standalone input with no prior edge, so NO double-count. The steeper long arm is partly REVERSE-CAUSATION (illness → long sleep, not long sleep → death) — flagged #gap/contributory-reverse-causation; the model encodes the association as-observed. Wired + exposed 2026-06-10 (was a phantom input); banded/asymmetric same day. SOLID-direction; magnitude illustrative."
       },
       {
         "from": "physicalActivity",
@@ -3401,6 +3775,26 @@ const MODEL = {
           "current": 1.5
         },
         "provenance": "Smoking->CKD mortality RR ~1.5 current (smoking accelerates nephropathy/CKD progression). smokingCategorical normalized. v0.4.1."
+      },
+      {
+        "from": "HbA1c",
+        "to": "diabetes",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "threshold": 6.5,
+        "slope": 0.55,
+        "cap": 30,
+        "provenance": "HbA1c -> DIRECT diabetes mortality (E10-E14: acute metabolic crises [DKA, hyperosmolar hyperglycemic state] + severe diabetic complications coded to diabetes itself, NOT the diabetic CVD that codes to cardiovascular). Added 2026-06-10 to give the β-cell glucotoxicity spiral a SEVERITY-SCALING terminal endpoint — without it the only HbA1c->mortality edges (cardiovascular/cancer/neurodegeneration) all SATURATE at their caps by HbA1c ~6.8 (they carry the ERFC/Gudala *average-diabetic* macrovascular RR, which genuinely plateaus), so the model treated HbA1c 7 and 14 as identical for death (user-caught, 2026-06-10). This edge is DELIBERATELY STEEP + HIGH-CAP because the diabetes-coded endpoint is dominated by ACUTE crises whose baseline is ~0 at HbA1c 6.5 and explodes at sustained high glycemia: slope 0.55 = RR ~1.73 per +1% HbA1c, cap 30 (saturates at HbA1c ~12.7). This is a DIFFERENT shape from the capped macrovascular edges and is correct — acute hyperglycemic death scales with severity where chronic macrovascular RR plateaus. ratio-to-baseline (threshold 6.5 > population HbA1c max 6.4 @130) so mult EXACTLY 1 in the population => baseline LE preserved EXACTLY. Resulting ladder (M, anchored): HbA1c 7 -4.3 yr / 10 -7.3 / 14 -11.1. ILLUSTRATIVE slope+cap magnitudes (#gap: the exact direct-diabetes-mortality dose-response by HbA1c band is uncharacterized for HbA1c>12); SOLID-direction (acute hyperglycemic + complication mortality rises steeply with sustained hyperglycemia)."
+      },
+      {
+        "from": "HbA1c",
+        "to": "ckd",
+        "form": "mediatorThresholdRamp",
+        "med": "HbA1c",
+        "threshold": 6.5,
+        "slope": 0.35,
+        "cap": 10,
+        "provenance": "HbA1c -> CKD mortality (diabetic nephropathy -> renal death, N00-N07/N17-N19/N25-N27). Added 2026-06-10 alongside HbA1c->diabetes as the second severity-scaling glycemic endpoint. Diabetic nephropathy is strongly glycemia-dependent (DCCT/UKPDS: tight control markedly cuts nephropathy progression), so renal death rises with sustained hyperglycemia: slope 0.35 = RR ~1.42 per +1% HbA1c, cap 10 (saturates at HbA1c ~13.1) — gentler than the diabetes edge (nephropathy is a chronic complication, not an acute crisis). ratio-to-baseline (threshold 6.5 > population HbA1c max) => mult EXACTLY 1 in population => baseline LE preserved EXACTLY. Complements the existing smoking->ckd edge (different driver). ILLUSTRATIVE magnitudes (#gap); SOLID-direction (glycemic control governs diabetic nephropathy progression)."
       }
     ],
     "causeEdgesNote": "Stage 2 (2026-06-08): CLEAN non-double-counting mediator->cause and direct exogenous->cause multipliers. cause_hazard_c = [v0.3 hazard] * Prod_edges mult_edge; mult=1 at population-average inputs so v0.3 (LE 75.31 M / 80.37 F) reproduces exactly. mediatorThresholdRamp uses a RATIO-to-baseline so mult=1 at the per-age baseline HbA1c (which exceeds the 5.7 threshold at 60+). Stage 3a (2026-06-08) ADDED two clean cause edges, both =1 at default inputs: (1) smoking->cardiovascular (smokingCategorical, normalized, never 0.833/former 1.082/current 1.582) and (2) physicalActivity->allcause (activityFitness, target 'allcause', exp(-0.139*dMETs), applied to the WHOLE intrinsic bracket at the frailty-multiplier site, weight/glucose-independent fitness channel). Stage 3b (2026-06-08) ADDED the BMI/adiposity edges MECHANISTICALLY (Lu 2014 mediation decomposition, no double-counting), all =1 at the per-age baseline BMI so v0.3 still reproduces exactly: (1) BMI->systolicBP mediatorEdge (mediatorLinear, +0.72 mmHg/+1 kg/m2, the DOMINANT mediated path, flowing through SBP->CVD); (2) BMI->cardiovascular causeEdge (bmiThresholdRatio, upper-arm only, beta 0.022819, the UNMEDIATED CV residual; combined with the SBP path => Lu 1.27 per +5 BMI, log-HR split SBP 52.3% / residual 47.7%); (3) BMI->allcause J-curve (bmiJcurve, upper betaUpper ln1.09/5 non-CV obesity + lower betaLower ln1.51/3.5 underweight-frailty, nadir [20,25], whole-bracket). OMITTED in 3b: BMI->LDL (null per MR), continuous BMI->glucose (folded into the residual). DEFERRED: alcohol->all-cause(MR) bundle; B2 latent fixes."
@@ -3513,22 +3907,85 @@ const MED_COLOR = {
   LDL:        getCss("--med-LDL"),
   systolicBP: getCss("--med-systolicBP"),
   BMI:        "#7e57c2",
-  HbA1c:      getCss("--med-HbA1c")
+  HbA1c:      getCss("--med-HbA1c"),
+  restingHR:  "#e07b39"
 };
 
 // Which exogenous inputs get a control in the panel (per spec). smokingStatus is
-// segmented (categorical); the rest are numeric sliders/selects. `sleep` and the
-// raw `smoking` (cig/day) input are not wired (Stage-2 uses smokingStatus); we
-// surface the spec'd set.
+// segmented (categorical); the rest are numeric sliders/selects. `sleep` is wired
+// (sleep→allcause U-shape, 2026-06-10) and exposed here; the raw `smoking` (cig/day)
+// input stays unwired (Stage-2 uses smokingStatus).
 const PANEL_INPUT_IDS = [
-  "smokingStatus", "physicalActivity", "dietSatFat", "dietFiber",
+  "smokingStatus", "physicalActivity", "sleep", "dietSatFat", "dietFiber",
   "dietSodium", "alcohol", "airPollution", "calorieBalance"
 ];
 const LAB_FIELDS = [
   { med: "LDL",        label: "LDL",          unit: "mg/dL", step: 1,   min: 20,  max: 400 },
-  { med: "systolicBP", label: "Systolic BP",  unit: "mmHg",  step: 1,   min: 70,  max: 250 },
-  { med: "HbA1c",      label: "HbA1c",        unit: "%",     step: 0.1, min: 4,   max: 14 }
+  { med: "systolicBP", label: "Systolic BP",  unit: "mmHg",  step: 1,   min: 90,  max: 220 },
+  { med: "HbA1c",      label: "HbA1c",        unit: "%",     step: 0.1, min: 4,   max: 14 },
+  { med: "BMI",        label: "BMI",          unit: "kg/m²", step: 0.1, min: 14,  max: 50 },
+  { med: "restingHR",  label: "Resting HR",   unit: "bpm",   step: 1,   min: 40,  max: 110 }
 ];
+const LAB_LABEL_BY_MED = {};
+LAB_FIELDS.forEach(f => { LAB_LABEL_BY_MED[f.med] = f.label; });
+
+// For each panel input: which mediators it feeds directly, and whether it has a
+// direct-to-mortality (cause) edge. A slider is "practically pinned" — and thus
+// disabled — when EVERY mediator it feeds is anchored by a lab value AND it has no
+// independent mortality path (no cause edge). Computed generically from the edge
+// graph, so it stays correct as edges change: e.g. alcohol→systolicBP is NOT
+// disabled by a BP anchor because alcohol also carries direct cancer/liver edges;
+// physicalActivity stays live via its direct fitness→all-cause edge.
+const INPUT_DISABLE_INFO = (() => {
+  const medIds = new Set(MEDIATORS.map(m => m.id));
+  const medEdges = B.mediatorEdges || [];
+  const causeEdges = B.causeEdges || [];
+  const info = {};
+  PANEL_INPUT_IDS.forEach(id => {
+    info[id] = {
+      medTargets: [...new Set(medEdges.filter(e => e.from === id && medIds.has(e.to)).map(e => e.to))],
+      hasCauseEdge: causeEdges.some(e => e.from === id)
+    };
+  });
+  return info;
+})();
+
+// Set of mediators currently pinned by a (non-empty) lab anchor.
+function anchoredMediators(){
+  return new Set(LAB_FIELDS
+    .filter(f => state.labs[f.med] != null && state.labs[f.med] !== "")
+    .map(f => f.med));
+}
+
+// Gray out + disable any input slider whose every mediator target is anchored and
+// which has no independent mortality path. Called on each render so it tracks lab
+// edits live. Visual + interaction only — the engine math already cancels these
+// inputs once their target is anchored (the offset absorbs them exactly).
+function updateInputDisabledStates(){
+  const anchored = anchoredMediators();
+  PANEL_INPUT_IDS.forEach(id => {
+    const info = INPUT_DISABLE_INFO[id];
+    const row = document.getElementById("brow-" + id);
+    if (!info || !row) return;
+    const disabled = info.medTargets.length > 0 &&
+      info.medTargets.every(t => anchored.has(t)) && !info.hasCauseEdge;
+    row.classList.toggle("brow-disabled", disabled);
+    row.querySelectorAll("input, button").forEach(el => { el.disabled = disabled; });
+    let note = row.querySelector(".binactive");
+    if (disabled){
+      if (!note){
+        note = document.createElement("span");
+        note.className = "binactive";
+        row.appendChild(note);
+      }
+      const labels = info.medTargets.map(t => LAB_LABEL_BY_MED[t] || t);
+      note.textContent = `set by ${labels.join(" & ")} anchor`;
+      note.style.display = "";
+    } else if (note){
+      note.style.display = "none";
+    }
+  });
+}
 
 /* ============================ Engine adapter ============================= */
 // The app calls the canonical engine. `couple` is a MODEL.meta field, so to vary
@@ -3634,26 +4091,108 @@ function baselineOpts(){
   };
 }
 
-/* ============================ Layout for graph =========================== */
-const GRAPH_W = 524, GRAPH_H = 272;   // height shrunk 20% (340 → 272); viewBox matches
-// All node labels sit to the RIGHT of their node, so the leftmost (tier1) column
-// needs only a thin left margin (node radius); the right margin holds the dense
-// phenotype column's two-line labels. Narrower total width ⇒ larger rendered text.
-const COL_PAD_L = 20, COL_PAD_R = 120, COL_PAD_TOP = 16, COL_PAD_BOT = 16;
-const graphPos = {}; // id -> {x, y}
-(function layoutGraph(){
-  const cols = LAYER_ORDER.map(L => NODES.filter(n => n.layer === L));
-  const nCols = LAYER_ORDER.length;
-  const usableW = GRAPH_W - COL_PAD_L - COL_PAD_R;
-  cols.forEach((colNodes, ci) => {
-    const x = COL_PAD_L + (nCols === 1 ? 0 : (usableW * ci) / (nCols - 1));
-    const m = colNodes.length;
-    const usableH = GRAPH_H - COL_PAD_TOP - COL_PAD_BOT;
-    colNodes.forEach((node, ri) => {
-      const y = COL_PAD_TOP + (m === 1 ? usableH / 2 : (usableH * ri) / (m - 1));
-      graphPos[node.id] = { x: x, y: y };
-    });
+/* ===================== Unified causal graph (ALL layers) ==================
+   The graph panel historically drew ONLY the 22-node latent hallmark graph (38 of
+   ~76 edges). This builds ONE causal DAG across every layer — exogenous inputs →
+   mediators ⇄ state/damage nodes → hallmark tiers → cause nodes → mortality — so the
+   whole mechanistic B-layer (the β-cell→HbA1c spiral, the arterial-stiffness vertical,
+   the cause edges) is visible. Edges are styled by CATEGORY; disabled (coeff-0) edges
+   and unlinked nodes are greyed so planned/future work is visible. Columns left→right
+   follow causal flow; cross-layer + feedback edges (e.g. β-cell→HbA1c augment,
+   senescence→stiffness) draw as curves. */
+const COL_OF_KIND = { input: 0, mediator: 1, state: 2, tier1: 3, tier2: 4, tier3: 5, phenotype: 6, mortality: 7 };
+const N_COLS = 8;
+const KIND_COLOR = {
+  input:     "#5a6b7b",   // slate — behaviours/environment
+  mediator:  "#2e86c1",   // blue — clinical risk-factor mediators
+  state:     "#138d75",   // teal — integrated damage/physiology state nodes
+  mortality: "#922b21"    // dark red — the terminal sink
+  // tier1/tier2/tier3/phenotype reuse LAYER_COLOR
+};
+function kindColor(kind){ return KIND_COLOR[kind] || LAYER_COLOR[kind] || "#888"; }
+const KIND_LABEL = {
+  input: "exogenous input", mediator: "mediator (risk factor)", state: "state (∫rate damage)",
+  tier1: "hallmark tier-1", tier2: "hallmark tier-2", tier3: "hallmark tier-3",
+  phenotype: "pathology / cause", mortality: "mortality sink"
+};
+// Edge category → stroke colour + dash. augment (state→mediator feedback) + disabled
+// edges are dashed; cause/terminal edges are red (drive a death line).
+const EDGE_STYLE = {
+  latent:   { stroke: "#aab1b9", dash: "none" },
+  mediator: { stroke: "#2e86c1", dash: "none" },
+  driver:   { stroke: "#138d75", dash: "none" },
+  augment:  { stroke: "#8e44ad", dash: "5,3" },
+  cause:    { stroke: "#c0392b", dash: "none" },
+  terminal: { stroke: "#7b241c", dash: "none" }
+};
+const EDGE_CAT_LABEL = {
+  latent: "hallmark coupling", mediator: "input→mediator", driver: "driver→state",
+  augment: "state→mediator (feedback)", cause: "→ cause hazard", terminal: "cause → mortality"
+};
+// A mortality cause-key (causeEdge target) → the latent node that carries that death
+// line (cardiovascular = atherosclerosis; allcause = the synthetic mortality sink).
+function causeKeyToNode(key){
+  if (key === "allcause") return "_mortality";
+  if (key === "cardiovascular") return "atherosclerosis";
+  return key; // cancer / neurodegeneration / copd / liver / diabetes / ckd map 1:1
+}
+const UNI = (function buildUnifiedGraph(){
+  const nodes = [], edges = [];
+  EXO_INPUTS.forEach(inp => nodes.push({ id: inp.id, label: inp.label, kind: "input", _ref: inp }));
+  MEDIATORS.forEach(m => nodes.push({ id: m.id, label: m.label, kind: "mediator", _ref: m }));
+  (B.stateNodes || []).forEach(s => nodes.push({ id: s.id, label: s.label, kind: "state", _ref: s }));
+  NODES.forEach(n => nodes.push({ id: n.id, label: n.label, kind: n.layer, _ref: n, latent: true }));
+  nodes.push({ id: "_mortality", label: "Mortality", kind: "mortality" });
+
+  MODEL.edges.forEach(e => edges.push({ from: e.from, to: e.to, cat: "latent", strength: e.strength }));
+  B.mediatorEdges.forEach(e => edges.push({ from: e.from, to: e.to, cat: "mediator" }));
+  B.causeEdges.forEach(e => edges.push({ from: e.from || e.input, to: causeKeyToNode(e.to), cat: "cause" }));
+  (B.stateAugments || []).forEach(a => edges.push({ from: a.fromState, to: a.mediator, cat: "augment" }));
+  // state-node driver refs (mediator/state/node → state). A term with coeff 0 is a
+  // DISABLED edge (e.g. the BMI→β-cell lipotoxicity arm) — kept but greyed.
+  (B.stateNodes || []).forEach(s => {
+    const seen = {};
+    const terms = ((s.rate && s.rate.terms) || []).concat((s.value && s.value.terms) || []);
+    terms.forEach(t => (t.drivers || []).forEach(d => {
+      const did = typeof d === "string" ? d : d.id;
+      const dis = (t.coeff === 0);
+      if (seen[did] === undefined || !dis) seen[did] = dis;   // a live term wins over a disabled one
+    }));
+    for (const did in seen) edges.push({ from: did, to: s.id, cat: "driver", disabled: seen[did] });
   });
+  // terminal edges: every node that carries a death line → the mortality sink.
+  NODES.forEach(n => { if (n.role === "mortality-cause") edges.push({ from: n.id, to: "_mortality", cat: "terminal" }); });
+
+  const byId = {}; nodes.forEach(n => byId[n.id] = n);
+  // Greying: a node is "planned/future" (greyed) if NO non-disabled edge touches it
+  // (e.g. the unwired raw `smoking` input). Disabled edges don't count as a live link.
+  const live = {};
+  edges.forEach(e => { if (!e.disabled) { live[e.from] = true; live[e.to] = true; } });
+  nodes.forEach(n => { n.greyed = !live[n.id]; });
+  const valid = edges.filter(e => byId[e.from] && byId[e.to]);
+  return { nodes, edges: valid, byId };
+})();
+
+/* ---- Layered layout: column by kind, vertically centred within each column ---- */
+const G_PAD = { l: 70, r: 130, t: 26, b: 22 };
+const COL_W = 150, ROW_H = 40;
+let GW2 = 0, GH2 = 0;
+const graphPos = {}; // id -> {x, y}
+(function layoutUnified(){
+  const cols = {};
+  UNI.nodes.forEach(n => { const c = COL_OF_KIND[n.kind]; (cols[c] || (cols[c] = [])).push(n); });
+  let maxRows = 1;
+  for (const c in cols) maxRows = Math.max(maxRows, cols[c].length);
+  GW2 = G_PAD.l + (N_COLS - 1) * COL_W + G_PAD.r;
+  GH2 = G_PAD.t + (maxRows - 1) * ROW_H + G_PAD.b;
+  const usableH = GH2 - G_PAD.t - G_PAD.b;
+  for (let c = 0; c < N_COLS; c++){
+    const arr = cols[c] || [];
+    const x = G_PAD.l + c * COL_W;
+    const colH = (arr.length - 1) * ROW_H;
+    const y0 = G_PAD.t + (usableH - colH) / 2;   // centre this column vertically
+    arr.forEach((n, i) => { graphPos[n.id] = { x, y: y0 + i * ROW_H }; });
+  }
 })();
 
 // Wrap a node label into at most two BALANCED lines: split at the inter-word
@@ -3706,114 +4245,351 @@ function roleGlyph(node){
   return null;
 }
 
-// ---- Graph panel ----
-function renderGraph(){
+// ---- Graph panel (unified causal graph) ----
+// graphView = the current zoom/pan viewBox; persists across re-renders so a
+// re-simulate (renderAll) doesn't reset the user's zoom. graphFocus = the node the
+// user is hovering/selecting for ego-highlight (focus mode). graphLiveWeight = colour/
+// thicken edges by their CURRENT computed multiplier given the scenario.
+let graphView = null;                 // {x,y,w,h}
+let graphFocus = null;                // node id under focus (ego highlight)
+const graphState = { liveWeight: true };
+// Set by renderTimeline each pass: restyle the trajectory lines for a given highlight
+// id WITHOUT a full re-render, so graph-node hover/selection can light up the matching
+// trajectory cheaply. Null until the timeline has rendered once.
+let tlRestyle = null;
+
+function fitGraphView(){ graphView = { x: 0, y: 0, w: GW2, h: GH2 }; }
+
+// Build the focus neighbourhood: the focused node + its direct in/out neighbours, and
+// the set of edges incident to it. Empty (null) ⇒ no dimming.
+function focusSets(){
+  if (!graphFocus) return null;
+  const nodeSet = new Set([graphFocus]);
+  const edgeSet = new Set();
+  UNI.edges.forEach((e, i) => {
+    if (e.from === graphFocus || e.to === graphFocus){ edgeSet.add(i); nodeSet.add(e.from); nodeSet.add(e.to); }
+  });
+  return { nodeSet, edgeSet };
+}
+
+// Live per-edge weight ∈ [0,1+]: how far this edge's source currently departs from its
+// population baseline (using the scenario `sim` vs the all-default `base`, both with node
+// burdens). 0 ⇒ neutral (thin/grey); larger ⇒ thicker + tinted harm(red)/benefit(green).
+// Direction is signed by whether the source ran ABOVE (harm) or BELOW (benefit) baseline —
+// the sign is flipped for sources where lower-is-worse is the convention (handled below).
+const LOWER_IS_BETTER = { LDL: 1, systolicBP: 1, BMI: 1, HbA1c: 1, restingHR: 1,
+  "ecm-crosslink": 1, "beta-cell-decline": 1, "arterial-stiffness": 1, "elastin-fatigue": 1 };
+function edgeLiveSignal(e, sim, base){
+  try {
+    if (e.cat === "latent") return { mag: MODEL.strengthToGain[e.strength] || 0, dir: 0 };
+    if (!sim || !sim.medValues || !base || !base.medValues) return { mag: 0, dir: 0 };
+    const k = Math.min(N_AGE - 1, 60 - AGE0);          // read deviation at mid-life
+    const sv = sim.medValues[e.from], bv = base.medValues[e.from];
+    if (!sv || !bv) return { mag: 0, dir: 0 };
+    const dev = (sv[k] - bv[k]) / (Math.abs(bv[k]) || 1);
+    if (Math.abs(dev) < 0.01) return { mag: 0, dir: 0 };
+    // higher-than-baseline on a lower-is-better source ⇒ harm (+1).
+    const worse = (LOWER_IS_BETTER[e.from] ? 1 : 1) * Math.sign(dev);
+    return { mag: Math.min(1, Math.abs(dev) * 2.2), dir: worse };
+  } catch (_) { return { mag: 0, dir: 0 }; }
+}
+function invalidateBaseMedCache(){ /* base now threaded from renderAll; no cache to clear */ }
+
+function renderGraph(sim, base){
+  base = base || window._lastBase;
   const svg = document.getElementById("graphSvg");
   svg.innerHTML = "";
+  if (!graphView) fitGraphView();
+  svg.setAttribute("viewBox", `${graphView.x} ${graphView.y} ${graphView.w} ${graphView.h}`);
 
   const defs = el("defs", {}, svg);
-  const marker = el("marker", {
-    id: "arrow", viewBox: "0 0 10 10", refX: "9", refY: "5",
-    markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse"
-  }, defs);
-  el("path", { d: "M0,0 L10,5 L0,10 z", fill: "#9aa" }, marker);
+  ["arrow", "arrowDim", "arrowHot", "arrowGood"].forEach((id, i) => {
+    const m = el("marker", { id, viewBox: "0 0 10 10", refX: "9", refY: "5",
+      markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" }, defs);
+    const fill = ["#9aa", "#dfe3e7", "#c0392b", "#1e8449"][i];
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill }, m);
+  });
 
-  const NODE_R = 9;
+  const NODE_R = 8;
+  const foc = focusSets();
+  const live = graphState.liveWeight && sim;
 
-  MODEL.edges.forEach(e => {
+  // ----- edges -----
+  UNI.edges.forEach((e, i) => {
     const a = graphPos[e.from], b = graphPos[e.to];
     if (!a || !b) return;
-    const gain = MODEL.strengthToGain[e.strength];
+    const style = EDGE_STYLE[e.cat] || EDGE_STYLE.latent;
+    const dimmed = foc && !foc.edgeSet.has(i);
+    const disabled = e.disabled;
+
     const dx = b.x - a.x, dy = b.y - a.y;
     const len = Math.hypot(dx, dy) || 1;
     const ux = dx / len, uy = dy / len;
     const x1 = a.x + ux * NODE_R, y1 = a.y + uy * NODE_R;
     const x2 = b.x - ux * (NODE_R + 4), y2 = b.y - uy * (NODE_R + 4);
-    const mx = (x1 + x2) / 2 - uy * 14;
-    const my = (y1 + y2) / 2 + ux * 14;
+    // curvature: bow more for long backward/cross-column arcs so feedback edges read.
+    const back = b.x < a.x - 1;
+    const bow = back ? 26 : 14;
+    const mx = (x1 + x2) / 2 - uy * bow, my = (y1 + y2) / 2 + ux * bow;
+
+    let stroke = style.stroke, width = 1.0, opacity = 0.7, marker = "arrow";
+    if (e.cat === "latent"){ width = 0.6 + (MODEL.strengthToGain[e.strength] || 0) * 8; }
+    if (live){
+      const sig = edgeLiveSignal(e, sim, base);
+      if (sig.mag > 0.02){
+        width = 0.8 + sig.mag * 5.5;
+        if (sig.dir > 0){ stroke = "#c0392b"; marker = "arrowHot"; opacity = 0.9; }
+        else if (sig.dir < 0){ stroke = "#1e8449"; marker = "arrowGood"; opacity = 0.9; }
+      }
+    }
+    if (disabled){ stroke = "#cfd6dd"; width = 1.0; opacity = 0.55; marker = "arrowDim"; }
+    if (dimmed){ opacity = 0.08; marker = "arrowDim"; }
+
     el("path", {
       d: `M${x1},${y1} Q${mx},${my} ${x2},${y2}`,
-      fill: "none",
-      stroke: "#b9bfc7",
-      "stroke-width": (0.6 + gain * 9).toFixed(2),
-      "marker-end": "url(#arrow)",
-      opacity: "0.75"
+      fill: "none", stroke,
+      "stroke-width": width.toFixed(2),
+      "stroke-dasharray": disabled ? "4,3" : (style.dash === "none" ? "" : style.dash),
+      "marker-end": `url(#${marker})`,
+      opacity: opacity.toFixed(2)
     }, svg);
   });
 
-  NODES.forEach(node => {
+  // ----- nodes -----
+  UNI.nodes.forEach(node => {
     const p = graphPos[node.id];
-    const g = el("g", { class: "nodeg", transform: `translate(${p.x},${p.y})` }, svg);
+    if (!p) return;
+    const latent = node.latent;
+    const ref = node._ref;
     const isSel = state.selected === node.id;
-    const iv = state.interventions[node.id];
+    const iv = latent && state.interventions[node.id];
     const active = iv && iv.efficacy > 0;
+    const dimmed = foc && !foc.nodeSet.has(node.id);
+    const grey = node.greyed;
+    const baseColor = grey ? "#c4ccd4" : kindColor(node.kind);
 
-    let strokeW = 1.5, dash = "none";
-    if (node.tractability === "high")          { strokeW = 3;   dash = "none"; }
-    else if (node.tractability === "moderate") { strokeW = 1.8; dash = "none"; }
-    else                                       { strokeW = 1.5; dash = "3,2"; }   // low
+    const g = el("g", { class: "nodeg", transform: `translate(${p.x},${p.y})`,
+      style: "cursor:" + (latent ? "pointer" : "default") }, svg);
+    const op = dimmed ? 0.18 : 1;
+    g.setAttribute("opacity", op);
 
-    if (isSel){
-      el("circle", { r: NODE_R + 5, fill: "none", stroke: "#111", "stroke-width": "1.5" }, g);
+    // tractability ring weight (latent only); inputs/mediators/state get a plain ring.
+    let strokeW = 1.4, dash = "none";
+    if (latent){
+      if (ref.tractability === "high")          { strokeW = 3;   dash = "none"; }
+      else if (ref.tractability === "moderate") { strokeW = 1.8; dash = "none"; }
+      else                                      { strokeW = 1.4; dash = "3,2"; }
     }
-    if (active){
-      el("circle", { r: NODE_R + 3, fill: "none", stroke: "#1e8449", "stroke-width": "2.5" }, g);
-    }
+    if (grey) dash = "2,2";
 
-    el("circle", {
-      r: NODE_R,
-      fill: LAYER_COLOR[node.layer],
-      stroke: "#333",
-      "stroke-width": strokeW,
-      "stroke-dasharray": dash
-    }, g);
+    if (isSel)  el("circle", { r: NODE_R + 5, fill: "none", stroke: "#111", "stroke-width": "1.5" }, g);
+    if (active) el("circle", { r: NODE_R + 3, fill: "none", stroke: "#1e8449", "stroke-width": "2.5" }, g);
+    if (graphFocus === node.id) el("circle", { r: NODE_R + 5, fill: "none", stroke: "#e67e22", "stroke-width": "2" }, g);
 
-    // role glyph (small, inside node) — distinguishes mortality-cause / frailty / driver
-    const glyph = roleGlyph(node);
-    if (glyph){
-      const gl = el("text", {
-        x: 0, y: 3.2, "text-anchor": "middle",
-        "font-size": "9", fill: "#fff", "font-weight": "700"
-      }, g);
-      gl.textContent = glyph;
-    }
-
-    if (active){
-      const fl = el("text", {
-        x: 0, y: -NODE_R - 6, "text-anchor": "middle",
-        "font-size": "13", fill: "#1e8449"
-      }, g);
-      fl.textContent = "❄";
-    }
-
-    const tx = NODE_R + 5;   // all labels uniformly to the RIGHT of the node
-    const lines = wrapLabel(node.label);
-    const txt = el("text", {
-      x: tx, y: lines.length > 1 ? -1 : 3.5,
-      "text-anchor": "start",
-      "font-size": "9",
-      fill: "#000"
-    }, g);
-    if (lines.length === 1) {
-      txt.textContent = lines[0];
+    const shape = node.kind === "mortality" ? "diamond" : "circle";
+    if (shape === "diamond"){
+      el("rect", { x: -NODE_R, y: -NODE_R, width: NODE_R * 2, height: NODE_R * 2,
+        transform: "rotate(45)", fill: baseColor, stroke: "#333", "stroke-width": strokeW }, g);
     } else {
-      lines.forEach((ln, li) => {
-        const ts = el("tspan", { x: tx, dy: li === 0 ? 0 : 10 }, txt);
-        ts.textContent = ln;
-      });
+      el("circle", { r: NODE_R, fill: baseColor, stroke: "#333",
+        "stroke-width": strokeW, "stroke-dasharray": dash === "none" ? "" : dash }, g);
     }
 
-    g.addEventListener("click", () => selectNode(node.id));
-    g.addEventListener("mousemove", (ev) => {
-      const rl = roleLabel(node);
-      showTip(ev.clientX, ev.clientY,
-        `<b>${node.label}</b><br>layer: ${node.layer}<br>tractability: ${node.tractability}` +
-        `<br>provenance: ${node.provenance}` +
-        (rl ? `<br>role: ${rl}` : "") +
-        (active ? `<br><span style="color:#7fe">&#10052; freeze ${Math.round(iv.efficacy*100)}% from age ${iv.startAge}</span>` : ""));
+    const glyph = latent ? roleGlyph(ref) : null;
+    if (glyph){
+      el("text", { x: 0, y: 3.2, "text-anchor": "middle", "font-size": "9",
+        fill: "#fff", "font-weight": "700" }, g).textContent = glyph;
+    }
+    if (active){
+      el("text", { x: 0, y: -NODE_R - 6, "text-anchor": "middle", "font-size": "13",
+        fill: "#1e8449" }, g).textContent = "❄";
+    }
+
+    const tx = NODE_R + 5;
+    const lines = wrapLabel(node.label);
+    const txt = el("text", { x: tx, y: lines.length > 1 ? -1 : 3.5, "text-anchor": "start",
+      "font-size": "8.5", fill: grey ? "#9aa3ab" : "#111",
+      "font-style": grey ? "italic" : "normal" }, g);
+    lines.forEach((ln, li) => {
+      if (lines.length === 1 && li === 0){ txt.textContent = ln; return; }
+      el("tspan", { x: tx, dy: li === 0 ? 0 : 10 }, txt).textContent = ln;
     });
-    g.addEventListener("mouseleave", hideTip);
+
+    // interaction: latent nodes drive interventions; ALL nodes drive ego-focus + tooltip.
+    g.addEventListener("click", () => { if (node.kind !== "mortality") selectNode(node.id); });
+    g.addEventListener("mouseenter", () => { graphFocus = node.id; renderGraph(window._lastSim); if (tlRestyle) tlRestyle(null); showGraphNodeInfo(node.id); });
+    // Note: the description card is NOT hidden on node mouseleave — it persists so
+    // the user can move onto it to click the wiki link. It's cleared when the whole
+    // graph area is left (graphWrap mouseleave) or replaced by the next node hover.
+    g.addEventListener("mouseleave", () => { graphFocus = null; renderGraph(window._lastSim); hideTip(); if (tlRestyle) tlRestyle(null); });
+    g.addEventListener("mousemove", (ev) => {
+      showTip(ev.clientX, ev.clientY, nodeTipHtml(node));
+    });
   });
+}
+
+// Tooltip HTML for any unified-graph node (latent or B-layer).
+function nodeTipHtml(node){
+  const ref = node._ref || {};
+  const kindL = KIND_LABEL[node.kind] || node.kind;
+  let s = `<b>${node.label}</b><br><span style="color:#9bd">${kindL}</span>`;
+  if (node.greyed) s += `<br><span style="color:#e6b800">⚠ unlinked / planned (no active edge)</span>`;
+  if (node.latent){
+    s += `<br>tractability: ${ref.tractability}`;
+    const rl = roleLabel(ref); if (rl) s += `<br>role: ${rl}`;
+    const iv = state.interventions[node.id];
+    if (iv && iv.efficacy > 0) s += `<br><span style="color:#2ecc71">❄ freeze ${Math.round(iv.efficacy*100)}% from age ${iv.startAge}</span>`;
+    if (ref.provenance) s += `<br><span style="color:#aaa">${ref.provenance}</span>`;
+  } else if (node.kind === "input"){
+    s += `<br>population mean: ${ref.populationMean}${ref.unit ? " " + ref.unit : ""}`;
+  } else if (node.kind === "mediator"){
+    s += `<br>unit: ${ref.unit || "?"} &middot; <span style="color:#aaa">adjust via Labs / Lifestyle</span>`;
+  } else if (node.kind === "state"){
+    s += `<br><span style="color:#aaa">∫rate·dt damage/physiology state</span>`;
+  }
+  return s;
+}
+
+/* ---------------- Docked node-description card (top of graph panel) ----------
+   Brief plain-English description of what each node simulates + a link to the
+   relevant wiki page (opens in a new tab). Descriptions were drafted per-node
+   and each wiki path was verified to exist on disk. Shown on node mouseover,
+   persists for the selected node, hides when the graph is left with nothing
+   selected. Wiki base = the public Quartz site. ---------------------------- */
+const WIKI_BASE = "https://jadams5.github.io/aging_wiki/";
+const KIND_INFO_LABEL = {
+  hallmark: "Hallmark of aging", cause: "Cause-of-death node",
+  mediator: "Clinical risk factor", state: "Accumulating-damage state",
+  input: "Lifestyle / environment input", terminal: "Mortality",
+};
+// id -> { kind, desc, wiki (repo-relative path without .md, or null) }
+const NODE_INFO = {
+  // 12 latent hallmarks
+  "genomic-instability": { kind: "hallmark", wiki: "hallmarks/genomic-instability", desc: "DNA damage piling up faster than cells can repair it as you age — a primary driver that feeds cancer, senescence, and inflammation downstream." },
+  "telomere-attrition": { kind: "hallmark", wiki: "hallmarks/telomere-attrition", desc: "The gradual wearing-down of protective chromosome end-caps each time cells divide, pushing cells into senescence and exhausting tissue-renewing stem cells." },
+  "epigenetic-alterations": { kind: "hallmark", wiki: "hallmarks/epigenetic-alterations", desc: "Age-related drift in how genes are switched on and off (without changing the DNA itself), degrading cell identity and driving dysfunction, cancer, and immune decline." },
+  "mitochondrial-dysfunction": { kind: "hallmark", wiki: "hallmarks/mitochondrial-dysfunction", desc: "Cells' energy-producing mitochondria losing efficiency and leaking damaging molecules over time, fueling downstream disease and raising mortality risk." },
+  "cellular-senescence": { kind: "hallmark", wiki: "hallmarks/cellular-senescence", desc: "Worn-out cells that stop dividing but won't die, accumulating with age and leaking inflammatory signals that damage surrounding tissue and accelerate disease." },
+  "deregulated-nutrient-sensing": { kind: "hallmark", wiki: "hallmarks/deregulated-nutrient-sensing", desc: "Growth and metabolic pathways stuck in chronic anabolic overdrive as you age, accelerating cellular damage and raising disease and mortality risk." },
+  "disabled-macroautophagy": { kind: "hallmark", wiki: "hallmarks/disabled-macroautophagy", desc: "The age-related breakdown of the cell's recycling system that clears damaged organelles and protein junk; its decline lets damage pile up." },
+  "loss-of-proteostasis": { kind: "hallmark", wiki: "hallmarks/loss-of-proteostasis", desc: "Breakdown of the cell's protein quality-control system, letting misfolded proteins pile up and drive diseases like neurodegeneration." },
+  "chronic-inflammation": { kind: "hallmark", wiki: "hallmarks/chronic-inflammation", desc: "Low-grade body-wide inflammation (\"inflammaging\") that builds with age and steadily drives tissue damage, fueling heart disease, diabetes, and frailty." },
+  "altered-intercellular-communication": { kind: "hallmark", wiki: "hallmarks/altered-intercellular-communication", desc: "Aging garbling hormone and cell-to-cell signaling, so tissues lose coordination and spread damage body-wide, accelerating disease and mortality." },
+  "stem-cell-exhaustion": { kind: "hallmark", wiki: "hallmarks/stem-cell-exhaustion", desc: "The age-related decline in the body's reserve of stem cells, weakening its ability to repair and replenish tissues like blood, muscle, and immune cells." },
+  "dysbiosis": { kind: "hallmark", wiki: "hallmarks/dysbiosis", desc: "Age-related shifts in the gut microbiome toward harmful, less diverse, leakier states, fueling inflammation and feeding downstream disease." },
+  // 10 cause-of-death nodes
+  "atherosclerosis": { kind: "cause", wiki: "phenotypes/atherosclerosis", desc: "Cholesterol-plaque buildup in arteries that drives heart attacks and strokes — the burden setting your competing risk of cardiovascular death." },
+  "cancer": { kind: "cause", wiki: "phenotypes/cancer", desc: "Accumulated mutational and tissue-reserve burden from a lifetime of cell division, rising steeply with age to drive the hazard of dying from malignancy." },
+  "neurodegeneration": { kind: "cause", wiki: "phenotypes/neurodegeneration", desc: "Progressive brain and neuron loss that builds as cellular damage accumulates, eventually raising the risk of dying from dementia or related disorders." },
+  "immunosenescence": { kind: "cause", wiki: "phenotypes/immunosenescence", desc: "The age-related weakening of the immune system, raising the risk of fatal infections, cancer, and frailty-related death." },
+  "diabetes": { kind: "cause", wiki: "phenotypes/type-2-diabetes", desc: "A chronic high-blood-sugar disease, driven by insulin resistance and falling insulin output, that accelerates aging across organs and raises death risk." },
+  "copd": { kind: "cause", wiki: "phenotypes/copd", desc: "Cumulative lung damage — airflow obstruction, airspace enlargement, lost elastic recoil — whose buildup raises the risk of death from chronic respiratory failure." },
+  "ckd": { kind: "cause", wiki: "phenotypes/chronic-kidney-disease", desc: "The kidney's accumulating filtration loss and scarring that, past a threshold, raises your risk of kidney-failure death and its cardiovascular knock-on effects." },
+  "liver": { kind: "cause", wiki: "phenotypes/liver-fibrosis", desc: "Cumulative scarring of the liver from years of injury, hardening tissue toward cirrhosis and raising the chance of death from liver failure." },
+  "sarcopenia": { kind: "cause", wiki: "phenotypes/sarcopenia", desc: "Age-related loss of muscle mass and strength that erodes physical reserve, raising the risk of falls, frailty, lost independence, and death." },
+  "clonal-hematopoiesis": { kind: "cause", wiki: "phenotypes/clonal-hematopoiesis", desc: "Age-related expansion of mutant blood-cell clones from aging stem cells — a hidden burden raising the hazard of cardiovascular death and blood cancer." },
+  // 5 clinical-risk-factor mediators
+  "LDL": { kind: "mediator", wiki: "pathways/lipoprotein-metabolism", desc: "A modifiable blood-cholesterol level (mg/dL) whose cumulative lifetime exposure drives artery-clogging atherosclerosis — the leading lever on cardiovascular death." },
+  "systolicBP": { kind: "mediator", wiki: "phenotypes/hypertension", desc: "The pressure blood exerts on artery walls with each heartbeat; its rise with age multiplies the hazard of stroke, heart disease, and death." },
+  "BMI": { kind: "mediator", wiki: "phenotypes/obesity", desc: "A modifiable measure of body fatness from height and weight that, when too high, raises hazards for diabetes, heart disease, and earlier death." },
+  "HbA1c": { kind: "mediator", wiki: "processes/advanced-glycation-end-products", desc: "A blood marker of average glucose over months; higher levels mean worse glycemic control and more glycation damage that accelerates aging — movable by diet and drugs." },
+  "restingHR": { kind: "mediator", wiki: "biomarkers/resting-heart-rate-biomarker", desc: "Your at-rest pulse in beats per minute; a faster resting heartbeat speeds wear on arteries and tracks higher mortality." },
+  // 4 integrated-state nodes
+  "ecm-crosslink": { kind: "state", wiki: "processes/glucosepane", desc: "Irreversible sugar-derived crosslinks (chiefly glucosepane) that slowly accumulate in long-lived collagen and elastin, stiffening arteries, skin, and tissues." },
+  "elastin-fatigue": { kind: "state", wiki: "phenotypes/arterial-stiffening", desc: "Cumulative mechanical wear that fragments the artery wall's stretchy elastin over a lifetime of heartbeats, hardening vessels and raising blood pressure." },
+  "beta-cell-decline": { kind: "state", wiki: "tissues/pancreas", desc: "Gradual loss of the pancreas's insulin-producing β-cells' ability to sense glucose and secrete insulin, accumulating over a lifetime and driving glucose intolerance." },
+  "arterial-stiffness": { kind: "state", wiki: "phenotypes/arterial-stiffening", desc: "Progressive loss of large-artery elasticity (tracked by pulse-wave velocity) that accumulates over time, widening pulse pressure and independently raising cardiovascular risk." },
+  // 10 exogenous inputs
+  "smoking": { kind: "input", wiki: "exposures/smoking", desc: "Tobacco use you set directly — the single biggest modifiable driver here, raising hazards across lung, vascular, and cancer deaths." },
+  "smokingStatus": { kind: "input", wiki: "exposures/smoking", desc: "Whether you're a never, former, or current smoker — a categorical smoking exposure driving multiple disease hazards." },
+  "calorieBalance": { kind: "input", wiki: "interventions/lifestyle/caloric-restriction", desc: "How many calories you take in versus burn; chronic surplus drives metabolic disease, while restriction is the most-studied longevity lever." },
+  "physicalActivity": { kind: "input", wiki: "interventions/lifestyle/exercise", desc: "How much exercise you get; raising it improves fitness and lowers many clinical risk factors and disease hazards, cutting mortality." },
+  "dietSatFat": { kind: "input", wiki: "exposures/dietary-fat-quality", desc: "How much of your diet is saturated fat; higher intake raises LDL cholesterol and pushes up heart-disease risk." },
+  "dietFiber": { kind: "input", wiki: "interventions/dietary/prebiotics", desc: "How much soluble, fermentable fiber you eat; it feeds gut bacteria that make protective compounds and lowers inflammation and metabolic risk." },
+  "dietSodium": { kind: "input", wiki: "interventions/dietary/sodium-restriction", desc: "Your salt intake; higher sodium raises blood pressure and arterial stiffness, accelerating cardiovascular aging." },
+  "alcohol": { kind: "input", wiki: "exposures/alcohol", desc: "How much alcohol you drink; cumulative exposure raises liver, cancer, and vascular hazards." },
+  "sleep": { kind: "input", wiki: "interventions/lifestyle/sleep", desc: "Nightly sleep duration and quality; too little or poor sleep raises inflammation and disease risk, accelerating biological aging." },
+  "airPollution": { kind: "input", wiki: "exposures/air-pollution", desc: "Fine-particulate (PM2.5) air-pollution exposure, which raises respiratory, heart, and dementia risk and shortens lifespan." },
+  // terminal
+  "_mortality": { kind: "terminal", wiki: null, desc: "The terminal node — total mortality, summed as competing risks across every cause in the model." },
+};
+
+// Build the inner HTML for the docked card for a node id (null if no entry).
+function graphNodeInfoHtml(id){
+  const info = NODE_INFO[id];
+  if (!info || !info.desc) return null;
+  const node = NODE_BY_ID[id];
+  const uni = (typeof UNI !== "undefined" && UNI.byId) ? UNI.byId[id] : null;
+  const label = (node && node.label) || (uni && uni.label) || id;
+  const kindL = KIND_INFO_LABEL[info.kind] || "";
+  let s = `<span class="gni-name">${label}</span>`;
+  if (kindL) s += ` <span class="gni-kind">· ${kindL}</span>`;
+  s += `<br><span class="gni-desc">${info.desc}</span>`;
+  if (info.wiki) s += ` <a class="gni-link" href="${WIKI_BASE}${info.wiki}" target="_blank" rel="noopener noreferrer">wiki&nbsp;&#8599;</a>`;
+  return s;
+}
+
+// Show the card for `id`; falls back to the click-selected node; hides if neither
+// has an entry. Driven by node mouseover + selection.
+function showGraphNodeInfo(id){
+  const box = document.getElementById("graphNodeInfo");
+  if (!box) return;
+  const eff = id || state.selected;
+  const html = eff ? graphNodeInfoHtml(eff) : null;
+  if (!html){ box.style.display = "none"; box.innerHTML = ""; return; }
+  box.innerHTML = html;
+  box.style.display = "block";
+}
+
+// Wheel-zoom + drag-pan on the graph SVG (mutates graphView; cheap viewBox re-set, no
+// full re-render). Wired once at init.
+function wireGraphZoomPan(){
+  const svg = document.getElementById("graphSvg");
+  if (!svg) return;
+  const apply = () => svg.setAttribute("viewBox", `${graphView.x} ${graphView.y} ${graphView.w} ${graphView.h}`);
+  svg.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    if (!graphView) fitGraphView();
+    const r = svg.getBoundingClientRect();
+    const mx = graphView.x + (ev.clientX - r.left) / r.width * graphView.w;
+    const my = graphView.y + (ev.clientY - r.top) / r.height * graphView.h;
+    const f = ev.deltaY < 0 ? 0.85 : 1.18;
+    graphView.x = mx - (mx - graphView.x) * f;
+    graphView.y = my - (my - graphView.y) * f;
+    graphView.w *= f; graphView.h *= f;
+    apply();
+  }, { passive: false });
+  let drag = null;
+  svg.addEventListener("mousedown", (ev) => {
+    if (ev.target.closest(".nodeg")) return;       // let node clicks through
+    drag = { sx: ev.clientX, sy: ev.clientY, vx: graphView.x, vy: graphView.y, moved: false };
+    svg.style.cursor = "grabbing";
+  });
+  window.addEventListener("mousemove", (ev) => {
+    if (!drag) return;
+    if (Math.abs(ev.clientX - drag.sx) > 3 || Math.abs(ev.clientY - drag.sy) > 3) drag.moved = true;
+    const r = svg.getBoundingClientRect();
+    graphView.x = drag.vx - (ev.clientX - drag.sx) / r.width * graphView.w;
+    graphView.y = drag.vy - (ev.clientY - drag.sy) / r.height * graphView.h;
+    apply();
+  });
+  window.addEventListener("mouseup", () => {
+    // A click on empty graph background (mousedown not on a node, no pan drag) clears
+    // the selection — the same "back to unselected" gesture as Esc.
+    if (drag && !drag.moved) deselectNode();
+    drag = null; svg.style.cursor = "";
+  });
+
+  // Esc anywhere returns to the unselected view.
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") deselectNode();
+  });
+
+  // Leaving the whole graph area collapses the description card back to the
+  // selected node (or hides it). Attached to the wrapper so moving from a node
+  // ONTO the card — to click its wiki link — does not dismiss it.
+  const wrap = document.getElementById("graphWrap");
+  if (wrap) wrap.addEventListener("mouseleave", () => showGraphNodeInfo(null));
 }
 
 /* ---- decomposition accessor: engine returns decomposition[k].parts ---- */
@@ -3976,114 +4752,179 @@ function buildCodLegend(){
     `<span class="item"><span class="swatch" style="background:#999"></span>survival (baseline)</span>`;
 }
 
-// ---- Burden timeline ----
-const BW = 1080, BH = 236;
-const B_M = { l: 46, r: 12, t: 16, b: 44 };
-function bx(age){ return B_M.l + (BW - B_M.l - B_M.r) * (age - AGE0) / (X_MAX - AGE0); }
-function by(v){ return B_M.t + (BH - B_M.t - B_M.b) * (1 - v); }
+// ---- Unified node-value-over-time timeline (mediators + state + burdens) ----
+const TLW = 1080, TLH = 300;
+const TL_M = { l: 46, r: 12, t: 16, b: 44 };
+function tlx(age){ return TL_M.l + (TLW - TL_M.l - TL_M.r) * (age - AGE0) / (X_MAX - AGE0); }
+function tlyFrac(f){ const ff = f < 0 ? 0 : f > 1 ? 1 : f; return TL_M.t + (TLH - TL_M.t - TL_M.b) * (1 - ff); }
+// State nodes accumulate past 1.0 (∫rate); give each a display band. Burdens are 0–1.
+const STATE_SCALE = {
+  "ecm-crosslink":     { lo: 0, hi: 2 },
+  "elastin-fatigue":   { lo: 0, hi: 2 },
+  "beta-cell-decline": { lo: 0, hi: 2 },
+  "arterial-stiffness":{ lo: 0, hi: 2.5 }
+};
+const STATE_COLOR = {
+  "ecm-crosslink": "#16a085", "elastin-fatigue": "#27ae60",
+  "beta-cell-decline": "#0e9aa7", "arterial-stiffness": "#1abc9c"
+};
+// Which series groups are visible (toggled by the chips above the chart).
+const TL = { groups: { mediator: true, state: true, burden: true } };
 
-function renderBurden(sim){
-  const svg = document.getElementById("burdenSvg");
+// Build the visible series list. Each carries its own band (lo/hi) so a normalized
+// y-axis can mix clinical-unit mediators, ∫rate state nodes, and 0–1 burdens; the
+// readout still shows the physical value. vals = scenario, bvals = population baseline.
+function timelineSeries(sim, base){
+  const S = [];
+  if (TL.groups.mediator) for (const med of MEDIATORS){
+    if (!sim.medValues || !(med.id in sim.medValues)) continue;
+    const sc = MED_SCALE[med.id] || { lo: 0, hi: 1 };
+    S.push({ id: med.id, group: "mediator", label: med.label, unit: med.unit,
+      color: MED_COLOR[med.id] || "#888", lo: sc.lo, hi: sc.hi,
+      prec: med.id === "HbA1c" ? 2 : 0, latent: false,
+      vals: sim.medValues[med.id], bvals: base.medValues[med.id] });
+  }
+  if (TL.groups.state) for (const s of (B.stateNodes || [])){
+    if (!sim.medValues || !sim.medValues[s.id]) continue;
+    const sc = STATE_SCALE[s.id] || { lo: 0, hi: 2 };
+    S.push({ id: s.id, group: "state", label: s.label, unit: "norm",
+      color: STATE_COLOR[s.id] || "#138d75", lo: sc.lo, hi: sc.hi, prec: 2, latent: false,
+      vals: sim.medValues[s.id], bvals: base.medValues[s.id] });
+  }
+  if (TL.groups.burden) for (const node of NODES){
+    S.push({ id: node.id, group: "burden", label: node.label, unit: "burden",
+      color: LAYER_COLOR[node.layer], lo: 0, hi: 1, prec: 2, latent: true,
+      vals: sim.B[node.id], bvals: base.B[node.id] });
+  }
+  return S;
+}
+function tlFrac(s, v){ return (v - s.lo) / (s.hi - s.lo); }
+
+function renderTimeline(sim, base){
+  const svg = document.getElementById("timelineSvg");
+  if (!svg) return;
   svg.innerHTML = "";
 
-  for (let v = 0; v <= 1.0001; v += 0.25){
-    const y = by(v);
-    el("line", { x1: B_M.l, y1: y, x2: BW - B_M.r, y2: y, stroke: "#eee" }, svg);
-    const t = el("text", { x: B_M.l - 8, y: y + 3, "text-anchor": "end", "font-size": "13", fill: "#000" }, svg);
-    t.textContent = v.toFixed(2);
+  // gridlines: y (fraction of band) + x (age)
+  for (let f = 0; f <= 1.0001; f += 0.25){
+    const y = tlyFrac(f);
+    el("line", { x1: TL_M.l, y1: y, x2: TLW - TL_M.r, y2: y, stroke: "#eee" }, svg);
+    el("text", { x: TL_M.l - 8, y: y + 3, "text-anchor": "end", "font-size": "12", fill: "#888" }, svg)
+      .textContent = (f * 100) + "%";
   }
   for (const age of xTicks()){
-    const x = bx(age);
-    el("line", { x1: x, y1: B_M.t, x2: x, y2: BH - B_M.b, stroke: "#f3f3f3" }, svg);
-    const t = el("text", { x: x, y: BH - B_M.b + 16, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg);
-    t.textContent = age;
+    const x = tlx(age);
+    el("line", { x1: x, y1: TL_M.t, x2: x, y2: TLH - TL_M.b, stroke: "#f3f3f3" }, svg);
+    el("text", { x: x, y: TLH - TL_M.b + 16, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg)
+      .textContent = age;
   }
-  el("text", { x: (B_M.l + BW - B_M.r)/2, y: BH - 4, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg)
+  el("text", { x: (TL_M.l + TLW - TL_M.r) / 2, y: TLH - 4, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg)
     .textContent = "age (years)";
+  el("text", { x: 12, y: (TL_M.t + TLH - TL_M.b) / 2, "text-anchor": "middle", "font-size": "11", fill: "#888",
+    transform: `rotate(-90 12 ${(TL_M.t + TLH - TL_M.b) / 2})` }, svg).textContent = "fraction of each line's band";
 
+  const series = timelineSeries(sim, base);
   const lineEls = {};
-  NODES.forEach((node) => {
-    const series = sim.B[node.id];
+  series.forEach(s => {
     let d = "";
     for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
-      const x = bx(AGES[k]), y = by(series[k]);
+      const x = tlx(AGES[k]), y = tlyFrac(tlFrac(s, s.vals[k]));
       d += (k === 0 ? "M" : "L") + x.toFixed(1) + "," + y.toFixed(1) + " ";
     }
-    const isSel = state.selected === node.id;
-    lineEls[node.id] = el("path", {
-      d: d, fill: "none",
-      stroke: LAYER_COLOR[node.layer],
-      "stroke-width": isSel ? 3 : 1.4,
-      opacity: isSel ? 1 : 0.7,
-      class: "bline", "data-id": node.id
-    }, svg);
+    const isSel = state.selected === s.id;
+    lineEls[s.id] = el("path", { d, fill: "none", stroke: s.color,
+      "stroke-width": isSel ? 3 : 1.4, opacity: isSel ? 1 : 0.7,
+      class: "tlline", "data-id": s.id }, svg);
   });
 
-  // Transient hover emphasis: bring the nearest line forward and dim the rest so
-  // it's legible among ~20 overlapping series. Falls back to the persistent
-  // state.selected styling when no line is hovered.
-  function styleLines(hoverId){
-    for (const node of NODES){
-      const path = lineEls[node.id];
-      const sel = state.selected === node.id;
-      const hov = hoverId === node.id;
-      path.setAttribute("stroke-width", hov ? 3.5 : sel ? 3 : 1.4);
-      path.setAttribute("opacity", hov ? 1 : sel ? 1 : (hoverId ? 0.2 : 0.7));
+  // current-age vertical marker
+  const cAge = Math.max(AGE0, Math.min(X_MAX, Math.round(state.currentAge)));
+  el("line", { x1: tlx(cAge), y1: TL_M.t, x2: tlx(cAge), y2: TLH - TL_M.b, stroke: "#111",
+    "stroke-width": "1", opacity: "0.4", "stroke-dasharray": "2,2" }, svg);
+
+  // dashed baseline for the hovered/selected series only (keeps 31 lines legible).
+  let baseEl = el("path", { d: "", fill: "none", stroke: "#888", "stroke-width": "1.4",
+    opacity: "0", "stroke-dasharray": "4,3" }, svg);
+  function showBaseline(s){
+    if (!s){ baseEl.setAttribute("opacity", "0"); return; }
+    let d = "";
+    for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
+      d += (k === 0 ? "M" : "L") + tlx(AGES[k]).toFixed(1) + "," + tlyFrac(tlFrac(s, s.bvals[k])).toFixed(1) + " ";
     }
+    baseEl.setAttribute("d", d);
+    baseEl.setAttribute("stroke", s.color);
+    baseEl.setAttribute("opacity", "0.8");
   }
-  // Nearest line to the cursor by vertical distance at the hovered age — hovering
-  // individual 1.4px lines directly is impractical, so we snap to the closest.
-  function nearestNodeAt(k, myp){
+
+  // Effective highlight = the timeline-local hovered line, else the causal-graph
+  // node under hover (graphFocus), else the persistent click-selection. Only counts
+  // if it actually maps to a drawn trajectory (hovering an input / mortality node,
+  // which has no line, must NOT dim every trajectory to nothing).
+  function styleLines(hoverId){
+    let focus = hoverId || graphFocus || state.selected || null;
+    if (focus && !lineEls[focus]) focus = null;
+    series.forEach(s => {
+      const path = lineEls[s.id];
+      const isF = focus === s.id, sel = state.selected === s.id;
+      path.setAttribute("stroke-width", isF ? (sel ? 3.5 : 3) : 1.4);
+      path.setAttribute("opacity", isF ? 1 : (focus ? 0.2 : 0.7));
+    });
+    // keep the dashed baseline in sync with the highlighted trajectory
+    showBaseline(focus ? (series.find(s => s.id === focus) || null) : null);
+  }
+  tlRestyle = styleLines;   // expose for graph-driven highlighting (no full re-render)
+  function nearestAt(k, myp){
     let best = null, bestDy = Infinity;
-    for (const node of NODES){
-      const dy = Math.abs(by(sim.B[node.id][k]) - myp);
-      if (dy < bestDy){ bestDy = dy; best = node; }
+    for (const s of series){
+      const dy = Math.abs(tlyFrac(tlFrac(s, s.vals[k])) - myp);
+      if (dy < bestDy){ bestDy = dy; best = s; }
     }
     return best;
   }
 
-  const guide = el("line", { x1: 0, y1: B_M.t, x2: 0, y2: BH - B_M.b, stroke: "#333", "stroke-width": "1", opacity: "0", "stroke-dasharray": "3,3" }, svg);
-  const hit = el("rect", { x: B_M.l, y: B_M.t, width: BW - B_M.l - B_M.r, height: BH - B_M.t - B_M.b, fill: "transparent", style: "cursor:pointer" }, svg);
+  const guide = el("line", { x1: 0, y1: TL_M.t, x2: 0, y2: TLH - TL_M.b, stroke: "#333",
+    "stroke-width": "1", opacity: "0", "stroke-dasharray": "3,3" }, svg);
+  const hit = el("rect", { x: TL_M.l, y: TL_M.t, width: TLW - TL_M.l - TL_M.r,
+    height: TLH - TL_M.t - TL_M.b, fill: "transparent", style: "cursor:pointer" }, svg);
   let hoverId = null;
+  const selSeries = series.find(s => s.id === state.selected);   // persistent selection
+  styleLines(null);   // apply selection / graph-focus dimming on first paint
+  const ro = document.getElementById("tlReadout");
   hit.addEventListener("mousemove", (ev) => {
     const rect = svg.getBoundingClientRect();
-    const sxp = (ev.clientX - rect.left) * (BW / rect.width);
-    const myp = (ev.clientY - rect.top) * (BH / rect.height);
-    let age = AGE0 + (sxp - B_M.l) / (BW - B_M.l - B_M.r) * (X_MAX - AGE0);
+    const sxp = (ev.clientX - rect.left) * (TLW / rect.width);
+    const myp = (ev.clientY - rect.top) * (TLH / rect.height);
+    let age = AGE0 + (sxp - TL_M.l) / (TLW - TL_M.l - TL_M.r) * (X_MAX - AGE0);
     age = Math.max(AGE0, Math.min(X_MAX, Math.round(age)));
     const k = age - AGE0;
-    guide.setAttribute("x1", bx(age)); guide.setAttribute("x2", bx(age));
-    guide.setAttribute("opacity", "0.6");
-
-    const node = nearestNodeAt(k, myp);
-    hoverId = node ? node.id : null;
+    guide.setAttribute("x1", tlx(age)); guide.setAttribute("x2", tlx(age)); guide.setAttribute("opacity", "0.6");
+    const s = nearestAt(k, myp);
+    hoverId = s ? s.id : null;
     styleLines(hoverId);
-
-    const ro = document.getElementById("limitReadout");
-    if (node){
-      const col = LAYER_COLOR[node.layer], bval = sim.B[node.id][k];
-      const rl = roleLabel(node);
+    showBaseline(s);
+    if (s){
+      const pv = s.vals[k], bv = s.bvals[k], dv = pv - bv, sign = dv >= 0 ? "+" : "";
+      const unit = s.unit === "burden" ? "" : s.unit === "norm" ? "" : " " + s.unit;
       ro.innerHTML =
         `Age <b>${age}</b> &middot; ` +
-        `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${col};vertical-align:middle"></span> ` +
-        `<span style="color:${col};font-weight:600">${node.label}</span> ` +
-        `burden <b>${bval.toFixed(2)}</b>` +
-        (rl ? ` &middot; ${rl}` : "") +
-        ` &middot; <span style="color:#999">click to select</span>` +
+        `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${s.color};vertical-align:middle"></span> ` +
+        `<span style="color:${s.color};font-weight:600">${s.label}</span> ` +
+        `<span style="color:#999">(${s.group})</span> ` +
+        `<b>${pv.toFixed(s.prec)}${unit}</b> (${sign}${dv.toFixed(s.prec)} vs baseline)` +
+        (s.latent ? ` &middot; <span style="color:#999">click to select</span>` : "") +
         ` &middot; <span style="color:#999">${limitFactorHtml(sim, k)}</span>`;
-    } else {
-      updateLimitReadout(sim, k, age);
     }
   });
   hit.addEventListener("mouseleave", () => {
     guide.setAttribute("opacity", "0");
     hoverId = null;
     styleLines(null);
-    document.getElementById("limitReadout").textContent =
-      "Hover a line to identify it; click to select it for an intervention.";
+    showBaseline(selSeries || null);   // fall back to the persistent selection's baseline
+    ro.textContent = "Hover a line to identify it; click any line to select it (graph + timeline).";
   });
   hit.addEventListener("click", () => { if (hoverId) selectNode(hoverId); });
 }
+
 
 // Largest contributor at age index k from the six-way competing-hazards
 // decomposition, as an HTML fragment (no leading "Age N:" — callers prepend it).
@@ -4101,10 +4942,6 @@ function limitFactorHtml(sim, k){
   return `limiting factor = <span style="color:${color};font-weight:600">${label}</span>` +
     (isFinite(pct) && pct > 0 ? ` (~${pct.toFixed(0)}% of total hazard)` : "");
 }
-function updateLimitReadout(sim, k, age){
-  document.getElementById("limitReadout").innerHTML = `Age <b>${age}</b>: ` + limitFactorHtml(sim, k) + ".";
-}
-
 // ---- Survival panel ----
 // Survival is now overlaid on the Cause-of-death chart (right axis). This only
 // keeps the LE-panel caption in sync; no standalone survival SVG anymore.
@@ -4114,109 +4951,69 @@ function renderSurvival(sim, base){
     `&Delta;LE vs all-default baseline (${state.sex}, lifestyle &times;1.0, no inputs/treatments/labs/interventions).`;
 }
 
-// ---- Mediator readout panel (LDL / SBP / HbA1c vs baseline) ----
-const MW = 1080, MH = 206;
-const M_M = { l: 46, r: 14, t: 16, b: 44 };
-function mx(age){ return M_M.l + (MW - M_M.l - M_M.r) * (age - AGE0) / (X_MAX - AGE0); }
-// Each mediator is scaled to its own [min,max] band so all share the plot.
+// Mediator display bands — each mediator scaled to its own [lo,hi] so clinical-unit
+// series share the normalized timeline axis with the 0–1 burdens. Used by renderTimeline.
 const MED_SCALE = {
   LDL:        { lo: 40,  hi: 220 },
   systolicBP: { lo: 90,  hi: 200 },
   BMI:        { lo: 15,  hi: 45 },
-  HbA1c:      { lo: 4.5, hi: 9.5 }
+  HbA1c:      { lo: 4.5, hi: 9.5 },
+  restingHR:  { lo: 40,  hi: 110 }
 };
-function myFor(medId, v){
-  const s = MED_SCALE[medId] || { lo: 0, hi: 1 };   // fallback so an unscaled mediator can't crash the whole render
-  const f = (v - s.lo) / (s.hi - s.lo);
-  const ff = f < 0 ? 0 : f > 1 ? 1 : f;
-  return M_M.t + (MH - M_M.t - M_M.b) * (1 - ff);
-}
 
-function renderMediators(sim){
-  const svg = document.getElementById("medSvg");
-  svg.innerHTML = "";
-
-  // gridlines (age)
-  for (const age of xTicks()){
-    const x = mx(age);
-    el("line", { x1: x, y1: M_M.t, x2: x, y2: MH - M_M.b, stroke: "#f3f3f3" }, svg);
-    const t = el("text", { x: x, y: MH - M_M.b + 16, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg);
-    t.textContent = age;
-  }
-  el("text", { x: (M_M.l + MW - M_M.r)/2, y: MH - 4, "text-anchor": "middle", "font-size": "13", fill: "#000" }, svg)
-    .textContent = "age (years)";
-
-  // population baseline mediators (no inputs/treatments/offsets) for this sex.
-  const m = modelWithCouple(state.couple);
-  const baseMed = mediators(m, { sex: state.sex });
-  const personMed = sim.medValues;
-
-  for (const med of MEDIATORS){
-    const id = med.id;
-    if (!(id in personMed)) continue;
-    const color = MED_COLOR[id] || "#888";
-    // baseline (dashed)
-    let d0 = "";
-    for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
-      d0 += (k===0?"M":"L") + mx(AGES[k]).toFixed(1) + "," + myFor(id, baseMed[id][k]).toFixed(1) + " ";
-    }
-    el("path", { d: d0, fill: "none", stroke: color, "stroke-width": "1.2", opacity: "0.5", "stroke-dasharray": "4,3" }, svg);
-    // person (solid)
-    let d1 = "";
-    for (let k = 0; k < N_AGE && AGES[k] <= X_MAX; k++){
-      d1 += (k===0?"M":"L") + mx(AGES[k]).toFixed(1) + "," + myFor(id, personMed[id][k]).toFixed(1) + " ";
-    }
-    el("path", { d: d1, fill: "none", stroke: color, "stroke-width": "2.1" }, svg);
-  }
-
-  // current-age vertical marker
-  const cAge = Math.max(AGE0, Math.min(X_MAX, Math.round(state.currentAge)));
-  const cxpos = mx(cAge);
-  el("line", { x1: cxpos, y1: M_M.t, x2: cxpos, y2: MH - M_M.b, stroke: "#111", "stroke-width": "1", opacity: "0.45", "stroke-dasharray": "2,2" }, svg);
-  el("text", { x: cxpos + 3, y: M_M.t + 10, "font-size": "9", fill: "#555" }, svg).textContent = "age " + cAge;
-
-  // hover guideline + readout
-  const guide = el("line", { x1: 0, y1: M_M.t, x2: 0, y2: MH - M_M.b, stroke: "#333", "stroke-width": "1", opacity: "0", "stroke-dasharray": "3,3" }, svg);
-  const hit = el("rect", { x: M_M.l, y: M_M.t, width: MW - M_M.l - M_M.r, height: MH - M_M.t - M_M.b, fill: "transparent" }, svg);
-  hit.addEventListener("mousemove", (ev) => {
-    const rect = svg.getBoundingClientRect();
-    const sxp = (ev.clientX - rect.left) * (MW / rect.width);
-    let age = AGE0 + (sxp - M_M.l) / (MW - M_M.l - M_M.r) * (X_MAX - AGE0);
-    age = Math.max(AGE0, Math.min(X_MAX, Math.round(age)));
-    const k = age - AGE0;
-    guide.setAttribute("x1", mx(age)); guide.setAttribute("x2", mx(age));
-    guide.setAttribute("opacity", "0.6");
-    let html = `Age <b>${age}</b> &mdash; ` + MEDIATORS.map(med => {
-      const id = med.id;
-      const pv = personMed[id][k], bv = baseMed[id][k];
-      const dv = pv - bv;
-      const sign = dv >= 0 ? "+" : "";
-      const prec = id === "HbA1c" ? 2 : 0;
-      return `<span style="color:${MED_COLOR[id]||'#888'};font-weight:600">${med.label}</span> ` +
-             `${pv.toFixed(prec)} ${med.unit} (${sign}${dv.toFixed(prec)} vs base)`;
-    }).join(" &middot; ");
-    document.getElementById("medReadout").innerHTML = html;
-  });
-  hit.addEventListener("mouseleave", () => {
-    guide.setAttribute("opacity", "0");
-    document.getElementById("medReadout").textContent = "Hover the chart to read mediator values at a given age.";
-  });
-}
-
-function buildMedLegend(){
-  const wrap = document.getElementById("medLegend");
-  wrap.innerHTML = MEDIATORS.map(med =>
-    `<span class="item"><span class="swatch" style="background:${MED_COLOR[med.id]||'#888'}"></span>${med.label} (${med.unit})</span>`
-  ).join("") +
-  `<span class="item" style="margin-left:14px;"><svg width="26" height="10"><line x1="0" y1="5" x2="26" y2="5" stroke="#888" stroke-width="2.1"/></svg>person</span>` +
-  `<span class="item"><svg width="26" height="10"><line x1="0" y1="5" x2="26" y2="5" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3"/></svg>population baseline</span>`;
+// Legend for the merged timeline: the three series groups + solid/dashed convention.
+function buildTimelineLegend(){
+  const wrap = document.getElementById("tlLegend");
+  if (!wrap) return;
+  const dot = (c) => `<span class="swatch" style="background:${c}"></span>`;
+  let html = "";
+  // mediators (named, clinical units)
+  MEDIATORS.forEach(med => { html += `<span class="item">${dot(MED_COLOR[med.id] || "#888")}${med.label} (${med.unit})</span>`; });
+  // state nodes
+  (B.stateNodes || []).forEach(s => { html += `<span class="item">${dot(STATE_COLOR[s.id] || "#138d75")}${s.label}</span>`; });
+  // burden group + layer colours
+  html += `<span class="item" style="margin-left:8px;color:#888">burdens by layer:</span>`;
+  LAYER_ORDER.forEach(L => { html += `<span class="item">${dot(LAYER_COLOR[L])}${L}</span>`; });
+  html += `<span class="item" style="margin-left:10px;"><svg width="26" height="10" style="display:inline-block;width:26px;height:10px;"><line x1="0" y1="5" x2="26" y2="5" stroke="#888" stroke-width="2.1"/></svg>scenario</span>` +
+    `<span class="item"><svg width="26" height="10" style="display:inline-block;width:26px;height:10px;"><line x1="0" y1="5" x2="26" y2="5" stroke="#888" stroke-width="1.4" stroke-dasharray="4,3"/></svg>baseline (hovered line)</span>`;
+  wrap.innerHTML = html;
 }
 
 /* ============================ Controls glue ============================== */
+// Which timeline group a node id belongs to (null if it has no trajectory — e.g. an
+// exogenous input or the mortality sink, which aren't plotted).
+function seriesGroupOf(id){
+  if (MED_BY_ID[id]) return "mediator";
+  if ((B.stateNodes || []).some(s => s.id === id)) return "state";
+  if (NODE_BY_ID[id]) return "burden";
+  return null;
+}
 function selectNode(id){
   state.selected = id;
+  // If the selected node has a trajectory in a hidden group, reveal that group so it's
+  // visible in the timeline (and sync the chip).
+  const grp = seriesGroupOf(id);
+  if (grp && !TL.groups[grp]){
+    TL.groups[grp] = true;
+    const chip = document.querySelector(`#tlGroupSeg button[data-group="${grp}"]`);
+    if (chip) chip.classList.add("active");
+  }
   syncIntervControls();
   renderAll();
+  showGraphNodeInfo(state.selected);   // pin the card to the newly-selected node
+}
+
+// Return to the "unselected" view: drop the click-selection AND the hover ego-focus,
+// re-enable the full graph, and reset the intervention panel. Wired to Esc + an
+// empty-space click on the graph background.
+function deselectNode(){
+  if (state.selected === null && graphFocus === null) return;
+  state.selected = null;
+  graphFocus = null;
+  hideTip();
+  syncIntervControls();
+  renderAll();
+  showGraphNodeInfo(null);   // collapse the description card
 }
 
 function syncIntervControls(){
@@ -4234,6 +5031,21 @@ function syncIntervControls(){
     return;
   }
   const node = NODE_BY_ID[id];
+  // Non-latent node (mediator / state / input / mortality): selectable for timeline
+  // highlight, but NOT interventionable via the freeze controls — those act on hallmark
+  // burdens only. Mediators are moved via Labs / Lifestyle inputs instead.
+  if (!node){
+    const uni = UNI.byId[id] || { label: id, kind: "?" };
+    nameEl.textContent = uni.label;
+    const adj = uni.kind === "mediator" ? "adjust via the Labs / Lifestyle panel"
+      : uni.kind === "state" ? "an emergent ∫rate state — moved by its upstream drivers"
+      : uni.kind === "input" ? "set it in the Lifestyle &amp; environment panel"
+      : "terminal node";
+    metaEl.innerHTML = `<span class="badge" style="background:${kindColor(uni.kind)}">${KIND_LABEL[uni.kind] || uni.kind}</span> ` +
+      `highlighted in the timeline &middot; <span style="color:var(--muted)">not freeze-interventionable — ${adj}</span>`;
+    startS.disabled = effS.disabled = clearB.disabled = true;
+    return;
+  }
   nameEl.textContent = node.label;
   const tcol = LAYER_COLOR[node.layer];
   const rl = roleLabel(node);
@@ -4251,7 +5063,7 @@ function syncIntervControls(){
 
 function applyIntervFromControls(){
   const id = state.selected;
-  if (!id) return;
+  if (!id || !NODE_BY_ID[id]) return;   // interventions act on hallmark (latent) nodes only
   const startAge = +document.getElementById("startSlider").value;
   const eff = (+document.getElementById("effSlider").value) / 100;
   document.getElementById("startVal").textContent = startAge;
@@ -4278,6 +5090,7 @@ function buildBlayerControls(){
     const inp = EXO_BY_ID[id];
     const row = document.createElement("div");
     row.className = "brow";
+    row.id = "brow-" + id;
 
     if (id === "smokingStatus"){
       // segmented never/former/current (default = population)
@@ -4311,10 +5124,19 @@ function buildBlayerControls(){
     const cur = state.inputs[id] != null ? state.inputs[id] : inp.populationMean;
     const step = (hi - lo) <= 30 ? ((hi - lo) <= 6 ? 0.5 : 1) : (id === "calorieBalance" ? 25 : (hi - lo) / 200);
     row.innerHTML =
-      `<label class="bl" title="${inp.label}">${inp.label}</label>` +
+      `<label class="bl">${inp.label}` +
+        (inp.info ? ` <span class="infodot" role="img" aria-label="${inp.label} explanation">i</span>` : "") +
+      `</label>` +
       `<input type="range" id="in-${id}" min="${lo}" max="${hi}" step="${step}" value="${cur}">` +
       `<span class="bval" id="inv-${id}">${fmtNum(cur)} ${inp.unit}</span>`;
     grid.appendChild(row);
+    if (inp.info){
+      const dot = row.querySelector(".infodot");
+      if (dot){
+        dot.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY, inp.info));
+        dot.addEventListener("mouseleave", hideTip);
+      }
+    }
     const slider = row.querySelector(`#in-${id}`);
     const out = row.querySelector(`#inv-${id}`);
     slider.addEventListener("input", () => {
@@ -4359,8 +5181,26 @@ function buildBlayerControls(){
     if (state.labs[f.med] != null) input.value = state.labs[f.med];
     input.addEventListener("input", () => {
       const v = input.value.trim();
-      if (v === "") delete state.labs[f.med];
-      else state.labs[f.med] = v;
+      if (v === ""){ delete state.labs[f.med]; renderAll(); return; }
+      const n = +v;
+      if (!isFinite(n)){ renderAll(); return; }   // mid-entry ("-", ".") — don't update the model
+      // Clamp the value the MODEL uses to [min,max] even mid-typing, so the engine never
+      // runs on an out-of-range value (e.g. resting HR below its floor — HR multiplies the
+      // elastin-fatigue rate). The text box itself stays smooth; the 'change' handler snaps
+      // it into range on commit.
+      state.labs[f.med] = String(Math.min(f.max, Math.max(f.min, n)));
+      renderAll();
+    });
+    // On commit (blur/enter) also snap the text box into range so what's shown matches
+    // what the model uses.
+    input.addEventListener("change", () => {
+      const v = input.value.trim();
+      if (v === ""){ delete state.labs[f.med]; renderAll(); return; }
+      let n = +v;
+      if (!isFinite(n)){ delete state.labs[f.med]; input.value = ""; renderAll(); return; }
+      n = Math.min(f.max, Math.max(f.min, n));
+      input.value = String(n);
+      state.labs[f.med] = String(n);
       renderAll();
     });
     lg.appendChild(lab);
@@ -4376,6 +5216,8 @@ function buildBlayerControls(){
     state.currentAge = v;
     renderAll();
   });
+
+  updateInputDisabledStates();
 }
 
 /* ============================ Master render ============================== */
@@ -4387,11 +5229,13 @@ function renderAll(){
   // Dynamic x-axis window from the CURRENT scenario's survival curve.
   X_MAX = computeXMax(sim);
 
-  renderGraph();
-  renderMediators(sim);
+  window._lastSim = sim;            // for graph hover re-renders (focus/live-weight)
+  window._lastBase = base;
+  renderGraph(sim, base);
+  renderTimeline(sim, base);
   renderCauseOfDeath(sim, base);
-  renderBurden(sim);
   renderSurvival(sim, base);
+  updateInputDisabledStates();
 
   const le = sim.LE;
   document.getElementById("leVal").textContent = le.toFixed(1);
@@ -4407,23 +5251,65 @@ function renderAll(){
 }
 
 /* ============================ Legend ===================================== */
+// Tooltip prose for the node-kind and tractability legend swatches — the
+// burden / mediator / state node-ontology notes, surfaced as (i) bubbles.
+const LEGEND_TIPS = {
+  input: "<b>Exogenous input</b> &mdash; a behaviour or environmental factor you set directly (diet, activity, smoking, sodium). Feeds mediators <i>algebraically</i>; not integrated, not measured.",
+  mediator: "<b>Mediator</b> &mdash; a measurable clinical risk factor in physical units (LDL mg/dL, systolic BP mmHg, BMI, HbA1c %, resting HR). value = sex-baseline(age) + &Sigma;(input&minus;popMean)&middot;coeff + personal offset, or overridden by a lab measurement (measurement beats prediction &mdash; it's two-way). Multiplies cause hazards in deviation form &times;= exp(&beta;&middot;(value&minus;baseline)), exactly <b>1</b> at the population baseline &mdash; the invariant that preserves the CDC calibration.",
+  state: "<b>State node (&int;rate)</b> &mdash; the rate-integration substrate (ECM-crosslink, elastin-fatigue, &beta;-cell-decline, arterial-stiffness). S(age) = S&#8320; + &int;rate&middot;dt (a sub-kind is algebraic: value = &Sigma; terms). Normalized accumulating damage/physiology whose age-correlation <b>emerges</b> from the integral &mdash; it is <i>not</i> pegged to age. Feeds mediators and cause hazards. <i>Mediator, state and burden are functionally peers &mdash; all time-evolving variables driving mortality; the split tracks units + how they're computed + measurability, a representational seam being removed node by node.</i>",
+  burden: "<b>Hallmark burden (tier-N)</b> &mdash; a latent, normalized [0,1] reserve-depletion / damage fraction (0 = pristine, 1 = exhausted). B&#7522; = clamp(T&#7522; + &Delta;&#7522;): T = the node's baseline age-curve, &Delta; = deviation from interventions propagated through the coupling matrix as a bounded fixed point. Mostly <i>latent</i> / not directly measurable. Tier = depth in the causal cascade (tier-1 most proximal).",
+  phenotype: "<b>Pathology / cause node</b> &mdash; a latent [0,1] reserve-depletion burden whose T baseline comes from a CDC cause-of-death table; maps to death via cause_hazard = Rmax&middot;B&middot;&Pi;(multipliers).",
+  mortality: "<b>Mortality sink</b> &mdash; the terminal node; a sex-specific competing-hazards sum over the cause nodes (CDC WONDER 2022).",
+  tractHigh: "<b>High clinical tractability</b> &mdash; a clinical drug or validated probe already engages this node for an aging-relevant indication. Drawn as a thick solid node border.",
+  tractMod: "<b>Moderate tractability</b> &mdash; a high-quality chemical probe or early-clinical agent exists, but no aging-validated modulator yet. Medium-weight solid border.",
+  tractLow: "<b>Low tractability</b> &mdash; predicted-druggable at best, or no usable modulator for an aging indication. Thin dashed border."
+};
+
 function buildLegend(){
   const wrap = document.getElementById("legend");
-  let html = "<div style='margin-bottom:4px'>";
+  const dot = (c) => `<span class="swatch" style="background:${c}"></span>`;
+  const eline = (c, dash) => `<svg width="24" height="10" style="display:inline-block;width:24px;height:10px;"><line x1="1" y1="5" x2="23" y2="5" stroke="${c}" stroke-width="2.4"${dash ? ` stroke-dasharray="${dash}"` : ""}/></svg>`;
+  const tips = [];
+  // info-bubble: register tip HTML, return an infodot whose id maps back to it.
+  const ib = (key) => { const i = tips.length; tips.push(LEGEND_TIPS[key]); return ` <span class="infodot" id="legdot-${i}" role="img" aria-label="explanation">i</span>`; };
+  // Row 1: node kinds (column colours) + (i) bubbles describing each node type
+  let html = "<div style='margin-bottom:4px'>" +
+    `<span class="item">${dot(KIND_COLOR.input)}input${ib("input")}</span>` +
+    `<span class="item">${dot(KIND_COLOR.mediator)}mediator${ib("mediator")}</span>` +
+    `<span class="item">${dot(KIND_COLOR.state)}state (∫rate)${ib("state")}</span>`;
   LAYER_ORDER.forEach(L => {
-    html += `<span class="item"><span class="swatch" style="background:${LAYER_COLOR[L]}"></span>${L}</span>`;
+    const tipKey = (L === "phenotype") ? "phenotype" : "burden";
+    const lbl = (L === "phenotype") ? "pathology" : L;
+    html += `<span class="item">${dot(LAYER_COLOR[L])}${lbl}${ib(tipKey)}</span>`;
   });
+  html += `<span class="item">${dot(KIND_COLOR.mortality)}◆ mortality${ib("mortality")}</span>`;
+  html += `<span class="item">${dot("#c4ccd4")}<i>greyed = unlinked / planned</i></span>`;
+  // Row 2: edge categories
   html += "</div><div style='margin-bottom:4px'>" +
-    `<span class="item"><svg width="22" height="14"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="3"/></svg>high tractability</span>` +
-    `<span class="item"><svg width="22" height="14"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.8"/></svg>moderate</span>` +
-    `<span class="item"><svg width="22" height="14"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.5" stroke-dasharray="3,2"/></svg>low</span>` +
-    `<span class="item">&#10052; = active freeze</span>` +
-    "</div><div style='margin-bottom:4px'>" +
+    `<span class="item">${eline(EDGE_STYLE.latent.stroke)}hallmark coupling</span>` +
+    `<span class="item">${eline(EDGE_STYLE.mediator.stroke)}input→mediator</span>` +
+    `<span class="item">${eline(EDGE_STYLE.driver.stroke)}driver→state</span>` +
+    `<span class="item">${eline(EDGE_STYLE.augment.stroke, "5,3")}state→mediator feedback</span>` +
+    `<span class="item">${eline(EDGE_STYLE.cause.stroke)}→ cause / mortality</span>` +
+    `<span class="item">${eline("#cfd6dd", "4,3")}disabled (coeff 0)</span>`;
+  // Row 3: tractability ring + glyphs (each tractability level gets an (i) bubble)
+  html += "</div><div style='margin-bottom:4px'>" +
+    `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="3"/></svg>high tractability${ib("tractHigh")}</span>` +
+    `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.8"/></svg>moderate${ib("tractMod")}</span>` +
+    `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.5" stroke-dasharray="3,2"/></svg>low${ib("tractLow")}</span>` +
+    `<span class="item">&#10052; active freeze</span>` +
     `<span class="item">&#8224; mortality cause</span>` +
     `<span class="item">&#215; frailty multiplier</span>` +
-    `<span class="item">&#9656; driver (no death line)</span>` +
+    `<span class="item">&#9656; driver</span>` +
     "</div>";
   wrap.innerHTML = html;
+  // Attach the tooltip handlers to each registered (i) bubble.
+  tips.forEach((tip, i) => {
+    const d = document.getElementById(`legdot-${i}`);
+    if (!d) return;
+    d.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY, tip));
+    d.addEventListener("mouseleave", hideTip);
+  });
 }
 
 // (i) info tooltip next to the graph title — carries the legend + model-notes
@@ -4435,7 +5321,7 @@ function buildLegend(){
   const html =
     "Border weight/style = clinical tractability; fill color = biological layer; in-node glyph = role. " +
     "<code>ordinal-default</code> parameters are illustrative only. " +
-    "Mortality is a v0.4 sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; " +
+    "Mortality is a sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; " +
     "female CVD-onset delay &amp; male external excess emerge from data), amplified by a " +
     "sarcopenia frailty multiplier; clonal-hematopoiesis is a driver with no own death line. " +
     "The extrinsic channel (accidents / lifestyle) is non-cascading and scaled by the Lifestyle slider.";
@@ -4465,6 +5351,7 @@ document.querySelectorAll("#sexSeg button").forEach(btn => {
     document.querySelectorAll("#sexSeg button").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     state.sex = btn.dataset.sex;
+    invalidateBaseMedCache();        // baseline mediator cache is per-sex
     renderAll();
   });
 });
@@ -4477,6 +5364,22 @@ document.querySelectorAll("#codModeSeg button").forEach(btn => {
     renderAll();
   });
 });
+
+// Timeline group toggles (Mediators / State / Burdens) — show/hide each series group.
+document.querySelectorAll("#tlGroupSeg button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const g = btn.dataset.group;
+    TL.groups[g] = !TL.groups[g];
+    btn.classList.toggle("active", TL.groups[g]);
+    renderTimeline(window._lastSim, window._lastBase);
+  });
+});
+
+// Graph toolbar: fit-to-view. (Live edge weighting is always on — graphState.liveWeight.)
+(function wireGraphToolbar(){
+  const fit = document.getElementById("graphFit");
+  if (fit) fit.addEventListener("click", () => { fitGraphView(); renderGraph(window._lastSim); });
+})();
 
 // Modifiers-panel tab toggle: graph+intervention vs. B-layer (Lifestyle/Labs).
 // Both surfaces are always populated in the DOM; we only swap visibility.
@@ -4557,7 +5460,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
     for (let k = 0; k < N_AGE; k++) maxDev = Math.max(maxDev, Math.abs(b[k] - t[k]));
   }
   const okNodes = (NODES.length === 22), okEdges = (MODEL.edges.length === 38);
-  const okVer = (MODEL.meta.version === "v0.4.1");
+  const okVer = (MODEL.meta.version === "v0.5");
   const leM = simulate(MODEL, { sex: "male" }).LE;
   const leF = simulate(MODEL, { sex: "female" }).LE;
 
@@ -4566,7 +5469,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
   } else if (!okNodes || !okEdges || !okVer){
     console.error("Self-check FAILED: structure counts.", { nodes: NODES.length, edges: MODEL.edges.length, version: MODEL.meta.version });
   } else {
-    console.log("Self-check OK: v0.4.1 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
+    console.log("Self-check OK: v0.5 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
                 "nodes=" + NODES.length + " edges=" + MODEL.edges.length + ";",
                 "baseline LE male=" + leM.toFixed(2) + " female=" + leF.toFixed(2) + " (target 75.82 / 80.89).");
   }
@@ -4575,9 +5478,10 @@ document.getElementById("resetAll").addEventListener("click", () => {
 /* ============================ Boot ======================================= */
 buildLegend();
 buildCodLegend();
-buildMedLegend();
+buildTimelineLegend();
 buildBlayerControls();
 syncIntervControls();
+wireGraphZoomPan();
 renderAll();
 </script>
 </body>

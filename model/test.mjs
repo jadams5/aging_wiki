@@ -59,15 +59,15 @@ num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
 // cancer/sarcopenia) barely changed: their benefit is dominated by <90 ages where
 // both models agree, and the >90 tail holds few survivors.
 num("genomic-instability freeze@40 eff0.1 ΔLE", dLE("genomic-instability", { efficacy: 0.1 }), 0.16, 0.03);
-num("genomic-instability freeze@40 eff0.2 ΔLE", dLE("genomic-instability", { efficacy: 0.2 }), 0.32, 0.03);
-num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.64, 0.03);
-num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.61, 0.03);
+num("genomic-instability freeze@40 eff0.2 ΔLE", dLE("genomic-instability", { efficacy: 0.2 }), 0.35, 0.03); // A4 re-baseline (+BP-mediated stiffness slice)
+num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.70, 0.03); // B3+A4 re-baseline: stiffness→CVD (BP-indep + BP-mediated)
+num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.76, 0.03); // B3+A4 re-baseline: stiffness→CVD (BP-indep + BP-mediated)
 
 num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.04, 0.05);
 num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 3.97, 0.05); // v0.4 tail-bend + B2 cause-specific frailty
 num("cancer freeze@40 100% ΔLE", dLE("cancer"), 2.08, 0.05);
 num("sarcopenia freeze@40 100% ΔLE", dLE("sarcopenia"), 3.85, 0.05); // B2: cause-specific frailty (larger effective β than flat 0.6)
-num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.28, 0.05);
+num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.65, 0.05); // B3+A4 re-baseline: senolytic bends CVD via plaque + stiffness(BP-indep) + stiffness→SBP(BP-mediated)
 
 // ---- v0.4 burden-driven old-age escalation (replaces age-keyed Gompertz tail) ----
 const _b = simulate(MODEL, { sex: "male" });
@@ -206,8 +206,9 @@ str("B2: SBP age-modified (45 effect > 75)", String(sbpMult45 > sbpMult75 + 1), 
 
 // HbA1c 7.5% (diabetic; offset ≈ +1.9 over ~5.6 baseline) lowers LE via CVD+cancer+dementia.
 str("B2: HbA1c diabetic lowers LE", String(dLEm({ offsets: { HbA1c: 1.9 } }) < -2.0), "true");
-// HbA1c→CVD reaches the diabetes HR 2.32 when value hits 6.5 (offset to exactly 6.5 at age 45, baseline ~5.6).
-num("B2: HbA1c→CVD HR2.32 at 6.5", causeMultAt("cardiovascular", 45, { offsets: { HbA1c: 0.9 } }), 2.32, 0.03);
+// HbA1c→CVD reaches the diabetes HR 2.32 when value hits 6.5 (offset to exactly 6.5 at age 45;
+// emergent baseline@45 = 5.55 after the β-cell→HbA1c de-age-pegging, so offset 0.95 → 6.50).
+num("B3: HbA1c→CVD direct HR ~2.0 at 6.5 (structural slice routed to stiffness)", causeMultAt("cardiovascular", 45, { offsets: { HbA1c: 0.95 } }), 2.0, 0.03);
 str("B2: HbA1c diabetic raises cancer", String(causeMultAt("cancer", 45, { offsets: { HbA1c: 0.9 } }) > 1.0), "true");
 str("B2: HbA1c diabetic raises dementia", String(causeMultAt("neurodegeneration", 70, { offsets: { HbA1c: 0.9 } }) > 1.0), "true");
 
@@ -345,6 +346,205 @@ str("B3b: BMI 16 (underweight) lowers LE", String(dLEm({ offsets: { BMI: -13.95 
 str("B3b: underweight penalty steep (< obese)", String(
   dLEm({ offsets: { BMI: -13.95 } }) < dLEm({ offsets: { BMI: 5 } })
 ), "true");
+
+// ---- Rate-integration migration: ECM-crosslink stock (∫ glycemia·dt) ----
+// First node of the age-pegging migration (model/age-hardcoding-audit.md). The stock
+// must (a) EMERGE from integrating HbA1c over time (not be age-pegged), (b) reach the
+// calibrated ~1.0 normalized at age 80 at population glycemia, (c) accumulate faster
+// under elevated glycemia (age-correlation is emergent), and (d) NOT perturb the
+// calibrated mortality baseline (not yet wired downstream).
+{
+  const cl = (opts) => mediators(MODEL, opts)["ecm-crosslink"];
+  const pop = cl({ sex: "male" });
+  num("migrate: crosslink @20 = 0 (accum since grid start)", pop[20 - AGE0], 0, 1e-9);
+  num("migrate: crosslink @80 ≈ 1.0 (pop calibration)", pop[80 - AGE0], 0.984, 0.02);
+  str("migrate: crosslink monotonic ↑ (integrated)",
+    String(pop.every((v, k) => k === 0 || v >= pop[k - 1])), "true");
+  const dia = cl({ sex: "male", offsets: { HbA1c: 3 } });
+  str("migrate: high HbA1c accumulates crosslink faster",
+    String(dia[80 - AGE0] > 1.4 * pop[80 - AGE0]), "true");
+  num("migrate: crosslink unwired ⇒ baseline LE invariant",
+    lifeExpectancy(MODEL, { sex: "male" }) - baseM, 0, 1e-9);
+}
+
+// ---- β-cell→HbA1c vertical, Increment 2: HbA1c is now EMERGENT (de-age-pegged) ----
+// HbA1c baseline is flat 5.3 + a stateAugment (coeff·β-cell-decline). The age-rise EMERGES
+// from the β-cell-decline integral (intrinsic constant rate; glucotox/lipotox coeffs still 0).
+// Must: start ~5.3 young, reproduce the empirical ~5.9 @80, KEEP RISING past 85 (the old table
+// clamped flat at 5.9 across 85→130), and preserve the baseline LE EXACTLY (deviation-form edges).
+{
+  const med = mediators(MODEL, { sex: "male" });
+  const h = med.HbA1c, bd = med["beta-cell-decline"];
+  num("βcell: HbA1c @25 ≈ 5.35 (flat young baseline + tiny accrual)", h[25 - AGE0], 5.35, 0.03);
+  num("βcell: HbA1c @80 ≈ 5.9 (emergent, matches empirical)", h[80 - AGE0], 5.90, 0.03);
+  num("βcell: β-cell-decline @20 = 0 (accum since grid start)", bd[20 - AGE0], 0, 1e-9);
+  num("βcell: β-cell-decline @80 ≈ 1.0 (intrinsic-rate calibration)", bd[80 - AGE0], 1.0, 0.02);
+  str("βcell: HbA1c KEEPS RISING past 85 (de-age-pegged; was clamped 5.9)",
+    String(h[130 - AGE0] > h[85 - AGE0] + 0.2), "true");
+  str("βcell: HbA1c monotonic ↑ (emergent integral)",
+    String(h.every((v, k) => k === 0 || v >= h[k - 1] - 1e-12)), "true");
+  num("βcell: emergent HbA1c ⇒ baseline LE invariant (M)",
+    lifeExpectancy(MODEL, { sex: "male" }) - baseM, 0, 1e-9);
+  // crosslink = ∫HbA1c must be ~unchanged by the emergent (vs tabled) HbA1c at @80.
+  num("βcell: crosslink @80 still ≈ 0.984 (emergent HbA1c ~tracks old table)",
+    med["ecm-crosslink"][80 - AGE0], 0.984, 0.02);
+}
+
+// ---- β-cell→HbA1c vertical, Increment 3: the GLUCOTOXICITY SPIRAL ----
+// Activated glucotox feedback (coeff 0.012, driver capped at 3): β-cell-decline ↑ → HbA1c ↑
+// → glucotox ↑ → β-cell-decline ↑, resolved per-age across the march. Population HbA1c never
+// exceeds 6.5 ⇒ glucotox EXACTLY 0 in the population ⇒ baseline LE preserved exactly; the
+// spiral only bites for a diabetic DEVIATION, where HbA1c PROGRESSES upward over time (vs the
+// near-flat intrinsic creep) and feeds crosslink → stiffness → CVD. Bounded by the driver cap.
+{
+  const med = mediators(MODEL, { sex: "male" });
+  const dia = mediators(MODEL, { sex: "male", offsets: { HbA1c: 2.4 } }); // ≈ diabetic, HbA1c ~8 @50
+  // 1. population glucotox dormant: HbA1c@130 stays < 6.5 (floor never breached) → LE invariant.
+  str("spiral: population HbA1c @130 < 6.5 (glucotox dormant in population)",
+    String(med.HbA1c[130 - AGE0] < 6.5), "true");
+  num("spiral: population LE invariant (glucotox=0 in pop)",
+    lifeExpectancy(MODEL, { sex: "male" }) - baseM, 0, 1e-9);
+  // 2. diabetic HbA1c PROGRESSES: @80 pushed well above the ~8.3 no-spiral pure-offset value.
+  str("spiral: diabetic HbA1c @80 progresses > 8.8 (spiral on top of offset)",
+    String(dia.HbA1c[80 - AGE0] > 8.8), "true");
+  // 3. ACCELERATION (convex): the decade rise 70→80 exceeds the decade rise 50→60 (self-feeding).
+  const r5060 = dia.HbA1c[60 - AGE0] - dia.HbA1c[50 - AGE0];
+  const r7080 = dia.HbA1c[80 - AGE0] - dia.HbA1c[70 - AGE0];
+  str("spiral: diabetic HbA1c accelerates (Δ70→80 > Δ50→60)", String(r7080 > r5060), "true");
+  // 4. BOUNDED by the driver cap: even at 110 the diabetic HbA1c stays clinically plausible.
+  str("spiral: diabetic HbA1c @110 bounded (9.5–11; cap holds)",
+    String(dia.HbA1c[110 - AGE0] > 9.5 && dia.HbA1c[110 - AGE0] < 11), "true");
+  // 5. the spiral feeds the STRUCTURAL path: diabetic crosslink (=∫HbA1c) is markedly elevated.
+  str("spiral: diabetic crosslink @80 elevated (feeds stiffness→CVD)",
+    String(dia["ecm-crosslink"][80 - AGE0] > 1.4 * med["ecm-crosslink"][80 - AGE0]), "true");
+}
+
+// ---- HbA1c severity-scaling endpoints: HbA1c → diabetes + HbA1c → ckd ----
+// The three macrovascular HbA1c edges (CVD/cancer/dementia) saturate at their caps by HbA1c
+// ~6.8, so severe hyperglycemia needs the DIRECT-diabetes (acute-crisis) + renal endpoints to
+// carry the dose-response. These steep, high-cap edges make HbA1c 14 appropriately lethal
+// (vs the near-flat 7→14 ladder before) while staying EXACTLY 1 in the population (threshold
+// 6.5 > pop HbA1c max ⇒ baseline LE preserved exactly).
+{
+  const k50 = 50 - AGE0;
+  const predM = mediators(MODEL, { sex: "male" }).HbA1c[k50];
+  const off = (h) => h - predM;                          // lab-anchor offset to reach HbA1c h @50
+  const LE = (h) => simulate(MODEL, { sex: "male", offsets: { HbA1c: off(h) } }).LE;
+  const le7 = LE(7), le10 = LE(10), le14 = LE(14);
+  num("severity: population LE invariant (HbA1c edges =1 below 6.5)",
+    simulate(MODEL, { sex: "male" }).LE - baseM, 0, 1e-9);
+  // monotone, steep severity gradient — the bug fix: 7→14 was nearly flat (Δ≈0.9), now steep.
+  str("severity: LE strictly decreases 7 > 10 > 14", String(le7 > le10 && le10 > le14), "true");
+  str("severity: HbA1c 14 costs >9 yr vs baseline (was ~5; user-caught)",
+    String(baseM - le14 > 9), "true");
+  str("severity: 10→14 drop dwarfs the pre-fix flat ladder (≥2.5 yr)",
+    String(le10 - le14 > 2.5), "true");
+  // a diabetes-coded death edge exists and a renal one (wiring guard).
+  str("severity: HbA1c→diabetes + HbA1c→ckd edges wired",
+    String(MODEL.bLayer.causeEdges.some((e) => e.from === "HbA1c" && e.to === "diabetes")
+        && MODEL.bLayer.causeEdges.some((e) => e.from === "HbA1c" && e.to === "ckd")), "true");
+}
+
+// ---- A2: elastin-fatigue state node = ∫(restingHR × pulse-pressure)·dt ----
+// Cumulative pulsatile mechanical fatigue (the dominant structural stiffening driver),
+// exercised via the `product` rate term + a driver offset (PP ≈ SBP−75). Must emerge from
+// HR × pressure (not age), respond to both drivers, and stay unwired ⇒ baseline invariant.
+{
+  const ef = (opts) => mediators(MODEL, opts)["elastin-fatigue"];
+  const pop = ef({ sex: "male" });
+  num("A2: elastin-fatigue @20 = 0", pop[20 - AGE0], 0, 1e-9);
+  num("A2: elastin-fatigue @80 ≈ 1.0 (pop calibration)", pop[80 - AGE0], 1.0, 0.03);
+  str("A2: elastin-fatigue monotonic ↑", String(pop.every((v, k) => k === 0 || v >= pop[k - 1])), "true");
+  // Low resting HR (fit, −15 ⇒ 50 bpm) fatigues elastin slower. (B3: the SBP/pulse-pressure
+  // driver was decoupled — deferred to A4 — so SBP no longer drives elastin; HR is the clean
+  // driver. The high-SBP→elastin test is retired until A4 reinstates the coupling.)
+  str("A2: low resting-HR ⇒ slower elastin fatigue",
+    String(ef({ sex: "male", offsets: { restingHR: -15 } })[80 - AGE0] < pop[80 - AGE0]), "true");
+  num("A2: elastin-fatigue unwired ⇒ baseline LE invariant",
+    lifeExpectancy(MODEL, { sex: "male" }) - baseM, 0, 1e-9);
+}
+
+// ---- A3: arterial-stiffness — the first ALGEBRAIC (value) node ----
+// stiffness(age) = 0.65·elastin-fatigue + 0.36·ecm-crosslink, computed AT each age (not
+// integrated). Must equal that weighted sum exactly, emerge from its damage inputs, and
+// stay unwired ⇒ baseline invariant.
+// B0: arterial-stiffness now also reads the cellular-senescence NODE burden (node→state-node
+// edge), so it must be read from simulate().medValues (which passes node burdens), not from a
+// bare mediators() call.
+{
+  const r = simulate(MODEL, { sex: "male" });
+  const st = r.medValues["arterial-stiffness"], el = r.medValues["elastin-fatigue"],
+        cl = r.medValues["ecm-crosslink"], sen = r.B["cellular-senescence"];
+  const stAt = (opts) => simulate(MODEL, { sex: "male", ...opts }).medValues["arterial-stiffness"][80 - AGE0];
+  const k60 = 60 - AGE0;
+  num("A3+B0: stiffness = 0.50·elastin + 0.30·crosslink + 0.80·senescence",
+    st[k60] - (0.50 * el[k60] + 0.30 * cl[k60] + 0.80 * sen[k60]), 0, 1e-9);
+  num("A3: stiffness @80 ≈ 1.0 (pop calibration)", st[80 - AGE0], 1.0, 0.03);
+  str("A3: stiffness monotonic ↑", String(st.every((v, k) => k === 0 || v >= st[k - 1])), "true");
+  str("A3: diabetic ⇒ stiffer (via crosslink)", String(stAt({ offsets: { HbA1c: 3 } }) > st[80 - AGE0]), "true");
+  // (A3 hypertensive→stiffer retired with the B3 SBP-decoupling; reinstated in A4.)
+  // B0: the first node→state-node edge — a cellular-senescence freeze lowers stiffness.
+  str("B0: senescence freeze ⇒ less stiff",
+    String(stAt({ interventions: { "cellular-senescence": { startAge: 40, efficacy: 1.0 } } }) < st[80 - AGE0]), "true");
+  num("B3: stiffness wired but baseline LE invariant (deviation-form edge)",
+    lifeExpectancy(MODEL, { sex: "male" }) - baseM, 0, 1e-9);
+}
+
+// ---- B3: arterial-stiffness → cardiovascular (consolidated, mediation-decomposed) ----
+// Stiffness now bends CV mortality (Mitchell 2010 cfPWV), deviation-form so baseline holds.
+// Interventions map to reality: a senolytic and glycemic control both lower CV hazard via
+// stiffness, WITHOUT double-counting — senescence's stiffness path is distinct from its
+// inflammation→plaque path, and the glycemic slice was subtracted from HbA1c→CVD.
+{
+  const cvMult = (opts) => causeMultAt("cardiovascular", 70, opts);
+  str("B3: senolytic lowers CV hazard (via stiffness, new mechanism)",
+    String(cvMult({ interventions: { "cellular-senescence": { startAge: 40, efficacy: 1.0 } } }) < 1), "true");
+  str("B3: diabetic raises CV hazard via stiffness (on top of decomposed HbA1c→CVD)",
+    String(cvMult({ offsets: { HbA1c: 3 } }) > cvMult({})), "true");
+  str("B3: high resting-HR raises CV hazard (HR→elastin→stiffness; clean, no prior HR→CVD edge)",
+    String(cvMult({ offsets: { restingHR: 20 } }) > 1), "true");
+  // Glycemic-stiffness decomposition bounds the double-count: a diabetic's TOTAL CV mult
+  // (decomposed HbA1c→CVD × stiffness→CVD) stays near the original ERFC 2.32, not far above.
+  str("B3: decomposition bounds diabetic CV mult (≈ERFC, not doubled)",
+    String(causeMultAt("cardiovascular", 45, { offsets: { HbA1c: 0.9 } }) < 2.6), "true");
+}
+
+// ---- A4: stiffness → SBP (BP-mediated slice; non-glycemic, crosslink excluded) ----
+// Complements the B3 BP-independent edge. SBP gets βstiff·(non-glycemic stiffness deviation).
+// Deviation-form ⇒ baseline + Lewington/Lu/sodium calibrations preserved.
+{
+  const sbpAt = (opts) => simulate(MODEL, { sex: "male", ...opts }).medValues.systolicBP[70 - AGE0];
+  const base = sbpAt({});
+  // senolytic lowers SBP (less senescence-stiffness); high resting HR raises it (elastin).
+  str("A4: senolytic lowers SBP (BP-mediated stiffness slice)",
+    String(sbpAt({ interventions: { "cellular-senescence": { startAge: 40, efficacy: 1.0 } } }) < base - 1), "true");
+  str("A4: high resting-HR raises SBP (HR→elastin→stiffness→SBP)",
+    String(sbpAt({ offsets: { restingHR: 20 } }) > base + 1), "true");
+  // crosslink EXCLUDED ⇒ a pure glycemic offset does NOT move SBP via stiffness (no double-count).
+  num("A4: diabetic SBP unchanged by stiffness (glycemic slice excluded)",
+    sbpAt({ offsets: { HbA1c: 3 } }) - base, 0, 1e-9);
+  // baseline invariant: at pop, the augmentation is exactly 0.
+  num("A4: pop SBP augmentation = 0 (baseline preserved)",
+    simulate(MODEL, { sex: "male" }).medValues.systolicBP[70 - AGE0] - base, 0, 1e-12);
+}
+
+// ---- sleep → all-cause: BANDED + ASYMMETRIC U-shape (Cappuccio 2010) ----
+// Nadir is a REFERENCE BAND [7,8] (both 7h and 8h penalty-free — user-caught: 8h is not worse
+// than 7h), with asymmetric arms (long-sleep mortality rises ~2× steeper per hour than short).
+{
+  const sleepLE = (h) => lifeExpectancy(MODEL, { sex: "male", inputs: { sleep: h } });
+  num("sleep nadir (7h = popMean) ⇒ baseline LE invariant", sleepLE(7) - baseM, 0, 1e-9);
+  // THE FIX: 8h is inside the [7,8] band ⇒ EXACTLY no penalty (identical to 7h).
+  num("sleep 8h = no penalty (reference band, was wrongly penalized)", sleepLE(8) - baseM, 0, 1e-9);
+  str("sleep 6h (mild short) lowers LE a little", String(sleepLE(6) < baseM - 0.1 && sleepLE(6) > baseM - 1), "true");
+  str("sleep 5h (short) lowers LE", String(sleepLE(5) < baseM - 0.5), "true");
+  str("sleep 10h (long) lowers LE", String(sleepLE(10) < baseM - 0.5), "true");
+  // ASYMMETRY: long arm steeper than short — |10−8|==|6−4|==2 h outside the band, yet 10h costs
+  // more than 4h... compare equal 2h-outside excursions: 10h (2 above) vs 5h (2 below).
+  str("sleep long arm steeper than short (10h penalty > 5h penalty)",
+    String((baseM - sleepLE(10)) > (baseM - sleepLE(5))), "true");
+  str("sleep U-shape: 7–8h beats both 5h and 10h", String(sleepLE(7) > sleepLE(5) && sleepLE(8) > sleepLE(10)), "true");
+}
 
 export function runTests() {
   let allPass = true;

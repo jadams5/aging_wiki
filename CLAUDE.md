@@ -77,6 +77,7 @@ aging_wiki/
 ├── tissues/  &  organ-systems/
 ├── phenotypes/                    # sarcopenia, frailty, inflammaging, ...
 ├── interventions/                 # pharmacological / lifestyle / dietary / gene-therapy / stem-cell / blood-product / procedural
+├── exposures/                     # modifiable environmental/behavioral risk factors (smoking, alcohol, air pollution) — type: exposure (R53)
 ├── model-organisms/               # mouse, worm, fly, killifish, naked mole rat, human
 ├── studies/                       # one page per primary source extracted from
 ├── methods/                       # one page per laboratory or analytical technique whose limitations recur across studies; atomic content, distinct from sops/ (workflow guidance) and protocols/experiments/ (user protocols)
@@ -250,6 +251,7 @@ affected-tissues: ["[[skeletal-muscle]]"]
 underlying-hallmarks: ["[[stem-cell-exhaustion]]", "[[chronic-inflammation]]"]
 typical-onset: "60+ (clinically); biological onset earlier"
 prevalence-65plus: "~10–16% (varies by definition)"   # optional; community-dwelling 65+ if applicable
+literature-checked-through:  # optional; 18mo cadence. Populate for phenotypes with fast-moving intervention/epidemiology landscapes (CKD, hypertension, obesity, COPD, sarcopenia); leave null for slow-turnover descriptive phenotypes (R54)
 verified: false              # required; phenotype pages originate quantitative claims (prevalence, ICD codes, effect sizes, mortality associations)
 verified-date: null
 verified-by: null
@@ -503,7 +505,7 @@ Used for individual microbial taxa (species or genus) referenced from the [[dysb
 ---
 type: biomarker
 aliases: []
-modality: dna-methylation | transcriptomic | proteomic | metabolomic | composite-clinical | imaging | telomere-length | physical-performance
+modality: dna-methylation | transcriptomic | proteomic | metabolomic | composite-clinical | imaging | telomere-length | physical-performance | vital-sign   # `vital-sign` = single-parameter resting physiological measure (resting HR, resting BP, HRV, respiratory rate, body temperature); clock-feature fields (n-cpgs-or-features, training-cohort, model-architecture) are null/N-A for these and lint should NOT flag (R55)
 unit: years | percentile | rate | composite-score
 training-cohort: "Horvath 2013: 8000 samples / 51 tissues"
 n-cpgs-or-features: 353                      # integer for single-model clocks; string-encoded multi-value for multi-model pages (e.g., "elastic-net 157 / PC 5021"). Lint accepts both
@@ -522,6 +524,36 @@ verified-by: null
 ```
 
 For biological-age estimators and aging biomarkers (Horvath/Hannum/PhenoAge/GrimAge/DunedinPACE etc.). Atomic content with primary-source citations — DO carry `verified` discipline, unlike framework pages.
+
+### type: exposure
+
+Lives in `exposures/`. One page per **modifiable environmental or behavioral risk factor** that is neither a drug taken (`type: compound`), a deliberate regimen (`type: intervention`), nor a condition of the organism (`type: phenotype`) — e.g. tobacco smoking, alcohol, ambient air pollution. Atomic content (originates relative risks, dose-response curves, MR estimates); carries verification discipline.
+
+```yaml
+---
+type: exposure
+aliases: []
+exposure-class:                  # behavioral | environmental | occupational | dietary
+agent:                           # the harmful constituent(s) — e.g. "tobacco smoke (nicotine + tar + CO)", "ethanol + acetaldehyde", "PM2.5 / NO2"
+measure:                         # how exposure is quantified — "pack-years", "g/day ethanol", "µg/m³ PM2.5"
+modifiable: yes                  # yes | no | partial — can the individual reduce/eliminate it?
+dose-response:                   # monotonic | j-curve | threshold | sublinear | supralinear
+target-hallmarks: []             # hallmarks this exposure accelerates
+target-pathways: []              # optional; pathways engaged
+downstream-phenotypes: []        # diseases/causes whose risk it raises (wikilinks to phenotype pages)
+mechanisms: []                   # short mechanism tags (oxidative-stress, dna-adducts, endothelial-dysfunction, ...)
+human-evidence-level: strong     # none | preclinical-only | limited | strong (mirrors compound)
+reversibility:                   # free-text; what happens on cessation/reduction + time-course
+mendelian-randomization:         # yes | no | partial | not-tested | not-applicable (smoking/alcohol are MR-instrumented via CHRNA3 / ADH1B / ALDH2)
+literature-checked-through:      # required; 18mo cadence
+verified: false
+verified-date: null
+verified-by: null
+verified-scope: null
+---
+```
+
+Distinct from `interventions/` (which frames the *modifiable lever* — e.g. `interventions/dietary/sodium-restriction` is a chosen reduction regimen): an exposure page is the *risk factor itself*. A dietary component viewed as a harmful exposure (e.g. dietary saturated fat) stays on its compound page unless it earns a dedicated synthesis page. See schema-history R53.
 
 ### type: method
 
@@ -710,7 +742,7 @@ When Claude (or any agent) writes a page from training knowledge or summarized s
 
 **Frontmatter:**
 ```yaml
-verified: false             # required on atomic-content types (study, protein, compound, pathway, process, biomarker, cell-type, tissue, model-organism, hypothesis, method, microbe, phenotype)
+verified: false             # required on atomic-content types (study, protein, compound, pathway, process, biomarker, cell-type, tissue, model-organism, hypothesis, method, microbe, phenotype, exposure)
 verified-date: null         # ISO date when flipped to true
 verified-by: null           # "claude" | "user" | "claude+user"
 verified-scope: null        # optional: free-text scope description if verification was partial
@@ -815,10 +847,12 @@ Run `sops/lint-pass.md` periodically (and when the user asks). Flag:
 | compound | 12 mo | required | — |
 | intervention | 12 mo | required | — |
 | biomarker | 18 mo | required | — |
+| exposure | 18 mo | required | — |
 | hypothesis | 24 mo | required | — |
 | protein | 18 mo | optional | active drug-dev pipelines (JAK1/TYK2/IKKε/TBK1/BCL-xL) or fast-moving aging-specific lit (STAT1/MAVS) |
 | pathway | 18 mo | optional | active intervention landscapes (type-I-IFN, JAK-STAT, mTOR) |
 | process | 18 mo | optional | fast-moving descriptive-process pages (gut-microbiome-aging-shifts); skip canonical-mechanism (autophagy/apoptosis) |
+| phenotype | 18 mo | optional | fast-moving intervention/epidemiology landscapes (CKD, hypertension, obesity, COPD, sarcopenia); skip slow-turnover descriptive phenotypes (R54) |
 | microbe | 18 mo | optional | active aging-specific literature (skin/gut microbiome clusters) |
 | hallmark | 24 mo | optional | intervention-landscape-heavy hallmarks (disabled-adaptive-immunity) |
 | model-organism | 24 mo | optional | species with active mechanistic research (Loxodonta africana, Balaena mysticetus) |
