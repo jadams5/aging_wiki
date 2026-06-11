@@ -6362,6 +6362,13 @@ document.getElementById("resetAll").addEventListener("click", () => {
   }
   const okNodes = (NODES.length === 23), okEdges = (MODEL.edges.length === 38);
   const okVer = (MODEL.meta.version === "v0.5");
+  // graph-completeness: every cause-of-death node must have a DRIVER drawn (≥1 inbound
+  // non-terminal edge). Catches a cause whose upstream coupling lives only in the engine
+  // (e.g. the frailty multiplier) and isn't emitted into the unified graph.
+  const _inb = {};
+  UNI.edges.forEach(e => { if (e.cat !== "terminal") _inb[e.to] = (_inb[e.to] || 0) + 1; });
+  const _undriven = NODES.filter(n => n.role === "mortality-cause" && !_inb[n.id]).map(n => n.id);
+  const okGraph = _undriven.length === 0;
   const leM = simulate(MODEL, { sex: "male" }).LE;
   const leF = simulate(MODEL, { sex: "female" }).LE;
 
@@ -6369,6 +6376,8 @@ document.getElementById("resetAll").addEventListener("click", () => {
     console.error("Self-check FAILED: baseline run does not reproduce intrinsic curves. maxDev=", maxDev);
   } else if (!okNodes || !okEdges || !okVer){
     console.error("Self-check FAILED: structure counts.", { nodes: NODES.length, edges: MODEL.edges.length, version: MODEL.meta.version });
+  } else if (!okGraph){
+    console.error("Self-check FAILED: cause-of-death node(s) with no driver edge drawn in the unified graph:", _undriven);
   } else {
     console.log("Self-check OK: v0.5 baseline B≡T (maxDev=" + maxDev.toExponential(2) + ");",
                 "nodes=" + NODES.length + " edges=" + MODEL.edges.length + ";",
