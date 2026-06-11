@@ -3853,7 +3853,20 @@ function xTicks(){
 }
 
 const LAYER_ORDER = ["tier1", "tier2", "tier3", "phenotype"];
-function getCss(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888"; }
+// Color tokens — a static mirror of the :root CSS custom properties above. These
+// values are consumed ONLY by JS (no CSS rule uses var(--cause-*)/var(--c-tier*)),
+// so we read them from this map instead of getComputedStyle(). Reading custom
+// properties off the CSSOM at script-eval time intermittently returned "" on a
+// cold (uncached) page load — the LAYER_COLOR/CAUSE_COLOR/MED_COLOR consts then
+// fell back to grey #888 until a reload (most visible as grey cardiovascular/cancer
+// cod bands). A literal map removes that race entirely. Keep in sync with :root.
+const CSS_VARS = {
+  "--c-tier1": "#c0392b", "--c-tier2": "#d68910", "--c-tier3": "#2e86c1", "--c-phenotype": "#7d3c98",
+  "--cause-extrinsic": "#7f8c8d", "--cause-cardiovascular": "#c0392b", "--cause-cancer": "#8e44ad",
+  "--cause-neurodegeneration": "#2980b9", "--cause-infection": "#16a085", "--cause-residual": "#bdc3c7",
+  "--med-LDL": "#c0392b", "--med-systolicBP": "#2980b9", "--med-HbA1c": "#d68910",
+};
+function getCss(name){ return CSS_VARS[name] || "#888"; }
 const LAYER_COLOR = {
   tier1: getCss("--c-tier1"),
   tier2: getCss("--c-tier2"),
