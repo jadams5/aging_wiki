@@ -1,0 +1,141 @@
+chapter	subchapter	icd	male	female
+Certain infectious and parasitic diseases	Intestinal infectious diseases	A00-A09	3,019	4,342
+Certain infectious and parasitic diseases	Tuberculosis	A16-A19	334	192
+Certain infectious and parasitic diseases	Certain zoonotic bacterial diseases	A20-A28	22	19
+Certain infectious and parasitic diseases	Other bacterial diseases	A30-A49	20,624	21,059
+Certain infectious and parasitic diseases	Infections with a predominantly sexual mode of transmission	A50-A64	21	24
+Certain infectious and parasitic diseases	Other spirochaetal diseases	A65-A69	14	
+Certain infectious and parasitic diseases	Rickettsioses	A75-A79	16	
+Certain infectious and parasitic diseases	Viral infections of the central nervous system	A80-A89	417	371
+Certain infectious and parasitic diseases	Arthropod-borne viral fevers and viral haemorrhagic fevers	A90-A99	44	37
+Certain infectious and parasitic diseases	Viral infections characterized by skin and mucous membrane lesions	B00-B09	225	250
+Certain infectious and parasitic diseases	Viral hepatitis	B15-B19	2,777	1,508
+Certain infectious and parasitic diseases	Human immunodeficiency virus [HIV] disease	B20-B24	3,753	1,291
+Certain infectious and parasitic diseases	Other viral diseases	B25-B34	734	833
+Certain infectious and parasitic diseases	Mycoses	B35-B49	669	493
+Certain infectious and parasitic diseases	Protozoal diseases	B50-B64	145	99
+Certain infectious and parasitic diseases	Helminthiases	B65-B83	10	
+Certain infectious and parasitic diseases	Sequelae of infectious and parasitic diseases	B90-B94	436	446
+Certain infectious and parasitic diseases	Other infectious diseases	B99-B99	209	242
+Neoplasms	Malignant neoplasms	C00-C97	315,876	283,725
+Neoplasms	In situ neoplasms	D00-D09	48	56
+Neoplasms	Benign neoplasms	D10-D36	682	889
+Neoplasms	Neoplasms of uncertain or unknown behaviour	D37-D48	7,694	6,221
+Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism	Nutritional anaemias	D50-D53	173	230
+Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism	Haemolytic anaemias	D55-D59	392	444
+Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism	Aplastic and other anaemias	D60-D64	1,827	2,188
+Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism	Coagulation defects, purpura and other haemorrhagic conditions	D65-D69	1,281	1,379
+Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism	Other diseases of blood and blood-forming organs	D70-D76	647	578
+Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism	Certain disorders involving the immune mechanism	D80-D89	755	921
+Endocrine, nutritional and metabolic diseases	Disorders of thyroid gland	E00-E07	589	1,570
+Endocrine, nutritional and metabolic diseases	Diabetes mellitus	E10-E14	49,512	38,135
+Endocrine, nutritional and metabolic diseases	Other disorders of glucose regulation and pancreatic internal secretion	E15-E16	233	274
+Endocrine, nutritional and metabolic diseases	Disorders of other endocrine glands	E20-E34	331	444
+Endocrine, nutritional and metabolic diseases	Malnutrition	E40-E46	4,203	7,049
+Endocrine, nutritional and metabolic diseases	Other nutritional deficiencies	E50-E64	134	184
+Endocrine, nutritional and metabolic diseases	Obesity and other hyperalimentation	E65-E68	4,405	3,975
+Endocrine, nutritional and metabolic diseases	Metabolic disorders	E70-E88	15,330	13,739
+Mental and behavioural disorders	Organic, including symptomatic, mental disorders	F01-F09	39,738	76,655
+Mental and behavioural disorders	Mental and behavioural disorders due to psychoactive substance use	F10-F19	10,978	4,185
+Mental and behavioural disorders	Schizophrenia, schizotypal and delusional disorders	F20-F29	304	317
+Mental and behavioural disorders	Mood [affective] disorders	F30-F39	270	407
+Mental and behavioural disorders	Neurotic, stress-related and somatoform disorders	F40-F48	86	173
+Mental and behavioural disorders	Behavioural syndromes associated with physiological disturbances and physical factors	F50-F59	140	224
+Mental and behavioural disorders	Mental retardation	F70-F79	172	106
+Mental and behavioural disorders	Disorders of psychological development	F80-F89	60	74
+Mental and behavioural disorders	Behavioural and emotional disorders with onset usually occurring in childhood and adolescence	F90-F98	12	11
+Mental and behavioural disorders	Unspecified mental disorder	F99-F99	18	23
+Diseases of the nervous system	Inflammatory diseases of the central nervous system	G00-G09	839	642
+Diseases of the nervous system	Systemic atrophies primarily affecting the central nervous system	G10-G14	4,730	4,036
+Diseases of the nervous system	Extrapyramidal and movement disorders	G20-G25	22,577	14,602
+Diseases of the nervous system	Other degenerative diseases of the nervous system	G30-G31	51,384	105,403
+Diseases of the nervous system	Demyelinating diseases of the central nervous system	G35-G37	1,560	2,940
+Diseases of the nervous system	Episodic and paroxysmal disorders	G40-G47	2,375	2,027
+Diseases of the nervous system	Nerve, nerve root and plexus disorders	G50-G58	31	25
+Diseases of the nervous system	Polyneuropathies and other disorders of the peripheral nervous system	G60-G64	486	359
+Diseases of the nervous system	Diseases of myoneural junction and muscle	G70-G72	1,655	1,147
+Diseases of the nervous system	Cerebral palsy and other paralytic syndromes	G80-G83	1,905	1,386
+Diseases of the nervous system	Other disorders of the nervous system	G90-G98	7,217	6,389
+Diseases of the ear and mastoid process	Diseases of middle ear and mastoid	H65-H74	43	36
+Diseases of the circulatory system	Chronic rheumatic heart diseases	I05-I09	1,271	2,357
+Diseases of the circulatory system	Hypertensive diseases	I10-I15	49,451	52,621
+Diseases of the circulatory system	Ischaemic heart diseases	I20-I25	213,364	147,536
+Diseases of the circulatory system	Pulmonary heart disease and diseases of pulmonary circulation	I26-I28	7,495	10,996
+Diseases of the circulatory system	Other forms of heart disease	I30-I51	102,785	107,670
+Diseases of the circulatory system	Cerebrovascular diseases	I60-I69	64,347	85,658
+Diseases of the circulatory system	Diseases of arteries, arterioles and capillaries	I70-I78	12,668	11,645
+Diseases of the circulatory system	Diseases of veins, lymphatic vessels and lymph nodes, not elsewhere classified	I80-I89	2,090	1,994
+Diseases of the circulatory system	Other and unspecified disorders of the circulatory system	I95-I99	322	324
+Diseases of the respiratory system	Acute upper respiratory infections	J00-J06	99	121
+Diseases of the respiratory system	Influenza and pneumonia	J09-J18	24,644	25,139
+Diseases of the respiratory system	Other acute lower respiratory infections	J20-J22	133	170
+Diseases of the respiratory system	Other diseases of upper respiratory tract	J30-J39	305	271
+Diseases of the respiratory system	Chronic lower respiratory diseases	J40-J47	73,724	83,255
+Diseases of the respiratory system	Lung diseases due to external agents	J60-J70	11,560	8,502
+Diseases of the respiratory system	Other respiratory diseases principally affecting the interstitium	J80-J84	12,904	10,673
+Diseases of the respiratory system	Suppurative and necrotic conditions of lower respiratory tract	J85-J86	596	343
+Diseases of the respiratory system	Other diseases of pleura	J90-J94	997	1,018
+Diseases of the respiratory system	Other diseases of the respiratory system	J96-J98	7,584	8,988
+Diseases of the digestive system	Diseases of oral cavity, salivary glands and jaws	K00-K14	127	146
+Diseases of the digestive system	Diseases of oesophagus, stomach and duodenum	K20-K31	3,571	3,585
+Diseases of the digestive system	Diseases of appendix	K35-K38	212	176
+Diseases of the digestive system	Hernia	K40-K46	980	1,289
+Diseases of the digestive system	Noninfective enteritis and colitis	K50-K52	568	773
+Diseases of the digestive system	Other diseases of intestines	K55-K63	8,726	13,473
+Diseases of the digestive system	Diseases of peritoneum	K65-K66	1,072	1,062
+Diseases of the digestive system	Diseases of liver	K70-K76	34,845	22,973
+Diseases of the digestive system	Disorders of gallbladder, biliary tract and pancreas	K80-K86	4,931	4,481
+Diseases of the digestive system	Other diseases of the digestive system	K90-K92	5,049	4,855
+Diseases of the skin and subcutaneous tissue	Infections of the skin and subcutaneous tissue	L00-L08	1,462	1,555
+Diseases of the skin and subcutaneous tissue	Bullous disorders	L10-L13	69	77
+Diseases of the skin and subcutaneous tissue	Papulosquamous disorders	L40-L44	29	25
+Diseases of the skin and subcutaneous tissue	Urticaria and erythema	L50-L53	57	89
+Diseases of the skin and subcutaneous tissue	Other disorders of the skin and subcutaneous tissue	L80-L98	710	1,115
+Diseases of the musculoskeletal system and connective tissue	Arthropathies	M00-M25	1,068	2,142
+Diseases of the musculoskeletal system and connective tissue	Systemic connective tissue disorders	M30-M35	945	2,749
+Diseases of the musculoskeletal system and connective tissue	Dorsopathies	M40-M54	790	824
+Diseases of the musculoskeletal system and connective tissue	Soft tissue disorders	M60-M79	1,286	1,353
+Diseases of the musculoskeletal system and connective tissue	Osteopathies and chondropathies	M80-M94	1,653	1,738
+Diseases of the genitourinary system	Glomerular diseases	N00-N07	516	438
+Diseases of the genitourinary system	Renal tubulo-interstitial diseases	N10-N15	702	963
+Diseases of the genitourinary system	Renal failure	N17-N19	26,112	24,422
+Diseases of the genitourinary system	Urolithiasis	N20-N23	261	401
+Diseases of the genitourinary system	Other disorders of kidney and ureter	N25-N28	2,749	2,643
+Diseases of the genitourinary system	Other diseases of urinary system	N30-N39	4,622	7,493
+Diseases of the genitourinary system	Diseases of male genital organs	N40-N50	1,017	
+Certain conditions originating in the perinatal period	Newborn affected by maternal factors and by complications of pregnancy, labour and delivery	P00-P04	1,244	1,005
+Certain conditions originating in the perinatal period	Disorders related to length of gestation and fetal growth	P05-P08	2,036	1,538
+Certain conditions originating in the perinatal period	Respiratory and cardiovascular disorders specific to the perinatal period	P20-P29	1,320	986
+Certain conditions originating in the perinatal period	Infections specific to the perinatal period	P35-P39	435	347
+Certain conditions originating in the perinatal period	Haemorrhagic and haematological disorders of newborn	P50-P61	246	214
+Certain conditions originating in the perinatal period	Digestive system disorders of newborn	P76-P78	259	199
+Certain conditions originating in the perinatal period	Conditions involving the integument and temperature regulation of newborn	P80-P83	90	89
+Certain conditions originating in the perinatal period	Other disorders originating in the perinatal period	P90-P96	215	160
+Congenital malformations, deformations and chromosomal abnormalities	Congenital malformations of the nervous system	Q00-Q07	599	626
+Congenital malformations, deformations and chromosomal abnormalities	Congenital malformations of the circulatory system	Q20-Q28	1,553	1,337
+Congenital malformations, deformations and chromosomal abnormalities	Congenital malformations of the respiratory system	Q30-Q34	253	156
+Congenital malformations, deformations and chromosomal abnormalities	Other congenital malformations of the digestive system	Q38-Q45	127	94
+Congenital malformations, deformations and chromosomal abnormalities	Congenital malformations of the urinary system	Q60-Q64	461	335
+Congenital malformations, deformations and chromosomal abnormalities	Congenital malformations and deformations of the musculoskeletal system	Q65-Q79	325	301
+Congenital malformations, deformations and chromosomal abnormalities	Other congenital malformations	Q80-Q89	608	571
+Congenital malformations, deformations and chromosomal abnormalities	Chromosomal abnormalities, not elsewhere classified	Q90-Q99	1,139	1,212
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Symptoms and signs involving the circulatory and respiratory systems	R00-R09	1,634	2,047
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Symptoms and signs involving the digestive system and abdomen	R10-R19	257	440
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Symptoms and signs involving the skin and subcutaneous tissue	R20-R23	10	11
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Symptoms and signs involving the nervous and musculoskeletal systems	R25-R29	64	119
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Symptoms and signs involving the urinary system	R30-R39	11	
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Symptoms and signs involving cognition, perception, emotional state and behaviour	R40-R46	62	140
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Symptoms and signs involving speech and voice	R47-R49	14	26
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	General symptoms and signs	R50-R68	5,720	8,142
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Abnormal findings on examination of blood, without diagnosis	R70-R79	21	14
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Abnormal findings on diagnostic imaging and in function studies, without diagnosis	R90-R94	187	201
+Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified	Ill-defined and unknown causes of mortality	R95-R99	7,707	5,577
+Codes for special purposes	Provisional assignment of new diseases of uncertain etiology	U00-U49	19	
+External causes of morbidity and mortality	Transport accidents	V01-V99	29,495	11,648
+External causes of morbidity and mortality	Other external causes of accidental injury	W00-X59	81,863	48,166
+External causes of morbidity and mortality	Intentional self-harm	X60-X84	37,233	10,245
+External causes of morbidity and mortality	Assault	X85-Y09	15,086	3,832
+External causes of morbidity and mortality	Event of undetermined intent	Y10-Y34	3,719	1,914
+External causes of morbidity and mortality	Legal intervention and operations of war	Y35-Y36	614	39
+External causes of morbidity and mortality	Complications of medical and surgical care	Y40-Y84	2,827	2,431
+External causes of morbidity and mortality	Sequelae of external causes of morbidity and mortality	Y85-Y89	1,642	596

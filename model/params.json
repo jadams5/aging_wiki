@@ -115,10 +115,11 @@
       "cardiovascular": {
         "node": "atherosclerosis",
         "RmaxPerYear": {
-          "male": 0.054702,
-          "female": 0.045587
+          "male": 0.059033,
+          "female": 0.050486
         },
-        "cdc": "heart(I00-09,I11,I13,I20-51)+stroke(I60-69), CDC WONDER 2022 by sex"
+        "cdc": "heart(I00-09,I11,I13,I20-51)+stroke(I60-69) [2022] + hypertensive-net-new(I10,I12,I15) + pulmonary-heart(I26-28) + arteries(I70-74,I77-78) + veins(I80-89) + mesenteric-infarction(K55) + other-circ(I95,I99); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
+        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction — vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862→80.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71–89; anchor-point hazard invariant to 1e-9; not an arithmetic error). Downgraded from seeder-claimed 'anchored' to 'calibrated' because SWAP-TO-2022 is an open #gap (consistent with all other D76 2019 causes in the model). Year note: existing-band Rmax/burden on 2022 data; net-new on 2019 data; residual base on 2022; SWAP-TO-2022 pending. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
       },
       "cancer": {
         "node": "cancer",
@@ -182,105 +183,105 @@
         "male": [
           [
             20,
-            0.000142
+            0.000137
           ],
           [
             30,
-            0.000395
+            0.000375
           ],
           [
             40,
-            0.000758
+            0.000697
           ],
           [
             50,
-            0.001392
+            0.001243
           ],
           [
             60,
-            0.002947
+            0.002612
           ],
           [
             70,
-            0.005865
+            0.005199
           ],
           [
             80,
-            0.014113
+            0.012652
           ],
           [
             90,
-            0.041433
+            0.037102
           ],
           [
             100,
-            0.099004
+            0.08870754
           ],
           [
             110,
-            0.235871
+            0.21139243
           ],
           [
             120,
-            0.561255
+            0.50305983
           ],
           [
             130,
-            1.33482
+            1.19646799
           ]
         ],
         "female": [
           [
             20,
-            0.000092
+            0.000085
           ],
           [
             30,
-            0.000257
+            0.00024
           ],
           [
             40,
-            0.000499
+            0.000453
           ],
           [
             50,
-            0.000917
+            0.00082
           ],
           [
             60,
-            0.001978
+            0.001765
           ],
           [
             70,
-            0.004065
+            0.003563
           ],
           [
             80,
-            0.009933
+            0.00857
           ],
           [
             90,
-            0.030455
+            0.025556
           ],
           [
             100,
-            0.072693
+            0.06104619
           ],
           [
             110,
-            0.173107
+            0.14541813
           ],
           [
             120,
-            0.41183
+            0.34600268
           ],
           [
             130,
-            0.979368
+            0.82287147
           ]
         ]
       },
-      "note": "all-cause − modeled causes − extrinsic, per SEX (CDC WONDER 2022). Long tail: COPD, diabetes, kidney, liver, falls, etc. Keeps baseline total = empirical sex-specific all-cause mortality."
+      "note": "all-cause − modeled causes − extrinsic, per SEX (CDC WONDER 2022). Updated 2026-06-11 (Op A, v0.5): net-new circulatory hazard (I10/I12/I15, I26-28, I70-74/I77-78, I80-89, K55, I95/I99) subtracted from residual using 2019 D76 rates (same as net-new folded into CV); total hazard invariant at every age. Year-mismatch note: residual base is 2022 all-cause; net-new on 2019 rates; SWAP-TO-2022 pending."
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
@@ -484,39 +485,39 @@
         "byAge": [
           [
             20,
-            0.000512
+            0.000559
           ],
           [
             30,
-            0.00228
+            0.00245
           ],
           [
             40,
-            0.007854
+            0.008299
           ],
           [
             50,
-            0.022812
+            0.023586
           ],
           [
             60,
-            0.056276
+            0.057432
           ],
           [
             70,
-            0.108173
+            0.110064
           ],
           [
             75,
-            0.140209
+            0.144659
           ],
           [
             80,
-            0.222608
+            0.224862
           ],
           [
             85,
-            0.378453
+            0.380143
           ],
           [
             90,
@@ -543,39 +544,39 @@
           "byAge": [
             [
               20,
-              0.000373
+              0.000475
             ],
             [
               30,
-              0.001446
+              0.001642
             ],
             [
               40,
-              0.00489
+              0.00532
             ],
             [
               50,
-              0.012862
+              0.013502
             ],
             [
               60,
-              0.032185
+              0.033113
             ],
             [
               70,
-              0.072077
+              0.074144
             ],
             [
               75,
-              0.099407
+              0.105657
             ],
             [
               80,
-              0.188136
+              0.191098
             ],
             [
               85,
-              0.365608
+              0.368051
             ],
             [
               90,

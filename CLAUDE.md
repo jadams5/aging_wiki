@@ -974,6 +974,7 @@ Standard operating procedures live in `sops/`. Index:
 - `sops/adding-a-claim.md` — citation conventions, gap markers
 - `sops/writing-hypothesis-pages.md` — synthesis-MOC discipline for `type: hypothesis` pages (Mode A evidence-aggregating vs Mode B conceptual-frame; never duplicate atomic-page truth)
 - `sops/personal-tracking.md` — device-agnostic guidance on *what* applied-health data to track and *how* to structure it; the starting scaffold for "personal" questions when no per-individual `protocols/` area exists
+- `sops/adding-causal-graph-nodes.md` — how to add/extend aging-simulator model nodes (fold a CDC cause into a band / new pathology cause-node / new ∫rate·dt driver) without breaking baseline-LE invariance or re-introducing age-pegging; paired `graph-node-seeder` / `graph-node-validator` subagents
 - `sops/lint-pass.md` — periodic health check protocol
 
 ---
