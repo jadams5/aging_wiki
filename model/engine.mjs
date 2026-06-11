@@ -99,6 +99,29 @@ const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration"
  *                     neurodegeneration,infection,residual}}],
  *     survival:[...], LE }
  */
+// Single source of truth for the causal graph: MODEL.edges is one unified array, each
+// edge tagged with `kind` (coupling | mediator | cause | augment | frailty). This helper
+// partitions it back into the per-kind lists the engine math consumes. Driver edges live
+// in stateNodes' rate.terms and terminal (cause→mortality) edges in node `role` tags — both
+// are derived directly from those authoritative sources by the viz, not duplicated here.
+// Legacy fallback: if MODEL.edges carries no `kind` tags (pre-unification data), read the
+// old coupling array + bLayer.{causeEdges,mediatorEdges,stateAugments} + frailty.betaByCause.
+export function edgesByKind(MODEL) {
+  const E = MODEL.edges || [];
+  const kinded = E.some((e) => e.kind);
+  const B = MODEL.bLayer || {};
+  const fr = (MODEL.mortality && MODEL.mortality.frailty) || {};
+  return {
+    coupling: kinded ? E.filter((e) => e.kind === "coupling") : E,
+    cause:    kinded ? E.filter((e) => e.kind === "cause")    : (B.causeEdges || []),
+    mediator: kinded ? E.filter((e) => e.kind === "mediator") : (B.mediatorEdges || []),
+    augment:  kinded ? E.filter((e) => e.kind === "augment")  : (B.stateAugments || []),
+    betaByCause: kinded
+      ? Object.fromEntries(E.filter((e) => e.kind === "frailty").map((e) => [e.to, e.beta]))
+      : (fr.betaByCause || {}),
+  };
+}
+
 export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}, treatments = {}, offsets = {} } = {}) {
   if (sex !== "male" && sex !== "female") {
     throw new Error(`simulate: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
@@ -119,8 +142,9 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   NODES.forEach((n, i) => { NODE_IDX[n.id] = i; });
 
   // Coupling gain matrix G[to][from] = strengthToGain[edge.strength].
+  const EK = edgesByKind(MODEL);
   const G = Array.from({ length: NN }, () => new Array(NN).fill(0));
-  for (const e of MODEL.edges) {
+  for (const e of EK.coupling) {
     const to = NODE_IDX[e.to], from = NODE_IDX[e.from];
     if (to === undefined || from === undefined) continue;
     G[to][from] = MODEL.strengthToGain[e.strength];
@@ -211,7 +235,7 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   const popMean = {};
   if (hasB) for (const inp of MODEL.bLayer.exogenousInputs) popMean[inp.id] = inp.populationMean;
   // Stage-2 cause-edge multipliers, grouped by target (cause name | "residual").
-  const causeEdges = (hasB && MODEL.bLayer.causeEdges) || [];
+  const causeEdges = (hasB && EK.cause) || [];
   const causeEdgesByTarget = {};
   for (const e of causeEdges) (causeEdgesByTarget[e.to] ||= []).push(e);
 
@@ -249,7 +273,7 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   // respiratory ~4.9× ≫ CV ~2.6× > cancer ~2.0×). `betaByCause` carries ln(HR)
   // for a full-span (robust→frail) sarcopenia deviation; falls back to a shared
   // `beta`/`default` for backward-compat. All =1 at baseline (frailtyDev 0).
-  const frBeta = fr.betaByCause || {};
+  const frBeta = EK.betaByCause || {};
   const frDefault = (frBeta.default !== undefined) ? frBeta.default : (fr.beta || 0);
   // Old-age escalation is BURDEN-DRIVEN, not age-keyed (v0.4). Each cause hazard
   // uses the odds link Rmax·B/(1−B): the cause-node burden tables store a
@@ -653,6 +677,7 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
     throw new Error(`mediators: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
   }
   const b = MODEL.bLayer;
+  const EKm = edgesByKind(MODEL);
   if (!b) throw new Error("mediators: MODEL.bLayer is missing (regenerate params.json)");
 
   const AGE0 = MODEL.meta.ageRange[0];
@@ -669,7 +694,7 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
 
   // Edges grouped by target mediator.
   const edgesByMed = {};
-  for (const e of b.mediatorEdges) (edgesByMed[e.to] ||= []).push(e);
+  for (const e of EKm.mediator) (edgesByMed[e.to] ||= []).push(e);
   // Treatments grouped by target mediator (only those requested in opts).
   const txByMed = {};
   for (const tx of b.treatments) {
@@ -684,7 +709,7 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
   // whose `from` is in that set is a mediator→mediator edge. Topologically sort so
   // sources precede targets (the chain here is shallow: BMI → systolicBP).
   const medIds = new Set(b.mediators.map((m) => m.id));
-  const order = topoSortMediators(b.mediators, b.mediatorEdges, medIds);
+  const order = topoSortMediators(b.mediators, EKm.mediator, medIds);
 
   // Per-age baseline trajectories (needed as the reference for upstream-mediator
   // deviations passed to mediator→mediator edges).
@@ -754,7 +779,7 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
   const ordered = topoSortStateNodes(stateNodes);
   const integ = {};                                   // running accumulators for integrated nodes
   for (const s of ordered) { out[s.id] = new Array(AGES.length); if (!s.value) integ[s.id] = s.initial ?? 0; }
-  const augments = b.stateAugments || [];             // {fromState, mediator, coeff} — empty ⇒ no-op
+  const augments = EKm.augment || [];                 // {fromState, mediator, coeff} — empty ⇒ no-op
   for (let k = 0; k < AGES.length; k++) {
     // 1. publish integrated accumulators at this age.
     for (const s of ordered) if (!s.value) out[s.id][k] = integ[s.id];

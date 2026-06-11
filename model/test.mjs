@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { simulate, lifeExpectancy, mediators } from "./engine.mjs";
+import { simulate, lifeExpectancy, mediators, edgesByKind } from "./engine.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MODEL = JSON.parse(readFileSync(resolve(HERE, "params.json"), "utf8"));
@@ -440,9 +440,10 @@ str("B3b: underweight penalty steep (< obese)", String(
   str("severity: 10→14 drop dwarfs the pre-fix flat ladder (≥2.5 yr)",
     String(le10 - le14 > 2.5), "true");
   // a diabetes-coded death edge exists and a renal one (wiring guard).
+  const _cause = edgesByKind(MODEL).cause;
   str("severity: HbA1c→diabetes + HbA1c→ckd edges wired",
-    String(MODEL.bLayer.causeEdges.some((e) => e.from === "HbA1c" && e.to === "diabetes")
-        && MODEL.bLayer.causeEdges.some((e) => e.from === "HbA1c" && e.to === "ckd")), "true");
+    String(_cause.some((e) => e.from === "HbA1c" && e.to === "diabetes")
+        && _cause.some((e) => e.from === "HbA1c" && e.to === "ckd")), "true");
 }
 
 // ---- A2: elastin-fatigue state node = ∫(restingHR × pulse-pressure)·dt ----

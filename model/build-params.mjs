@@ -45,7 +45,10 @@ function main() {
   );
   if (v !== "v0.5") console.warn(`WARN: expected version v0.5, got ${v}`);
   if (nNodes !== 23) console.warn(`WARN: expected 23 nodes, got ${nNodes}`);
-  if (nEdges !== 38) console.warn(`WARN: expected 38 edges, got ${nEdges}`);
+  // MODEL.edges is the unified graph (coupling|mediator|cause|augment|frailty). The
+  // hallmark-coupling subgraph should hold 38 edges; total grows with the B-layer.
+  const nCoupling = (model.edges || []).filter((e) => e.kind === "coupling").length;
+  if (nCoupling !== 38) console.warn(`WARN: expected 38 coupling edges, got ${nCoupling} (total ${nEdges})`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main();

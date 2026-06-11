@@ -174,7 +174,8 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     ],
     "dt": 1,
     "couple": 1,
-    "note": "Illustrative parameter layer for aging-simulator v0.3. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC-WONDER-2022 SEX-SPECIFIC competing hazards (no sex scalar). NOT verified facts; sensitivity-exploration only."
+    "note": "Illustrative parameter layer for aging-simulator v0.3. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC-WONDER-2022 SEX-SPECIFIC competing hazards (no sex scalar). NOT verified facts; sensitivity-exploration only.",
+    "edgesNote": "UNIFIED 2026-06-11: MODEL.edges is the single source of truth (kind: coupling|mediator|cause|augment|frailty). Engine partitions via edgesByKind(); driver edges derive from stateNodes rate.terms, terminal from node role. Counts: coupling 38 mediator 9 cause 21 augment 1 frailty 10."
   },
   "strengthToGain": {
     "strong": 0.2,
@@ -265,18 +266,6 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     },
     "frailty": {
       "node": "sarcopenia",
-      "betaByCause": {
-        "cardiovascular": 0.9708,
-        "cancer": 0.678,
-        "neurodegeneration": 0.8755,
-        "infection": 1.5913,
-        "residual": 0.8755,
-        "diabetes": 0.8755,
-        "copd": 0.8755,
-        "ckd": 0.8755,
-        "liver": 0.8755,
-        "frailty": 0.8755
-      },
       "note": "B2 (2026-06-08): CAUSE-SPECIFIC frailty multiplier. Peng 2022 frail-vs-robust cause-specific HRs: respiratory 4.91->infection, CV 2.64->cardiovascular, cancer 1.97->cancer; general ~2.4->neurodegeneration/residual. beta_cause = ln(HR) for a FULL-span (robust->frail) sarcopenia deviation (B-T). =1 at baseline. Replaces the global beta 0.6, which was mis-anchored to a wrong Kojima 1.83 (real frail-vs-robust ~2.4, Peng 2022)."
     },
     "causes": {
@@ -2521,192 +2510,634 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     {
       "from": "genomic-instability",
       "to": "cellular-senescence",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "genomic-instability",
       "to": "chronic-inflammation",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "genomic-instability",
       "to": "clonal-hematopoiesis",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "telomere-attrition",
       "to": "cellular-senescence",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "telomere-attrition",
       "to": "stem-cell-exhaustion",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "telomere-attrition",
       "to": "genomic-instability",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "epigenetic-alterations",
       "to": "cellular-senescence",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "epigenetic-alterations",
       "to": "stem-cell-exhaustion",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "epigenetic-alterations",
       "to": "deregulated-nutrient-sensing",
+      "kind": "coupling",
       "strength": "weak"
     },
     {
       "from": "cellular-senescence",
       "to": "chronic-inflammation",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "cellular-senescence",
       "to": "stem-cell-exhaustion",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "cellular-senescence",
       "to": "altered-intercellular-communication",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "deregulated-nutrient-sensing",
       "to": "disabled-macroautophagy",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "deregulated-nutrient-sensing",
       "to": "cellular-senescence",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "deregulated-nutrient-sensing",
       "to": "mitochondrial-dysfunction",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "deregulated-nutrient-sensing",
       "to": "stem-cell-exhaustion",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "disabled-macroautophagy",
       "to": "loss-of-proteostasis",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "disabled-macroautophagy",
       "to": "mitochondrial-dysfunction",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "disabled-macroautophagy",
       "to": "chronic-inflammation",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "mitochondrial-dysfunction",
       "to": "cellular-senescence",
+      "kind": "coupling",
       "strength": "disputed"
     },
     {
       "from": "mitochondrial-dysfunction",
       "to": "chronic-inflammation",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "mitochondrial-dysfunction",
       "to": "loss-of-proteostasis",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "loss-of-proteostasis",
       "to": "neurodegeneration",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "chronic-inflammation",
       "to": "stem-cell-exhaustion",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "chronic-inflammation",
       "to": "atherosclerosis",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "chronic-inflammation",
       "to": "clonal-hematopoiesis",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "chronic-inflammation",
       "to": "sarcopenia",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "dysbiosis",
       "to": "chronic-inflammation",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "dysbiosis",
       "to": "altered-intercellular-communication",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "altered-intercellular-communication",
       "to": "stem-cell-exhaustion",
+      "kind": "coupling",
       "strength": "weak"
     },
     {
       "from": "stem-cell-exhaustion",
       "to": "sarcopenia",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "stem-cell-exhaustion",
       "to": "immunosenescence",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "stem-cell-exhaustion",
       "to": "chronic-inflammation",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "clonal-hematopoiesis",
       "to": "atherosclerosis",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "genomic-instability",
       "to": "cancer",
+      "kind": "coupling",
       "strength": "strong"
     },
     {
       "from": "epigenetic-alterations",
       "to": "cancer",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "chronic-inflammation",
       "to": "cancer",
+      "kind": "coupling",
       "strength": "moderate"
     },
     {
       "from": "immunosenescence",
       "to": "cancer",
+      "kind": "coupling",
       "strength": "moderate"
+    },
+    {
+      "from": "dietSatFat",
+      "to": "LDL",
+      "coeff": 1.7,
+      "form": "linear",
+      "provenance": "Mensink 2016/2003: +1.3-2.1 mg/dL per 1% energy (replacement-dependent: PUFA -2.1, carb -1.3); 1.7 = mid. SOLID.",
+      "kind": "mediator"
+    },
+    {
+      "from": "dietFiber",
+      "to": "LDL",
+      "coeff": -2.2,
+      "form": "fiberSaturating",
+      "provenance": "Brown 1999: -2.2 mg/dL per g/day soluble fiber; SATURATING >10 g/day. SOLID.",
+      "kind": "mediator"
+    },
+    {
+      "from": "physicalActivity",
+      "to": "HbA1c",
+      "coeff": -0.67,
+      "form": "exerciseHbA1c",
+      "provenance": "Umpierre 2011: -0.67% (T2D) for structured exercise vs sedentary. SOLID. Form scales the -0.67% by activity deviation across the sedentary->active span (~150 min/wk).",
+      "kind": "mediator"
+    },
+    {
+      "from": "dietSodium",
+      "to": "systolicBP",
+      "coeff": 5.8,
+      "form": "sodiumConvex",
+      "provenance": "He 2013: +5.8 mmHg SBP per +100 mmol/day (slope POSITIVE; the '-5.8 per -100' reduction framing). CONVEX, effect-modified (steeper older/higher-SBP). SOLID. [sign-fixed 2026-06-08]",
+      "kind": "mediator"
+    },
+    {
+      "from": "alcohol",
+      "to": "systolicBP",
+      "coeff": 5.5,
+      "form": "alcoholThreshold",
+      "provenance": "Roerecke 2017: up to -5.5 mmHg from heavy 50% cut; THRESHOLD ~2 drinks then steep. SOLID. Form: ~no effect <=2 drinks, steep rise above.",
+      "kind": "mediator"
+    },
+    {
+      "from": "calorieBalance",
+      "to": "BMI",
+      "coeff": 1,
+      "form": "weightDynamic",
+      "provenance": "Hall 2013: static 7700 kcal/kg OVERSTATES ~40-50% long-term; use dynamic decay. SOLID. Form: asymptotic body-weight change from a sustained energy-balance offset, converted to BMI via heightRefM.",
+      "kind": "mediator"
+    },
+    {
+      "from": "BMI",
+      "to": "systolicBP",
+      "coeff": 0.72,
+      "form": "mediatorLinear",
+      "provenance": "Stage 3b (2026-06-08). Bann 2021 (UK cohorts MR/longitudinal): ~+0.72 mmHg SBP per +1 kg/m2 BMI. mediator->mediator edge: SBP gains 0.72*(BMI_person(age) - BMI_baseline_sex(age)); flows through the existing SBP->cardiovascular edge (the DOMINANT mediated BMI->CVD path). BMI is itself driven by calorieBalance, so calorieBalance->BMI->SBP->CVD chains. At default calorieBalance + zero BMI offset, BMI==baseline => Delta 0 => SBP unchanged. SOLID-direction. NOTE: BMI must be computed BEFORE systolicBP (engine topo-sorts mediator->mediator edges).",
+      "kind": "mediator"
+    },
+    {
+      "from": "physicalActivity",
+      "to": "systolicBP",
+      "coeff": -3.8,
+      "form": "exerciseScaled",
+      "provenance": "Cornelissen 2013 aerobic-training meta: ~-3.8 mmHg SBP (sedentary->trained); scaled by activity deviation (exerciseScale). =0 at popMean activity. NOTE: partial mortality overlap with the fitness->all-cause channel (the BP-mediated slice of exercise's benefit); acknowledged minor double-count, fit-harness to reconcile.",
+      "kind": "mediator"
+    },
+    {
+      "from": "BMI",
+      "to": "HbA1c",
+      "coeff": 0.025,
+      "form": "mediatorLinear",
+      "provenance": "~+0.025% HbA1c per +1 kg/m2 BMI (continuous slope WEAK/#gap, cross-sectional; the SOLID glycemic-BMI signal is incident-T2D RR). Enables calorieBalance->BMI->HbA1c (adiposity->insulin-resistance). =0 at baseline BMI. Small overlap with the BMI->CVD residual glucose-mediation (~15% per Lu 2014); fit-harness reconciles.",
+      "kind": "mediator"
+    },
+    {
+      "from": "LDL",
+      "to": "cardiovascular",
+      "form": "mediatorLogLinear",
+      "med": "LDL",
+      "beta": 0.00643,
+      "provenance": "CTT 2010: RR 0.78 per -1 mmol/L LDL = exp(-0.2485/38.67 mg/dL) => beta=0.00643 per mg/dL. Acts on (LDL value - per-sex/age baseline); =1 at baseline. SOLID.",
+      "kind": "cause"
+    },
+    {
+      "from": "systolicBP",
+      "to": "cardiovascular",
+      "form": "mediatorLogLinear",
+      "med": "systolicBP",
+      "beta": 0.0347,
+      "betaAgeMod": {
+        "refAge": 50,
+        "halfPer": 20
+      },
+      "benefitFloor": 115,
+      "provenance": "Lewington 2002: ~2x CVD per +20 mmHg (>=115) => beta=ln(2)/20=0.0347 per mmHg at age 50; relative slope HALVES per ~2 decades (betaAgeMod refAge 50, halfPer 20). Acts on (SBP value - baseline). BENEFIT FLOOR 115 mmHg (2026-06-10): the log-linear association is established only DOWN TO 115 mmHg (Lewington's lower bound); below it the value is clamped so there is NO further CVD benefit (plateau), rather than extrapolating an unbounded benefit toward physiologically impossible SBP. Below ~115 the epidemiology flattens and an observational J-curve appears that is largely reverse-causation (frailty/illness lowers BP); a true harm uptick is NOT modeled here (conservative plateau). SOLID (>=115); floor is the evidence-boundary choice.",
+      "kind": "cause"
+    },
+    {
+      "from": "HbA1c",
+      "to": "cardiovascular",
+      "form": "mediatorThresholdRamp",
+      "med": "HbA1c",
+      "slope": 0.866,
+      "threshold": 5.7,
+      "cap": 2.6,
+      "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 at HbA1c 6.5. **B3 mediation decomposition (2026-06-10):** the glycemic CV risk is partly STRUCTURAL (glycemia->ecm-crosslink->arterial-stiffness->CVD), now carried explicitly by the arterial-stiffness->cardiovascular edge. The stiffness-mediated slice is SUBTRACTED here so the total isn't double-counted: slope reduced 1.052->0.866 so the DIRECT (non-structural: endothelial/microvascular/thrombotic) glycemic HR at 6.5 is ~2.0 (exp(0.866*0.8)=2.0), the ~14% remainder routed through stiffness. Cap 3->2.6. ILLUSTRATIVE split magnitude (#gap: the exact structural fraction of glycemic CVD is uncharacterized); SOLID-direction. Ratio-to-baseline so =1 at the per-age baseline HbA1c.",
+      "kind": "cause"
+    },
+    {
+      "from": "arterial-stiffness",
+      "to": "cardiovascular",
+      "form": "mediatorLogLinear",
+      "med": "arterial-stiffness",
+      "beta": 0.6,
+      "provenance": "B3 (2026-06-10): the CONSOLIDATED arterial-stiffness -> CVD path. Mitchell 2010 (Framingham): cfPWV HR 1.48 per 1 SD, INDEPENDENT of SBP/lipids/smoking/diabetes. 1 SD cfPWV ~0.55 of the normalized stiffness range => beta = ln(1.48)/0.55 ~0.71; set to 0.6 (conservative, to bound the partial overlap of the SBP-driven elastin slice with the Lewington SBP->CVD edge — #gap, reconcile in the A4 SBP-residual-split). Deviation form exp(beta*(stiffness - baseline)) = 1 at the pop stiffness trajectory, so the CDC-calibrated CV baseline is preserved EXACTLY; only stiffness DEVIATIONS move CV hazard. Makes interventions map to reality: a senolytic (less senescence -> less stiffness) and glycemic/BP/crosslink-breaker interventions all bend CV mortality through stiffness, non-double-counted — senescence's stiffness path is a DISTINCT mechanism from its existing inflammation->plaque coupling (senescence->chronic-inflammation->atherosclerosis), the glycemia slice is decomposed out of HbA1c->CVD, and HR has no prior CVD edge. ILLUSTRATIVE beta; SOLID-direction (Mitchell 2010, Clayton 2023).",
+      "kind": "cause"
+    },
+    {
+      "from": "HbA1c",
+      "to": "cancer",
+      "form": "mediatorThresholdRamp",
+      "med": "HbA1c",
+      "slope": 0.27893,
+      "threshold": 5.7,
+      "cap": 1.25,
+      "provenance": "ERFC 2011: diabetes->cancer death HR 1.25 at HbA1c>=6.5 => slope=ln(1.25)/0.8=0.27893; ramp from 5.7, cap 1.25. Ratio-to-baseline. SOLID.",
+      "kind": "cause"
+    },
+    {
+      "from": "HbA1c",
+      "to": "neurodegeneration",
+      "form": "mediatorThresholdRamp",
+      "med": "HbA1c",
+      "slope": 0.68515,
+      "threshold": 5.7,
+      "cap": 1.73,
+      "provenance": "Gudala 2013: diabetes->dementia RR 1.73 at HbA1c>=6.5 => slope=ln(1.73)/0.8=0.68515; ramp from 5.7, cap 1.73. Ratio-to-baseline. SOLID.",
+      "kind": "cause"
+    },
+    {
+      "from": "smokingStatus",
+      "to": "cancer",
+      "form": "smokingCategorical",
+      "input": "smokingStatus",
+      "rr": {
+        "never": 1,
+        "former": 1.3,
+        "current": 2.2
+      },
+      "provenance": "Relative cancer-death RR never 1.0 / former 1.3 / current 2.2 (PAF 28.8%). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*2.2=1.243) so the population mix averages to mult 1 (the CDC cancer baseline already embeds the mix). Normalized: never~0.804 / former~1.046 / current~1.770. SOLID-direction; relative magnitudes approximate.",
+      "kind": "cause"
+    },
+    {
+      "from": "smokingStatus",
+      "to": "copd",
+      "form": "smokingCategorical",
+      "input": "smokingStatus",
+      "rr": {
+        "never": 1,
+        "former": 7,
+        "current": 12
+      },
+      "provenance": "Smoking->COPD. Current-smoker COPD-death RR ~12 (Thun 2013 CPS-II, conservative end of 12-26); former ~7. smokingCategorical, normalized to US smoker mix (mult=1 at baseline). v0.4.1.",
+      "kind": "cause"
+    },
+    {
+      "from": "smokingStatus",
+      "to": "cardiovascular",
+      "form": "smokingCategorical",
+      "input": "smokingStatus",
+      "rr": {
+        "never": 1,
+        "former": 1.3,
+        "current": 1.9
+      },
+      "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Relative cardiovascular-death RR never 1.0 / former 1.3 / current 1.9 (net current-smoker CVD RR ~1.8-2.0). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*1.9=1.201) so the population mix averages to mult 1 (the CDC cardiovascular baseline already embeds the mix). Normalized: never~0.833 / former~1.082 / current~1.582. Same scheme as smoking->cancer. SOLID-direction; relative magnitudes approximate.",
+      "kind": "cause"
+    },
+    {
+      "from": "sleep",
+      "to": "allcause",
+      "form": "uShape",
+      "input": "sleep",
+      "nadir": [
+        7,
+        8
+      ],
+      "beta": {
+        "low": 0.06,
+        "high": 0.13
+      },
+      "power": 1,
+      "provenance": "Sleep duration → all-cause mortality is U-SHAPED (Cappuccio 2010 meta: short sleep <6h HR ~1.12, long sleep >8-9h HR ~1.30 vs the 7-8h REFERENCE). **BANDED + ASYMMETRIC (2026-06-10, user-caught):** the prior symmetric point-nadir at 7 wrongly penalized 8h as much as 6h — but 7-8h is a flat-optimal REFERENCE BAND (8h is not worse than 7h). mult = exp(β·dist) where dist = how far OUTSIDE [7,8] (0 inside ⇒ 7h AND 8h both penalty-free) and β is ASYMMETRIC: short arm (<7h) βlow 0.06, long arm (>8h) βhigh 0.13 (long-sleep mortality rises ~2× steeper per hour — Cappuccio long HR 1.30 vs short 1.12). Resulting: 5h ⇒ exp(0.06·2)=1.13, 6h ⇒ 1.06, 7-8h ⇒ 1.00, 9h ⇒ exp(0.13·1)=1.14, 10h ⇒ exp(0.13·2)=1.30. popMean 7 lies in the band ⇒ mult 1 at default ⇒ baseline preserved EXACTLY. Whole-intrinsic-bracket all-cause multiplier (like physicalActivity→allcause); sleep is a standalone input with no prior edge, so NO double-count. The steeper long arm is partly REVERSE-CAUSATION (illness → long sleep, not long sleep → death) — flagged #gap/contributory-reverse-causation; the model encodes the association as-observed. Wired + exposed 2026-06-10 (was a phantom input); banded/asymmetric same day. SOLID-direction; magnitude illustrative.",
+      "kind": "cause"
+    },
+    {
+      "from": "physicalActivity",
+      "to": "allcause",
+      "form": "activityFitness",
+      "input": "physicalActivity",
+      "betaPerMet": -0.139,
+      "metMap": [
+        [
+          0,
+          -1.5
+        ],
+        [
+          75,
+          -0.5
+        ],
+        [
+          150,
+          0
+        ],
+        [
+          300,
+          1
+        ],
+        [
+          450,
+          1.6
+        ],
+        [
+          600,
+          1.9
+        ]
+      ],
+      "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Stage 3c (2026-06-10) PLATEAU refinement at the high-volume end (see below). Activity's mortality benefit flows through cardiorespiratory fitness (VO2max), weight- AND glucose-independent (Barry 2014: obese-fit ~ normal-fit). mult_allcause = exp(-0.139 * dMETs(activity)), RR 0.87 per MET (Kodama 2009) => beta = ln(0.87) = -0.139. Applied to the WHOLE intrinsic bracket (all causes + residual), at the frailty-multiplier site (target 'allcause'). dMETs = MET-deviation of the activity level from population-average activity (physicalActivity popMean 150 min/wk -> dMETs 0 -> mult 1, baseline preserved). metMap is an ILLUSTRATIVE piecewise-linear map on physicalActivity (min/wk MVPA) -> METs-relative-to-popMean: sedentary(0)=-1.5, below-avg(75)=-0.5, popMean(150)=0, moderate(300)=+1.0, high(450)=+1.6, athlete(600)=+1.9; range -1.5..+1.9 spans sedentary<->athlete (a sedentary->trained shift is ~+1.1 MET in the data). PLATEAU (Stage 3c): the map now DECELERATES above 300 min/wk (slope 0.0067 METs/min over 150-300, 0.0040 over 300-450, 0.0020 over 450-600) rather than the prior near-linear climb to +2.5 at 600. Rationale: the dose-response to ALL-CAUSE MORTALITY flattens beyond ~3-5x guideline volume (Arem 2015, pooled 6 US cohorts n>650k: benefit flattens beyond 3-5x guidelines, NO increased risk at >10x => the J-curve/reverse-J concern for extreme exercise is NOT supported for mortality) while cardiorespiratory FITNESS itself has no demonstrated upper benefit limit (Mandsager 2018, n=122k: elite fitness beats high fitness). The deceleration encodes the DIMINISHING-RETURNS of activity-VOLUME->fitness (each added weekly minute buys less VO2max at the top), keeping the curve MONOTONIC (no upturn). Deliberately NOT a U-shape: the genuine extreme-endurance harms (atrial fibrillation ~2-5x, elevated but stable coronary-artery-calcium) are MORBIDITY endpoints not captured by this all-cause-mortality channel; the small Schnohr 2015 strenuous-jogger subgroup mortality signal (n~40, wide CI) did not replicate in the large cohorts. Consistent with interventions/lifestyle/exercise.md (Arem 2015 section). DOUBLE-COUNT NOTE: activity also drives HbA1c (Stage 1), but HbA1c->CVD only fires above the 5.7 prediabetes threshold, where active people rarely sit, so the overlap is negligible for non-diabetics; the fitness channel is the primary activity->mortality path. Activity is NOT additionally routed activity->cardiovascular separately. ILLUSTRATIVE mapping; SOLID-direction (Kodama 2009 / Barry 2014); plateau-shape SOLID (Arem 2015 / Mandsager 2018).",
+      "kind": "cause"
+    },
+    {
+      "from": "alcohol",
+      "to": "cancer",
+      "form": "directLogLinear",
+      "input": "alcohol",
+      "beta": 0.05,
+      "provenance": "Bagnardi 2015 (breast/CRC/liver-driven): small all-cancer slope ~exp(0.05*(drinks/day - popMean)). APPROXIMATE (per-drink all-cancer slope not line-verified).",
+      "kind": "cause"
+    },
+    {
+      "from": "alcohol",
+      "to": "liver",
+      "form": "directHinge",
+      "input": "alcohol",
+      "slope": 0.15,
+      "knee": 2,
+      "provenance": "Alcohol->liver (now a named cause node; was the liver slice of residual). directHinge slope0.15 knee2 (supralinear in heavy drinkers). v0.4.1 retarget 2026-06-09.",
+      "kind": "cause"
+    },
+    {
+      "from": "airPollution",
+      "to": "cardiovascular",
+      "form": "directLogLinear",
+      "input": "airPollution",
+      "beta": 0.00583,
+      "provenance": "Pope 2002: RR 1.06 per +10 ug/m3 PM2.5 => beta=ln(1.06)/10=0.00583 per ug/m3 (deviation from popMean ~8). SOLID*-direction (per-10 not PDF-line-verified).",
+      "kind": "cause"
+    },
+    {
+      "from": "airPollution",
+      "to": "copd",
+      "form": "directLogLinear",
+      "input": "airPollution",
+      "beta": 0.005,
+      "provenance": "PM2.5->COPD/respiratory (now a named cause node; was the respiratory slice of residual). beta 0.005 per ug/m3. v0.4.1 retarget 2026-06-09.",
+      "kind": "cause"
+    },
+    {
+      "from": "BMI",
+      "to": "cardiovascular",
+      "form": "bmiThresholdRatio",
+      "med": "BMI",
+      "beta": 0.022819,
+      "threshold": 25,
+      "provenance": "Stage 3b (2026-06-08). DIRECT (UNMEDIATED) BMI->CVD residual, upper-arm only (BMI>25): exp(beta*max(0,BMI-25)), NORMALIZED to per-age baseline BMI so =1 at baseline. The ~unmediated portion of BMI->CHD that REMAINS after the BMI->SBP->CVD mediated path (edge 1). beta chosen so the COMBINED effect (this residual x the SBP-path mult at +5 BMI / mid age 50) ~= Lu 2014 total BMI->CHD HR 1.27 per +5 kg/m2. At +5 BMI: SBP-path = exp(0.0347 * 0.72*5) = 1.1331 (SBP->CVD beta at age 50); residual = exp(0.022819*5) = 1.1209; combined = 1.270. RESULTING LOG-HR SPLIT: SBP-path 52.3% / residual 47.7% (the mechanical SBP->CVD slope at age 50 carries more than the Lu single-mediator BP 31% because Lewington's per-mmHg slope is steep at mid-age; the residual beta absorbs the remainder to hit the 1.27 total). Lu 2014 mediation decomposition (BP ~31% single-mediator); BMI->CHD 1.27 per +5. SOLID-direction; split is model-mechanical.",
+      "kind": "cause"
+    },
+    {
+      "from": "BMI",
+      "to": "allcause",
+      "form": "bmiJcurve",
+      "med": "BMI",
+      "betaUpper": 0.017236,
+      "betaLower": 0.117746,
+      "upper": 25,
+      "lower": 20,
+      "provenance": "Stage 3b (2026-06-08). BMI J-curve whole-intrinsic-bracket multiplier (target 'allcause', at the frailty-multiplier site), NORMALIZED to per-age baseline BMI so =1 at baseline. UPPER arm (BMI>25): small NON-CV obesity mortality, betaUpper = ln(1.09)/5 = 0.017236 per unit >25 (BMI->all-cause 1.39 per +5 vs the CV portion 1.27 => ~1.09 residual non-CV slice). LOWER arm (BMI<20): underweight/frailty, betaLower = ln(1.51)/3.5 = 0.117746 per unit <20 (Global BMI Mortality Collaboration 2016: HR 1.51 at BMI 15-18.5, ~3.5 below the nadir edge 20; mostly non-metabolic frailty). Nadir band [20,25] => factor 1. mult = Jbracket(BMI_person)/Jbracket(BMI_baseline); since baseline BMI (~28-30) sits on the UPPER arm, a lean person (BMI 22, nadir) gets mult<1 and an underweight person (BMI 17) gets the frailty penalty. The CV slice of BMI->mortality is carried separately (edges 1+2) so this J-curve is the NON-CV + frailty residual only (no CV double-count). OMITTED: BMI->LDL (null per MR) and a continuous BMI->glucose edge (folded into this residual / not separately wired). Global BMI 2016; Lu 2014. SOLID-direction.",
+      "kind": "cause"
+    },
+    {
+      "from": "smokingStatus",
+      "to": "diabetes",
+      "form": "smokingCategorical",
+      "input": "smokingStatus",
+      "rr": {
+        "never": 1,
+        "former": 1.2,
+        "current": 1.6
+      },
+      "provenance": "Smoking->diabetes mortality RR ~1.6 current / 1.2 former (Pan 2015 meta; smoking raises diabetes incidence+mortality). smokingCategorical normalized. v0.4.1.",
+      "kind": "cause"
+    },
+    {
+      "from": "smokingStatus",
+      "to": "ckd",
+      "form": "smokingCategorical",
+      "input": "smokingStatus",
+      "rr": {
+        "never": 1,
+        "former": 1.2,
+        "current": 1.5
+      },
+      "provenance": "Smoking->CKD mortality RR ~1.5 current (smoking accelerates nephropathy/CKD progression). smokingCategorical normalized. v0.4.1.",
+      "kind": "cause"
+    },
+    {
+      "from": "HbA1c",
+      "to": "diabetes",
+      "form": "mediatorThresholdRamp",
+      "med": "HbA1c",
+      "threshold": 6.5,
+      "slope": 0.55,
+      "cap": 30,
+      "provenance": "HbA1c -> DIRECT diabetes mortality (E10-E14: acute metabolic crises [DKA, hyperosmolar hyperglycemic state] + severe diabetic complications coded to diabetes itself, NOT the diabetic CVD that codes to cardiovascular). Added 2026-06-10 to give the β-cell glucotoxicity spiral a SEVERITY-SCALING terminal endpoint — without it the only HbA1c->mortality edges (cardiovascular/cancer/neurodegeneration) all SATURATE at their caps by HbA1c ~6.8 (they carry the ERFC/Gudala *average-diabetic* macrovascular RR, which genuinely plateaus), so the model treated HbA1c 7 and 14 as identical for death (user-caught, 2026-06-10). This edge is DELIBERATELY STEEP + HIGH-CAP because the diabetes-coded endpoint is dominated by ACUTE crises whose baseline is ~0 at HbA1c 6.5 and explodes at sustained high glycemia: slope 0.55 = RR ~1.73 per +1% HbA1c, cap 30 (saturates at HbA1c ~12.7). This is a DIFFERENT shape from the capped macrovascular edges and is correct — acute hyperglycemic death scales with severity where chronic macrovascular RR plateaus. ratio-to-baseline (threshold 6.5 > population HbA1c max 6.4 @130) so mult EXACTLY 1 in the population => baseline LE preserved EXACTLY. Resulting ladder (M, anchored): HbA1c 7 -4.3 yr / 10 -7.3 / 14 -11.1. ILLUSTRATIVE slope+cap magnitudes (#gap: the exact direct-diabetes-mortality dose-response by HbA1c band is uncharacterized for HbA1c>12); SOLID-direction (acute hyperglycemic + complication mortality rises steeply with sustained hyperglycemia).",
+      "kind": "cause"
+    },
+    {
+      "from": "HbA1c",
+      "to": "ckd",
+      "form": "mediatorThresholdRamp",
+      "med": "HbA1c",
+      "threshold": 6.5,
+      "slope": 0.35,
+      "cap": 10,
+      "provenance": "HbA1c -> CKD mortality (diabetic nephropathy -> renal death, N00-N07/N17-N19/N25-N27). Added 2026-06-10 alongside HbA1c->diabetes as the second severity-scaling glycemic endpoint. Diabetic nephropathy is strongly glycemia-dependent (DCCT/UKPDS: tight control markedly cuts nephropathy progression), so renal death rises with sustained hyperglycemia: slope 0.35 = RR ~1.42 per +1% HbA1c, cap 10 (saturates at HbA1c ~13.1) — gentler than the diabetes edge (nephropathy is a chronic complication, not an acute crisis). ratio-to-baseline (threshold 6.5 > population HbA1c max) => mult EXACTLY 1 in population => baseline LE preserved EXACTLY. Complements the existing smoking->ckd edge (different driver). ILLUSTRATIVE magnitudes (#gap); SOLID-direction (glycemic control governs diabetic nephropathy progression).",
+      "kind": "cause"
+    },
+    {
+      "fromState": "beta-cell-decline",
+      "mediator": "HbA1c",
+      "coeff": {
+        "male": 0.6,
+        "female": 0.5
+      },
+      "kind": "augment"
+    },
+    {
+      "from": "sarcopenia",
+      "to": "cardiovascular",
+      "kind": "frailty",
+      "beta": 0.9708
+    },
+    {
+      "from": "sarcopenia",
+      "to": "cancer",
+      "kind": "frailty",
+      "beta": 0.678
+    },
+    {
+      "from": "sarcopenia",
+      "to": "neurodegeneration",
+      "kind": "frailty",
+      "beta": 0.8755
+    },
+    {
+      "from": "sarcopenia",
+      "to": "infection",
+      "kind": "frailty",
+      "beta": 1.5913
+    },
+    {
+      "from": "sarcopenia",
+      "to": "residual",
+      "kind": "frailty",
+      "beta": 0.8755
+    },
+    {
+      "from": "sarcopenia",
+      "to": "diabetes",
+      "kind": "frailty",
+      "beta": 0.8755
+    },
+    {
+      "from": "sarcopenia",
+      "to": "copd",
+      "kind": "frailty",
+      "beta": 0.8755
+    },
+    {
+      "from": "sarcopenia",
+      "to": "ckd",
+      "kind": "frailty",
+      "beta": 0.8755
+    },
+    {
+      "from": "sarcopenia",
+      "to": "liver",
+      "kind": "frailty",
+      "beta": 0.8755
+    },
+    {
+      "from": "sarcopenia",
+      "to": "frailty",
+      "kind": "frailty",
+      "beta": 0.8755
     }
   ],
   "bLayer": {
@@ -3087,71 +3518,6 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "provenance": "Population resting HR ~65 bpm (male) / ~68 (female); FLAT illustrative baseline (NHANES resting HR ~60-70; age-neutral, no age-pegging). Added 2026-06-10 (A2) as a DRIVER for the elastin-fatigue state node — pulsatile mechanical fatigue of elastin scales with cardiac cycles × pressure amplitude, i.e. HR × pulse-pressure. Anchorable via Labs. DEFERRED follow-ups: a restingHR→mortality edge (resting HR is an independent CV/all-cause risk factor) and a physicalActivity→restingHR fitness edge (training lowers resting HR ⇒ slower elastin fatigue) — neither wired yet, so restingHR currently affects nothing but the (still-unwired) elastin-fatigue node."
       }
     ],
-    "mediatorEdges": [
-      {
-        "from": "dietSatFat",
-        "to": "LDL",
-        "coeff": 1.7,
-        "form": "linear",
-        "provenance": "Mensink 2016/2003: +1.3-2.1 mg/dL per 1% energy (replacement-dependent: PUFA -2.1, carb -1.3); 1.7 = mid. SOLID."
-      },
-      {
-        "from": "dietFiber",
-        "to": "LDL",
-        "coeff": -2.2,
-        "form": "fiberSaturating",
-        "provenance": "Brown 1999: -2.2 mg/dL per g/day soluble fiber; SATURATING >10 g/day. SOLID."
-      },
-      {
-        "from": "physicalActivity",
-        "to": "HbA1c",
-        "coeff": -0.67,
-        "form": "exerciseHbA1c",
-        "provenance": "Umpierre 2011: -0.67% (T2D) for structured exercise vs sedentary. SOLID. Form scales the -0.67% by activity deviation across the sedentary->active span (~150 min/wk)."
-      },
-      {
-        "from": "dietSodium",
-        "to": "systolicBP",
-        "coeff": 5.8,
-        "form": "sodiumConvex",
-        "provenance": "He 2013: +5.8 mmHg SBP per +100 mmol/day (slope POSITIVE; the '-5.8 per -100' reduction framing). CONVEX, effect-modified (steeper older/higher-SBP). SOLID. [sign-fixed 2026-06-08]"
-      },
-      {
-        "from": "alcohol",
-        "to": "systolicBP",
-        "coeff": 5.5,
-        "form": "alcoholThreshold",
-        "provenance": "Roerecke 2017: up to -5.5 mmHg from heavy 50% cut; THRESHOLD ~2 drinks then steep. SOLID. Form: ~no effect <=2 drinks, steep rise above."
-      },
-      {
-        "from": "calorieBalance",
-        "to": "BMI",
-        "coeff": 1,
-        "form": "weightDynamic",
-        "provenance": "Hall 2013: static 7700 kcal/kg OVERSTATES ~40-50% long-term; use dynamic decay. SOLID. Form: asymptotic body-weight change from a sustained energy-balance offset, converted to BMI via heightRefM."
-      },
-      {
-        "from": "BMI",
-        "to": "systolicBP",
-        "coeff": 0.72,
-        "form": "mediatorLinear",
-        "provenance": "Stage 3b (2026-06-08). Bann 2021 (UK cohorts MR/longitudinal): ~+0.72 mmHg SBP per +1 kg/m2 BMI. mediator->mediator edge: SBP gains 0.72*(BMI_person(age) - BMI_baseline_sex(age)); flows through the existing SBP->cardiovascular edge (the DOMINANT mediated BMI->CVD path). BMI is itself driven by calorieBalance, so calorieBalance->BMI->SBP->CVD chains. At default calorieBalance + zero BMI offset, BMI==baseline => Delta 0 => SBP unchanged. SOLID-direction. NOTE: BMI must be computed BEFORE systolicBP (engine topo-sorts mediator->mediator edges)."
-      },
-      {
-        "from": "physicalActivity",
-        "to": "systolicBP",
-        "coeff": -3.8,
-        "form": "exerciseScaled",
-        "provenance": "Cornelissen 2013 aerobic-training meta: ~-3.8 mmHg SBP (sedentary->trained); scaled by activity deviation (exerciseScale). =0 at popMean activity. NOTE: partial mortality overlap with the fitness->all-cause channel (the BP-mediated slice of exercise's benefit); acknowledged minor double-count, fit-harness to reconcile."
-      },
-      {
-        "from": "BMI",
-        "to": "HbA1c",
-        "coeff": 0.025,
-        "form": "mediatorLinear",
-        "provenance": "~+0.025% HbA1c per +1 kg/m2 BMI (continuous slope WEAK/#gap, cross-sectional; the SOLID glycemic-BMI signal is incident-T2D RR). Enables calorieBalance->BMI->HbA1c (adiposity->insulin-resistance). =0 at baseline BMI. Small overlap with the BMI->CVD residual glucose-mediation (~15% per Lu 2014); fit-harness reconciles."
-      }
-    ],
     "treatments": [
       {
         "id": "statin",
@@ -3309,260 +3675,6 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       }
     ],
     "stateAugmentsNote": "STATE→MEDIATOR AUGMENTS (2026-06-10; β-cell→HbA1c vertical). Each {fromState, mediator, coeff} injects coeff·stateValue INTO a mediator mid-march (per-age, AFTER the mediator phase + offsets, BEFORE state rates advance), so a state node's accumulated value can re-shape a mediator trajectory that the SAME march's downstream integrals then read. coeff is a number or a {male,female} map. This is the substrate that lets an emergent damage variable un-pin a formerly age-tabled mediator: β-cell-decline → HbA1c replaces the HbA1c age-table with a flat 5.3 baseline + the emergent rise. Anchoring stays exact in Increment 2 because the augment is input-independent (constant base rate), so computeOffsets' post-augment prediction cancels; Increment 3 (glucotox feedback makes the augment input-dependent) revisits anchor semantics.",
-    "stateAugments": [
-      {
-        "fromState": "beta-cell-decline",
-        "mediator": "HbA1c",
-        "coeff": {
-          "male": 0.6,
-          "female": 0.5
-        }
-      }
-    ],
-    "causeEdges": [
-      {
-        "from": "LDL",
-        "to": "cardiovascular",
-        "form": "mediatorLogLinear",
-        "med": "LDL",
-        "beta": 0.00643,
-        "provenance": "CTT 2010: RR 0.78 per -1 mmol/L LDL = exp(-0.2485/38.67 mg/dL) => beta=0.00643 per mg/dL. Acts on (LDL value - per-sex/age baseline); =1 at baseline. SOLID."
-      },
-      {
-        "from": "systolicBP",
-        "to": "cardiovascular",
-        "form": "mediatorLogLinear",
-        "med": "systolicBP",
-        "beta": 0.0347,
-        "betaAgeMod": {
-          "refAge": 50,
-          "halfPer": 20
-        },
-        "benefitFloor": 115,
-        "provenance": "Lewington 2002: ~2x CVD per +20 mmHg (>=115) => beta=ln(2)/20=0.0347 per mmHg at age 50; relative slope HALVES per ~2 decades (betaAgeMod refAge 50, halfPer 20). Acts on (SBP value - baseline). BENEFIT FLOOR 115 mmHg (2026-06-10): the log-linear association is established only DOWN TO 115 mmHg (Lewington's lower bound); below it the value is clamped so there is NO further CVD benefit (plateau), rather than extrapolating an unbounded benefit toward physiologically impossible SBP. Below ~115 the epidemiology flattens and an observational J-curve appears that is largely reverse-causation (frailty/illness lowers BP); a true harm uptick is NOT modeled here (conservative plateau). SOLID (>=115); floor is the evidence-boundary choice."
-      },
-      {
-        "from": "HbA1c",
-        "to": "cardiovascular",
-        "form": "mediatorThresholdRamp",
-        "med": "HbA1c",
-        "slope": 0.866,
-        "threshold": 5.7,
-        "cap": 2.6,
-        "provenance": "ERFC 2011: diabetes->vascular death HR 2.32 at HbA1c 6.5. **B3 mediation decomposition (2026-06-10):** the glycemic CV risk is partly STRUCTURAL (glycemia->ecm-crosslink->arterial-stiffness->CVD), now carried explicitly by the arterial-stiffness->cardiovascular edge. The stiffness-mediated slice is SUBTRACTED here so the total isn't double-counted: slope reduced 1.052->0.866 so the DIRECT (non-structural: endothelial/microvascular/thrombotic) glycemic HR at 6.5 is ~2.0 (exp(0.866*0.8)=2.0), the ~14% remainder routed through stiffness. Cap 3->2.6. ILLUSTRATIVE split magnitude (#gap: the exact structural fraction of glycemic CVD is uncharacterized); SOLID-direction. Ratio-to-baseline so =1 at the per-age baseline HbA1c."
-      },
-      {
-        "from": "arterial-stiffness",
-        "to": "cardiovascular",
-        "form": "mediatorLogLinear",
-        "med": "arterial-stiffness",
-        "beta": 0.6,
-        "provenance": "B3 (2026-06-10): the CONSOLIDATED arterial-stiffness -> CVD path. Mitchell 2010 (Framingham): cfPWV HR 1.48 per 1 SD, INDEPENDENT of SBP/lipids/smoking/diabetes. 1 SD cfPWV ~0.55 of the normalized stiffness range => beta = ln(1.48)/0.55 ~0.71; set to 0.6 (conservative, to bound the partial overlap of the SBP-driven elastin slice with the Lewington SBP->CVD edge — #gap, reconcile in the A4 SBP-residual-split). Deviation form exp(beta*(stiffness - baseline)) = 1 at the pop stiffness trajectory, so the CDC-calibrated CV baseline is preserved EXACTLY; only stiffness DEVIATIONS move CV hazard. Makes interventions map to reality: a senolytic (less senescence -> less stiffness) and glycemic/BP/crosslink-breaker interventions all bend CV mortality through stiffness, non-double-counted — senescence's stiffness path is a DISTINCT mechanism from its existing inflammation->plaque coupling (senescence->chronic-inflammation->atherosclerosis), the glycemia slice is decomposed out of HbA1c->CVD, and HR has no prior CVD edge. ILLUSTRATIVE beta; SOLID-direction (Mitchell 2010, Clayton 2023)."
-      },
-      {
-        "from": "HbA1c",
-        "to": "cancer",
-        "form": "mediatorThresholdRamp",
-        "med": "HbA1c",
-        "slope": 0.27893,
-        "threshold": 5.7,
-        "cap": 1.25,
-        "provenance": "ERFC 2011: diabetes->cancer death HR 1.25 at HbA1c>=6.5 => slope=ln(1.25)/0.8=0.27893; ramp from 5.7, cap 1.25. Ratio-to-baseline. SOLID."
-      },
-      {
-        "from": "HbA1c",
-        "to": "neurodegeneration",
-        "form": "mediatorThresholdRamp",
-        "med": "HbA1c",
-        "slope": 0.68515,
-        "threshold": 5.7,
-        "cap": 1.73,
-        "provenance": "Gudala 2013: diabetes->dementia RR 1.73 at HbA1c>=6.5 => slope=ln(1.73)/0.8=0.68515; ramp from 5.7, cap 1.73. Ratio-to-baseline. SOLID."
-      },
-      {
-        "from": "smokingStatus",
-        "to": "cancer",
-        "form": "smokingCategorical",
-        "input": "smokingStatus",
-        "rr": {
-          "never": 1,
-          "former": 1.3,
-          "current": 2.2
-        },
-        "provenance": "Relative cancer-death RR never 1.0 / former 1.3 / current 2.2 (PAF 28.8%). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*2.2=1.243) so the population mix averages to mult 1 (the CDC cancer baseline already embeds the mix). Normalized: never~0.804 / former~1.046 / current~1.770. SOLID-direction; relative magnitudes approximate."
-      },
-      {
-        "from": "smokingStatus",
-        "to": "copd",
-        "form": "smokingCategorical",
-        "input": "smokingStatus",
-        "rr": {
-          "never": 1,
-          "former": 7,
-          "current": 12
-        },
-        "provenance": "Smoking->COPD. Current-smoker COPD-death RR ~12 (Thun 2013 CPS-II, conservative end of 12-26); former ~7. smokingCategorical, normalized to US smoker mix (mult=1 at baseline). v0.4.1."
-      },
-      {
-        "from": "smokingStatus",
-        "to": "cardiovascular",
-        "form": "smokingCategorical",
-        "input": "smokingStatus",
-        "rr": {
-          "never": 1,
-          "former": 1.3,
-          "current": 1.9
-        },
-        "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Relative cardiovascular-death RR never 1.0 / former 1.3 / current 1.9 (net current-smoker CVD RR ~1.8-2.0). NORMALIZED by US smoker-mix mean (0.61*1.0+0.25*1.3+0.14*1.9=1.201) so the population mix averages to mult 1 (the CDC cardiovascular baseline already embeds the mix). Normalized: never~0.833 / former~1.082 / current~1.582. Same scheme as smoking->cancer. SOLID-direction; relative magnitudes approximate."
-      },
-      {
-        "from": "sleep",
-        "to": "allcause",
-        "form": "uShape",
-        "input": "sleep",
-        "nadir": [
-          7,
-          8
-        ],
-        "beta": {
-          "low": 0.06,
-          "high": 0.13
-        },
-        "power": 1,
-        "provenance": "Sleep duration → all-cause mortality is U-SHAPED (Cappuccio 2010 meta: short sleep <6h HR ~1.12, long sleep >8-9h HR ~1.30 vs the 7-8h REFERENCE). **BANDED + ASYMMETRIC (2026-06-10, user-caught):** the prior symmetric point-nadir at 7 wrongly penalized 8h as much as 6h — but 7-8h is a flat-optimal REFERENCE BAND (8h is not worse than 7h). mult = exp(β·dist) where dist = how far OUTSIDE [7,8] (0 inside ⇒ 7h AND 8h both penalty-free) and β is ASYMMETRIC: short arm (<7h) βlow 0.06, long arm (>8h) βhigh 0.13 (long-sleep mortality rises ~2× steeper per hour — Cappuccio long HR 1.30 vs short 1.12). Resulting: 5h ⇒ exp(0.06·2)=1.13, 6h ⇒ 1.06, 7-8h ⇒ 1.00, 9h ⇒ exp(0.13·1)=1.14, 10h ⇒ exp(0.13·2)=1.30. popMean 7 lies in the band ⇒ mult 1 at default ⇒ baseline preserved EXACTLY. Whole-intrinsic-bracket all-cause multiplier (like physicalActivity→allcause); sleep is a standalone input with no prior edge, so NO double-count. The steeper long arm is partly REVERSE-CAUSATION (illness → long sleep, not long sleep → death) — flagged #gap/contributory-reverse-causation; the model encodes the association as-observed. Wired + exposed 2026-06-10 (was a phantom input); banded/asymmetric same day. SOLID-direction; magnitude illustrative."
-      },
-      {
-        "from": "physicalActivity",
-        "to": "allcause",
-        "form": "activityFitness",
-        "input": "physicalActivity",
-        "betaPerMet": -0.139,
-        "metMap": [
-          [
-            0,
-            -1.5
-          ],
-          [
-            75,
-            -0.5
-          ],
-          [
-            150,
-            0
-          ],
-          [
-            300,
-            1
-          ],
-          [
-            450,
-            1.6
-          ],
-          [
-            600,
-            1.9
-          ]
-        ],
-        "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Stage 3c (2026-06-10) PLATEAU refinement at the high-volume end (see below). Activity's mortality benefit flows through cardiorespiratory fitness (VO2max), weight- AND glucose-independent (Barry 2014: obese-fit ~ normal-fit). mult_allcause = exp(-0.139 * dMETs(activity)), RR 0.87 per MET (Kodama 2009) => beta = ln(0.87) = -0.139. Applied to the WHOLE intrinsic bracket (all causes + residual), at the frailty-multiplier site (target 'allcause'). dMETs = MET-deviation of the activity level from population-average activity (physicalActivity popMean 150 min/wk -> dMETs 0 -> mult 1, baseline preserved). metMap is an ILLUSTRATIVE piecewise-linear map on physicalActivity (min/wk MVPA) -> METs-relative-to-popMean: sedentary(0)=-1.5, below-avg(75)=-0.5, popMean(150)=0, moderate(300)=+1.0, high(450)=+1.6, athlete(600)=+1.9; range -1.5..+1.9 spans sedentary<->athlete (a sedentary->trained shift is ~+1.1 MET in the data). PLATEAU (Stage 3c): the map now DECELERATES above 300 min/wk (slope 0.0067 METs/min over 150-300, 0.0040 over 300-450, 0.0020 over 450-600) rather than the prior near-linear climb to +2.5 at 600. Rationale: the dose-response to ALL-CAUSE MORTALITY flattens beyond ~3-5x guideline volume (Arem 2015, pooled 6 US cohorts n>650k: benefit flattens beyond 3-5x guidelines, NO increased risk at >10x => the J-curve/reverse-J concern for extreme exercise is NOT supported for mortality) while cardiorespiratory FITNESS itself has no demonstrated upper benefit limit (Mandsager 2018, n=122k: elite fitness beats high fitness). The deceleration encodes the DIMINISHING-RETURNS of activity-VOLUME->fitness (each added weekly minute buys less VO2max at the top), keeping the curve MONOTONIC (no upturn). Deliberately NOT a U-shape: the genuine extreme-endurance harms (atrial fibrillation ~2-5x, elevated but stable coronary-artery-calcium) are MORBIDITY endpoints not captured by this all-cause-mortality channel; the small Schnohr 2015 strenuous-jogger subgroup mortality signal (n~40, wide CI) did not replicate in the large cohorts. Consistent with interventions/lifestyle/exercise.md (Arem 2015 section). DOUBLE-COUNT NOTE: activity also drives HbA1c (Stage 1), but HbA1c->CVD only fires above the 5.7 prediabetes threshold, where active people rarely sit, so the overlap is negligible for non-diabetics; the fitness channel is the primary activity->mortality path. Activity is NOT additionally routed activity->cardiovascular separately. ILLUSTRATIVE mapping; SOLID-direction (Kodama 2009 / Barry 2014); plateau-shape SOLID (Arem 2015 / Mandsager 2018)."
-      },
-      {
-        "from": "alcohol",
-        "to": "cancer",
-        "form": "directLogLinear",
-        "input": "alcohol",
-        "beta": 0.05,
-        "provenance": "Bagnardi 2015 (breast/CRC/liver-driven): small all-cancer slope ~exp(0.05*(drinks/day - popMean)). APPROXIMATE (per-drink all-cancer slope not line-verified)."
-      },
-      {
-        "from": "alcohol",
-        "to": "liver",
-        "form": "directHinge",
-        "input": "alcohol",
-        "slope": 0.15,
-        "knee": 2,
-        "provenance": "Alcohol->liver (now a named cause node; was the liver slice of residual). directHinge slope0.15 knee2 (supralinear in heavy drinkers). v0.4.1 retarget 2026-06-09."
-      },
-      {
-        "from": "airPollution",
-        "to": "cardiovascular",
-        "form": "directLogLinear",
-        "input": "airPollution",
-        "beta": 0.00583,
-        "provenance": "Pope 2002: RR 1.06 per +10 ug/m3 PM2.5 => beta=ln(1.06)/10=0.00583 per ug/m3 (deviation from popMean ~8). SOLID*-direction (per-10 not PDF-line-verified)."
-      },
-      {
-        "from": "airPollution",
-        "to": "copd",
-        "form": "directLogLinear",
-        "input": "airPollution",
-        "beta": 0.005,
-        "provenance": "PM2.5->COPD/respiratory (now a named cause node; was the respiratory slice of residual). beta 0.005 per ug/m3. v0.4.1 retarget 2026-06-09."
-      },
-      {
-        "from": "BMI",
-        "to": "cardiovascular",
-        "form": "bmiThresholdRatio",
-        "med": "BMI",
-        "beta": 0.022819,
-        "threshold": 25,
-        "provenance": "Stage 3b (2026-06-08). DIRECT (UNMEDIATED) BMI->CVD residual, upper-arm only (BMI>25): exp(beta*max(0,BMI-25)), NORMALIZED to per-age baseline BMI so =1 at baseline. The ~unmediated portion of BMI->CHD that REMAINS after the BMI->SBP->CVD mediated path (edge 1). beta chosen so the COMBINED effect (this residual x the SBP-path mult at +5 BMI / mid age 50) ~= Lu 2014 total BMI->CHD HR 1.27 per +5 kg/m2. At +5 BMI: SBP-path = exp(0.0347 * 0.72*5) = 1.1331 (SBP->CVD beta at age 50); residual = exp(0.022819*5) = 1.1209; combined = 1.270. RESULTING LOG-HR SPLIT: SBP-path 52.3% / residual 47.7% (the mechanical SBP->CVD slope at age 50 carries more than the Lu single-mediator BP 31% because Lewington's per-mmHg slope is steep at mid-age; the residual beta absorbs the remainder to hit the 1.27 total). Lu 2014 mediation decomposition (BP ~31% single-mediator); BMI->CHD 1.27 per +5. SOLID-direction; split is model-mechanical."
-      },
-      {
-        "from": "BMI",
-        "to": "allcause",
-        "form": "bmiJcurve",
-        "med": "BMI",
-        "betaUpper": 0.017236,
-        "betaLower": 0.117746,
-        "upper": 25,
-        "lower": 20,
-        "provenance": "Stage 3b (2026-06-08). BMI J-curve whole-intrinsic-bracket multiplier (target 'allcause', at the frailty-multiplier site), NORMALIZED to per-age baseline BMI so =1 at baseline. UPPER arm (BMI>25): small NON-CV obesity mortality, betaUpper = ln(1.09)/5 = 0.017236 per unit >25 (BMI->all-cause 1.39 per +5 vs the CV portion 1.27 => ~1.09 residual non-CV slice). LOWER arm (BMI<20): underweight/frailty, betaLower = ln(1.51)/3.5 = 0.117746 per unit <20 (Global BMI Mortality Collaboration 2016: HR 1.51 at BMI 15-18.5, ~3.5 below the nadir edge 20; mostly non-metabolic frailty). Nadir band [20,25] => factor 1. mult = Jbracket(BMI_person)/Jbracket(BMI_baseline); since baseline BMI (~28-30) sits on the UPPER arm, a lean person (BMI 22, nadir) gets mult<1 and an underweight person (BMI 17) gets the frailty penalty. The CV slice of BMI->mortality is carried separately (edges 1+2) so this J-curve is the NON-CV + frailty residual only (no CV double-count). OMITTED: BMI->LDL (null per MR) and a continuous BMI->glucose edge (folded into this residual / not separately wired). Global BMI 2016; Lu 2014. SOLID-direction."
-      },
-      {
-        "from": "smokingStatus",
-        "to": "diabetes",
-        "form": "smokingCategorical",
-        "input": "smokingStatus",
-        "rr": {
-          "never": 1,
-          "former": 1.2,
-          "current": 1.6
-        },
-        "provenance": "Smoking->diabetes mortality RR ~1.6 current / 1.2 former (Pan 2015 meta; smoking raises diabetes incidence+mortality). smokingCategorical normalized. v0.4.1."
-      },
-      {
-        "from": "smokingStatus",
-        "to": "ckd",
-        "form": "smokingCategorical",
-        "input": "smokingStatus",
-        "rr": {
-          "never": 1,
-          "former": 1.2,
-          "current": 1.5
-        },
-        "provenance": "Smoking->CKD mortality RR ~1.5 current (smoking accelerates nephropathy/CKD progression). smokingCategorical normalized. v0.4.1."
-      },
-      {
-        "from": "HbA1c",
-        "to": "diabetes",
-        "form": "mediatorThresholdRamp",
-        "med": "HbA1c",
-        "threshold": 6.5,
-        "slope": 0.55,
-        "cap": 30,
-        "provenance": "HbA1c -> DIRECT diabetes mortality (E10-E14: acute metabolic crises [DKA, hyperosmolar hyperglycemic state] + severe diabetic complications coded to diabetes itself, NOT the diabetic CVD that codes to cardiovascular). Added 2026-06-10 to give the β-cell glucotoxicity spiral a SEVERITY-SCALING terminal endpoint — without it the only HbA1c->mortality edges (cardiovascular/cancer/neurodegeneration) all SATURATE at their caps by HbA1c ~6.8 (they carry the ERFC/Gudala *average-diabetic* macrovascular RR, which genuinely plateaus), so the model treated HbA1c 7 and 14 as identical for death (user-caught, 2026-06-10). This edge is DELIBERATELY STEEP + HIGH-CAP because the diabetes-coded endpoint is dominated by ACUTE crises whose baseline is ~0 at HbA1c 6.5 and explodes at sustained high glycemia: slope 0.55 = RR ~1.73 per +1% HbA1c, cap 30 (saturates at HbA1c ~12.7). This is a DIFFERENT shape from the capped macrovascular edges and is correct — acute hyperglycemic death scales with severity where chronic macrovascular RR plateaus. ratio-to-baseline (threshold 6.5 > population HbA1c max 6.4 @130) so mult EXACTLY 1 in the population => baseline LE preserved EXACTLY. Resulting ladder (M, anchored): HbA1c 7 -4.3 yr / 10 -7.3 / 14 -11.1. ILLUSTRATIVE slope+cap magnitudes (#gap: the exact direct-diabetes-mortality dose-response by HbA1c band is uncharacterized for HbA1c>12); SOLID-direction (acute hyperglycemic + complication mortality rises steeply with sustained hyperglycemia)."
-      },
-      {
-        "from": "HbA1c",
-        "to": "ckd",
-        "form": "mediatorThresholdRamp",
-        "med": "HbA1c",
-        "threshold": 6.5,
-        "slope": 0.35,
-        "cap": 10,
-        "provenance": "HbA1c -> CKD mortality (diabetic nephropathy -> renal death, N00-N07/N17-N19/N25-N27). Added 2026-06-10 alongside HbA1c->diabetes as the second severity-scaling glycemic endpoint. Diabetic nephropathy is strongly glycemia-dependent (DCCT/UKPDS: tight control markedly cuts nephropathy progression), so renal death rises with sustained hyperglycemia: slope 0.35 = RR ~1.42 per +1% HbA1c, cap 10 (saturates at HbA1c ~13.1) — gentler than the diabetes edge (nephropathy is a chronic complication, not an acute crisis). ratio-to-baseline (threshold 6.5 > population HbA1c max) => mult EXACTLY 1 in population => baseline LE preserved EXACTLY. Complements the existing smoking->ckd edge (different driver). ILLUSTRATIVE magnitudes (#gap); SOLID-direction (glycemic control governs diabetic nephropathy progression)."
-      }
-    ],
     "causeEdgesNote": "Stage 2 (2026-06-08): CLEAN non-double-counting mediator->cause and direct exogenous->cause multipliers. cause_hazard_c = [v0.3 hazard] * Prod_edges mult_edge; mult=1 at population-average inputs so v0.3 (LE 75.31 M / 80.37 F) reproduces exactly. mediatorThresholdRamp uses a RATIO-to-baseline so mult=1 at the per-age baseline HbA1c (which exceeds the 5.7 threshold at 60+). Stage 3a (2026-06-08) ADDED two clean cause edges, both =1 at default inputs: (1) smoking->cardiovascular (smokingCategorical, normalized, never 0.833/former 1.082/current 1.582) and (2) physicalActivity->allcause (activityFitness, target 'allcause', exp(-0.139*dMETs), applied to the WHOLE intrinsic bracket at the frailty-multiplier site, weight/glucose-independent fitness channel). Stage 3b (2026-06-08) ADDED the BMI/adiposity edges MECHANISTICALLY (Lu 2014 mediation decomposition, no double-counting), all =1 at the per-age baseline BMI so v0.3 still reproduces exactly: (1) BMI->systolicBP mediatorEdge (mediatorLinear, +0.72 mmHg/+1 kg/m2, the DOMINANT mediated path, flowing through SBP->CVD); (2) BMI->cardiovascular causeEdge (bmiThresholdRatio, upper-arm only, beta 0.022819, the UNMEDIATED CV residual; combined with the SBP path => Lu 1.27 per +5 BMI, log-HR split SBP 52.3% / residual 47.7%); (3) BMI->allcause J-curve (bmiJcurve, upper betaUpper ln1.09/5 non-CV obesity + lower betaLower ln1.51/3.5 underweight-frailty, nadir [20,25], whole-bracket). OMITTED in 3b: BMI->LDL (null per MR), continuous BMI->glucose (folded into the residual). DEFERRED: alcohol->all-cause(MR) bundle; B2 latent fixes."
   }
 }
