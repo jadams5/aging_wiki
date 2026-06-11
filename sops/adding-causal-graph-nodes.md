@@ -41,15 +41,15 @@ Every change is gated on these. `model/test.mjs` pins both.
    life expectancy **M 75.815 / F 80.862**. Op A/B *re-bucket* mortality (recomputing the residual
    keeps the all-cause total identical → LE unchanged). Op C ships **unwired** first (driver built +
    calibrated but not yet feeding a cause), so LE is provably unchanged, then wiring is a separate,
-   deliberately re-baselined step. **Invariance is exact at the anchor grid by construction**
-   (the +Δ to the band and −Δ to the residual are applied at the same stored ages). If total hazard
-   moves at an *anchor* age, your recompute is wrong — debug it, don't re-baseline. A **sub-0.03 yr
-   between-anchor drift** can legitimately appear when the band's burden table carries intermediate
-   anchors (e.g. 75/85) the decade-only residual lacks, so PCHIP curvature differs in that window
-   (pilot 2026-06-11: female −0.022 yr, male ~0). That is a known benign discretization artifact, not
-   an error — but the **validator must first confirm anchor-invariance to ~1e-9** before accepting it,
-   and only then re-baseline the affected LE target. (Eliminable if needed by matching the residual's
-   anchor grid to the burden's.)
+   deliberately re-baselined step. **Invariance is now numerically EXACT at every integration age**
+   (not just at anchors): the residual is stored **dense** — one entry per integer age 20→130 — so
+   `interp` is identity at the integration grid and the band's exact per-integer-age hazard increase
+   is subtracted from the residual at that same grid (§3). After any Op-A/B fold, baseline LE must
+   read **75.815 / 80.862 to ~1e-6**. If it moves at all, your residual recompute is wrong — debug it,
+   **do not re-baseline**. (History: before the dense residual the residual lived on a decade grid
+   while burden tables carried 75/85 anchors + the convex odds-link, leaking a sub-0.03 yr/fold
+   between-anchor PCHIP drift that accumulated and was wrongly re-baselined; the dense residual,
+   2026-06-11, eliminated it and restored the empirical anchor exactly.)
 
 2. **No age-pegging.** Age is a *verification* target, never an input to a rate. A new driver
    (Op C) accumulates as `∫ rate(upstream inputs) dt`; its age-correlation must **emerge** from the
@@ -94,19 +94,29 @@ Same evidence discipline as the wiki itself — wiki-first, then literature, the
 4. Recompute the burden node's `curve.byAge` (+ `.female.byAge`): reserve transform `B' = h/(1+h)`
    of `h = CDC_rate/Rmax` at each age anchor, then graft the shared >90 reserve anchors
    `[90,0.5] [100,0.7039] [110,0.8497] [120,0.9307] [130,0.9696]`.
-5. **Recompute the residual** = `all-cause_sex(age) − Σ(ALL named causes) − extrinsic` so the
-   baseline total stays = empirical all-cause. This is the step that keeps LE invariant.
+5. **Recompute the DENSE residual** so total hazard is unchanged at every integration age (below).
 6. Wire/retarget any upstream edges (§5).
 
-> **Work in HAZARD space, not rate space** (pilot-proven, and it sidesteps the year-mismatch: the
-> band's existing base may be 2022 while net-new codes are 2019). Pull only the **net-new** codes'
-> per-sex age rate `nn_h = rate/100000` (the codes not already in the band — e.g. fold hypertensive
-> as **I10/I12/I15 only**, since I11/I13 are already in cardiovascular). Then per age anchor:
-> `old_band_h = old_Rmax·B_old/(1−B_old)` → `new_band_h = old_band_h + nn_h` →
-> `new_Rmax = new_band_h(90)` → `new_B = new_band_h/(new_Rmax + new_band_h)` (inverse odds-link) →
-> `residual −= nn_h`. At the shared **>90** reserve anchors (B unchanged), instead
-> `residual −= (new_Rmax − old_Rmax)·B/(1−B)`. The same `nn_h` drives both the band-add and the
-> residual-subtract, so total hazard is invariant at every anchor.
+> **Band recompute — HAZARD space, net-new only** (sidesteps the year-mismatch: the band's existing
+> base may be 2022 while net-new codes are 2019). Pull only the **net-new** codes' per-sex age rate
+> `nn_h = rate/100000` (codes not already in the band — e.g. fold hypertensive as **I10/I12/I15
+> only**, since I11/I13 are already in cardiovascular). Per age anchor: `old_band_h =
+> old_Rmax·B_old/(1−B_old)` → `new_band_h = old_band_h + nn_h` → `new_Rmax = new_band_h(90)` →
+> `new_B = new_band_h/(new_Rmax + new_band_h)` (inverse odds-link). Update the band's `RmaxPerYear`,
+> burden `curve.byAge/.female`, and `cdc:` string.
+>
+> **Residual recompute — DENSE, via the engine (exact; no decade-subtraction, no >90 special case).**
+> `mortality.residual.byAgePerYear` is a per-integer-age table (20→130). Recompute it so total hazard
+> is unchanged at every integer age:
+> `residual_new(age) = old_total_hazard(age) − new_nonresidual_hazard(age)`,
+> the robust way being to **run the engine**: `simulate()` the PRE-fold params and the POST-fold
+> params at baseline (sex only), then for each age `k`:
+> `residual_new(k) = preSim.hazard[k] − (postSim.hazard[k] − postSim.decomposition[k].parts.residual)`.
+> This subtracts the band's *actual* convex per-age hazard increase (whatever its tail shape), so it
+> is exact for non-monotonic bands (liver) too and needs no shared-anchor formula. Store the dense
+> arrays in the json block (see `/tmp/fix_residual.mjs` for the reference script). Verify: re-simulate
+> ⇒ baseline LE == pre-fold LE to ~1e-9. **Batching:** fold several bands, then recompute the dense
+> residual ONCE against the pre-batch baseline.
 
 > **The vascular-misfiling trap:** mesenteric/intestinal infarction (K55) sits in the *digestive*
 > ICD chapter but is **vascular** — it folds into cardiovascular, not a digestive bucket. Partition

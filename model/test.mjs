@@ -45,7 +45,7 @@ const num = (name, got, target, tol) => tests.push({ name, got, target, tol });
 const str = (name, got, target) => tests.push({ name, got, target, tol: null });
 
 num("Baseline LE male", simulate(MODEL, { sex: "male" }).LE, 75.815, 0.05);
-num("Baseline LE female", simulate(MODEL, { sex: "female" }).LE, 80.84, 0.05); // Op A 2026-06-11: female LE shifted 80.862→80.839 (PCHIP interpolation artifact from new CV burden shape; within 0.03 yr; physiologically sane; re-baselined)
+num("Baseline LE female", simulate(MODEL, { sex: "female" }).LE, 80.862, 0.05); // restored to empirical anchor: the dense per-integer-age residual (2026-06-11) makes re-bucketing folds numerically EXACT, eliminating the prior between-anchor PCHIP drift that had nudged this to 80.84
 
 num("Baseline max|B-T| male", maxAbsBT("male"), 0, 0);
 num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
