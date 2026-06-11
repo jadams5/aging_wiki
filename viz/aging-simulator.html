@@ -5125,20 +5125,22 @@ function baselineOpts(){
    and unlinked nodes are greyed so planned/future work is visible. Columns left→right
    follow causal flow; cross-layer + feedback edges (e.g. β-cell→HbA1c augment,
    senescence→stiffness) draw as curves. */
-const COL_OF_KIND = { input: 0, mediator: 1, state: 2, tier1: 3, tier2: 4, tier3: 5, phenotype: 6, mortality: 7 };
-const N_COLS = 8;
+const COL_OF_KIND = { input: 0, mediator: 1, state: 2, tier1: 3, tier2: 4, tier3: 5, intermediate: 6, phenotype: 7, mortality: 8 };
+const N_COLS = 9;
 const KIND_COLOR = {
   input:     "#5a6b7b",   // slate — behaviours/environment
   mediator:  "#2e86c1",   // blue — clinical risk-factor mediators
   state:     "#138d75",   // teal — integrated damage/physiology state nodes
-  mortality: "#922b21"    // dark red — the terminal sink
+  mortality: "#922b21",   // dark red — the terminal sink
+  intermediate: LAYER_COLOR.phenotype   // non-terminal phenotype/driver (sarcopenia, CHIP)
   // tier1/tier2/tier3/phenotype reuse LAYER_COLOR
 };
 function kindColor(kind){ return KIND_COLOR[kind] || LAYER_COLOR[kind] || "#888"; }
 const KIND_LABEL = {
   input: "exogenous input", mediator: "mediator (risk factor)", state: "state (∫rate damage)",
   tier1: "hallmark tier-1", tier2: "hallmark tier-2", tier3: "hallmark tier-3",
-  phenotype: "pathology / cause", mortality: "mortality sink"
+  intermediate: "intermediate phenotype / driver",
+  phenotype: "pathology / cause of death", mortality: "mortality sink"
 };
 // Edge category → stroke colour + dash. augment (state→mediator feedback) + disabled
 // edges are dashed; cause/terminal edges are red (drive a death line).
@@ -5171,7 +5173,15 @@ const UNI = (function buildUnifiedGraph(){
   EXO_INPUTS.forEach(inp => nodes.push({ id: inp.id, label: inp.label, kind: "input", _ref: inp }));
   MEDIATORS.forEach(m => nodes.push({ id: m.id, label: m.label, kind: "mediator", _ref: m }));
   (B.stateNodes || []).forEach(s => nodes.push({ id: s.id, label: s.label, kind: "state", _ref: s }));
-  NODES.forEach(n => nodes.push({ id: n.id, label: n.label, kind: n.layer, _ref: n, latent: true }));
+  // Graph column = node KIND. The cause-of-death column is reserved for nodes that
+  // actually carry a death line (role: mortality-cause). A node tagged layer:"phenotype"
+  // but NOT a cause (sarcopenia = frailty multiplier; clonal-hematopoiesis = driver) is an
+  // UPSTREAM intermediate, not a terminal cause — route it to the "intermediate" column so
+  // the cause column holds exactly the nodes with a terminal → mortality edge.
+  NODES.forEach(n => {
+    const kind = (n.layer === "phenotype" && n.role !== "mortality-cause") ? "intermediate" : n.layer;
+    nodes.push({ id: n.id, label: n.label, kind, _ref: n, latent: true });
+  });
   nodes.push({ id: "_mortality", label: "Mortality", kind: "mortality" });
 
   // SINGLE SOURCE OF TRUTH: render MODEL.edges directly, dispatched by `kind`. No
