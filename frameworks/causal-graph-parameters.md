@@ -191,74 +191,74 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
       "lifestyleMult": 1,
-      "note": "Non-biological parallel channel: (unintentional injury \u2212 falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
+      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
       "byAge": {
         "male": [
           [
             20,
-            0.000903
+            0.0007905876
           ],
           [
             30,
-            0.001574
+            0.0012253
           ],
           [
             40,
-            0.001654
+            0.001227487
           ],
           [
             50,
-            0.001466
+            0.001130926
           ],
           [
             60,
-            0.001422
+            0.001111798
           ],
           [
             70,
-            0.001012
+            0.0008256019
           ],
           [
             80,
-            0.001108
+            0.001033119
           ],
           [
             90,
-            0.00185
+            0.001780358
           ]
         ],
         "female": [
           [
             20,
-            0.000291
+            0.0002423223
           ],
           [
             30,
-            0.00051
+            0.0003924957
           ],
           [
             40,
-            0.000574
+            0.0004232986
           ],
           [
             50,
-            0.00053
+            0.0004418697
           ],
           [
             60,
-            0.000489
+            0.000390855
           ],
           [
             70,
-            0.000338
+            0.0002879553
           ],
           [
             80,
-            0.000406
+            0.0004080632
           ],
           [
             90,
-            0.000791
+            0.0008667438
           ]
         ]
       }
@@ -283,37 +283,37 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       "cardiovascular": {
         "node": "atherosclerosis",
         "RmaxPerYear": {
-          "male": 0.059033,
-          "female": 0.050486
+          "male": 0.055434322,
+          "female": 0.049566865
         },
-        "cdc": "heart(I00-09,I11,I13,I20-51)+stroke(I60-69) [2022] + hypertensive-net-new(I10,I12,I15) + pulmonary-heart(I26-28) + arteries(I70-74,I77-78) + veins(I80-89) + mesenteric-infarction(K55) + other-circ(I95,I99); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
-        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction \u2014 vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862\u219280.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71\u201389; anchor-point hazard invariant to 1e-9; not an arithmetic error). Downgraded from seeder-claimed 'anchored' to 'calibrated' because SWAP-TO-2022 is an open #gap (consistent with all other D76 2019 causes in the model). Year note: existing-band Rmax/burden on 2022 data; net-new on 2019 data; residual base on 2022; SWAP-TO-2022 pending. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
+        "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). cardiovascular: all circulatory I00-I99 (incl I26-I28 once — fixes pilot double-count) + K55 mesenteric",
+        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction — vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862→80.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71–89; anchor-point hazard invariant to 1e-9; not an arithmetic error). Downgraded from seeder-claimed 'anchored' to 'calibrated' because SWAP-TO-2022 is an open #gap (consistent with all other D76 2019 causes in the model). Year note: existing-band Rmax/burden on 2022 data; net-new on 2019 data; residual base on 2022; SWAP-TO-2022 pending. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
       },
       "cancer": {
         "node": "cancer",
         "RmaxPerYear": {
-          "male": 0.0217,
-          "female": 0.012493
+          "male": 0.020983064,
+          "female": 0.012745745
         },
-        "cdc": "malignant neoplasms C00-C97"
+        "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). cancer: malignant neoplasms C00-C97"
       },
       "neurodegeneration": {
         "node": "neurodegeneration",
         "RmaxPerYear": {
-          "male": 0.026251,
-          "female": 0.03259
+          "male": 0.024921228,
+          "female": 0.031549709
         },
-        "cdc": "dementia G30/F01/F03/G31 [2022] + Parkinson/movement G20,G21,G23,G24,G25 + systemic-atrophies G10,G11,G12,G14 (ALS/Huntington/SMA; G13 invalid in D76); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded Parkinson/movement (G20,G21,G23,G24,G25) and systemic atrophies (G10,G11,G12,G14) into neurodegeneration band. G13 confirmed invalid in D76. Net-new rates: D76 2019 per sex x ten-year age (B_1=D76.V5, O_aar=aar_none, F_D76.V2=individual codes). Hazard-space recompute: old_band_h + nn_h \u2192 new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h (exact; total hazard invariant at every anchor). Male net-new rates/100k: {20:0.1, 30:0.2, 40:0.8, 50:2.9, 60:9.0, 70:36.4, 80:157.7, 90:346.2}. Female: {20:0.0, 30:0.2, 40:0.5, 50:1.8, 60:5.8, 70:20.4, 80:73.3, 90:160.9}. #gap: G13 excluded (invalid in D76); SWAP-TO-2022 pending."
+        "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). neurodegeneration: dementia G30/G31/F01/F03 + Parkinson/movement G20-G25 + atrophies/ALS G10-G14",
+        "provenance": "calibrated. Op A batched 2026-06-11: folded Parkinson/movement (G20,G21,G23,G24,G25) and systemic atrophies (G10,G11,G12,G14) into neurodegeneration band. G13 confirmed invalid in D76. Net-new rates: D76 2019 per sex x ten-year age (B_1=D76.V5, O_aar=aar_none, F_D76.V2=individual codes). Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h (exact; total hazard invariant at every anchor). Male net-new rates/100k: {20:0.1, 30:0.2, 40:0.8, 50:2.9, 60:9.0, 70:36.4, 80:157.7, 90:346.2}. Female: {20:0.0, 30:0.2, 40:0.5, 50:1.8, 60:5.8, 70:20.4, 80:73.3, 90:160.9}. #gap: G13 excluded (invalid in D76); SWAP-TO-2022 pending."
       },
       "infection": {
         "node": "immunosenescence",
         "RmaxPerYear": {
-          "male": 0.005182,
-          "female": 0.003785
+          "male": 0.0054715193,
+          "female": 0.004463553
         },
-        "cdc": "influenza/pneumonia J09-18 + sepsis A40-41 [2022] + HIV B20,B21,B22,B23,B24 + intestinal-infectious A00,A01,A02,A03,A04,A05,A06,A07,A08,A09 (incl. C.diff); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded HIV (B20-B24) and intestinal infectious (A00-A09, incl. C.difficile) into infection band. Hazard-space recompute: old_band_h + nn_h \u2192 new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h. Male net-new rates/100k: {20:0.2, 30:1.7, 40:2.4, 50:5.0, 60:7.5, 70:8.4, 80:15.1, 90:35.9}. Female: {20:0.0, 30:0.6, 40:1.3, 50:2.2, 60:3.5, 70:6.0, 80:13.5, 90:39.2}. Note: female age-20 suppressed (<10 deaths); treated as 0. #gap: SWAP-TO-2022 pending."
+        "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). infection: influenza/pneumonia J09-J18 + sepsis A40-A41 + HIV B20-B24 + intestinal A00-A09",
+        "provenance": "calibrated. Op A batched 2026-06-11: folded HIV (B20-B24) and intestinal infectious (A00-A09, incl. C.difficile) into infection band. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h. Male net-new rates/100k: {20:0.2, 30:1.7, 40:2.4, 50:5.0, 60:7.5, 70:8.4, 80:15.1, 90:35.9}. Female: {20:0.0, 30:0.6, 40:1.3, 50:2.2, 60:3.5, 70:6.0, 80:13.5, 90:39.2}. Note: female age-20 suppressed (<10 deaths); treated as 0. #gap: SWAP-TO-2022 pending."
       },
       "diabetes": {
         "node": "diabetes",
@@ -321,7 +321,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "male": 0.003191,
           "female": 0.002261
         },
-        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) \u2014 SWAP-TO-2022"
+        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
       },
       "copd": {
         "node": "copd",
@@ -329,7 +329,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "male": 0.007382,
           "female": 0.006072
         },
-        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) \u2014 SWAP-TO-2022"
+        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
       },
       "ckd": {
         "node": "ckd",
@@ -337,7 +337,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "male": 0.003162,
           "female": 0.002142
         },
-        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) \u2014 SWAP-TO-2022"
+        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
       },
       "liver": {
         "node": "liver",
@@ -346,7 +346,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "female": 0.00023
         },
         "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h \u2192 new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: SWAP-TO-2022 pending."
+        "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: SWAP-TO-2022 pending."
       },
       "frailty": {
         "node": "frailty-mortality",
@@ -362,897 +362,897 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "male": [
           [
             20,
-            0.0001280050415199891
+            0.000106825669
           ],
           [
             21,
-            0.0001491900678067821
+            0.000116394703
           ],
           [
             22,
-            0.00016977888543363026
+            0.000122493954
           ],
           [
             23,
-            0.00019002334632543718
+            0.000126599355
           ],
           [
             24,
-            0.0002101743116160262
+            0.000130180776
           ],
           [
             25,
-            0.00023048164157495098
+            0.000134702387
           ],
           [
             26,
-            0.0002511941054092477
+            0.000141622316
           ],
           [
             27,
-            0.000272559175937519
+            0.000152391554
           ],
           [
             28,
-            0.00029482269913348475
+            0.000168452019
           ],
           [
             29,
-            0.0003182283875355378
+            0.000191233692
           ],
           [
             30,
-            0.0003430171095178832
+            0.000222150686
           ],
           [
             31,
-            0.0003685604831566531
+            0.000252943775
           ],
           [
             32,
-            0.00039424959506786407
+            0.000275607382
           ],
           [
             33,
-            0.00042035120720223737
+            0.000291913392
           ],
           [
             34,
-            0.00044713162747138206
+            0.000303624164
           ],
           [
             35,
-            0.0004748570890306591
+            0.000312492122
           ],
           [
             36,
-            0.0005037940782358706
+            0.000320257492
           ],
           [
             37,
-            0.0005342096292433843
+            0.000328644181
           ],
           [
             38,
-            0.0005663716032132927
+            0.000339353768
           ],
           [
             39,
-            0.0006005489500603787
+            0.000354057582
           ],
           [
             40,
-            0.0006370119816778673
+            0.000374386788
           ],
           [
             41,
-            0.0006731009018182497
+            0.000396449373
           ],
           [
             42,
-            0.0007070490264831854
+            0.000416416062
           ],
           [
             43,
-            0.0007404662154998263
+            0.000435946021
           ],
           [
             44,
-            0.0007749612780213844
+            0.000456661375
           ],
           [
             45,
-            0.0008121432812854923
+            0.000480145115
           ],
           [
             46,
-            0.0008536235008212399
+            0.000507933949
           ],
           [
             47,
-            0.0009010180918678184
+            0.000541505757
           ],
           [
             48,
-            0.0009559515067029643
+            0.000582260907
           ],
           [
             49,
-            0.0010200605574967533
+            0.000631496179
           ],
           [
             50,
-            0.0010949987932049772
+            0.000690369224
           ],
           [
             51,
-            0.001178837388968016
+            0.000752267269
           ],
           [
             52,
-            0.0012688112415285245
+            0.000810837067
           ],
           [
             53,
-            0.001365353562356771
+            0.000867585392
           ],
           [
             54,
-            0.0014689453777845052
+            0.000924235402
           ],
           [
             55,
-            0.0015801496457826083
+            0.000982846387
           ],
           [
             56,
-            0.0016996483149369366
+            0.00104592147
           ],
           [
             57,
-            0.0018282708016456213
+            0.00111647343
           ],
           [
             58,
-            0.0019669942203620755
+            0.00119800375
           ],
           [
             59,
-            0.002116890640071983
+            0.00129434457
           ],
           [
             60,
-            0.0022790042280743
+            0.00140933313
           ],
           [
             61,
-            0.0024481917313584605
+            0.00150669079
           ],
           [
             62,
-            0.0026206825822572676
+            0.00156061359
           ],
           [
             63,
-            0.002799348331490252
+            0.00158996067
           ],
           [
             64,
-            0.0029869380323339564
+            0.00161304195
           ],
           [
             65,
-            0.003186061732745219
+            0.00164756885
           ],
           [
             66,
-            0.0033991270667970593
+            0.00171052225
           ],
           [
             67,
-            0.003628226881493859
+            0.00181793081
           ],
           [
             68,
-            0.003874973566690712
+            0.00198455043
           ],
           [
             69,
-            0.004140272755803906
+            0.0022234297
           ],
           [
             70,
-            0.00442402432256532
+            0.00254533908
           ],
           [
             71,
-            0.004579673409010613
+            0.00275472002
           ],
           [
             72,
-            0.004544643190680053
+            0.00272137731
           ],
           [
             73,
-            0.0044468943503108045
+            0.00255041938
           ],
           [
             74,
-            0.004421154338435651
+            0.00234459687
           ],
           [
             75,
-            0.004612706522529177
+            0.00220380746
           ],
           [
             76,
-            0.005134323606458505
+            0.00222515526
           ],
           [
             77,
-            0.005971417141538156
+            0.00250132694
           ],
           [
             78,
-            0.007083175531876977
+            0.00311819067
           ],
           [
             79,
-            0.00842171514318664
+            0.00415344617
           ],
           [
             80,
-            0.009927993611966182
+            0.00567379097
           ],
           [
             81,
-            0.011503054312740034
+            0.00766954843
           ],
           [
             82,
-            0.013122325150864068
+            0.0099565565
           ],
           [
             83,
-            0.014818059159906971
+            0.0123242569
           ],
           [
             84,
-            0.016608902606890394
+            0.0145603844
           ],
           [
             85,
-            0.018492548910344866
+            0.0164586908
           ],
           [
             86,
-            0.020405253213221106
+            0.0178298955
           ],
           [
             87,
-            0.022338788649954394
+            0.018513613
           ],
           [
             88,
-            0.024377519767912706
+            0.0183956171
           ],
           [
             89,
-            0.026647707021682704
+            0.0174297577
           ],
           [
             90,
-            0.029334000300000024
+            0.0156595087
           ],
           [
             91,
-            0.03221345932462394
+            0.017196664
           ],
           [
             92,
-            0.03500097380522679
+            0.0186847361
           ],
           [
             93,
-            0.03783880344494556
+            0.0201996682
           ],
           [
             94,
-            0.04086655181843532
+            0.0218159855
           ],
           [
             95,
-            0.04422043512744353
+            0.0236064049
           ],
           [
             96,
-            0.04803238868901433
+            0.0256413582
           ],
           [
             97,
-            0.05242892507462232
+            0.0279883821
           ],
           [
             98,
-            0.05752960320616035
+            0.0307113013
           ],
           [
             99,
-            0.0634448623767826
+            0.0338690722
           ],
           [
             100,
-            0.07027280165248223
+            0.0375140635
           ],
           [
             101,
-            0.07737972730514042
+            0.0413079873
           ],
           [
             102,
-            0.08427664230620935
+            0.0449898002
           ],
           [
             103,
-            0.09126471576073791
+            0.0487202767
           ],
           [
             104,
-            0.09864243437227699
+            0.0526587592
           ],
           [
             105,
-            0.10670562954806723
+            0.056963173
           ],
           [
             106,
-            0.11574770273001345
+            0.0617901459
           ],
           [
             107,
-            0.12606014374364927
+            0.0672952852
           ],
           [
             108,
-            0.1379334988679185
+            0.0736336948
           ],
           [
             109,
-            0.15165899686756557
+            0.0809608426
           ],
           [
             110,
-            0.16753109348902195
+            0.0894339193
           ],
           [
             111,
-            0.1841225021291064
+            0.0982909898
           ],
           [
             112,
-            0.20030227181116222
+            0.106928313
           ],
           [
             113,
-            0.21680782459960957
+            0.115739551
           ],
           [
             114,
-            0.23436537034031812
+            0.125112379
           ],
           [
             115,
-            0.2536847369813322
+            0.135425728
           ],
           [
             116,
-            0.275452106673699
+            0.147045906
           ],
           [
             117,
-            0.3003197171204197
+            0.160321101
           ],
           [
             118,
-            0.32889108318376703
+            0.175573489
           ],
           [
             119,
-            0.36169926977868205
+            0.193087639
           ],
           [
             120,
-            0.3991739063333335
+            0.213092902
           ],
           [
             121,
-            0.4431196365499086
+            0.23655266
           ],
           [
             122,
-            0.4942697148340862
+            0.263858349
           ],
           [
             123,
-            0.551273053572169
+            0.294288712
           ],
           [
             124,
-            0.6126478073388761
+            0.327052689
           ],
           [
             125,
-            0.6767225788444735
+            0.361258028
           ],
           [
             126,
-            0.7415603240755955
+            0.39587067
           ],
           [
             127,
-            0.8048439277481685
+            0.429653657
           ],
           [
             128,
-            0.863676293163663
+            0.461060418
           ],
           [
             129,
-            0.9141893170876281
+            0.488026025
           ],
           [
             130,
-            0.9507040384210521
+            0.507518852
           ]
         ],
         "female": [
           [
             20,
-            7.859789555644494e-05
+            0.0000578837393
           ],
           [
             21,
-            9.252297304746844e-05
+            0.0000653398366
           ],
           [
             22,
-            0.00010618736726609475
+            0.000073144059
           ],
           [
             23,
-            0.00011970547158312065
+            0.0000811660172
           ],
           [
             24,
-            0.0001331976981442484
+            0.0000893055881
           ],
           [
             25,
-            0.00014678974044768952
+            0.0000974893076
           ],
           [
             26,
-            0.0001606118757761562
+            0.000105666623
           ],
           [
             27,
-            0.00017479833738304293
+            0.000113805936
           ],
           [
             28,
-            0.00018948669703247947
+            0.000121890351
           ],
           [
             29,
-            0.00020481728589264304
+            0.000129913069
           ],
           [
             30,
-            0.00022093260978127568
+            0.000137872307
           ],
           [
             31,
-            0.00023736731366260613
+            0.000145070702
           ],
           [
             32,
-            0.00025372449243615553
+            0.000151084046
           ],
           [
             33,
-            0.00027025024509995756
+            0.000156334546
           ],
           [
             34,
-            0.00028719013495557763
+            0.000161260071
           ],
           [
             35,
-            0.00030478910799959795
+            0.000166310395
           ],
           [
             36,
-            0.00032408578296337187
+            0.000175460059
           ],
           [
             37,
-            0.0003459697729994737
+            0.00019223568
           ],
           [
             38,
-            0.0003703647560128673
+            0.000216103728
           ],
           [
             39,
-            0.0003971425696343456
+            0.000246365398
           ],
           [
             40,
-            0.0004239848968332796
+            0.000271623631
           ],
           [
             41,
-            0.0004491201048429077
+            0.000288660184
           ],
           [
             42,
-            0.00047293369932661857
+            0.000302904901
           ],
           [
             43,
-            0.0004965327447973458
+            0.000315664219
           ],
           [
             44,
-            0.0005210242916171164
+            0.000328222382
           ],
           [
             45,
-            0.0005475163503094941
+            0.000341840403
           ],
           [
             46,
-            0.00057711907452662
+            0.000357753139
           ],
           [
             47,
-            0.0006109461635778629
+            0.000377164111
           ],
           [
             48,
-            0.0006501164073892643
+            0.00040123746
           ],
           [
             49,
-            0.0006957552487057545
+            0.000431086066
           ],
           [
             50,
-            0.0007489960642712294
+            0.000467754474
           ],
           [
             51,
-            0.0008081078461378032
+            0.000505332549
           ],
           [
             52,
-            0.0008710020607653971
+            0.000538748785
           ],
           [
             53,
-            0.0009382930042520343
+            0.000570265837
           ],
           [
             54,
-            0.001010615187877784
+            0.000602200447
           ],
           [
             55,
-            0.0010886296047191426
+            0.000636945495
           ],
           [
             56,
-            0.0011730273196787393
+            0.000676985036
           ],
           [
             57,
-            0.0012645282490781696
+            0.000724898697
           ],
           [
             58,
-            0.0013638725442571276
+            0.00078335123
           ],
           [
             59,
-            0.001471802120633154
+            0.000855063372
           ],
           [
             60,
-            0.0015890315453819647
+            0.000942762107
           ],
           [
             61,
-            0.0017139020581529527
+            0.00101325215
           ],
           [
             62,
-            0.0018445668421620412
+            0.00104337459
           ],
           [
             63,
-            0.0019813551060114233
+            0.00105057625
           ],
           [
             64,
-            0.0021245198670783207
+            0.00105190858
           ],
           [
             65,
-            0.002274219732184248
+            0.00106397906
           ],
           [
             66,
-            0.0024304711234649085
+            0.00110283498
           ],
           [
             67,
-            0.002593069752686446
+            0.00118377465
           ],
           [
             68,
-            0.002761479009008862
+            0.00132107913
           ],
           [
             69,
-            0.0029346817286794776
+            0.00152765373
           ],
           [
             70,
-            0.003110988969494674
+            0.00181456311
           ],
           [
             71,
-            0.003138641100225421
+            0.00196642664
           ],
           [
             72,
-            0.0029579066256034455
+            0.00184163587
           ],
           [
             73,
-            0.0027069880118782454
+            0.00155867656
           ],
           [
             74,
-            0.002530243110384838
+            0.00123378943
           ],
           [
             75,
-            0.0025824206575854255
+            0.000980422713
           ],
           [
             76,
-            0.002978519065128575
+            0.000907495984
           ],
           [
             77,
-            0.0036829244581244244
+            0.00111882315
           ],
           [
             78,
-            0.004630243649080476
+            0.00171183755
           ],
           [
             79,
-            0.005749471900192229
+            0.00277378597
           ],
           [
             80,
-            0.006959028626771203
+            0.00437739789
           ],
           [
             81,
-            0.008190482125887522
+            0.00647885687
           ],
           [
             82,
-            0.009456346693314424
+            0.00884861007
           ],
           [
             83,
-            0.010772511191741767
+            0.0112574697
           ],
           [
             84,
-            0.012136999647556983
+            0.0134719358
           ],
           [
             85,
-            0.013520872735633946
+            0.0152659782
           ],
           [
             86,
-            0.01481610157903869
+            0.0164388119
           ],
           [
             87,
-            0.015986911346177593
+            0.0168357054
           ],
           [
             88,
-            0.017118879666352838
+            0.0163764572
           ],
           [
             89,
-            0.01835869339404947
+            0.0150936376
           ],
           [
             90,
-            0.019941999599999982
+            0.0131703842
           ],
           [
             91,
-            0.021742808207685954
+            0.0143597003
           ],
           [
             92,
-            0.02349954846906893
+            0.0155199121
           ],
           [
             93,
-            0.025322080930556212
+            0.0167235754
           ],
           [
             94,
-            0.027315502516221946
+            0.0180400998
           ],
           [
             95,
-            0.02957878068490044
+            0.0195348467
           ],
           [
             96,
-            0.0322031778044051
+            0.0212680891
           ],
           [
             97,
-            0.035270292277256365
+            0.0232937173
           ],
           [
             98,
-            0.038849391359028734
+            0.0256574777
           ],
           [
             99,
-            0.04299346823644762
+            0.028394369
           ],
           [
             100,
-            0.04773301795069235
+            0.031524531
           ],
           [
             101,
-            0.052606676008650266
+            0.0347432629
           ],
           [
             102,
-            0.05729375432192774
+            0.037838771
           ],
           [
             103,
-            0.062011602885314876
+            0.0409546009
           ],
           [
             104,
-            0.06697524633404417
+            0.0442327622
           ],
           [
             105,
-            0.0723974175998231
+            0.0478137511
           ],
           [
             106,
-            0.07848876136387534
+            0.0518366845
           ],
           [
             107,
-            0.08545830326761683
+            0.0564396104
           ],
           [
             108,
-            0.09351431398610421
+            0.0617600776
           ],
           [
             109,
-            0.10286575771661899
+            0.0679360935
           ],
           [
             110,
-            0.11372454971124424
+            0.0751076142
           ],
           [
             111,
-            0.12504596098749154
+            0.0825846646
           ],
           [
             112,
-            0.1360019204024715
+            0.089820358
           ],
           [
             113,
-            0.14712815160921744
+            0.0971685048
           ],
           [
             114,
-            0.15895063816113153
+            0.104976483
           ],
           [
             115,
-            0.17198111716219167
+            0.11358226
           ],
           [
             116,
-            0.18671072946641232
+            0.123310204
           ],
           [
             117,
-            0.2036010440302185
+            0.13446515
           ],
           [
             118,
-            0.22307117174185764
+            0.147323894
           ],
           [
             119,
-            0.2454788121995939
+            0.162122672
           ],
           [
             120,
-            0.2710914901529582
+            0.179038168
           ],
           [
             121,
-            0.30129187923346645
+            0.198983547
           ],
           [
             122,
-            0.3367235139755209
+            0.22238382
           ],
           [
             123,
-            0.37639411977254955
+            0.248583656
           ],
           [
             124,
-            0.41919810130088697
+            0.276852881
           ],
           [
             125,
-            0.46386567512839205
+            0.306352887
           ],
           [
             126,
-            0.5088970639370038
+            0.336093169
           ],
           [
             127,
-            0.5524635459437657
+            0.364865976
           ],
           [
             128,
-            0.5922346540185992
+            0.391132188
           ],
           [
             129,
-            0.6250403415184222
+            0.412798195
           ],
           [
             130,
-            0.6461458655263153
+            0.426737011
           ]
         ]
       },
-      "note": "DENSE per-integer-age remainder (all-cause \u2212 modeled causes \u2212 extrinsic), per SEX. Stored at every integration age 20..130 so re-bucketing folds are numerically EXACT (interp is identity at integer ages); eliminates the between-anchor PCHIP drift. Recomputed 2026-06-11 after the circulatory + neuro/liver/infection folds."
+      "note": "DENSE per-integer-age remainder, HARMONIZED to CDC WONDER 2019 all-cause (no COVID). = 2019 all-cause − all bands − extrinsic at every integer age (≤90 from data; >90 re-anchored old-age escalation). 2026-06-11."
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
@@ -1456,299 +1456,31 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "byAge": [
           [
             20,
-            0.000559
+            0.0005654171
           ],
           [
             30,
-            0.00245
+            0.002282214
           ],
           [
             40,
-            0.008299
+            0.007847901
           ],
           [
             50,
-            0.023586
+            0.02378938
           ],
           [
             60,
-            0.057432
+            0.05726072
           ],
           [
             70,
-            0.110064
-          ],
-          [
-            75,
-            0.144659
+            0.1093072
           ],
           [
             80,
-            0.224862
-          ],
-          [
-            85,
-            0.380143
-          ],
-          [
-            90,
-            0.5
-          ],
-          [
-            100,
-            0.703913
-          ],
-          [
-            110,
-            0.849668
-          ],
-          [
-            120,
-            0.930733
-          ],
-          [
-            130,
-            0.969646
-          ]
-        ],
-        "female": {
-          "byAge": [
-            [
-              20,
-              0.000475
-            ],
-            [
-              30,
-              0.001642
-            ],
-            [
-              40,
-              0.00532
-            ],
-            [
-              50,
-              0.013502
-            ],
-            [
-              60,
-              0.033113
-            ],
-            [
-              70,
-              0.074144
-            ],
-            [
-              75,
-              0.105657
-            ],
-            [
-              80,
-              0.191098
-            ],
-            [
-              85,
-              0.368051
-            ],
-            [
-              90,
-              0.5
-            ],
-            [
-              100,
-              0.703913
-            ],
-            [
-              110,
-              0.849668
-            ],
-            [
-              120,
-              0.930733
-            ],
-            [
-              130,
-              0.969646
-            ]
-          ]
-        }
-      }
-    },
-    {
-      "id": "cancer",
-      "label": "Cancer",
-      "layer": "phenotype",
-      "tractability": "moderate",
-      "provenance": "anchored",
-      "role": "mortality-cause",
-      "mortalityCause": "cancer",
-      "curve": {
-        "form": "table",
-        "byAge": [
-          [
-            20,
-            0.001702
-          ],
-          [
-            30,
-            0.003628
-          ],
-          [
-            40,
-            0.009991
-          ],
-          [
-            50,
-            0.035127
-          ],
-          [
-            60,
-            0.110874
-          ],
-          [
-            70,
-            0.221804
-          ],
-          [
-            75,
-            0.28366
-          ],
-          [
-            80,
-            0.352297
-          ],
-          [
-            85,
-            0.4317
-          ],
-          [
-            90,
-            0.5
-          ],
-          [
-            100,
-            0.703913
-          ],
-          [
-            110,
-            0.849668
-          ],
-          [
-            120,
-            0.930733
-          ],
-          [
-            130,
-            0.969646
-          ]
-        ],
-        "female": {
-          "byAge": [
-            [
-              20,
-              0.002077
-            ],
-            [
-              30,
-              0.006442
-            ],
-            [
-              40,
-              0.022992
-            ],
-            [
-              50,
-              0.064475
-            ],
-            [
-              60,
-              0.155365
-            ],
-            [
-              70,
-              0.264815
-            ],
-            [
-              75,
-              0.332445
-            ],
-            [
-              80,
-              0.396386
-            ],
-            [
-              85,
-              0.45218
-            ],
-            [
-              90,
-              0.5
-            ],
-            [
-              100,
-              0.703913
-            ],
-            [
-              110,
-              0.849668
-            ],
-            [
-              120,
-              0.930733
-            ],
-            [
-              130,
-              0.969646
-            ]
-          ]
-        }
-      }
-    },
-    {
-      "id": "neurodegeneration",
-      "label": "Neurodegeneration",
-      "layer": "phenotype",
-      "tractability": "low",
-      "provenance": "calibrated",
-      "role": "mortality-cause",
-      "mortalityCause": "neurodegeneration",
-      "curve": {
-        "form": "table",
-        "byAge": [
-          [
-            20,
-            0
-          ],
-          [
-            30,
-            9.2e-05
-          ],
-          [
-            40,
-            0.000343
-          ],
-          [
-            50,
-            0.001446
-          ],
-          [
-            60,
-            0.006923
-          ],
-          [
-            70,
-            0.036978
-          ],
-          [
-            75,
-            0.111538
-          ],
-          [
-            80,
-            0.182059
-          ],
-          [
-            85,
-            0.342675
+            0.2293106
           ],
           [
             90,
@@ -1775,39 +1507,259 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "byAge": [
             [
               20,
-              0
+              0.0004481884
             ],
             [
               30,
-              6.1e-05
+              0.001455071
             ],
             [
               40,
-              0.000184
+              0.004490939
             ],
             [
               50,
-              0.000828
+              0.01217051
             ],
             [
               60,
-              0.004642
+              0.03001279
             ],
             [
               70,
-              0.02699
-            ],
-            [
-              75,
-              0.090672
+              0.06826279
             ],
             [
               80,
-              0.153022
+              0.1858231
             ],
             [
-              85,
-              0.327062
+              90,
+              0.5
+            ],
+            [
+              100,
+              0.7039
+            ],
+            [
+              110,
+              0.8497
+            ],
+            [
+              120,
+              0.9307
+            ],
+            [
+              130,
+              0.9696
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "cancer",
+      "label": "Cancer",
+      "layer": "phenotype",
+      "tractability": "moderate",
+      "provenance": "anchored",
+      "role": "mortality-cause",
+      "mortalityCause": "cancer",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.001803805
+          ],
+          [
+            30,
+            0.0035455
+          ],
+          [
+            40,
+            0.01025629
+          ],
+          [
+            50,
+            0.03873933
+          ],
+          [
+            60,
+            0.1231037
+          ],
+          [
+            70,
+            0.2347566
+          ],
+          [
+            80,
+            0.3700167
+          ],
+          [
+            90,
+            0.5
+          ],
+          [
+            100,
+            0.7039
+          ],
+          [
+            110,
+            0.8497
+          ],
+          [
+            120,
+            0.9307
+          ],
+          [
+            130,
+            0.9696
+          ]
+        ],
+        "female": {
+          "byAge": [
+            [
+              20,
+              0.002103835
+            ],
+            [
+              30,
+              0.006328405
+            ],
+            [
+              40,
+              0.02268683
+            ],
+            [
+              50,
+              0.06561183
+            ],
+            [
+              60,
+              0.1551608
+            ],
+            [
+              70,
+              0.2632569
+            ],
+            [
+              80,
+              0.3941426
+            ],
+            [
+              90,
+              0.5
+            ],
+            [
+              100,
+              0.7039
+            ],
+            [
+              110,
+              0.8497
+            ],
+            [
+              120,
+              0.9307
+            ],
+            [
+              130,
+              0.9696
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "neurodegeneration",
+      "label": "Neurodegeneration",
+      "layer": "phenotype",
+      "tractability": "low",
+      "provenance": "calibrated",
+      "role": "mortality-cause",
+      "mortalityCause": "neurodegeneration",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.00003127541
+          ],
+          [
+            30,
+            0.0001202316
+          ],
+          [
+            40,
+            0.0003549738
+          ],
+          [
+            50,
+            0.001517456
+          ],
+          [
+            60,
+            0.006908755
+          ],
+          [
+            70,
+            0.03667068
+          ],
+          [
+            80,
+            0.1863775
+          ],
+          [
+            90,
+            0.5
+          ],
+          [
+            100,
+            0.7039
+          ],
+          [
+            110,
+            0.8497
+          ],
+          [
+            120,
+            0.9307
+          ],
+          [
+            130,
+            0.9696
+          ]
+        ],
+        "female": {
+          "byAge": [
+            [
+              20,
+              0.00002884526
+            ],
+            [
+              30,
+              0.00005473934
+            ],
+            [
+              40,
+              0.0001807223
+            ],
+            [
+              50,
+              0.0008535639
+            ],
+            [
+              60,
+              0.004327793
+            ],
+            [
+              70,
+              0.02484633
+            ],
+            [
+              80,
+              0.1483414
             ],
             [
               90,
@@ -1846,39 +1798,31 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "byAge": [
           [
             20,
-            0.001541
+            0.001556201
           ],
           [
             30,
-            0.007469
+            0.006552499
           ],
           [
             40,
-            0.014266
+            0.01251668
           ],
           [
             50,
-            0.031764
+            0.02950065
           ],
           [
             60,
-            0.066979
+            0.06330283
           ],
           [
             70,
-            0.127463
-          ],
-          [
-            75,
-            0.19186
+            0.1157664
           ],
           [
             80,
-            0.255674
-          ],
-          [
-            85,
-            0.379114
+            0.2500347
           ],
           [
             90,
@@ -1905,39 +1849,31 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "byAge": [
             [
               20,
-              0.001582
+              0.001500114
             ],
             [
               30,
-              0.006562
+              0.005024624
             ],
             [
               40,
-              0.014067
+              0.0112735
             ],
             [
               50,
-              0.03073
+              0.02463516
             ],
             [
               60,
-              0.067045
+              0.054589
             ],
             [
               70,
-              0.133074
-            ],
-            [
-              75,
-              0.198546
+              0.1082389
             ],
             [
               80,
-              0.263046
-            ],
-            [
-              85,
-              0.384057
+              0.2320286
             ],
             [
               90,
@@ -2775,7 +2711,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
   ],
   "bLayer": {
     "version": "B-stage1",
-    "note": "Stage-1 endogenous-mediator tier (2026-06-08). Exogenous behavioral/environmental inputs drive emergent mediator VALUES (LDL, SBP, BMI, HbA1c). NOT YET wired to mortality \u2014 mortality math is unchanged v0.3. mediator(age) = baseline_{med,sex}(age) + \u03a3_x coeff_{x\u2192med}\u00b7form(input_x \u2212 populationMean_x) + personal_offset. At population-average inputs + zero offset, mediator == baseline (invariant). Numbers transcribed from \u00a7 B-layer parameters; interpolations flagged in provenance.",
+    "note": "Stage-1 endogenous-mediator tier (2026-06-08). Exogenous behavioral/environmental inputs drive emergent mediator VALUES (LDL, SBP, BMI, HbA1c). NOT YET wired to mortality — mortality math is unchanged v0.3. mediator(age) = baseline_{med,sex}(age) + Σ_x coeff_{x→med}·form(input_x − populationMean_x) + personal_offset. At population-average inputs + zero offset, mediator == baseline (invariant). Numbers transcribed from § B-layer parameters; interpolations flagged in provenance.",
     "exogenousInputs": [
       {
         "id": "smoking",
@@ -2787,7 +2723,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           40
         ],
         "unwired": true,
-        "note": "DEFERRED PLACEHOLDER: the categorical `smokingStatus` (never/former/current) is used instead (Stage-2), so this continuous cig/day input has no edges and is not in PANEL_INPUT_IDS \u2014 inert. Kept as the slot for a future dose-resolved smoking model."
+        "note": "DEFERRED PLACEHOLDER: the categorical `smokingStatus` (never/former/current) is used instead (Stage-2), so this continuous cig/day input has no edges and is not in PANEL_INPUT_IDS — inert. Kept as the slot for a future dose-resolved smoking model."
       },
       {
         "id": "smokingStatus",
@@ -2799,11 +2735,11 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "former",
           "current"
         ],
-        "note": "Categorical smoking status for the direct smoking->cancer/COPD cause edges (Stage 2). Sentinel populationMean 'population' (and undefined) maps to the US smoker mix (61% never / 25% former / 14% current), normalized so the mix averages to a multiplier of 1 \u2014 the CDC cause baselines already embed this mix."
+        "note": "Categorical smoking status for the direct smoking->cancer/COPD cause edges (Stage 2). Sentinel populationMean 'population' (and undefined) maps to the US smoker mix (61% never / 25% former / 14% current), normalized so the mix averages to a multiplier of 1 — the CDC cause baselines already embed this mix."
       },
       {
         "id": "calorieBalance",
-        "label": "Caloric balance (intake \u2212 expenditure)",
+        "label": "Caloric balance (intake − expenditure)",
         "unit": "kcal/day",
         "populationMean": 0,
         "range": [
@@ -2871,12 +2807,12 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           3,
           11
         ],
-        "note": "WIRED 2026-06-10: sleep\u2192allcause via the `uShape` form (nadir BAND 7-8 h, ASYMMETRIC arms \u2014 both short and long sleep raise all-cause mortality, long steeper; Cappuccio 2010). 7 h and 8 h are both penalty-free (the reference band). Exposed as a panel slider. The first U-shaped pathway; the banded/asymmetric `uShape` form is reusable for the planned IGF-1 nutrient-sensing U-shape."
+        "note": "WIRED 2026-06-10: sleep→allcause via the `uShape` form (nadir BAND 7-8 h, ASYMMETRIC arms — both short and long sleep raise all-cause mortality, long steeper; Cappuccio 2010). 7 h and 8 h are both penalty-free (the reference band). Exposed as a panel slider. The first U-shaped pathway; the banded/asymmetric `uShape` form is reusable for the planned IGF-1 nutrient-sensing U-shape."
       },
       {
         "id": "airPollution",
         "label": "Air pollution",
-        "unit": "\u00b5g/m\u00b3 PM2.5",
+        "unit": "µg/m³ PM2.5",
         "populationMean": 8,
         "range": [
           2,
@@ -3119,7 +3055,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             ]
           ]
         },
-        "provenance": "EMERGENT (2026-06-10, Increment 2 of the \u03b2-cell\u2192HbA1c vertical): the HbA1c baseline is now FLAT at the young-healthy value 5.3% (no age-pegging). The empirical age-RISE (Selvin 2005-10: 5.3\u21925.9 M / 5.8 F across 25\u219285) EMERGES from the \u03b2-cell-decline state node via a stateAugment (HbA1c += coeff\u00b7\u03b2-cell-decline; coeff 0.6 M / 0.5 F so HbA1c@80 \u2248 5.9/5.8). \u03b2-cell-decline integrates an intrinsic attrition rate (Increment 2) + glucotoxicity feedback (Increment 3 \u2014 the diabetes spiral), so HbA1c KEEPS RISING past 85 (was clamped flat at 5.9 across 85\u2192130) and an intervention/connection can bend the age-RISE itself, not just add a static deviation. Deviation-form HbA1c\u2192CVD/cancer/dementia edges + crosslink=\u222bHbA1c are ratio/deviation to the (same-law) baseline \u21d2 baseline LE preserved EXACTLY regardless of the emergent shape. The cross-sectional plateau at 5.9 (65\u219285) is partly survivorship/secular-trend artifact; the emergent monotonic rise tracks the band-centers within ~0.15% and is the more defensible longitudinal trajectory. SD 0.6 (right-skewed)."
+        "provenance": "EMERGENT (2026-06-10, Increment 2 of the β-cell→HbA1c vertical): the HbA1c baseline is now FLAT at the young-healthy value 5.3% (no age-pegging). The empirical age-RISE (Selvin 2005-10: 5.3→5.9 M / 5.8 F across 25→85) EMERGES from the β-cell-decline state node via a stateAugment (HbA1c += coeff·β-cell-decline; coeff 0.6 M / 0.5 F so HbA1c@80 ≈ 5.9/5.8). β-cell-decline integrates an intrinsic attrition rate (Increment 2) + glucotoxicity feedback (Increment 3 — the diabetes spiral), so HbA1c KEEPS RISING past 85 (was clamped flat at 5.9 across 85→130) and an intervention/connection can bend the age-RISE itself, not just add a static deviation. Deviation-form HbA1c→CVD/cancer/dementia edges + crosslink=∫HbA1c are ratio/deviation to the (same-law) baseline ⇒ baseline LE preserved EXACTLY regardless of the emergent shape. The cross-sectional plateau at 5.9 (65→85) is partly survivorship/secular-trend artifact; the emergent monotonic rise tracks the band-centers within ~0.15% and is the more defensible longitudinal trajectory. SD 0.6 (right-skewed)."
       },
       {
         "id": "restingHR",
@@ -3148,7 +3084,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             ]
           ]
         },
-        "provenance": "Population resting HR ~65 bpm (male) / ~68 (female); FLAT illustrative baseline (NHANES resting HR ~60-70; age-neutral, no age-pegging). Added 2026-06-10 (A2) as a DRIVER for the elastin-fatigue state node \u2014 pulsatile mechanical fatigue of elastin scales with cardiac cycles \u00d7 pressure amplitude, i.e. HR \u00d7 pulse-pressure. Anchorable via Labs. DEFERRED follow-ups: a restingHR\u2192mortality edge (resting HR is an independent CV/all-cause risk factor) and a physicalActivity\u2192restingHR fitness edge (training lowers resting HR \u21d2 slower elastin fatigue) \u2014 neither wired yet, so restingHR currently affects nothing but the (still-unwired) elastin-fatigue node."
+        "provenance": "Population resting HR ~65 bpm (male) / ~68 (female); FLAT illustrative baseline (NHANES resting HR ~60-70; age-neutral, no age-pegging). Added 2026-06-10 (A2) as a DRIVER for the elastin-fatigue state node — pulsatile mechanical fatigue of elastin scales with cardiac cycles × pressure amplitude, i.e. HR × pulse-pressure. Anchorable via Labs. DEFERRED follow-ups: a restingHR→mortality edge (resting HR is an independent CV/all-cause risk factor) and a physicalActivity→restingHR fitness edge (training lowers resting HR ⇒ slower elastin fatigue) — neither wired yet, so restingHR currently affects nothing but the (still-unwired) elastin-fatigue node."
       }
     ],
     "mediatorEdges": [
@@ -3246,7 +3182,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     "constants": {
       "heightRefM": 1.7,
       "weightAsymptoteFraction": 0.55,
-      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (\u0394BMI = \u0394kg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
+      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
     },
     "stiffnessToSBP": {
       "betaPerUnit": {
@@ -3257,9 +3193,9 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       "to": "systolicBP",
       "excludeDriver": "ecm-crosslink",
       "excludeWeight": 0.3,
-      "provenance": "A4 (2026-06-10): the BP-MEDIATED slice of stiffness->CVD. SBP gets += betaPerUnit * (NON-GLYCEMIC stiffness deviation) where non-glycemic = (stiffness - stiffness_pop) - excludeWeight*(crosslink - crosslink_pop). betaPerUnit calibrated as the pop SBP age-rise (119->154 M / 110->159 F) over the pop stiffness rise (0->~1) => ~37.6 mmHg/unit (M) / 52.1 (F). DEVIATION form: =0 at the pop stiffness trajectory, so the SBP baseline + the Lewington SBP->CVD calibration (shared by BMI/Lu + sodium) are PRESERVED EXACTLY; only stiffness deviations move SBP. Crosslink EXCLUDED to avoid re-double-counting glycemia (its CVD is already in the decomposed HbA1c->CVD + the B3 direct stiffness->CVD edge). COMPLEMENTS the B3 direct (BP-independent, Mitchell-adjusted) edge: B3 + A4 = the total stiffness CVD risk, split into the BP-independent and BP-mediated slices (Mitchell 2010 separated them). So a senolytic / low-resting-HR person now ALSO lowers SBP (and CVD via Lewington), on top of the B3 slice. NOT a full de-age-pegging of SBP (the old systolicBP baseline curve REMAINS as the anchor; replacing it with a flat residual needs re-referencing the SBP->CVD deviation form \u2014 deferred). The reverse SBP->elastin (pressure-amplitude) coupling stays deferred (it would re-create the B3-direct double-count for SBP-driven stiffness). #gap: glycemic stiffening's SBP-display under-representation (crosslink excluded) is an illustrative simplification. ILLUSTRATIVE beta; SOLID-direction."
+      "provenance": "A4 (2026-06-10): the BP-MEDIATED slice of stiffness->CVD. SBP gets += betaPerUnit * (NON-GLYCEMIC stiffness deviation) where non-glycemic = (stiffness - stiffness_pop) - excludeWeight*(crosslink - crosslink_pop). betaPerUnit calibrated as the pop SBP age-rise (119->154 M / 110->159 F) over the pop stiffness rise (0->~1) => ~37.6 mmHg/unit (M) / 52.1 (F). DEVIATION form: =0 at the pop stiffness trajectory, so the SBP baseline + the Lewington SBP->CVD calibration (shared by BMI/Lu + sodium) are PRESERVED EXACTLY; only stiffness deviations move SBP. Crosslink EXCLUDED to avoid re-double-counting glycemia (its CVD is already in the decomposed HbA1c->CVD + the B3 direct stiffness->CVD edge). COMPLEMENTS the B3 direct (BP-independent, Mitchell-adjusted) edge: B3 + A4 = the total stiffness CVD risk, split into the BP-independent and BP-mediated slices (Mitchell 2010 separated them). So a senolytic / low-resting-HR person now ALSO lowers SBP (and CVD via Lewington), on top of the B3 slice. NOT a full de-age-pegging of SBP (the old systolicBP baseline curve REMAINS as the anchor; replacing it with a flat residual needs re-referencing the SBP->CVD deviation form — deferred). The reverse SBP->elastin (pressure-amplitude) coupling stays deferred (it would re-create the B3-direct double-count for SBP-driven stiffness). #gap: glycemic stiffening's SBP-display under-representation (crosslink excluded) is an illustrative simplification. ILLUSTRATIVE beta; SOLID-direction."
     },
-    "stateNodesNote": "UNIFORM NODE SCHEMA (A1, 2026-06-10; migration step toward one causal graph \u2014 see model/age-hardcoding-audit.md \u00a7 Implementation roadmap). A state node accumulates over the age grid: value(age) = initial + \u222b rate\u00b7dt, where rate = \u03a3 terms. Each term is `linear` (coeff\u00b7drivers[0]) or `product` (coeff\u00b7\u220fdrivers); a driver is a MEDIATOR id or another STATE-NODE id (topo-ordered, drivers before dependents), read at each age \u2014 so accumulation is INPUT-driven, NOT age-driven, and the age-correlation EMERGES from the integral. `class`: damage | physiology | pathology. `units`: physical | normalized. This generalises the former ad-hoc `stocks`. Algebraic (non-integrated) physiology nodes + terminal-hazard (pathology) mappings are added in later A/C steps; A1 covers integrated state nodes (ecm-crosslink; elastin-fatigue next).",
+    "stateNodesNote": "UNIFORM NODE SCHEMA (A1, 2026-06-10; migration step toward one causal graph — see model/age-hardcoding-audit.md § Implementation roadmap). A state node accumulates over the age grid: value(age) = initial + ∫ rate·dt, where rate = Σ terms. Each term is `linear` (coeff·drivers[0]) or `product` (coeff·∏drivers); a driver is a MEDIATOR id or another STATE-NODE id (topo-ordered, drivers before dependents), read at each age — so accumulation is INPUT-driven, NOT age-driven, and the age-correlation EMERGES from the integral. `class`: damage | physiology | pathology. `units`: physical | normalized. This generalises the former ad-hoc `stocks`. Algebraic (non-integrated) physiology nodes + terminal-hazard (pathology) mappings are added in later A/C steps; A1 covers integrated state nodes (ecm-crosslink; elastin-fatigue next).",
     "stateNodes": [
       {
         "id": "ecm-crosslink",
@@ -3278,7 +3214,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             }
           ]
         },
-        "provenance": "RATE-INTEGRATED state node (2026-06-10; migrated to the uniform schema A1) \u2014 first node of the age-pegging migration (model/age-hardcoding-audit.md). Glucosepane is the dominant ECM collagen crosslink; formation is mass-action glycation, so dCrosslink/dt = coeff \u00b7 glycemia, with HbA1c as the mean-glucose proxy (one `linear` term, coeff 0.00293). Integrated over the age grid: crosslink(age) = initial + \u222b coeff \u00b7 HbA1c dt (driver value INCLUDES inputs/offsets, so elevated glycemia accelerates accumulation). coeff 0.00293 calibrated so the POPULATION trajectory (male baseline HbA1c) reaches ~1.0 (normalized) at age 80 from 0 at age 20; a diabetic (HbA1c ~9) accumulates ~1.7x faster. AGE IS NOT AN INPUT \u2014 the age-correlation EMERGES from the integral. NOT YET wired to arterial-stiffness/SBP/mortality (A3/A4: crosslink + elastin-fatigue + senescence -> arterial-stiffness -> SBP residual-split). Illustrative magnitude; SOLID-direction (glucosepane accumulates with age and markedly in diabetes)."
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; migrated to the uniform schema A1) — first node of the age-pegging migration (model/age-hardcoding-audit.md). Glucosepane is the dominant ECM collagen crosslink; formation is mass-action glycation, so dCrosslink/dt = coeff · glycemia, with HbA1c as the mean-glucose proxy (one `linear` term, coeff 0.00293). Integrated over the age grid: crosslink(age) = initial + ∫ coeff · HbA1c dt (driver value INCLUDES inputs/offsets, so elevated glycemia accelerates accumulation). coeff 0.00293 calibrated so the POPULATION trajectory (male baseline HbA1c) reaches ~1.0 (normalized) at age 80 from 0 at age 20; a diabetic (HbA1c ~9) accumulates ~1.7x faster. AGE IS NOT AN INPUT — the age-correlation EMERGES from the integral. NOT YET wired to arterial-stiffness/SBP/mortality (A3/A4: crosslink + elastin-fatigue + senescence -> arterial-stiffness -> SBP residual-split). Illustrative magnitude; SOLID-direction (glucosepane accumulates with age and markedly in diabetes)."
       },
       {
         "id": "elastin-fatigue",
@@ -3297,13 +3233,13 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             }
           ]
         },
-        "provenance": "RATE-INTEGRATED state node (2026-06-10; A2, simplified at B3). Vascular elastin has ~zero turnover in adult humans, so age-related fragmentation is CUMULATIVE PULSATILE MECHANICAL FATIGUE, not chronological age (phenotypes/arterial-stiffening.md; Sun 2014). FULL mechanism: dFatigue/dt \u221d cardiac-cycles \u00d7 pressure-amplitude = restingHR \u00d7 pulse-pressure. **B3 decoupling (2026-06-10):** the pulse-pressure (SBP) driver was REMOVED for now \u2014 leaving dFatigue/dt = coeff \u00b7 restingHR (the cyclic-COUNT part) \u2014 because the SBP-driven slice made SBP\u2192elastin\u2192stiffness\u2192CVD double-count the Lewington SBP\u2192CVD hub (which is shared by BMI/Lu + sodium edges, so decomposing it cascades). The pressure-amplitude term + the bidirectional SBP\u2194stiffness coupling are DEFERRED to A4 (the SBP-residual-split), which reconciles them with Lewington/Lu via mediation-decomposition. #gap/deferred-A4. So today elastin varies only via resting HR (a low-HR / fit person fatigues elastin slower \u2014 a clean intervention path with no existing HR\u2192CVD edge to double-count). AGE IS NOT AN INPUT \u2014 the age-correlation EMERGES. coeff 2.564e-4 calibrated so the POPULATION male trajectory reaches ~1.0 (normalized) at age 80 (HR 65 flat). Wired downstream: -> arterial-stiffness (A3) -> cardiovascular (B3). Illustrative; SOLID-direction (elastin fatigue is the dominant structural stiffening driver)."
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; A2, simplified at B3). Vascular elastin has ~zero turnover in adult humans, so age-related fragmentation is CUMULATIVE PULSATILE MECHANICAL FATIGUE, not chronological age (phenotypes/arterial-stiffening.md; Sun 2014). FULL mechanism: dFatigue/dt ∝ cardiac-cycles × pressure-amplitude = restingHR × pulse-pressure. **B3 decoupling (2026-06-10):** the pulse-pressure (SBP) driver was REMOVED for now — leaving dFatigue/dt = coeff · restingHR (the cyclic-COUNT part) — because the SBP-driven slice made SBP→elastin→stiffness→CVD double-count the Lewington SBP→CVD hub (which is shared by BMI/Lu + sodium edges, so decomposing it cascades). The pressure-amplitude term + the bidirectional SBP↔stiffness coupling are DEFERRED to A4 (the SBP-residual-split), which reconciles them with Lewington/Lu via mediation-decomposition. #gap/deferred-A4. So today elastin varies only via resting HR (a low-HR / fit person fatigues elastin slower — a clean intervention path with no existing HR→CVD edge to double-count). AGE IS NOT AN INPUT — the age-correlation EMERGES. coeff 2.564e-4 calibrated so the POPULATION male trajectory reaches ~1.0 (normalized) at age 80 (HR 65 flat). Wired downstream: -> arterial-stiffness (A3) -> cardiovascular (B3). Illustrative; SOLID-direction (elastin fatigue is the dominant structural stiffening driver)."
       },
       {
         "id": "beta-cell-decline",
         "class": "physiology",
         "units": "normalized",
-        "label": "Pancreatic \u03b2-cell functional decline",
+        "label": "Pancreatic β-cell functional decline",
         "initial": 0,
         "rate": {
           "terms": [
@@ -3337,7 +3273,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             }
           ]
         },
-        "provenance": "RATE-INTEGRATED state node (2026-06-10; \u03b2-cell\u2192HbA1c vertical, Increment 2). \u03b2-cell secretory reserve declines cumulatively with age; the loss is what un-pins fasting/postprandial glycemia (UKPDS: ~4%/yr functional \u03b2-cell loss in T2D; lesser in normoglycemia). Modeled as a normalized [0,1+] decline integrating THREE rate terms: (1) an INTRINSIC attrition constant 0.016667/yr (the `product` term with empty drivers = constant) \u2014 the unmechanized age-residual, calibrated so \u222b from age 20 reaches ~1.0 (normalized) at age 80, reproducing the population HbA1c rise 5.3\u21925.9 via the stateAugment (coeff 0.6 M / 0.5 F); (2) a LIPOTOXICITY term \u221d max(0, BMI\u221225) \u2014 adiposity accelerates \u03b2-cell stress (coeff 0, DEFERRED: a secondary accelerator, NOT part of the core spiral loop; activating it would re-shape the population HbA1c curve via population BMI>25 and require re-calibrating the intrinsic rate \u2014 deferred to keep Increment 3 clean); (3) a GLUCOTOXICITY feedback \u221d min(3, max(0, HbA1c\u22126.5)) \u2014 chronic hyperglycemia is itself \u03b2-cell-toxic, the engine of the DIABETES SPIRAL: **ACTIVATED in Increment 3 (2026-06-10), coeff 0.012**. The loop: \u03b2-cell-decline \u2191 \u2192 HbA1c \u2191 (stateAugment) \u2192 glucotox \u2191 \u2192 \u03b2-cell-decline \u2191, resolved per-age across the forward-Euler march (the spiral substrate of Increment 1). The driver is CAPPED at 3 (HbA1c 9.5) so the feedback growth becomes linear (not exponential) past the cap \u2014 BOUNDS the spiral to a clinically-plausible ceiling (a poorly-controlled diabetic anchored ~8 at 50 progresses to ~9.1 @80 / ~10.0 @110, UKPDS-plausible ~0.03%/yr; un-capped it ran to 13\u201317%). Floors at 6.5% (glucotox) / 25 (lipotox) keep both terms EXACTLY 0 in the normoglycemic/lean population (population HbA1c maxes at 6.4 @130 < 6.5) so the population HbA1c baseline \u2014 and thus baseline LE \u2014 is preserved EXACTLY (verified: POP LE 75.8147 identical with/without the spiral); they only bite for diabetic/obese DEVIATIONS. AGE IS NOT AN INPUT \u2014 the rise EMERGES from the integral. Drives HbA1c (stateAugment), which drives crosslink=\u222bHbA1c \u2192 arterial-stiffness \u2192 CVD, plus the direct HbA1c\u2192CVD/cancer/dementia edges; so the spiral worsens the diabetic's OLD-AGE glycemia + stiffness + CVD (LE \u22120.031 on top of the baseline-elevation hit). **Anchor caveat:** a lab-anchored HbA1c is a LIFELONG offset (model semantics for all mediators), so glucotox accumulates retroactively from age 20 \u2014 an anchored 8 reads ~8.3 at the current age (mild over-shoot), and the spiral then projects forward. The held-forward anchor no longer pins exactly once the spiral is active; this is the realistic 'glycemia progresses' behavior, documented rather than iterated-away. Illustrative magnitudes; SOLID-direction (\u03b2-cell decline \u2192 glycemia \u2192 micro/macrovascular complications; glucotoxicity is an established T2D mechanism)."
+        "provenance": "RATE-INTEGRATED state node (2026-06-10; β-cell→HbA1c vertical, Increment 2). β-cell secretory reserve declines cumulatively with age; the loss is what un-pins fasting/postprandial glycemia (UKPDS: ~4%/yr functional β-cell loss in T2D; lesser in normoglycemia). Modeled as a normalized [0,1+] decline integrating THREE rate terms: (1) an INTRINSIC attrition constant 0.016667/yr (the `product` term with empty drivers = constant) — the unmechanized age-residual, calibrated so ∫ from age 20 reaches ~1.0 (normalized) at age 80, reproducing the population HbA1c rise 5.3→5.9 via the stateAugment (coeff 0.6 M / 0.5 F); (2) a LIPOTOXICITY term ∝ max(0, BMI−25) — adiposity accelerates β-cell stress (coeff 0, DEFERRED: a secondary accelerator, NOT part of the core spiral loop; activating it would re-shape the population HbA1c curve via population BMI>25 and require re-calibrating the intrinsic rate — deferred to keep Increment 3 clean); (3) a GLUCOTOXICITY feedback ∝ min(3, max(0, HbA1c−6.5)) — chronic hyperglycemia is itself β-cell-toxic, the engine of the DIABETES SPIRAL: **ACTIVATED in Increment 3 (2026-06-10), coeff 0.012**. The loop: β-cell-decline ↑ → HbA1c ↑ (stateAugment) → glucotox ↑ → β-cell-decline ↑, resolved per-age across the forward-Euler march (the spiral substrate of Increment 1). The driver is CAPPED at 3 (HbA1c 9.5) so the feedback growth becomes linear (not exponential) past the cap — BOUNDS the spiral to a clinically-plausible ceiling (a poorly-controlled diabetic anchored ~8 at 50 progresses to ~9.1 @80 / ~10.0 @110, UKPDS-plausible ~0.03%/yr; un-capped it ran to 13–17%). Floors at 6.5% (glucotox) / 25 (lipotox) keep both terms EXACTLY 0 in the normoglycemic/lean population (population HbA1c maxes at 6.4 @130 < 6.5) so the population HbA1c baseline — and thus baseline LE — is preserved EXACTLY (verified: POP LE 75.8147 identical with/without the spiral); they only bite for diabetic/obese DEVIATIONS. AGE IS NOT AN INPUT — the rise EMERGES from the integral. Drives HbA1c (stateAugment), which drives crosslink=∫HbA1c → arterial-stiffness → CVD, plus the direct HbA1c→CVD/cancer/dementia edges; so the spiral worsens the diabetic's OLD-AGE glycemia + stiffness + CVD (LE −0.031 on top of the baseline-elevation hit). **Anchor caveat:** a lab-anchored HbA1c is a LIFELONG offset (model semantics for all mediators), so glucotox accumulates retroactively from age 20 — an anchored 8 reads ~8.3 at the current age (mild over-shoot), and the spiral then projects forward. The held-forward anchor no longer pins exactly once the spiral is active; this is the realistic 'glycemia progresses' behavior, documented rather than iterated-away. Illustrative magnitudes; SOLID-direction (β-cell decline → glycemia → micro/macrovascular complications; glucotoxicity is an established T2D mechanism)."
       },
       {
         "id": "arterial-stiffness",
@@ -3369,10 +3305,10 @@ Real cause-of-death data forced this addition: external causes (unintentional in
             }
           ]
         },
-        "provenance": "ALGEBRAIC physiology node (2026-06-10; A3 + B0). value(age) = \u03a3 contributions AT each age, NOT \u222brate\u00b7dt: stiffness is the CURRENT consequence of currently-accumulated damage, and its inputs are themselves time-integrals / burdens. cfPWV proxy = 0.50\u00b7elastin-fatigue + 0.30\u00b7ecm-crosslink + 0.80\u00b7cellular-senescence; weights ILLUSTRATIVE and ELASTIN-DOMINANT (elastin fragmentation is the dominant structural driver, AGE crosslinking secondary \u2014 phenotypes/arterial-stiffening.md), normalized so the population male trajectory ~1.0 at age 80, with the senescence term carrying ~20% of stiffness@80 (Clayton 2023: senolytics reverse ~20% aortic PWV in mice). **B0 (2026-06-10) cleared the deferred senescence term**: `cellular-senescence` is a NODE-layer burden (B), now readable from the state-node phase because simulate() passes node burdens into mediators() (the node\u2194state-node seam dismantled for the node\u2192state-node direction). So a senescence-FREEZE intervention now lowers arterial stiffness \u2014 the first node\u2192state-node mechanistic edge. NOT YET wired to SBP/mortality (that is Phase B3: stiffness \u2192 SBP/CVD, with mediation-decomposition of the redundant direct edges). Illustrative; SOLID-direction."
+        "provenance": "ALGEBRAIC physiology node (2026-06-10; A3 + B0). value(age) = Σ contributions AT each age, NOT ∫rate·dt: stiffness is the CURRENT consequence of currently-accumulated damage, and its inputs are themselves time-integrals / burdens. cfPWV proxy = 0.50·elastin-fatigue + 0.30·ecm-crosslink + 0.80·cellular-senescence; weights ILLUSTRATIVE and ELASTIN-DOMINANT (elastin fragmentation is the dominant structural driver, AGE crosslinking secondary — phenotypes/arterial-stiffening.md), normalized so the population male trajectory ~1.0 at age 80, with the senescence term carrying ~20% of stiffness@80 (Clayton 2023: senolytics reverse ~20% aortic PWV in mice). **B0 (2026-06-10) cleared the deferred senescence term**: `cellular-senescence` is a NODE-layer burden (B), now readable from the state-node phase because simulate() passes node burdens into mediators() (the node↔state-node seam dismantled for the node→state-node direction). So a senescence-FREEZE intervention now lowers arterial stiffness — the first node→state-node mechanistic edge. NOT YET wired to SBP/mortality (that is Phase B3: stiffness → SBP/CVD, with mediation-decomposition of the redundant direct edges). Illustrative; SOLID-direction."
       }
     ],
-    "stateAugmentsNote": "STATE\u2192MEDIATOR AUGMENTS (2026-06-10; \u03b2-cell\u2192HbA1c vertical). Each {fromState, mediator, coeff} injects coeff\u00b7stateValue INTO a mediator mid-march (per-age, AFTER the mediator phase + offsets, BEFORE state rates advance), so a state node's accumulated value can re-shape a mediator trajectory that the SAME march's downstream integrals then read. coeff is a number or a {male,female} map. This is the substrate that lets an emergent damage variable un-pin a formerly age-tabled mediator: \u03b2-cell-decline \u2192 HbA1c replaces the HbA1c age-table with a flat 5.3 baseline + the emergent rise. Anchoring stays exact in Increment 2 because the augment is input-independent (constant base rate), so computeOffsets' post-augment prediction cancels; Increment 3 (glucotox feedback makes the augment input-dependent) revisits anchor semantics.",
+    "stateAugmentsNote": "STATE→MEDIATOR AUGMENTS (2026-06-10; β-cell→HbA1c vertical). Each {fromState, mediator, coeff} injects coeff·stateValue INTO a mediator mid-march (per-age, AFTER the mediator phase + offsets, BEFORE state rates advance), so a state node's accumulated value can re-shape a mediator trajectory that the SAME march's downstream integrals then read. coeff is a number or a {male,female} map. This is the substrate that lets an emergent damage variable un-pin a formerly age-tabled mediator: β-cell-decline → HbA1c replaces the HbA1c age-table with a flat 5.3 baseline + the emergent rise. Anchoring stays exact in Increment 2 because the augment is input-independent (constant base rate), so computeOffsets' post-augment prediction cancels; Increment 3 (glucotox feedback makes the augment input-dependent) revisits anchor semantics.",
     "stateAugments": [
       {
         "fromState": "beta-cell-decline",
@@ -3421,7 +3357,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "form": "mediatorLogLinear",
         "med": "arterial-stiffness",
         "beta": 0.6,
-        "provenance": "B3 (2026-06-10): the CONSOLIDATED arterial-stiffness -> CVD path. Mitchell 2010 (Framingham): cfPWV HR 1.48 per 1 SD, INDEPENDENT of SBP/lipids/smoking/diabetes. 1 SD cfPWV ~0.55 of the normalized stiffness range => beta = ln(1.48)/0.55 ~0.71; set to 0.6 (conservative, to bound the partial overlap of the SBP-driven elastin slice with the Lewington SBP->CVD edge \u2014 #gap, reconcile in the A4 SBP-residual-split). Deviation form exp(beta*(stiffness - baseline)) = 1 at the pop stiffness trajectory, so the CDC-calibrated CV baseline is preserved EXACTLY; only stiffness DEVIATIONS move CV hazard. Makes interventions map to reality: a senolytic (less senescence -> less stiffness) and glycemic/BP/crosslink-breaker interventions all bend CV mortality through stiffness, non-double-counted \u2014 senescence's stiffness path is a DISTINCT mechanism from its existing inflammation->plaque coupling (senescence->chronic-inflammation->atherosclerosis), the glycemia slice is decomposed out of HbA1c->CVD, and HR has no prior CVD edge. ILLUSTRATIVE beta; SOLID-direction (Mitchell 2010, Clayton 2023)."
+        "provenance": "B3 (2026-06-10): the CONSOLIDATED arterial-stiffness -> CVD path. Mitchell 2010 (Framingham): cfPWV HR 1.48 per 1 SD, INDEPENDENT of SBP/lipids/smoking/diabetes. 1 SD cfPWV ~0.55 of the normalized stiffness range => beta = ln(1.48)/0.55 ~0.71; set to 0.6 (conservative, to bound the partial overlap of the SBP-driven elastin slice with the Lewington SBP->CVD edge — #gap, reconcile in the A4 SBP-residual-split). Deviation form exp(beta*(stiffness - baseline)) = 1 at the pop stiffness trajectory, so the CDC-calibrated CV baseline is preserved EXACTLY; only stiffness DEVIATIONS move CV hazard. Makes interventions map to reality: a senolytic (less senescence -> less stiffness) and glycemic/BP/crosslink-breaker interventions all bend CV mortality through stiffness, non-double-counted — senescence's stiffness path is a DISTINCT mechanism from its existing inflammation->plaque coupling (senescence->chronic-inflammation->atherosclerosis), the glycemia slice is decomposed out of HbA1c->CVD, and HR has no prior CVD edge. ILLUSTRATIVE beta; SOLID-direction (Mitchell 2010, Clayton 2023)."
       },
       {
         "from": "HbA1c",
@@ -3493,7 +3429,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "high": 0.13
         },
         "power": 1,
-        "provenance": "Sleep duration \u2192 all-cause mortality is U-SHAPED (Cappuccio 2010 meta: short sleep <6h HR ~1.12, long sleep >8-9h HR ~1.30 vs the 7-8h REFERENCE). **BANDED + ASYMMETRIC (2026-06-10, user-caught):** the prior symmetric point-nadir at 7 wrongly penalized 8h as much as 6h \u2014 but 7-8h is a flat-optimal REFERENCE BAND (8h is not worse than 7h). mult = exp(\u03b2\u00b7dist) where dist = how far OUTSIDE [7,8] (0 inside \u21d2 7h AND 8h both penalty-free) and \u03b2 is ASYMMETRIC: short arm (<7h) \u03b2low 0.06, long arm (>8h) \u03b2high 0.13 (long-sleep mortality rises ~2\u00d7 steeper per hour \u2014 Cappuccio long HR 1.30 vs short 1.12). Resulting: 5h \u21d2 exp(0.06\u00b72)=1.13, 6h \u21d2 1.06, 7-8h \u21d2 1.00, 9h \u21d2 exp(0.13\u00b71)=1.14, 10h \u21d2 exp(0.13\u00b72)=1.30. popMean 7 lies in the band \u21d2 mult 1 at default \u21d2 baseline preserved EXACTLY. Whole-intrinsic-bracket all-cause multiplier (like physicalActivity\u2192allcause); sleep is a standalone input with no prior edge, so NO double-count. The steeper long arm is partly REVERSE-CAUSATION (illness \u2192 long sleep, not long sleep \u2192 death) \u2014 flagged #gap/contributory-reverse-causation; the model encodes the association as-observed. Wired + exposed 2026-06-10 (was a phantom input); banded/asymmetric same day. SOLID-direction; magnitude illustrative."
+        "provenance": "Sleep duration → all-cause mortality is U-SHAPED (Cappuccio 2010 meta: short sleep <6h HR ~1.12, long sleep >8-9h HR ~1.30 vs the 7-8h REFERENCE). **BANDED + ASYMMETRIC (2026-06-10, user-caught):** the prior symmetric point-nadir at 7 wrongly penalized 8h as much as 6h — but 7-8h is a flat-optimal REFERENCE BAND (8h is not worse than 7h). mult = exp(β·dist) where dist = how far OUTSIDE [7,8] (0 inside ⇒ 7h AND 8h both penalty-free) and β is ASYMMETRIC: short arm (<7h) βlow 0.06, long arm (>8h) βhigh 0.13 (long-sleep mortality rises ~2× steeper per hour — Cappuccio long HR 1.30 vs short 1.12). Resulting: 5h ⇒ exp(0.06·2)=1.13, 6h ⇒ 1.06, 7-8h ⇒ 1.00, 9h ⇒ exp(0.13·1)=1.14, 10h ⇒ exp(0.13·2)=1.30. popMean 7 lies in the band ⇒ mult 1 at default ⇒ baseline preserved EXACTLY. Whole-intrinsic-bracket all-cause multiplier (like physicalActivity→allcause); sleep is a standalone input with no prior edge, so NO double-count. The steeper long arm is partly REVERSE-CAUSATION (illness → long sleep, not long sleep → death) — flagged #gap/contributory-reverse-causation; the model encodes the association as-observed. Wired + exposed 2026-06-10 (was a phantom input); banded/asymmetric same day. SOLID-direction; magnitude illustrative."
       },
       {
         "from": "physicalActivity",
@@ -3614,7 +3550,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "threshold": 6.5,
         "slope": 0.55,
         "cap": 30,
-        "provenance": "HbA1c -> DIRECT diabetes mortality (E10-E14: acute metabolic crises [DKA, hyperosmolar hyperglycemic state] + severe diabetic complications coded to diabetes itself, NOT the diabetic CVD that codes to cardiovascular). Added 2026-06-10 to give the \u03b2-cell glucotoxicity spiral a SEVERITY-SCALING terminal endpoint \u2014 without it the only HbA1c->mortality edges (cardiovascular/cancer/neurodegeneration) all SATURATE at their caps by HbA1c ~6.8 (they carry the ERFC/Gudala *average-diabetic* macrovascular RR, which genuinely plateaus), so the model treated HbA1c 7 and 14 as identical for death (user-caught, 2026-06-10). This edge is DELIBERATELY STEEP + HIGH-CAP because the diabetes-coded endpoint is dominated by ACUTE crises whose baseline is ~0 at HbA1c 6.5 and explodes at sustained high glycemia: slope 0.55 = RR ~1.73 per +1% HbA1c, cap 30 (saturates at HbA1c ~12.7). This is a DIFFERENT shape from the capped macrovascular edges and is correct \u2014 acute hyperglycemic death scales with severity where chronic macrovascular RR plateaus. ratio-to-baseline (threshold 6.5 > population HbA1c max 6.4 @130) so mult EXACTLY 1 in the population => baseline LE preserved EXACTLY. Resulting ladder (M, anchored): HbA1c 7 -4.3 yr / 10 -7.3 / 14 -11.1. ILLUSTRATIVE slope+cap magnitudes (#gap: the exact direct-diabetes-mortality dose-response by HbA1c band is uncharacterized for HbA1c>12); SOLID-direction (acute hyperglycemic + complication mortality rises steeply with sustained hyperglycemia)."
+        "provenance": "HbA1c -> DIRECT diabetes mortality (E10-E14: acute metabolic crises [DKA, hyperosmolar hyperglycemic state] + severe diabetic complications coded to diabetes itself, NOT the diabetic CVD that codes to cardiovascular). Added 2026-06-10 to give the β-cell glucotoxicity spiral a SEVERITY-SCALING terminal endpoint — without it the only HbA1c->mortality edges (cardiovascular/cancer/neurodegeneration) all SATURATE at their caps by HbA1c ~6.8 (they carry the ERFC/Gudala *average-diabetic* macrovascular RR, which genuinely plateaus), so the model treated HbA1c 7 and 14 as identical for death (user-caught, 2026-06-10). This edge is DELIBERATELY STEEP + HIGH-CAP because the diabetes-coded endpoint is dominated by ACUTE crises whose baseline is ~0 at HbA1c 6.5 and explodes at sustained high glycemia: slope 0.55 = RR ~1.73 per +1% HbA1c, cap 30 (saturates at HbA1c ~12.7). This is a DIFFERENT shape from the capped macrovascular edges and is correct — acute hyperglycemic death scales with severity where chronic macrovascular RR plateaus. ratio-to-baseline (threshold 6.5 > population HbA1c max 6.4 @130) so mult EXACTLY 1 in the population => baseline LE preserved EXACTLY. Resulting ladder (M, anchored): HbA1c 7 -4.3 yr / 10 -7.3 / 14 -11.1. ILLUSTRATIVE slope+cap magnitudes (#gap: the exact direct-diabetes-mortality dose-response by HbA1c band is uncharacterized for HbA1c>12); SOLID-direction (acute hyperglycemic + complication mortality rises steeply with sustained hyperglycemia)."
       },
       {
         "from": "HbA1c",
@@ -3624,7 +3560,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "threshold": 6.5,
         "slope": 0.35,
         "cap": 10,
-        "provenance": "HbA1c -> CKD mortality (diabetic nephropathy -> renal death, N00-N07/N17-N19/N25-N27). Added 2026-06-10 alongside HbA1c->diabetes as the second severity-scaling glycemic endpoint. Diabetic nephropathy is strongly glycemia-dependent (DCCT/UKPDS: tight control markedly cuts nephropathy progression), so renal death rises with sustained hyperglycemia: slope 0.35 = RR ~1.42 per +1% HbA1c, cap 10 (saturates at HbA1c ~13.1) \u2014 gentler than the diabetes edge (nephropathy is a chronic complication, not an acute crisis). ratio-to-baseline (threshold 6.5 > population HbA1c max) => mult EXACTLY 1 in population => baseline LE preserved EXACTLY. Complements the existing smoking->ckd edge (different driver). ILLUSTRATIVE magnitudes (#gap); SOLID-direction (glycemic control governs diabetic nephropathy progression)."
+        "provenance": "HbA1c -> CKD mortality (diabetic nephropathy -> renal death, N00-N07/N17-N19/N25-N27). Added 2026-06-10 alongside HbA1c->diabetes as the second severity-scaling glycemic endpoint. Diabetic nephropathy is strongly glycemia-dependent (DCCT/UKPDS: tight control markedly cuts nephropathy progression), so renal death rises with sustained hyperglycemia: slope 0.35 = RR ~1.42 per +1% HbA1c, cap 10 (saturates at HbA1c ~13.1) — gentler than the diabetes edge (nephropathy is a chronic complication, not an acute crisis). ratio-to-baseline (threshold 6.5 > population HbA1c max) => mult EXACTLY 1 in population => baseline LE preserved EXACTLY. Complements the existing smoking->ckd edge (different driver). ILLUSTRATIVE magnitudes (#gap); SOLID-direction (glycemic control governs diabetic nephropathy progression)."
       }
     ],
     "causeEdgesNote": "Stage 2 (2026-06-08): CLEAN non-double-counting mediator->cause and direct exogenous->cause multipliers. cause_hazard_c = [v0.3 hazard] * Prod_edges mult_edge; mult=1 at population-average inputs so v0.3 (LE 75.31 M / 80.37 F) reproduces exactly. mediatorThresholdRamp uses a RATIO-to-baseline so mult=1 at the per-age baseline HbA1c (which exceeds the 5.7 threshold at 60+). Stage 3a (2026-06-08) ADDED two clean cause edges, both =1 at default inputs: (1) smoking->cardiovascular (smokingCategorical, normalized, never 0.833/former 1.082/current 1.582) and (2) physicalActivity->allcause (activityFitness, target 'allcause', exp(-0.139*dMETs), applied to the WHOLE intrinsic bracket at the frailty-multiplier site, weight/glucose-independent fitness channel). Stage 3b (2026-06-08) ADDED the BMI/adiposity edges MECHANISTICALLY (Lu 2014 mediation decomposition, no double-counting), all =1 at the per-age baseline BMI so v0.3 still reproduces exactly: (1) BMI->systolicBP mediatorEdge (mediatorLinear, +0.72 mmHg/+1 kg/m2, the DOMINANT mediated path, flowing through SBP->CVD); (2) BMI->cardiovascular causeEdge (bmiThresholdRatio, upper-arm only, beta 0.022819, the UNMEDIATED CV residual; combined with the SBP path => Lu 1.27 per +5 BMI, log-HR split SBP 52.3% / residual 47.7%); (3) BMI->allcause J-curve (bmiJcurve, upper betaUpper ln1.09/5 non-CV obesity + lower betaLower ln1.51/3.5 underweight-frailty, nadir [20,25], whole-bracket). OMITTED in 3b: BMI->LDL (null per MR), continuous BMI->glucose (folded into the residual). DEFERRED: alcohol->all-cause(MR) bundle; B2 latent fixes."

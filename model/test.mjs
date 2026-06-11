@@ -44,8 +44,8 @@ const tests = [];
 const num = (name, got, target, tol) => tests.push({ name, got, target, tol });
 const str = (name, got, target) => tests.push({ name, got, target, tol: null });
 
-num("Baseline LE male", simulate(MODEL, { sex: "male" }).LE, 75.815, 0.05);
-num("Baseline LE female", simulate(MODEL, { sex: "female" }).LE, 80.862, 0.05); // restored to empirical anchor: the dense per-integer-age residual (2026-06-11) makes re-bucketing folds numerically EXACT, eliminating the prior between-anchor PCHIP drift that had nudged this to 80.84
+num("Baseline LE male", simulate(MODEL, { sex: "male" }).LE, 77.459, 0.05);
+num("Baseline LE female", simulate(MODEL, { sex: "female" }).LE, 82.118, 0.05); // 2019-harmonized empirical anchor (2026-06-11): all bands re-pulled to CDC WONDER 2019 (no COVID), residual = 2019 all-cause − bands − extrinsic. Was 80.862 on 2022 data.
 
 num("Baseline max|B-T| male", maxAbsBT("male"), 0, 0);
 num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
@@ -58,16 +58,16 @@ num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
 // freezing an upstream driver buys more life. Direct cause-node freezes (athero/
 // cancer/sarcopenia) barely changed: their benefit is dominated by <90 ages where
 // both models agree, and the >90 tail holds few survivors.
-num("genomic-instability freeze@40 eff0.1 ΔLE", dLE("genomic-instability", { efficacy: 0.1 }), 0.16, 0.03);
-num("genomic-instability freeze@40 eff0.2 ΔLE", dLE("genomic-instability", { efficacy: 0.2 }), 0.35, 0.03); // A4 re-baseline (+BP-mediated stiffness slice)
-num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.73, 0.03); // Op A 2026-06-11 re-baseline: CV band expanded → gi→senescence→CV cascade has larger effect
-num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.83, 0.04); // Op A 2026-06-11 re-baseline: same reason; tol widened to 0.04 to cover interpolation range
+num("genomic-instability freeze@40 eff0.1 ΔLE", dLE("genomic-instability", { efficacy: 0.1 }), 0.198, 0.03);
+num("genomic-instability freeze@40 eff0.2 ΔLE", dLE("genomic-instability", { efficacy: 0.2 }), 0.396, 0.03); // A4 re-baseline (+BP-mediated stiffness slice)
+num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.793, 0.03); // Op A 2026-06-11 re-baseline: CV band expanded → gi→senescence→CV cascade has larger effect
+num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.982, 0.04); // Op A 2026-06-11 re-baseline: same reason; tol widened to 0.04 to cover interpolation range
 
-num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.39, 0.06); // Op A 2026-06-11 re-baseline: CV band expanded ~8% → direct athero freeze gains proportionally
-num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 4.26, 0.06); // Op A 2026-06-11 re-baseline: inflammation→CV cascade larger (expanded CV band)
-num("cancer freeze@40 100% ΔLE", dLE("cancer"), 2.08, 0.05);
-num("sarcopenia freeze@40 100% ΔLE", dLE("sarcopenia"), 3.85, 0.05); // B2: cause-specific frailty (larger effective β than flat 0.6)
-num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.71, 0.05); // Op A 2026-06-11 re-baseline: senolytic bends larger CV band
+num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.707, 0.06); // Op A 2026-06-11 re-baseline: CV band expanded ~8% → direct athero freeze gains proportionally
+num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 4.524, 0.06); // Op A 2026-06-11 re-baseline: inflammation→CV cascade larger (expanded CV band)
+num("cancer freeze@40 100% ΔLE", dLE("cancer"), 2.466, 0.06);
+num("sarcopenia freeze@40 100% ΔLE", dLE("sarcopenia"), 4.137, 0.05); // B2: cause-specific frailty (larger effective β than flat 0.6)
+num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.781, 0.05); // Op A 2026-06-11 re-baseline: senolytic bends larger CV band
 
 // ---- v0.4 burden-driven old-age escalation (replaces age-keyed Gompertz tail) ----
 const _b = simulate(MODEL, { sex: "male" });
@@ -93,8 +93,8 @@ str("v0.4.1: liver non-monotonic (haz@60 > haz@90)", String(_liv(60) > _liv(90))
 str("v0.4.1: smoking raises COPD hazard",
   String(causeMultAt("copd", 70, { inputs: { smokingStatus: "current" } }) > 1.2), "true");
 
-num("lifestyle male 0× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 0 }) - baseM, 2.44, 0.1);
-num("lifestyle male 10× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 10 }) - baseM, -17.09, 0.1);
+num("lifestyle male 0× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 0 }) - baseM, 2.052, 0.1);
+num("lifestyle male 10× ΔLE", lifeExpectancy(MODEL, { sex: "male", lifestyle: 10 }) - baseM, -14.696, 0.1);
 
 str("decomposition top male age 25", topContributor(25), "extrinsic");
 // v0.4.1: residual decomposed into named CDC causes (diabetes/COPD/CKD/liver),

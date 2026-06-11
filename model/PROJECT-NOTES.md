@@ -13,8 +13,11 @@
 > work), hover focus/ego mode, live edge weighting (red=raising risk / green=lowering), and
 > wheel-zoom/drag-pan; the former Mediator-trajectory + Burden panels are merged into one
 > normalized "Node trajectories" timeline (mediators + state nodes + burdens, group-toggle
-> chips). Baseline LE reproduces empirical 2022 ≈ **75.815 M /
-> 80.862 F** (the older "75.82/80.89" was rounded). **β-cell→HbA1c vertical landed
+> chips). **2019 year-harmonization (2026-06-11):** all cause bands re-pulled to CDC WONDER **2019**
+> (pre-COVID); residual = 2019 all-cause − bands − extrinsic (dense, exact); cardiovascular redefined
+> as all-of-chapter-I + K55 (fixes a pilot **I26-I28 double-count** — I26-28 was already inside the
+> literal I20-51 range). Baseline LE re-anchored 2022→2019 (COVID removed): now ≈ **77.459 M / 82.118 F**
+> (was 75.815/80.862 on COVID-depressed 2022 data). **β-cell→HbA1c vertical landed
 > 2026-06-10** (Increments 1–3): HbA1c is now EMERGENT (flat 5.3 + `β-cell-decline`
 > augment, de-age-pegged — keeps rising past 85) with a live glucotoxicity diabetes
 > spiral; the per-age `stateAugments` march built here is the reusable substrate for
@@ -539,6 +542,6 @@ sit behind the `#modTabSeg [data-tab="blayer"]` toggle (hidden by default) — a
 before driving lab inputs. Run per the file's header (needs `playwright` resolvable +
 `CHROME_PATH`).
 
-**The guard for any change:** baseline must stay ≈ 75.82 M / 80.89 F and
+**The guard for any change:** baseline must stay ≈ 77.46 M / 82.12 F (2019-harmonized; see 2026-06-11 note) and
 `test.mjs` must pass. If LE shifts, re-baseline the targets *and* the self-checks
 *and* this doc.

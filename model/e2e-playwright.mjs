@@ -55,7 +55,7 @@ check("no uncaught page errors on load", pageErrors.length === 0, pageErrors.sli
 
 // 2. baseline LE
 const leBase = await le();
-check("baseline male LE ≈ 75.8", Math.abs(leBase - 75.8) < 0.3, "got " + leBase);
+check("baseline male LE ≈ 77.5", Math.abs(leBase - 77.5) < 0.3, "got " + leBase);
 
 // 3. all three SVG panels rendered with children (graph + merged timeline + cause-of-death)
 for (const id of ["graphSvg", "timelineSvg", "codSvg"]) {
@@ -67,7 +67,7 @@ for (const id of ["graphSvg", "timelineSvg", "codSvg"]) {
 await page.locator('#sexSeg button[data-sex="female"]').click();
 await settle();
 const leF = await le();
-check("sex→female LE ≈ 80.9", Math.abs(leF - 80.9) < 0.4, "got " + leF);
+check("sex→female LE ≈ 82.1", Math.abs(leF - 82.1) < 0.4, "got " + leF);
 await page.locator('#sexSeg button[data-sex="male"]').click();
 await settle();
 

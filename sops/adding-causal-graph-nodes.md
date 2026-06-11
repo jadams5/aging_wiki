@@ -38,14 +38,14 @@ folds; the frailty bucket is **Op B**; mechanizing a driver is **Op C**.
 Every change is gated on these. `model/test.mjs` pins both.
 
 1. **Baseline-LE invariance.** At population-average inputs the model must reproduce empirical CDC
-   life expectancy **M 75.815 / F 80.862**. Op A/B *re-bucket* mortality (recomputing the residual
+   life expectancy **M 77.459 / F 82.118 (2019-harmonized; was 75.815/80.862 on 2022 data before the COVID-removal)**. Op A/B *re-bucket* mortality (recomputing the residual
    keeps the all-cause total identical → LE unchanged). Op C ships **unwired** first (driver built +
    calibrated but not yet feeding a cause), so LE is provably unchanged, then wiring is a separate,
    deliberately re-baselined step. **Invariance is now numerically EXACT at every integration age**
    (not just at anchors): the residual is stored **dense** — one entry per integer age 20→130 — so
    `interp` is identity at the integration grid and the band's exact per-integer-age hazard increase
    is subtracted from the residual at that same grid (§3). After any Op-A/B fold, baseline LE must
-   read **75.815 / 80.862 to ~1e-6**. If it moves at all, your residual recompute is wrong — debug it,
+   read **77.459 / 82.118 to ~1e-6**. If it moves at all, your residual recompute is wrong — debug it,
    **do not re-baseline**. (History: before the dense residual the residual lived on a decade grid
    while burden tables carried 75/85 anchors + the convex odds-link, leaking a sub-0.03 yr/fold
    between-anchor PCHIP drift that accumulated and was wrongly re-baselined; the dense residual,
@@ -196,7 +196,7 @@ Source of truth is the ```json block in `frameworks/causal-graph-parameters.md`.
 # edit the json block in frameworks/causal-graph-parameters.md (and engine.mjs only for math)
 node model/build-params.mjs     # .md json block → params.json
 node model/test.mjs             # MUST stay green; re-baseline deliberately if LE legitimately moved
-node model/cli.mjs le --sex male   # sanity: ~75.815
+node model/cli.mjs le --sex male   # sanity: ~77.459
 node model/build-app.mjs        # inline engine + params → viz/aging-simulator.html
 ```
 Then the **headless render check** (Proxy-stub `document`/`window` — catches blank-panel crashes the
@@ -205,7 +205,7 @@ registered in the app's `MED_SCALE` + `MED_COLOR` or `renderMediators` throws.
 
 **Re-baselining:** if a change legitimately shifts an LE/ΔLE target (cause-specific frailty, a new
 wired edge), confirm the new value is physiologically sane, then update the affected `test.mjs`
-targets **and** the self-checks in `build-app.mjs` **and** the 75.815/80.862 references in the docs.
+targets **and** the self-checks in `build-app.mjs` **and** the 77.459/82.118 references in the docs.
 Don't assume the test is wrong.
 
 ---
