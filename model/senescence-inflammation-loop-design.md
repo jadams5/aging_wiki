@@ -89,17 +89,29 @@ age-decline is what un-bounds it (→ exponential).** Three implications:
 1. **Do not add an artificial saturating ceiling to the loop** — it would contradict the verified biology (the wiki's
    trajectory is exponential, not a homeostatic plateau). The inflammation node's logistic `cap` bounds *its own
    baseline self-dynamic*, but must NOT be repurposed as the loop's stabiliser.
-2. **The correct stabiliser is a senescent-cell CLEARANCE term** — an age-declining negative rate on senescence accrual
-   (NK/macrophage surveillance, declining with immunosenescence; `senescence-immune-surveillance.md`). **We do not model
-   this yet.** A faithful loop therefore depends on adding a clearance term (or node). This is a first-class design
-   finding: *the loop cannot be fully/correctly activated without the clearance term*, because clearance IS the bound
-   and its decline IS the aging dynamic. **`#gap/needs-clearance-term`.**
-3. **Interim numerical stability (until clearance exists):** the linearised loop must be **sub-critical** — the discrete
-   loop-gain product `g_sen→infl · g_infl→sen` (× the through-`G` factors) must keep the system's **spectral radius < 1**
-   so a bounded perturbation yields a bounded (converging) response, not divergence. `clamp01` bounds the *burden* `B`
-   but NOT `accumDev`, so a super-critical gain would make `accumDev` run away even with clamped `B`. The activation pass
-   must verify the spectral-radius condition and may need a soft saturation on `accumDev` as a stopgap, clearly flagged
-   as a numerical bound standing in for the missing biological (clearance) bound.
+2. **The correct stabiliser is a senescent-cell CLEARANCE term — and the reviewer (2026-06-12) confirms ONE new
+   modeled variable is justified: `senescent-cell-clearance-capacity` (≈ senescence-immune-surveillance).**
+   - **Form (reviewer correction #1):** clearance is a **burden-dependent NEGATIVE RATE `−c(t)·S`** (it removes a
+     *fraction* of the existing senescent-cell stock per unit time), not merely a stabilising gain. So the senescence
+     burden obeys `dS/dt = production(t) − c(t)·S`.
+   - **`c(t)` is a STATE, not age (no-age-pegging):** clearance capacity is **driven DOWN by immunosenescence** (NK
+     subset-shift + NCR loss, `immunosenescence.md`/`senescence-immune-surveillance.md`) and can be **restored by immune
+     interventions**. **Do NOT make `c` directly age-dependent — age only VERIFIES its trajectory** (it must emerge from
+     the immunosenescence state, exactly like the other migrated nodes). `#gap/needs-clearance-term`.
+   - This is a first-class finding: *the loop cannot be faithfully activated without `c(t)`*, because clearance IS the
+     bound and its immunosenescence-driven decline IS the aging dynamic (→ the verified exponential). Design `c(t)` and
+     the loop **together** (see the companion intervention/clearance design note).
+3. **Stability — must be checked properly (reviewer correction #2): `spectral radius < 1` ALONE is INSUFFICIENT for a
+   continuous-time rate system.** Stability must be verified on BOTH:
+   - the **Jacobian of the complete production−clearance dynamics** (continuous-time linearisation about the operating
+     point — all eigenvalues `Re(λ) < 0`), AND
+   - the **discrete update map** (the forward-Euler/one-step discretisation — all eigenvalues inside the unit circle,
+     which couples the gain to the timestep `dt`).
+   A discrete `|λ|<1` on the update map does not by itself guarantee the underlying continuous loop is dissipative, and a
+   stable continuous Jacobian can still be destabilised by too large a `dt`. `clamp01` bounds the *burden* `B` but NOT
+   `accumDev`, so both checks are needed to prevent `accumDev` runaway. Until `c(t)` is modeled, keep the loop gains in
+   the regime where BOTH conditions hold; any soft saturation on `accumDev` is a clearly-flagged numerical stopgap for
+   the missing biological (clearance) bound, not a substitute for it.
 
 ---
 
@@ -124,10 +136,15 @@ deferred — this pass only settles *how* they would work.
    proves rate- vs level-coupling.)
 3. **No double-count:** moving `sen → infl` from `G` to rate leaves the *instantaneous-limit* behaviour unchanged only
    if the `G` edge is removed; assert the forward effect is carried once.
-4. **Stability:** under a bounded perturbation the loop **converges** (no `accumDev` divergence); spectral radius < 1.
-5. **Asymmetry:** forward gain > reverse gain (sign + ordering), per the biology.
-6. **Intervention re-baseline:** senolytic / anti-inflammatory ΔLE will **legitimately change** (the loop becomes
-   cumulative) — re-baseline those test targets when activated, documenting the shift as the intended effect.
+4. **Stability (both checks — reviewer correction #2):** under a bounded perturbation the loop **converges** (no
+   `accumDev` divergence) — verified on the **continuous-time Jacobian** of the full production−clearance dynamics
+   (`Re(λ)<0`) AND the **discrete update map** (`|λ|<1` at the model `dt`). Spectral-radius<1 alone is insufficient.
+5. **Clearance:** `c(t)` emerges from immunosenescence (NOT age): with age fixed but immunosenescence frozen, `c` does
+   not decline; a senescence-burden perturbation is cleared at `−c·S` and recovers toward baseline.
+6. **Asymmetry:** forward gain > reverse gain (sign + ordering), per the biology.
+7. **Intervention re-baseline:** senolytic / anti-inflammatory ΔLE will **legitimately change** (the loop becomes
+   cumulative; senolysis now *clears* burden rather than only freezing accrual) — re-baseline those test targets when
+   activated, documenting the shift as the intended effect.
 
 ---
 
@@ -135,8 +152,10 @@ deferred — this pass only settles *how* they would work.
 
 - `g_sen→infl`, `g_infl→sen` (the loop gains) — **wiki-silent on rate constants**; need external calibration
   (senolysis→circulating-SASP human data e.g. Hickson 2019; CANTOS anti-IL-1β; paracrine-spreading kinetics).
-- The **clearance term / node** (age-declining immune surveillance) — required for a faithful bound (§4.2); design it
-  jointly with the loop, not after.
+- The **clearance term / node** (`c(t)`, immunosenescence-driven, NOT age) — required for a faithful bound (§4.2);
+  design it jointly with the **intervention operators** (per reviewer 2026-06-12) — see the companion design note
+  `model/senolytic-intervention-design.md`. This is the reviewer's "minimal model that distinguishes prevention,
+  senomorphic suppression, endogenous immune clearance, and pulsed senolysis."
 - The **mediation accounting** the user flagged: when the forward rate edge is activated, the senescence-mediated slice
   of any downstream effect (e.g. inflammation→atherosclerosis already CANTOS-calibrated) must be route-once-decomposed.
 
