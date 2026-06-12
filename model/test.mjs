@@ -698,6 +698,35 @@ str("B3b: underweight penalty steep (< obese)", String(
     String(Math.abs(dev(80) - dev(55)) < 1e-9 && dev(55) > dev(40) && dev(40) > 0), "true");
 }
 
+// ---- cellular-senescence ∫rate·dt migration (Phase C3b — exponential via SELF-AMPLIFYING rate) ----
+// Senescence was a Tier-B exponential curve; now an emergent ∫rate·dt with rate=(e^r−1)·(B+A) — the
+// exponential rise emerges age-free from senescence's own paracrine feed-forward. coeff=e^r−1 (the
+// discrete-time growth factor) reproduces the former curve EXACTLY at the grid ⇒ LE numerically
+// unchanged. Verifies: emergent baseline reproduces the exponential; convex (self-amplifying); the
+// exogenous-driver channel is inert at popMean and propagates downstream when driven.
+{
+  const AGE0s = MODEL.meta.ageRange[0];
+  const atAge = (B, age) => B[age - AGE0s];
+  const r = simulate(MODEL, { sex: "male" });
+  num("sen-migration: emergent baseline senescence@80 reproduces exponential (≈0.2506)",
+    atAge(r.B["cellular-senescence"], 80), 0.250579, 1e-5);
+  // self-amplifying ⇒ baseline is CONVEX: accrual per decade RISES with age (a linear node would not)
+  const inc = (a) => atAge(r.B["cellular-senescence"], a) - atAge(r.B["cellular-senescence"], a - 10);
+  str("sen-migration: self-amplifying baseline is convex (Δ[70→80] > Δ[30→40] > 0)",
+    String(inc(80) > inc(40) && inc(40) > 0), "true");
+  // exogenous-driver channel: a synthetic term = 0 at popMean ⇒ senescence unchanged
+  const M2 = JSON.parse(JSON.stringify(MODEL));
+  M2.nodes.find((n) => n.id === "cellular-senescence").rate.terms =
+    [{ coeff: 0.0003, drivers: [{ id: "smoking", minus: 2, floor: 0 }] }];
+  const rPop = simulate(M2, { sex: "male", inputs: { smoking: 2 } });
+  num("sen-migration: synthetic driver term = 0 at popMean",
+    atAge(rPop.B["cellular-senescence"], 80) - atAge(r.B["cellular-senescence"], 80), 0, 1e-12);
+  // and when driven, propagates downstream through the live senescence→chronic-inflammation coupling
+  const rExp = simulate(M2, { sex: "male", inputs: { smoking: 20 } });
+  str("sen-migration: exposure propagates downstream to chronic-inflammation",
+    String(atAge(rExp.B["chronic-inflammation"], 80) > atAge(r.B["chronic-inflammation"], 80)), "true");
+}
+
 export function runTests() {
   let allPass = true;
   const rows = tests.map((t) => {

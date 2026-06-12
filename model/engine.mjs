@@ -163,17 +163,26 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   }
   const COUPLE_ITERS = (MODEL.coupling && MODEL.coupling.iterations) || 60;
 
-  // Precompute baseline T over all ages: Tarr[i][k]. A node carrying an emergent `rate.base`
-  // (the de-age-pegging migration substrate — e.g. genomic-instability) integrates its baseline
-  // FORWARD — T[k]=T[k-1]+base·DT, T[0]=initial — instead of evaluating a closed-form age curve;
-  // age is no longer an input, the trajectory EMERGES from the integral. At the population
-  // default this reproduces the former curve within float tolerance (op-order, not byte-exact).
+  // Precompute baseline T over all ages: Tarr[i][k]. A node carrying an emergent `rate` (the
+  // de-age-pegging migration substrate) integrates its baseline FORWARD — T[k]=T[k-1]+rate·DT,
+  // T[0]=initial — instead of evaluating a closed-form age curve; age is no longer an input, the
+  // trajectory EMERGES from the integral. The rate has a constant `base` (a former LINEAR curve →
+  // base = slope, age-free) and an optional value-proportional `self:{coeff,offset}` term
+  // (rate += coeff·(value+offset)) — a SELF-AMPLIFYING rate from which an EXPONENTIAL baseline
+  // emerges age-free (e.g. senescence's paracrine feed-forward). For a former exponential curve
+  // A·(e^(r·x)−1), `self.coeff = e^r−1` / `self.offset = A` reproduces it EXACTLY at the integer age
+  // grid (the discrete-time growth factor), so baseline + interventions are numerically unchanged.
   const Tarr = NODES.map((node) => {
     if (node.rate) {
       const base = node.rate.base || 0;
+      const self = node.rate.self;   // value-proportional (self-amplifying) rate term; optional
       const arr = new Array(N_AGE);
       arr[0] = clamp01(node.initial ?? 0);
-      for (let k = 1; k < N_AGE; k++) arr[k] = clamp01(arr[k - 1] + base * DT);
+      for (let k = 1; k < N_AGE; k++) {
+        let rate = base;
+        if (self) rate += self.coeff * (arr[k - 1] + (self.offset || 0));
+        arr[k] = clamp01(arr[k - 1] + rate * DT);
+      }
       return arr;
     }
     return AGES.map((a) => curveT(node, sex, a, AGE0));
