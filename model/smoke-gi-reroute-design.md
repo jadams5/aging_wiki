@@ -47,6 +47,23 @@ prose further down where they conflict. Phase 1 ✅ landed; Phase 1b/3/4 reshape
 >
 > **G. Scope:** cancer only (smoke→GI→cancer); leave smoking's CVD/COPD/diabetes/CKD PAFs untouched (they
 > route through inflammation, a later migration).
+>
+> **H. GO/NO-GO (verifier result, 2026-06-12): HOLD the populate.** The verified Yoshida 2020 settles two
+> things that make a defensible populate impossible *right now*:
+> - **No continuous dose-response** (categorical never/ex/current only; the per-cig/day null is underpowered,
+>   not a confirmed flat curve). A continuous β would invent the dose-response shape.
+> - **The cancer quit benefit IS the repopulation/dilution dynamic, which we do not model.** Yoshida: ex-smoker
+>   risk reduction comes from quiescent-cell repopulation diluting the damaged-cell fraction — damaged cells
+>   retain their load permanently. Our plateau-only GI therefore gives former ≈ current (no recovery), which
+>   **cannot reproduce the epidemiological anchor** former 1.3 < current 2.2. Populating smoke→GI→cancer to
+>   match the never/ex/current anchors REQUIRES a GI tissue-level term with **irreversible per-cell accrual +
+>   quiescent-cell repopulation** (a two-compartment recovery), not the single plateau accumulator we have.
+>
+> Doing it now would mean inventing both the dose-response shape AND the recovery dynamic — the "invented
+> precision" Q2 says to avoid. **So: keep `smoke→GI` UNPOPULATED.** Unblock requires building the
+> repopulation/recovery term (the real next modeling step), or a separate well-powered continuous dose-response
+> study (does not exist). What we KEEP from this pass: GI migrated to ∫rate·dt; the age-indexed exposure-profile
+> substrate; the verified irreversible-accrual term form; the verified Yoshida page + its precise mechanism.
 
 ---
 
