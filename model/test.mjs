@@ -677,8 +677,11 @@ str("B3b: underweight penalty steep (< obese)", String(
   const AGE0e = MODEL.meta.ageRange[0];
   const atAge = (B, age) => B[age - AGE0e];
   const Mx = JSON.parse(JSON.stringify(MODEL));
+  // IRREVERSIBLE accrual (the correct Phase-3 smoking-term form): floor:0 ⇒ exposure ≤ popMean adds
+  // ZERO rate (never negative), so accumulated GI damage does NOT decay when smoking stops. Yoshida's
+  // tissue recovery (near-normal-cell repopulation) is a SEPARATE turnover mechanism, not modeled here.
   Mx.nodes.find((n) => n.id === "genomic-instability").rate.terms =
-    [{ coeff: 0.0002, drivers: [{ id: "smoking", minus: 2 }] }];
+    [{ coeff: 0.0002, drivers: [{ id: "smoking", minus: 2, floor: 0 }] }];
 
   // (a) a constant-byAge profile equals the scalar input (same value at every age) — GI identical
   const sScalar = simulate(Mx, { sex: "male", inputs: { smoking: 20 } });
@@ -686,12 +689,13 @@ str("B3b: underweight penalty steep (< obese)", String(
   num("exposure-profile: constant profile ≡ scalar input (GI@80)",
     atAge(sProfile.B["genomic-instability"], 80) - atAge(sScalar.B["genomic-instability"], 80), 0, 1e-12);
 
-  // (b) FORMER smoker: 20 cig/day until 50, then quit (popMean 2). GI accrual stops ⇒ PLATEAU.
-  const quit = simulate(Mx, { sex: "male", inputs: { smoking: { byAge: [[20, 20], [50, 20], [51, 2], [130, 2]] } } });
+  // (b) FORMER smoker: 20 cig/day until 50, then QUIT to canonical 0. With floor:0 the sub-popMean
+  // exposure adds no rate ⇒ GI PLATEAUS at the at-quit level and does NOT decay (== not just ≈).
+  const quit = simulate(Mx, { sex: "male", inputs: { smoking: { byAge: [[20, 20], [50, 20], [51, 0], [130, 0]] } } });
   const base = simulate(Mx, { sex: "male" });  // popMean smoking ⇒ GI term = 0
   const dev = (age) => atAge(quit.B["genomic-instability"], age) - atAge(base.B["genomic-instability"], age);
-  str("exposure-profile: former-smoker GI plateaus after quit (dev80≈dev55>dev40>0)",
-    String(Math.abs(dev(80) - dev(55)) < 1e-6 && dev(55) > dev(40) && dev(40) > 0), "true");
+  str("exposure-profile: former-smoker GI plateaus (no decay) after quit-to-0 (dev80==dev55>dev40>0)",
+    String(Math.abs(dev(80) - dev(55)) < 1e-9 && dev(55) > dev(40) && dev(40) > 0), "true");
 }
 
 export function runTests() {
