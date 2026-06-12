@@ -188,13 +188,21 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   // over age into `accumDev`, exactly as `prim` accumulates intervention effects. accumDev is folded
   // into the PRIMARY deviation P (below) so an exposure-driven node burden propagates through the
   // coupling matrix (smoke→GI→cancer). Terms resolve against EXOGENOUS INPUTS only (inter-hallmark
-  // drivers stay couplings); inputs are constant over a run, so `inMap[id][k]` is constant. At the
-  // population default every term is 0 ⇒ accumDev≡0 ⇒ the burden math is unchanged.
+  // drivers stay couplings). At population-default inputs every term is 0 ⇒ accumDev≡0 ⇒ unchanged.
+  //
+  // AGE-INDEXED EXPOSURE PROFILES: `inMap[id][k]` is the input value at AGES[k]. An exogenous input
+  // may be supplied as a SCALAR (constant lifetime exposure — back-compat) OR as an age-profile
+  // `{byAge:[[age,value],...]}` (interpolated), so an integrated driver sees a genuine EXPOSURE
+  // HISTORY — e.g. a former smoker (intensity until a quit age, then 0) accrues GI burden while
+  // smoking and PLATEAUS after quitting (the realism a constant input cannot express). A profile
+  // only changes a rate-term integral; scalar inputs are byte-identical to the previous behaviour.
   const inMap = {};
   for (const x of (MODEL.bLayer && MODEL.bLayer.exogenousInputs) || []) {
-    const v = (typeof inputs[x.id] === "number") ? inputs[x.id]
-            : (typeof x.populationMean === "number") ? x.populationMean : 0;
-    inMap[x.id] = new Array(N_AGE).fill(v);
+    const iv = inputs[x.id];
+    const pm = (typeof x.populationMean === "number") ? x.populationMean : 0;
+    inMap[x.id] = (typeof iv === "number") ? new Array(N_AGE).fill(iv)
+      : (iv && Array.isArray(iv.byAge)) ? AGES.map((a) => interp(iv.byAge, a))
+      : new Array(N_AGE).fill(pm);
   }
   const accumDev = new Array(NN).fill(0);
   const hasRateTerms = NODES.map((n) => !!(n.rate && n.rate.terms && n.rate.terms.length));
