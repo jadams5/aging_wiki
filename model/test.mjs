@@ -727,6 +727,35 @@ str("B3b: underweight penalty steep (< obese)", String(
     String(atAge(rExp.B["chronic-inflammation"], 80) > atAge(r.B["chronic-inflammation"], 80)), "true");
 }
 
+// ---- chronic-inflammation ∫rate·dt migration (Phase C3c — sigmoid via SATURATING logistic self-dynamic) ----
+// Inflammation was a Tier-B sigmoid curve; now emergent ∫rate·dt using the EXACT age-free logistic
+// one-step map B_next = L·B·E/(L+B·(E−1)) (closed-form of dB/dt = k·B·(1−B/L), NOT Euler), reproducing
+// the former sigmoid EXACTLY ⇒ LE unchanged. Verifies: emergent baseline reproduces the sigmoid; the
+// self-dynamic SATURATES (per-decade increment peaks near the midpoint then falls — the logistic
+// signature, distinct from senescence's monotone-rising convex increments); channel inert + propagates.
+{
+  const AGE0i = MODEL.meta.ageRange[0];
+  const atAge = (B, age) => B[age - AGE0i];
+  const r = simulate(MODEL, { sex: "male" });
+  num("infl-migration: emergent baseline inflammation@80 reproduces sigmoid (≈0.7927)",
+    atAge(r.B["chronic-inflammation"], 80), 0.792717, 1e-5);
+  // SATURATING: per-decade increment PEAKS near the midpoint (60) then FALLS toward the cap (≠ exponential)
+  const inc = (a) => atAge(r.B["chronic-inflammation"], a) - atAge(r.B["chronic-inflammation"], a - 10);
+  str("infl-migration: saturating self-dynamic — increment peaks near mid then falls (Δ60>Δ40, Δ60>Δ100>0)",
+    String(inc(60) > inc(40) && inc(60) > inc(100) && inc(100) > 0), "true");
+  // exogenous-driver channel: a synthetic term = 0 at popMean ⇒ inflammation unchanged
+  const M2 = JSON.parse(JSON.stringify(MODEL));
+  M2.nodes.find((n) => n.id === "chronic-inflammation").rate.terms =
+    [{ coeff: 0.0003, drivers: [{ id: "smoking", minus: 2, floor: 0 }] }];
+  const rPop = simulate(M2, { sex: "male", inputs: { smoking: 2 } });
+  num("infl-migration: synthetic driver term = 0 at popMean",
+    atAge(rPop.B["chronic-inflammation"], 80) - atAge(r.B["chronic-inflammation"], 80), 0, 1e-12);
+  // and when driven, propagates downstream through the live inflammation→atherosclerosis coupling
+  const rExp = simulate(M2, { sex: "male", inputs: { smoking: 20 } });
+  str("infl-migration: exposure propagates downstream to atherosclerosis",
+    String(atAge(rExp.B["atherosclerosis"], 80) > atAge(r.B["atherosclerosis"], 80)), "true");
+}
+
 export function runTests() {
   let allPass = true;
   const rows = tests.map((t) => {

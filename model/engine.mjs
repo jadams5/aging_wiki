@@ -175,13 +175,24 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   const Tarr = NODES.map((node) => {
     if (node.rate) {
       const base = node.rate.base || 0;
-      const self = node.rate.self;   // value-proportional (self-amplifying) rate term; optional
+      const self = node.rate.self;   // self-dynamic (value-proportional) rate term; optional
+      const logistic = self && self.form === "logistic";  // SATURATING self-dynamic (sigmoid nodes)
+      const E = logistic ? Math.exp(self.k * DT) : 1;      // one-step growth factor
       const arr = new Array(N_AGE);
       arr[0] = clamp01(node.initial ?? 0);
       for (let k = 1; k < N_AGE; k++) {
-        let rate = base;
-        if (self) rate += self.coeff * (arr[k - 1] + (self.offset || 0));
-        arr[k] = clamp01(arr[k - 1] + rate * DT);
+        if (logistic) {
+          // EXACT age-free logistic one-step map: B_next = L·B·E / (L + B·(E−1)), E = exp(k·dt).
+          // The closed-form solution of dB/dt = k·B·(1−B/L) — reproduces the former sigmoid curve
+          // L/(1+e^(−k(age−mid))) EXACTLY at the integer grid (no Euler error), so baseline + intervention
+          // LE are numerically unchanged. The saturating rise EMERGES age-free from the self-dynamic.
+          const L = self.cap, b = arr[k - 1];
+          arr[k] = clamp01((L * b * E) / (L + b * (E - 1)));
+        } else {
+          let rate = base;
+          if (self) rate += self.coeff * (arr[k - 1] + (self.offset || 0));  // exponential/linear (Euler-exact)
+          arr[k] = clamp01(arr[k - 1] + rate * DT);
+        }
       }
       return arr;
     }
