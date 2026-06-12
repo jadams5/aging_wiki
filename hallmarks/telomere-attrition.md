@@ -4,16 +4,16 @@ aliases: [telomere shortening, replicative senescence trigger, telomere erosion]
 category: primary
 mechanistic-tier: proximal
 intervention-tractability: low
-caused-by: ["[[genomic-instability]]"]
-causes: ["[[cellular-senescence]]", "[[stem-cell-exhaustion]]"]
+caused-by: []
+causes: ["[[cellular-senescence]]", "[[stem-cell-exhaustion]]", "[[genomic-instability]]"]
 introduced: 2013
 sens-correspondence: ["[[sens-damage-categories|OncoSENS]]"]
 key-pathways: ["[[telomerase-pathway]]", "[[dna-damage-response]]", "[[p53-pathway]]"]
 key-phenotypes: ["[[cellular-senescence]]", "[[stem-cell-exhaustion]]"]
 verified: true
-verified-date: 2026-05-04
+verified-date: 2026-06-12
 verified-by: claude
-verified-scope: "Prowse & Greider 1995, Celli & de Lange 2005, and Bernardes de Jesus 2012 verified against local PDFs. Harley 1990, Cawthon 2003 not_oa — claims tagged #gap/no-fulltext-access; top-line numerics consistent with published abstracts. de Lange 2005 Genes Dev review (shelterin structural description) still pending download — shelterin subunit list not independently verified from that source. Three corrections applied: (1) Celli & de Lange 2005 model corrected from 'human cells' to 'mouse embryo fibroblasts (MEFs; mixed 129/BL6 background)'; (2) Prowse 1995 strain list corrected — tissue-specific telomerase assays used BALB/c and M. spretus, not C57BL/6 (C57BL/6 noted only for long TRF lengths); (3) Bernardes de Jesus 2012 n per group filled from PDF (previously marked 'not confirmed')."
+verified-scope: "Prowse & Greider 1995, Celli & de Lange 2005, and Bernardes de Jesus 2012 verified against full-text PDFs. Harley 1990, Cawthon 2003 not_oa — claims tagged #gap/no-fulltext-access; top-line numerics consistent with published abstracts. de Lange 2005 Genes Dev review (shelterin structural description) still pending download — shelterin subunit list not independently verified from that source. Three corrections applied on 2026-05-04: (1) Celli & de Lange 2005 model corrected from 'human cells' to 'mouse embryo fibroblasts (MEFs; mixed 129/BL6 background)'; (2) Prowse 1995 strain list corrected — tissue-specific telomerase assays used BALB/c and M. spretus, not C57BL/6 (C57BL/6 noted only for long TRF lengths); (3) Bernardes de Jesus 2012 n per group filled from PDF (previously marked 'not confirmed'). 2026-06-12 targeted re-check: adjudicated telomere-attrition ↔ genomic-instability causal direction. Verdict: dominant direction is TA → GI (uncapping → NHEJ fusions → BFB cycles; supported by Celli & de Lange 2005, PDF-verified, and body cross-talk table). No solid primary-source GI → TA mechanism at the hallmark level: oxidative-damage → telomere shortening is correctly attributed to ROS/mitochondrial biology (not the GI hallmark per se); DDR-deficiency-impaired telomere processing (WRN/BLM) is a real molecular nuance but does not constitute a clean hallmark-level causal edge. Correction: moved [[genomic-instability]] from caused-by: to causes: and cleared caused-by: to []. Reciprocal page (genomic-instability.md) retains caused-by: [[telomere-attrition]] (correct); body text contradiction in that page also corrected separately."
 ---
 
 
@@ -220,7 +220,7 @@ No compound or intervention page currently links here. TA-65 (cycloastragenol te
 - [[homo-sapiens]] (verified-partial) — human telomere shortening phenotypes
 - [[sasp]] (verified) — cytokine output of telomere-driven senescent cells
 - [[hypotheses/free-radical-theory-of-aging]] (verified) — ROS contribution to telomeric oxidative damage
-- [[genomic-instability]] — upstream / co-occurring hallmark; chromosomal instability from dysfunctional telomeres
+- [[genomic-instability]] — downstream consequence; chromosomal instability from dysfunctional telomeres (uncapping → end-to-end fusion → BFB cycles)
 - [[stem-cell-exhaustion]] — downstream consequence of telomere-limited replicative capacity
 - [[studies/lopez-otin-2013-hallmarks-of-aging]] — foundational definition paper
 
@@ -230,8 +230,8 @@ No compound or intervention page currently links here. TA-65 (cycloastragenol te
 
 This hallmark is classified as **Proximal damage class** (mechanistic-tier: proximal / intervention-tractability: low). See [[frameworks/hallmark-causality-graph]] for the full hierarchy and intervention-sequencing argument.
 
-Direct upstream nodes per `caused-by:` frontmatter: [[genomic-instability]] (dysfunctional telomeres processed as DSBs; bidirectional amplification).
-Direct downstream nodes per `causes:` frontmatter: [[cellular-senescence]], [[stem-cell-exhaustion]], [[genomic-instability]] (end-to-end fusions → breakage-fusion-bridge cycles).
+Direct upstream nodes per `caused-by:` frontmatter: none. Telomere attrition is a primary damage class driven by the end-replication problem and oxidative damage to telomeric guanine triplets; the latter is attributed to upstream ROS/mitochondrial biology (not the genomic-instability hallmark per se). DDR-deficiency can impair telomere processing (WRN/BLM helicase-dependent G-quadruplex resolution at telomeric lagging strand), but this is a molecular nuance rather than a clean hallmark-level upstream edge.
+Direct downstream nodes per `causes:` frontmatter: [[cellular-senescence]], [[stem-cell-exhaustion]], [[genomic-instability]] (uncapping → ATM activation → NHEJ end-to-end fusions → breakage-fusion-bridge cycles; Celli & de Lange 2005, PDF-verified).
 Edge evidence is in [[frameworks/causal-graph-data]].
 
 ---

@@ -206,7 +206,7 @@ No compound or intervention page currently links to this hallmark. The block abo
 
 This hallmark is classified as **Proximal damage class** (mechanistic-tier: proximal / intervention-tractability: low). See [[frameworks/hallmark-causality-graph]] for the full hierarchy and intervention-sequencing argument.
 
-Direct upstream nodes per `caused-by:` frontmatter: none (primary damage accumulation).
+Direct upstream nodes per `caused-by:` frontmatter: [[telomere-attrition]] — uncapping of critically short telomeres is processed as DSBs, driving ATM activation and NHEJ-mediated end-to-end fusions; BFB cycles amplify chromosomal instability (Celli & de Lange 2005, PDF-verified on [[telomere-attrition]]).
 Direct downstream nodes per `causes:` frontmatter: [[cellular-senescence]], [[chronic-inflammation]], [[clonal-hematopoiesis]].
 Edge evidence is in [[frameworks/causal-graph-data]].
 
