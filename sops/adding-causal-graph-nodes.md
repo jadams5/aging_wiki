@@ -75,10 +75,13 @@ planned-but-unmodeled node visible (cf. `sinoatrial-node-reserve`). A stub edge 
 ```json
 { "kind": "stub", "intendedKind": "cause", "from": "<src>", "to": "<causeKey>",
   "evidenceStrength": "moderate",
+  "citation": "Fox CS et al. 2012 · doi:10.1016/S0140-6736(12)60572-8",
+  "wiki": "phenotypes/chronic-kidney-disease",
   "note": "stub: HbA1c→ckd. causal-graph-data moderate; Fox 2012 eGFR-decline per +1% HbA1c. β in ln(HR) per +1% HbA1c. #gap/needs-effect-size",
   "provenance": "stub" }
 ```
 - `intendedKind: cause | frailty` → `to` is a **cause key**; `mediator | augment` → `to`/`mediator` is a **mediator**; `driver` → `to` is a **state node** (this is how a missing `∫rate·dt` driver term is stubbed even though driver edges live in `stateNodes`, not `MODEL.edges`); `coupling` → both endpoints are hallmark nodes. `augment` uses `fromState`/`mediator`; the rest use `from`/`to`.
+- **`citation` + `wiki` are REQUIRED for traceability** — every edge (stub OR live) must be followable from the viz "how it computes" panel back to its source data. `citation` = the primary source as a compact `Author Year · doi:…` string (the actual evidence). `wiki` = the path (no `[[ ]]`, no leading `/`) of the wiki page that anchors/verifies the relation — the node's atomic page, a `studies/…` page, or an `exposures/…`/`molecules/…` page (e.g. `hallmarks/genomic-instability`, `studies/yousefzadeh-2018-fisetin-senolytic`); the panel renders it as a `wiki↗` link via `WIKI_BASE`. These are the structured, panel-surfaced extract of the citation + wikilink that the `note` records in prose — keep them in sync. (The seeder carries them onto the live edge; the validator confirms/fixes them on promotion.)
 - **No magnitude/form fields** — the engine never reads them, so including them is misleading. The populate pass adds the form + coefficient when it converts the stub to a live edge.
 
 A stub is therefore **inert by construction** — a stub pass needs **NO residual recompute**, and

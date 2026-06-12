@@ -138,6 +138,8 @@
   #graphNodeInfo .nc ul { margin: 2px 0; padding-left: 15px; }
   #graphNodeInfo .nc li { font-family: ui-monospace, monospace; font-size: 10px; color: #34495e; }
   #graphNodeInfo .nc-stub { color: #8a94a0; font-style: italic; }  /* planned/β-pending stub edge, matches the graph's grey-dashed */
+  #graphNodeInfo .nc-trace { color: var(--muted); font-size: 9.5px; }  /* per-edge source trace: [citation · wiki↗] */
+  #graphNodeInfo .nc-trace a { color: #2c6fbb; text-decoration: none; }
   .legend { font-size: 11px; color: var(--muted); }
   .legend .item { display: inline-block; white-space: nowrap; margin: 0 10px 4px 0; }
   .legend .item > svg, .legend .swatch, .legend .infodot { vertical-align: middle; }
@@ -4348,6 +4350,8 @@ const MODEL = {
       "from": "smoking",
       "to": "genomic-instability",
       "evidenceStrength": "strong",
+      "citation": "Alexandrov LB et al. 2016, Science · doi:10.1126/science.aag0299",
+      "wiki": "hallmarks/genomic-instability",
       "note": "stub: smoking->genomic-instability. Tobacco smoke polycyclic aromatic hydrocarbons (benzo[a]pyrene and related PAHs) form bulky DNA adducts on guanine N2/O6 positions; unrepaired adducts produce G→T transversions that define the tobacco mutational signature SBS4. Alexandrov et al. 2016 (Science, doi:10.1126/science.aag0299) quantified somatic mutation burden in 17 cancer types across 5,243 tumours: lung cancer (smoke-exposed) carries ~150 clonal mutations per year of smoking, directly scaling SBS4 burden with pack-years — the clearest human population-level dose-response linking a modifiable exposure to genomic-instability accrual rate. The mutagenic mechanism is mechanistically grounded in the verified genomic-instability atomic page (hallmarks/genomic-instability.md). Natural variable: β in ln(rate of somatic mutation accrual) per pack-year (cig/day × years / 20). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node (form: linear, t0:0.05, slope:0.01). Populating this driver term requires FIRST migrating genomic-instability from its age-curve to a ∫rate·dt state node (the de-age-pegging step, Phase C of the migration roadmap) — otherwise this exogenous forcing would be added on top of a hard-coded age line, double-driving the node. Until that migration, this stub is inert (engine excludes it). Mediation note: smoking already drives cancer directly (PAF 28.8%, existing live cause edge smokingStatus→cancer) via the bundled carcinogenesis route. When this driver stub is populated, the populate pass must mediation-decompose the cancer cause edge to subtract the genomic-instability-mediated slice — consistent with the route-once discipline (smoke→GI→cancer replaces part of the direct smoke→cancer bundled edge). POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response (Δ-mutation-burden per pack-year in non-cancer normal tissue, not just cancer-derived) is needed for the wiki — the Alexandrov 2016 anchor covers cancer-tissue mutation burden; normal-tissue equivalents (e.g. Blokzijl 2016 liver stem cells by smoking status) should be confirmed. #gap/needs-state-node-migration #gap/needs-verified-source",
       "provenance": "stub"
     },
@@ -4357,6 +4361,8 @@ const MODEL = {
       "from": "alcohol",
       "to": "genomic-instability",
       "evidenceStrength": "strong",
+      "citation": "Garaycoechea JI, Patel KJ et al. 2018, Nature · doi:10.1038/nature25154",
+      "wiki": "hallmarks/genomic-instability",
       "note": "stub: alcohol->genomic-instability. Ethanol is metabolized to acetaldehyde (by ADH enzymes) and further to acetate (by ALDH2). Acetaldehyde is a genotoxin: it crosslinks DNA bases (primarily N2-dG adducts and interstrand crosslinks) and depletes glutathione. Garaycoechea & Patel et al. 2018 (Nature, doi:10.1038/nature25154) provide the canonical mechanistic anchor using ALDH2-/-/FANCD2-/- double-knockout mice: loss of both acetaldehyde clearance (ALDH2) and Fanconi anemia DNA repair (FANCD2) produces severe HSC genotoxicity and acute bone marrow failure, establishing that acetaldehyde-induced DNA damage is a primary driver of hematopoietic stem cell genomic instability in the absence of repair. The mechanism is grounded in the verified hallmarks/genomic-instability.md page (progeroid syndromes section: Fanconi anemia as DDR-defect phenocopy of accelerated aging). Natural variable: β in ln(rate of acetaldehyde-DNA adduct accrual) per g/day ethanol (linked to acetaldehyde area-under-curve, which varies by ALDH2 genotype — a key effect modifier). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node. Populating this driver term requires FIRST migrating genomic-instability to a ∫rate·dt state node. Until that migration, this stub is inert. Mediation note: alcohol already drives liver mortality directly (existing live cause edge alcohol→liver via the alcoholThreshold form). The genomic-instability-mediated path from alcohol carries a DISTINCT downstream effect (cancer risk elevation via DNA damage, particularly esophageal/head-and-neck/colorectal SBS16 signature) and is NOT double-counted with the liver edge. However, when populating, confirm that cancer cause edges are not double-counting the alcohol-genomic-instability-cancer chain against the liver edge. POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response for acetaldehyde → DNA-adduct burden per g/day ethanol in human tissue is needed in the wiki — the Garaycoechea/Patel 2018 anchor is mouse DKOKOD mechanistic; a human epidemiological dose-response (e.g. alcohol-associated SBS16 burden per unit drink/day in normal tissue) should be confirmed. #gap/needs-state-node-migration #gap/needs-verified-source",
       "provenance": "stub"
     },
@@ -4366,6 +4372,8 @@ const MODEL = {
       "from": "airPollution",
       "to": "genomic-instability",
       "evidenceStrength": "moderate",
+      "citation": "IARC Monograph vol. 109 (2015); Burnett 2018 GBD IER · doi:10.1073/pnas.1803222115",
+      "wiki": "hallmarks/genomic-instability",
       "note": "stub: airPollution->genomic-instability. Ambient particulate matter (PM2.5) is classified IARC Group 1 human carcinogen (IARC Monograph vol. 109, 2015). Two genotoxic mechanisms: (1) PAH adsorbed on fine particles form bulky DNA adducts (structural similarity to tobacco SBS4 mechanism, but lower dose per µg/m³ than direct smoking); (2) oxidative stress from reactive oxygen species generated by transition metals (iron, copper) on PM2.5 surface → 8-oxo-dG, strand breaks. Lung cancer dose-response in the GBD/Burnett 2018 integrated exposure-response (IER) model provides the best-characterized population-level link. Natural variable: β in ln(rate of DNA-damage accrual) per µg/m³ PM2.5 annual mean (WHO guideline threshold 5 µg/m³; US EPA NAAQS 12 µg/m³; global range 5–200 µg/m³ in high-pollution urban settings). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node. Populating this driver term requires FIRST migrating genomic-instability to a ∫rate·dt state node. Until that migration, this stub is inert. Mediation note: airPollution already drives COPD and cardiovascular mortality directly (existing live cause edges airPollution→copd, airPollution→cardiovascular). The genomic-instability-mediated path from airPollution represents the carcinogenic/mutagenic channel (lung cancer, bladder cancer via particle-mediated systemic adducts) and is DISTINCT from the inflammatory/bronchospasm COPD channel and the oxidative-endothelial CVD channel — not a double-count. However, when populating, mediation-decompose the cancer cause edge to avoid double-counting the PM2.5→GI→cancer chain against any direct PM2.5→cancer edge that might be added. POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response for PM2.5 → DNA-adduct/oxidative-lesion burden per µg/m³ in human tissue is needed in the wiki — the IARC Group 1 classification confirms carcinogenicity but the dose-response per unit exposure in terms of lesion accrual rate is not yet verified in the wiki. #gap/needs-state-node-migration #gap/needs-verified-source",
       "provenance": "stub"
     },
@@ -6058,6 +6066,11 @@ function nodeComputeHtml(id){
     if(f==="weightDynamic")return `Δkg(${e.from})/heightRef²  [Hall-2013 dynamic weight→BMI]`;
     return `${f}(${e.from}) ${c}`; };
   const ac = c => typeof c==="object"?num(c.male):num(c);
+  // per-edge source trace — lets you follow an edge from this panel back to the source data:
+  // `citation` = the primary source (DOI/author-year); `wiki` = the wiki page anchoring it (WIKI_BASE link).
+  const trace = e => { const b=[]; if(e.citation)b.push(e.citation);
+    if(e.wiki)b.push(`<a href="${WIKI_BASE}${e.wiki}" target="_blank" rel="noopener noreferrer">wiki&#8599;</a>`);
+    return b.length?` <span class="nc-trace">[${b.join(" · ")}]</span>`:""; };
 
   const eOut=MODEL.edges.filter(e=>(e.from||e.fromState)===id);   // includes kind:"stub" (planned, β-pending)
   const eIn =MODEL.edges.filter(e=>(e.to===id||e.mediator===id));
@@ -6091,10 +6104,10 @@ function nodeComputeHtml(id){
   // state-node drivers live in rate/value `terms`, NOT in MODEL.edges — the graph derives the
   // driver edges from terms in BOTH directions, so cross-reference them here too (else a state
   // node shows no inputs and a driver shows no output, while the formula/graph use them).
-  const inList = eIn.map(inI);
+  const inList = eIn.map(e=>inI(e)+trace(e));
   if (st) { const terms=(st.rate?.terms||[]).concat(st.value?.terms||[]); const seen=new Set();
     terms.forEach(t=>(t.drivers||[]).forEach(d=>{ const did=typeof d==="string"?d:d.id; if(seen.has(did))return; seen.add(did); inList.push(`${did} → ${st.value?"value":"∫rate"} term: ${tm(t)}`); })); }
-  const outList = eOut.map(outI);
+  const outList = eOut.map(e=>outI(e)+trace(e));
   (MODEL.bLayer.stateNodes||[]).forEach(s2=>{ const terms=(s2.rate?.terms||[]).concat(s2.value?.terms||[]);
     const refs=terms.filter(t=>(t.drivers||[]).some(d=>(typeof d==="string"?d:d.id)===id));
     if(refs.length){ const live=refs.some(t=>t.coeff!==0); outList.push(`${s2.id}: drives its ${s2.value?"value":"∫rate"}${live?"":" [disabled, coeff 0]"}`); } });

@@ -35,10 +35,14 @@ form and no magnitude** — only the lane it will occupy (`intendedKind`) and th
 ```json
 { "kind": "stub", "intendedKind": "cause", "from": "<src>", "to": "<causeKey>",
   "evidenceStrength": "moderate",
+  "citation": "Fox CS et al. 2012 · doi:10.1016/S0140-6736(12)60572-8",
+  "wiki": "phenotypes/chronic-kidney-disease",
   "note": "stub: HbA1c→ckd. causal-graph-data moderate; Fox 2012 eGFR-decline per +1% HbA1c. β in ln(HR) per +1% HbA1c. #gap/needs-effect-size",
   "provenance": "stub" }
 ```
 Endpoint fields by `intendedKind`: `cause`/`frailty` → `from` + `to`(cause key); `mediator` → `from` + `to`(mediator); `augment` → `fromState` + `mediator`; `driver` → `from` + `to`(state node — this is how a missing ∫rate·dt driver term is stubbed even though live driver terms live in `stateNodes`); `coupling` → `from` + `to`(hallmark nodes).
+
+**`citation` + `wiki` are REQUIRED on every stub (traceability).** An edge must be followable from the viz "how it computes" panel back to its source data, so do not bury the source only in the prose `note` — also extract it into two structured fields the panel renders: `citation` = the primary source as a compact `Author Year · doi:…` string (the located evidence — the whole point of your pass), and `wiki` = the path (no `[[ ]]`, no leading `/`) of the wiki page that anchors/verifies the relation (the node's atomic page, a `studies/…` page, or an `exposures/…`/`molecules/…` page — e.g. `hallmarks/genomic-instability`). Keep them consistent with the `note`. If you genuinely cannot locate a citation, the stub still gets `wiki` (the node page) + a `#gap/needs-verified-source` in `note`, and `citation` records the best available anchor (even "causal-graph-data.md moderate" or an uncited mechanism) — never leave both blank.
 
 ## Workflow
 1. **Enumerate current wiring.** Read the node's existing inbound + outbound edges in `MODEL.edges` (by `kind`), plus the `driver` terms in `bLayer.stateNodes[].rate/value.terms` (a `coeff:0` term there is a *disabled deferral*, NOT a missing edge — note it, don't re-stub it).
@@ -62,6 +66,7 @@ A worklist: the node audited; the present/missing/mis-directed/mis-kinded classi
 ## Discipline
 - **Inertness is structural, not numerical.** Stubs are `kind:"stub"` and excluded at `edgesByKind`; never rely on `beta:0`/`coeff:0` for inertness, and never add a form to a stub.
 - **Locate, don't fit.** Record where β comes from; never derive it.
+- **Every edge traces to source.** Fill structured `citation` (primary source) + `wiki` (anchoring page path) on every stub — never leave the source only in the prose `note`. This is what makes an edge followable from the viz "how it computes" panel back to the underlying data. See § How a stub works.
 - **Stub liberally, populate strictly.** A plausible, biologically-grounded relation gets STUBBED (grey, visible) even if `weak`/uncited — the stub records the evidence status and the verified-citation is a *populate* blocker, not a stub gate. Only ambiguous/contested-direction or no-shape relations are report-only. (Don't, conversely, stub random associations from training memory — § 0b criterion 2 is "biologically grounded".)
 - **Don't diverge from the verified biology.** `causal-graph-data.md` (verified rows) is the truth for which edges should exist; never invent edges from training memory.
 - **Stub ≠ disabled.** Never re-tag an existing `coeff:0` deferral as a stub; never stub an edge that already exists live (the validator warns, but don't author it).
