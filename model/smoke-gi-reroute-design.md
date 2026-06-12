@@ -65,6 +65,28 @@ prose further down where they conflict. Phase 1 ✅ landed; Phase 1b/3/4 reshape
 > study (does not exist). What we KEEP from this pass: GI migrated to ∫rate·dt; the age-indexed exposure-profile
 > substrate; the verified irreversible-accrual term form; the verified Yoshida page + its precise mechanism.
 
+## TRACKED BLOCKER — two-compartment smoking-recovery model (required empirical anchors)
+
+The smoke→GI→cancer reroute is HELD (above). Unblocking it requires building a **two-compartment GI tissue
+model** — irreversible per-cell mutation accrual + a **quiescent-cell repopulation/dilution** term so the
+tissue-level GI burden *recovers* after cessation (the cancer quit benefit). That model needs these empirical
+anchors before it can be built defensibly (do NOT invent them):
+
+1. **Continuous dose-response** — a well-powered normal-tissue smoking→somatic-mutation study (n ≥ 30–50 smokers
+   with quantified pack-years) to set the **accrual rate per unit exposure**. Yoshida 2020 gives only categorical
+   never/ex/current levels (n=3 current, underpowered). *Status: does not exist as of 2026.* `#gap/dose-response-categorical-only`
+2. **Repopulation/dilution kinetics** — the **rate** at which near-normal cells repopulate after cessation
+   (near-normal-cell fraction vs years-since-quit), to set the recovery time-constant. Yoshida shows the 4× ex-smoker
+   enrichment but not its time-course. *Candidate: per-subject ex-smoker data by years-since-quit (Yoshida Suppl. Table 1, not yet extracted).* `#gap/needs-repopulation-dynamic`
+3. **Tissue-burden → cancer-hazard mapping** — how the damaged-cell fraction × per-cell burden translates to cancer
+   hazard, to calibrate the `GI→cancer` mechanistic path. *Candidates: mutation-burden→cancer cohorts; cancer cell-of-origin clonal-burden studies.*
+4. **GI-mediated fraction of smoking→cancer** — the share of smoking's carcinogenicity that is mutation-burden-mediated
+   (vs promotion / epigenetic / immune-evasion), for the route-once decomposition. Derive a *range* from mediation/
+   mechanistic literature + **sensitivity analysis**; keep unpopulated if unconstrainable. `#gap/uncertain-mediation-fraction`
+
+Tracked in `model/age-hardcoding-audit.md` § Deferred. A SEPARATE design+validation project (per the user, 2026-06-12),
+not an extension of the GI/senescence migrations.
+
 ---
 
 ## Phase 1 (done) — what it gives us
