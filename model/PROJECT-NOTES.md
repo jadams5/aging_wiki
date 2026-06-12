@@ -366,6 +366,59 @@ already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseli
   roadmap in §8a below** (the agreed direction: shrink the age-keyed residual by
   converting ignorance into grounded named-cause nodes, NOT by adding a generic
   "unknown" sink with unidentifiable upstream edges).
+- **§ frailty — the sarcopenia/frailty restructure (2026-06-11).** The old non-specific
+  vulnerability multiplier was driven by ONE node `id:"sarcopenia"` / `label:"Sarcopenia / frailty"`
+  (an **age sigmoid**, `mid:72`) feeding a per-cause `betaByCause` (Peng 2022 frail-vs-robust HRs).
+  It mis-attributed multi-system frailty mortality to muscle — a sarcopenia intervention implausibly
+  cut liver/CKD/cancer death (the *entire* 4.137-yr sarcopenia ΔLE was this multiplier; sarcopenia
+  has no other modeled mortality path). And because it was **deviation-form** (`exp(β·(B−T))`, =1 at
+  baseline) it explained *no baseline mortality* — purely an intervention-response term, not a real
+  reserve state — so renaming it `physiologic-reserve` would have been wrong.
+  **DONE (steps 1–3):**
+  - **Step 2 — disconnected.** The 10 `kind:"frailty"` edges removed from `MODEL.edges` ⇒ `betaByCause={}`
+    ⇒ `frDefault=0` ⇒ multiplier ≡1. Baseline LE **bit-for-bit unchanged** (77.458855 / 82.117850);
+    sarcopenia ΔLE 4.137→0; the upstream interventions that propagated through `stem-cell-exhaustion→
+    sarcopenia` re-baselined DOWN (chronic-inflammation 4.52→3.97, cellular-senescence 0.78→0.71,
+    genomic-instability eff1.0 1.98→1.89). Sarcopenia node relabeled "Sarcopenia (muscle)", `role:intermediate`.
+  - **Step 1 — bucket renamed.** The mis-named `frailty` cause → **`falls`** (node `falls-mortality`,
+    "Falls (external injury)"). Exact-invariant (same Rmax/curve). CAUSE_KEYS updated (engine + validator).
+  - **Step 3 — Peng betas parked** in `mortality.frailty.betaByCause_DISABLED_gap` (non-functional; engine
+    reads the now-removed edges) as `#gap/needs-independent-modeling` — NOT transplanted onto a latent.
+  **ALSO DONE:** **sarcopenia→falls POPULATED** (graph-node-seeder, Yeung 2019 PMID 30993881 prospective
+  OR 1.89 → β=ln(1.89)=0.6366, live `frailty` edge, falls-only; sarcopenia ΔLE 0→~0.035 yr). **Malnutrition
+  split DONE** (graph-node-seeder Op A: CDC WONDER D76 2019 W00-W19 + E40-E46 per-sex×age; falls-only Rmax
+  0.003112/0.002569; E40-E46 → dense residual; falls+malnutrition Rmax = old combined exactly; baseline LE
+  drift ~1e-7 from ~9-sig-fig residual write, #gap to regen at full precision). Both **validated by
+  graph-node-validator** (independent CDC re-pull: all 4 rates exact to 0.1/100k; 16/16 burden anchors;
+  β/PMID confirmed). **EDGE-KIND UNIFIED (2026-06-12):** sarcopenia→falls converted `frailty`→`cause`
+  (new engine form `nodeLogLinear` = exp(β·(node B−T)), handled in `edgeMultFor`) — it's a regular
+  node-source driver→cause edge (cf. LDL→cardiovascular), NOT a special "frailty amplifier"; sarcopenia is
+  now `role:driver` (structural twin of clonal-hematopoiesis). Exact-invariant (ΔLE 0.0346 unchanged). The
+  **`frailty` KIND is retired/dormant** (0 live edges) — reserved for the future non-specific reserve node
+  (one source × MANY causes). Viz: gave sarcopenia + clonal-hematopoiesis a full **"driver phenotype"**
+  identity (they were `NODE_INFO kind:"cause"` → "Cause-of-death node", AND reused the deep-purple
+  pathology color with no legend entry — so they read as cause nodes). Now: harmonized label "driver
+  phenotype" across both systems (`KIND_LABEL["intermediate"]` + `KIND_INFO_LABEL["driver"]`), a distinct
+  lighter-purple color (#af7ac5 vs pathology #7d3c98), and their own legend swatch + tooltip. Also
+  relabeled the dormant `frailty` edge legend "frailty amplifies cause" → "reserve → all causes (reserved)".
+  **DEFERRED (with #gaps on the `falls` node):** (b) **external-injury merge** — fold falls under a restructured `external-injury` terminal cause
+  with a separately (non-lifestyle) scaled fall sub-component, replacing the current special
+  `extrinsic = interp·lifestyle` expression; (c) **physiologic-reserve state** — a real reserve node
+  (own observable trajectory + baseline calibration + evidence interventions move it) that integrates
+  multiple drivers (sarcopenia as one `rate.term`, + cognition/inflammation/…) and drives a *named,
+  shrinking* non-specific case-fatality residual — only built once it clears that bar, and needs the
+  engine to **sum multiple named frailty sources** (today's `betaByCause` keys by target = single-source,
+  enforced by `validate-graph.mjs`). Don't fully decompose into specific edges — the genuinely
+  cause-agnostic "diminished reserve" slice would otherwise fall into the age-keyed residual.
+  **STEP 5 (in progress):** explicit fall drivers. **Stubbed (both endpoints exist):** `sarcopenia→falls`
+  (`kind:"stub"`, `intendedKind:"frailty"`, inert, grey-dashed) — the SINGLE, narrow, justified replacement
+  for the removed generic multiplier (multiplies ONLY falls, not every cause); populate β from
+  sarcopenia→fall/fracture-mortality literature (Yeung 2019; a graph-node-seeder Op). **Node-addition
+  candidates (NOT stubbable — driver node absent from the sim; need Op-B/C node adds, then edges):**
+  balance/vestibular, vision impairment, peripheral neuropathy, orthostatic hypotension, sedating
+  medications, environmental hazard → falls; osteoporosis → fracture *case-fatality* (the
+  fall-risk × injury-susceptibility × case-fatality decomposition). These stay as candidates for
+  adjudication, consistent with the edge-auditor § 0b rule (don't stub an edge to an unrepresented node).
 - **Personal-offset polish** — percentile-held (not just additive) + multi-draw
   trajectory fitting + mild regression-to-mean.
 - **Wiki-maintenance leads** surfaced by the audit (seed a cancer-PAF layer; create

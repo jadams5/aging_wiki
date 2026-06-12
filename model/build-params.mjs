@@ -9,6 +9,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { validateGraph } from "./validate-graph.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MD_PATH = resolve(HERE, "..", "frameworks", "causal-graph-parameters.md");
@@ -49,6 +50,15 @@ function main() {
   // hallmark-coupling subgraph should hold 38 edges; total grows with the B-layer.
   const nCoupling = (model.edges || []).filter((e) => e.kind === "coupling").length;
   if (nCoupling !== 38) console.warn(`WARN: expected 38 coupling edges, got ${nCoupling} (total ${nEdges})`);
+
+  // Structural gate: unknown endpoints, invalid cause-targets, colliding frailty targets,
+  // malformed forms, and bad stubs FAIL the build (these pass baseline-LE tests otherwise).
+  const { errors, warnings } = validateGraph(model);
+  for (const w of warnings) console.warn("validate-graph WARN: " + w);
+  if (errors.length) {
+    for (const e of errors) console.error("validate-graph ERROR: " + e);
+    throw new Error(`build-params: ${errors.length} graph-validation error(s) — params.json written but INVALID; fix the edges.`);
+  }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main();

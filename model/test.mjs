@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { simulate, lifeExpectancy, mediators, edgesByKind } from "./engine.mjs";
+import { validateGraph } from "./validate-graph.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MODEL = JSON.parse(readFileSync(resolve(HERE, "params.json"), "utf8"));
@@ -60,14 +61,19 @@ num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
 // both models agree, and the >90 tail holds few survivors.
 num("genomic-instability freeze@40 eff0.1 ΔLE", dLE("genomic-instability", { efficacy: 0.1 }), 0.198, 0.03);
 num("genomic-instability freeze@40 eff0.2 ΔLE", dLE("genomic-instability", { efficacy: 0.2 }), 0.396, 0.03); // A4 re-baseline (+BP-mediated stiffness slice)
-num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.793, 0.03); // Op A 2026-06-11 re-baseline: CV band expanded → gi→senescence→CV cascade has larger effect
-num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.982, 0.04); // Op A 2026-06-11 re-baseline: same reason; tol widened to 0.04 to cover interpolation range
+num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { efficacy: 0.4 }), 0.757, 0.03); // 2026-06-11 frailty-multiplier removal re-baseline (down: lost the gi→…→sarcopenia→frailty-mult slice)
+num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.888, 0.04); // 2026-06-11 frailty-multiplier removal re-baseline (down, same reason)
 
 num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.707, 0.06); // Op A 2026-06-11 re-baseline: CV band expanded ~8% → direct athero freeze gains proportionally
-num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 4.524, 0.06); // Op A 2026-06-11 re-baseline: inflammation→CV cascade larger (expanded CV band)
+num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 3.974, 0.06); // 2026-06-11 frailty-multiplier removal re-baseline (down most: inflammation→stem-cell→sarcopenia→frailty-mult slice removed)
 num("cancer freeze@40 100% ΔLE", dLE("cancer"), 2.466, 0.06);
-num("sarcopenia freeze@40 100% ΔLE", dLE("sarcopenia"), 4.137, 0.05); // B2: cause-specific frailty (larger effective β than flat 0.6)
-num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.781, 0.05); // Op A 2026-06-11 re-baseline: senolytic bends larger CV band
+// 2026-06-11: the sarcopenia→every-cause frailty multiplier was DISCONNECTED (it identified Peng frail-vs-robust
+// HRs with the sarcopenia age-sigmoid → implausible cross-cause benefit; the entire former 4.137 yr WAS that
+// multiplier). REPLACED by a single, mechanistically-direct sarcopenia→FALLS frailty edge (β=ln(1.89)=0.6366,
+// Yeung 2019 PMID 30993881 prospective OR 1.89). So freezing sarcopenia now buys ~0.04 yr via FALLS ONLY — two
+// orders of magnitude smaller, and honest (falls ≈ 0.4% of deaths). Other fall drivers are node-add candidates.
+num("sarcopenia freeze@40 100% ΔLE (falls-only, Yeung 2019 OR 1.89)", dLE("sarcopenia"), 0.035, 0.006); // 0.042→0.035 after the malnutrition split lowered falls Rmax (W00-W19 only)
+num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.710, 0.05); // 2026-06-11 frailty-multiplier removal re-baseline (down: lost senescence→stem-cell→sarcopenia→frailty-mult slice)
 
 // ---- v0.4 burden-driven old-age escalation (replaces age-keyed Gompertz tail) ----
 const _b = simulate(MODEL, { sex: "male" });
@@ -529,6 +535,37 @@ str("B3b: underweight penalty steep (< obese)", String(
     simulate(MODEL, { sex: "male" }).medValues.systolicBP[70 - AGE0] - base, 0, 1e-12);
 }
 
+// ---- physicalActivity → restingHR (exerciseScaled; Chen/Jabbarzadeh 2024; 2026-06-12) ----
+// Aerobic training bradycardia: coeff −5.4 bpm at +150 min/wk above popMean=150.
+// exerciseScale(dx) = clamp(dx/150, −1, 1.5); at popMean dx=0 ⇒ shift=0 ⇒ baseline preserved.
+{
+  const rhrAt = (activity) =>
+    mediators(MODEL, { sex: "male", inputs: { physicalActivity: activity } }).restingHR[60 - AGE0];
+  const popRHR = rhrAt(150); // popMean activity ⇒ no shift
+  // Baseline invariant: at popMean activity (150 min/wk) the shift is exactly 0.
+  num("physicalActivity→restingHR: popMean activity ⇒ RHR unchanged",
+    rhrAt(150) - popRHR, 0, 1e-9);
+  // High activity (300 min/wk, +150 above popMean) lowers RHR by coeff × exerciseScale(+150)
+  // = −5.4 × 1.0 = −5.4 bpm.
+  num("physicalActivity→restingHR: 300 min/wk ⇒ −5.4 bpm (Chen 2024 anchor)",
+    rhrAt(300) - popRHR, -5.4, 1e-9);
+  // Sedentary (0 min/wk, −150 below popMean) raises RHR by coeff × exerciseScale(−150)
+  // = −5.4 × (−1.0) = +5.4 bpm.
+  num("physicalActivity→restingHR: sedentary (0 min/wk) ⇒ +5.4 bpm",
+    rhrAt(0) - popRHR, 5.4, 1e-9);
+  // Direction: higher activity ⇒ lower RHR.
+  str("physicalActivity→restingHR: monotone direction (more activity = lower RHR)",
+    String(rhrAt(300) < rhrAt(150) && rhrAt(150) < rhrAt(0)), "true");
+  // Downstream pathway: high activity ⇒ lower RHR ⇒ slower elastin fatigue ⇒ lower stiffness.
+  const efAt = (activity) =>
+    mediators(MODEL, { sex: "male", inputs: { physicalActivity: activity } })["elastin-fatigue"][80 - AGE0];
+  str("physicalActivity→restingHR→elastin-fatigue: active fatigues elastin slower",
+    String(efAt(300) < efAt(150)), "true");
+  // Baseline LE invariant at popMean activity (the exerciseScaled edge contributes 0).
+  num("physicalActivity→restingHR: popMean activity ⇒ baseline LE invariant",
+    lifeExpectancy(MODEL, { sex: "male", inputs: { physicalActivity: 150 } }) - baseM, 0, 1e-9);
+}
+
 // ---- sleep → all-cause: BANDED + ASYMMETRIC U-shape (Cappuccio 2010) ----
 // Nadir is a REFERENCE BAND [7,8] (both 7h and 8h penalty-free — user-caught: 8h is not worse
 // than 7h), with asymmetric arms (long-sleep mortality rises ~2× steeper per hour than short).
@@ -545,6 +582,47 @@ str("B3b: underweight penalty steep (< obese)", String(
   str("sleep long arm steeper than short (10h penalty > 5h penalty)",
     String((baseM - sleepLE(10)) > (baseM - sleepLE(5))), "true");
   str("sleep U-shape: 7–8h beats both 5h and 10h", String(sleepLE(7) > sleepLE(5) && sleepLE(8) > sleepLE(10)), "true");
+}
+
+// ---- structural-stub contract (edge-auditor) + graph validator (R-stub, 2026-06-11) ----
+// A kind:"stub" edge is the auditor's "this edge should exist, β not yet derived" marker.
+// It MUST be inert: excluded from the engine at edgesByKind, so it can neither perturb the
+// hazard (baseline OR under intervention) nor collide in the frailty betaByCause map.
+{
+  const baseF = lifeExpectancy(MODEL, { sex: "female" });
+  const withStubs = JSON.parse(JSON.stringify(MODEL));
+  // one stub per intendedKind, incl. a frailty stub (proves a stub never enters betaByCause —
+  // so it can't overwrite a live frailty edge) and a cause stub (proves form-independence:
+  // a real beta:0 thresholdRamp would NaN; a stub never executes).
+  withStubs.edges.push(
+    { kind: "stub", intendedKind: "cause",    from: "HbA1c", to: "cancer",        note: "x", evidenceStrength: "moderate" },
+    { kind: "stub", intendedKind: "frailty",  from: "clonal-hematopoiesis", to: "cardiovascular", note: "x", evidenceStrength: "moderate" },
+    { kind: "stub", intendedKind: "mediator", from: "airPollution", to: "systolicBP", note: "x", evidenceStrength: "weak" },
+    { kind: "stub", intendedKind: "augment",  fromState: "arterial-stiffness", mediator: "systolicBP", note: "x", evidenceStrength: "moderate" },
+    { kind: "stub", intendedKind: "driver",   from: "HbA1c", to: "ecm-crosslink",  note: "x", evidenceStrength: "strong" },
+    { kind: "stub", intendedKind: "coupling", from: "dysbiosis", to: "cancer",     note: "x", evidenceStrength: "weak" },
+  );
+  const maxHazDiff = (sex) => {
+    const a = simulate(MODEL, { sex }), b = simulate(withStubs, { sex });
+    let m = 0; for (let k = 0; k < a.hazard.length; k++) m = Math.max(m, Math.abs(a.hazard[k] - b.hazard[k]));
+    return m;
+  };
+  const sarcoLE = (M, sex) => lifeExpectancy(M, { sex, interventions: { sarcopenia: { startAge: 40, efficacy: 1.0 } } });
+  num("stub: baseline LE male invariant", lifeExpectancy(withStubs, { sex: "male" }), baseM, 1e-9);
+  num("stub: baseline LE female invariant", lifeExpectancy(withStubs, { sex: "female" }), baseF, 1e-9);
+  num("stub: max|Δhazard| male (engine ignores stubs)", maxHazDiff("male"), 0, 1e-12);
+  num("stub: max|Δhazard| female", maxHazDiff("female"), 0, 1e-12);
+  num("stub: sarcopenia-interv LE male invariant (no frailty overwrite)", sarcoLE(withStubs, "male"), sarcoLE(MODEL, "male"), 1e-9);
+  num("stub: sarcopenia-interv LE female invariant", sarcoLE(withStubs, "female"), sarcoLE(MODEL, "female"), 1e-9);
+  num("stub: stubbed model still validator-clean", validateGraph(withStubs).errors.length, 0, 0);
+
+  // validator catches the faults that baseline LE alone misses
+  num("validator: current model clean (0 errors)", validateGraph(MODEL).errors.length, 0, 0);
+  const inject = (...es) => { const M = JSON.parse(JSON.stringify(MODEL)); M.edges.push(...es); return validateGraph(M).errors.length; };
+  // two live frailty edges to the same cause (baseline has none now) ⇒ betaByCause collision
+  str("validator: catches duplicate live frailty target", String(inject({ kind: "frailty", from: "sarcopenia", to: "cardiovascular", beta: 0.5 }, { kind: "frailty", from: "clonal-hematopoiesis", to: "cardiovascular", beta: 0.3 }) > 0), "true");
+  str("validator: catches malformed cause form (missing slope/threshold/cap)", String(inject({ kind: "cause", from: "HbA1c", to: "cancer", form: "mediatorThresholdRamp", med: "HbA1c", beta: 0 }) > 0), "true");
+  str("validator: catches unknown endpoint", String(inject({ kind: "coupling", from: "NOPE", to: "cancer", strength: "weak" }) > 0), "true");
 }
 
 export function runTests() {

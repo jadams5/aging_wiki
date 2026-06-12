@@ -82,8 +82,9 @@ export function curveT(node, sex, age, AGE0 = 20) {
 // Cause order for the competing-hazards decomposition (v0.4.1: residual split into
 // named CDC causes — diabetes/COPD/CKD/liver — so the stacked chart + readout show
 // them; residual stays last as the unmodeled remainder).
-// Op B 2026-06-11: added "frailty" (falls W00-W19 + malnutrition E40-E46) before "residual".
-const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "diabetes", "copd", "ckd", "liver", "frailty", "residual"];
+// Op B 2026-06-11: added the falls bucket (W00-W19 falls + E40-E46 malnutrition, bundled)
+// before "residual"; RENAMED "frailty" → "falls" 2026-06-11 (the cause was never frailty).
+const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "diabetes", "copd", "ckd", "liver", "falls", "residual"];
 
 /**
  * simulate(MODEL, opts) — integrate the v0.3 model forward over age.
@@ -107,7 +108,14 @@ const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration"
 // Legacy fallback: if MODEL.edges carries no `kind` tags (pre-unification data), read the
 // old coupling array + bLayer.{causeEdges,mediatorEdges,stateAugments} + frailty.betaByCause.
 export function edgesByKind(MODEL) {
-  const E = MODEL.edges || [];
+  // STRUCTURAL STUBS are excluded from ALL execution here, at the single partition
+  // point — so a stub is inert by construction, independent of any per-form zero value
+  // (`beta:0` does NOT neutralize forms like mediatorThresholdRamp, which read slope/
+  // threshold/cap, and a zero-beta frailty edge would otherwise OVERWRITE the live beta
+  // for its target in the betaByCause map below). The viz still renders stubs (it reads
+  // MODEL.edges directly). A stub is any edge tagged kind:"stub" or provenance:"stub".
+  // See sops/adding-causal-graph-nodes.md § 0a.
+  const E = (MODEL.edges || []).filter((e) => e.kind !== "stub" && e.provenance !== "stub");
   const kinded = E.some((e) => e.kind);
   const B = MODEL.bLayer || {};
   const fr = (MODEL.mortality && MODEL.mortality.frailty) || {};
@@ -136,7 +144,11 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
   const N_AGE = AGES.length;
 
-  const NODES = MODEL.nodes;
+  // STUB NODES (provenance:"stub") are excluded from the simulation here — the single point
+  // where MODEL.nodes enters the engine — so a planned-but-unmodeled node (e.g. a future
+  // sinoatrial-node-reserve state) is inert by construction, exactly like a kind:"stub" edge.
+  // The viz still renders it (greyed) so the gap is VISIBLE on the graph. See § stub rung.
+  const NODES = (MODEL.nodes || []).filter((n) => n.provenance !== "stub");
   const NN = NODES.length;
   const NODE_IDX = {};
   NODES.forEach((n, i) => { NODE_IDX[n.id] = i; });
@@ -247,7 +259,20 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     const list = causeEdgesByTarget[target];
     if (!list) return 1;
     let m = 1;
-    for (const e of list) m *= causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean);
+    for (const e of list) {
+      // node-source cause edge (e.g. sarcopenia→falls): a phenotype/hallmark NODE drives a
+      // specific cause's hazard via exp(β·(B−T)) — the SAME multiplicative form as a mediator
+      // cause edge (e.g. LDL→cardiovascular), only the source is a burden-layer node read as its
+      // deviation from baseline trajectory, not a clinical mediator. This is the regular
+      // driver→cause edge; it REPLACES the legacy per-cause `frailty` multiplier for one named
+      // cause. (The `frailty` KIND remains for a future non-specific reserve node: one source ×
+      // MANY causes — which is a genuinely different shape.)
+      if (e.form === "nodeLogLinear") {
+        m *= Math.exp(e.beta * (nodeBurdensLive[e.from][k] - nodeBurdensBase[e.from][k]));
+      } else {
+        m *= causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean);
+      }
+    }
     return m;
   }
 
@@ -775,7 +800,7 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
   // age — the diabetes-spiral feedback. With no augments this is bit-identical to the former
   // per-node loop: within a step, integrated nodes publish their accumulator, algebraic nodes
   // (topo-ordered) compute Σ value-terms, then integrated nodes advance by rate(k)·DT.
-  const stateNodes = b.stateNodes || b.stocks || [];
+  const stateNodes = (b.stateNodes || b.stocks || []).filter((s) => s.provenance !== "stub");  // stub state nodes are inert (rendered greyed by the viz)
   const ordered = topoSortStateNodes(stateNodes);
   const integ = {};                                   // running accumulators for integrated nodes
   for (const s of ordered) { out[s.id] = new Array(AGES.length); if (!s.value) integ[s.id] = s.initial ?? 0; }

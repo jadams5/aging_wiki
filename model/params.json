@@ -25,7 +25,7 @@
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
       "lifestyleMult": 1,
-      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
+      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (they live in the separate 'falls' terminal cause W00-W19, NOT lifestyle-scaled — a future external-injury merge would fold them back under one umbrella while keeping this non-fall component lifestyle-scaled; see PROJECT-NOTES § frailty).",
       "byAge": {
         "male": [
           [
@@ -99,7 +99,20 @@
     },
     "frailty": {
       "node": "sarcopenia",
-      "note": "B2 (2026-06-08): CAUSE-SPECIFIC frailty multiplier. Peng 2022 frail-vs-robust cause-specific HRs: respiratory 4.91->infection, CV 2.64->cardiovascular, cancer 1.97->cancer; general ~2.4->neurodegeneration/residual. beta_cause = ln(HR) for a FULL-span (robust->frail) sarcopenia deviation (B-T). =1 at baseline. Replaces the global beta 0.6, which was mis-anchored to a wrong Kojima 1.83 (real frail-vs-robust ~2.4, Peng 2022)."
+      "DISABLED": true,
+      "betaByCause_DISABLED_gap": {
+        "cardiovascular": 0.9708,
+        "cancer": 0.678,
+        "neurodegeneration": 0.8755,
+        "infection": 1.5913,
+        "diabetes": 0.8755,
+        "copd": 0.8755,
+        "ckd": 0.8755,
+        "liver": 0.8755,
+        "falls": 0.8755,
+        "residual": 0.8755
+      },
+      "note": "DISABLED 2026-06-11 (frailty EDGES removed from MODEL.edges). Was a cause-specific frailty multiplier exp(beta_cause·(sarcopenia B−T)) on EVERY intrinsic cause. REMOVED: it was identified with the SARCOPENIA node (an age sigmoid) yet carried Peng-2022 frail-vs-ROBUST cause-specific HRs, so a sarcopenia intervention implausibly bought less liver/CKD/cancer death (the entire 4.137-yr sarcopenia ΔLE was this multiplier — sarcopenia has no other modeled mortality path). Two reasons it could not just be renamed: (1) deviation-form (=1 at baseline) ⇒ it explained NO baseline mortality, only granted intervention benefits — not a real reserve state; (2) Peng frail-vs-robust HRs bundle disability/comorbidity/severity/reverse-causation and cannot be transplanted onto a normalized 0→1 latent without calibration. Betas PARKED above as #gap/needs-independent-modeling — NOT executed (the engine reads frailty edges, which are gone; this key is non-functional). A real physiologic-reserve state (own observable trajectory + baseline calibration + evidence interventions move it) is the future replacement — see model/PROJECT-NOTES.md § frailty. #gap/no-mechanism"
     },
     "causes": {
       "cardiovascular": {
@@ -170,13 +183,14 @@
         "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
         "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: SWAP-TO-2022 pending."
       },
-      "frailty": {
-        "node": "frailty-mortality",
+      "falls": {
+        "node": "falls-mortality",
         "RmaxPerYear": {
-          "male": 0.003927,
-          "female": 0.003593
+          "male": 0.003112,
+          "female": 0.002569
         },
-        "cdc": "W00-W19 falls + E40-E46 malnutrition, CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending"
+        "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). SWAP-TO-2022 pending. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
+        "provenance": "calibrated"
       }
     },
     "residual": {
@@ -184,897 +198,897 @@
         "male": [
           [
             20,
-            0.000106825669
+            0.000106825
           ],
           [
             21,
-            0.000116394703
+            0.000116385
           ],
           [
             22,
-            0.000122493954
+            0.000122462
           ],
           [
             23,
-            0.000126599355
+            0.000126536
           ],
           [
             24,
-            0.000130180776
+            0.000130085
           ],
           [
             25,
-            0.000134702387
+            0.000134577
           ],
           [
             26,
-            0.000141622316
+            0.000141478
           ],
           [
             27,
-            0.000152391554
+            0.000152244
           ],
           [
             28,
-            0.000168452019
+            0.000168324
           ],
           [
             29,
-            0.000191233692
+            0.000191152
           ],
           [
             30,
-            0.000222150686
+            0.00022215
           ],
           [
             31,
-            0.000252943775
+            0.000253061
           ],
           [
             32,
-            0.000275607382
+            0.000275877
           ],
           [
             33,
-            0.000291913392
+            0.000292364
           ],
           [
             34,
-            0.000303624164
+            0.000304277
           ],
           [
             35,
-            0.000312492122
+            0.000313364
           ],
           [
             36,
-            0.000320257492
+            0.000321358
           ],
           [
             37,
-            0.000328644181
+            0.000329978
           ],
           [
             38,
-            0.000339353768
+            0.000340919
           ],
           [
             39,
-            0.000354057582
+            0.000355847
           ],
           [
             40,
-            0.000374386788
+            0.000376386
           ],
           [
             41,
-            0.000396449373
+            0.000398605
           ],
           [
             42,
-            0.000416416062
+            0.000418661
           ],
           [
             43,
-            0.000435946021
+            0.00043824
           ],
           [
             44,
-            0.000456661375
+            0.000458995
           ],
           [
             45,
-            0.000480145115
+            0.000482537
           ],
           [
             46,
-            0.000507933949
+            0.000510432
           ],
           [
             47,
-            0.000541505757
+            0.000544188
           ],
           [
             48,
-            0.000582260907
+            0.000585235
           ],
           [
             49,
-            0.000631496179
+            0.0006349
           ],
           [
             50,
-            0.000690369224
+            0.00069437
           ],
           [
             51,
-            0.000752267269
+            0.000756983
           ],
           [
             52,
-            0.000810837067
+            0.000816329
           ],
           [
             53,
-            0.000867585392
+            0.000873932
           ],
           [
             54,
-            0.000924235402
+            0.000931532
           ],
           [
             55,
-            0.000982846387
+            0.000991206
           ],
           [
             56,
-            0.00104592147
+            0.001055474
           ],
           [
             57,
-            0.00111647343
+            0.001127369
           ],
           [
             58,
-            0.00119800375
+            0.001210409
           ],
           [
             59,
-            0.00129434457
+            0.001308445
           ],
           [
             60,
-            0.00140933313
+            0.001425335
           ],
           [
             61,
-            0.00150669079
+            0.001524539
           ],
           [
             62,
-            0.00156061359
+            0.001580087
           ],
           [
             63,
-            0.00158996067
+            0.001611004
           ],
           [
             64,
-            0.00161304195
+            0.001635765
           ],
           [
             65,
-            0.00164756885
+            0.001672253
           ],
           [
             66,
-            0.00171052225
+            0.001737622
           ],
           [
             67,
-            0.00181793081
+            0.00184808
           ],
           [
             68,
-            0.00198455043
+            0.002018566
           ],
           [
             69,
-            0.0022234297
+            0.002262327
           ],
           [
             70,
-            0.00254533908
+            0.002590342
           ],
           [
             71,
-            0.00275472002
+            0.002806408
           ],
           [
             72,
-            0.00272137731
+            0.00277977
           ],
           [
             73,
-            0.00255041938
+            0.002615899
           ],
           [
             74,
-            0.00234459687
+            0.00241794
           ],
           [
             75,
-            0.00220380746
+            0.002286214
           ],
           [
             76,
-            0.00222515526
+            0.0023183
           ],
           [
             77,
-            0.00250132694
+            0.002607417
           ],
           [
             78,
-            0.00311819067
+            0.003240053
           ],
           [
             79,
-            0.00415344617
+            0.004294645
           ],
           [
             80,
-            0.00567379097
+            0.005838791
           ],
           [
             81,
-            0.00766954843
+            0.007864967
           ],
           [
             82,
-            0.0099565565
+            0.010190503
           ],
           [
             83,
-            0.0123242569
+            0.012604983
           ],
           [
             84,
-            0.0145603844
+            0.014896294
           ],
           [
             85,
-            0.0164586908
+            0.016858246
           ],
           [
             86,
-            0.0178298955
+            0.018301362
           ],
           [
             87,
-            0.018513613
+            0.019064589
           ],
           [
             88,
-            0.0183956171
+            0.019032279
           ],
           [
             89,
-            0.0174297577
+            0.018155759
           ],
           [
             90,
-            0.0156595087
+            0.016474509
           ],
           [
             91,
-            0.017196664
+            0.018100225
           ],
           [
             92,
-            0.0186847361
+            0.019679996
           ],
           [
             93,
-            0.0201996682
+            0.021290102
           ],
           [
             94,
-            0.0218159855
+            0.023005584
           ],
           [
             95,
-            0.0236064049
+            0.024899905
           ],
           [
             96,
-            0.0256413582
+            0.027044545
           ],
           [
             97,
-            0.0279883821
+            0.02950848
           ],
           [
             98,
-            0.0307113013
+            0.032357493
           ],
           [
             99,
-            0.0338690722
+            0.035653187
           ],
           [
             100,
-            0.0375140635
+            0.039451512
           ],
           [
             101,
-            0.0413079873
+            0.04341544
           ],
           [
             102,
-            0.0449898002
+            0.047283295
           ],
           [
             103,
-            0.0487202767
+            0.051217632
           ],
           [
             104,
-            0.0526587592
+            0.05537976
           ],
           [
             105,
-            0.056963173
+            0.059929747
           ],
           [
             106,
-            0.0617901459
+            0.065026534
           ],
           [
             107,
-            0.0672952852
+            0.07082818
           ],
           [
             108,
-            0.0736336948
+            0.07749231
           ],
           [
             109,
-            0.0809608426
+            0.085176888
           ],
           [
             110,
-            0.0894339193
+            0.094041408
           ],
           [
             111,
-            0.0982909898
+            0.103323056
           ],
           [
             112,
-            0.106928313
+            0.112417498
           ],
           [
             113,
-            0.115739551
+            0.121721256
           ],
           [
             114,
-            0.125112379
+            0.131625619
           ],
           [
             115,
-            0.135425728
+            0.142514237
           ],
           [
             116,
-            0.147045906
+            0.154759722
           ],
           [
             117,
-            0.160321101
+            0.168718841
           ],
           [
             118,
-            0.175573489
+            0.184725616
           ],
           [
             119,
-            0.193087639
+            0.203081177
           ],
           [
             120,
-            0.213092902
+            0.224038364
           ],
           [
             121,
-            0.23655266
+            0.248531014
           ],
           [
             122,
-            0.263858349
+            0.276897861
           ],
           [
             123,
-            0.294288712
+            0.308418065
           ],
           [
             124,
-            0.327052689
+            0.34230985
           ],
           [
             125,
-            0.361258028
+            0.377703121
           ],
           [
             126,
-            0.39587067
+            0.413604028
           ],
           [
             127,
-            0.429653657
+            0.448841676
           ],
           [
             128,
-            0.461060418
+            0.481975043
           ],
           [
             129,
-            0.488026025
+            0.511110933
           ],
           [
             130,
-            0.507518852
+            0.533513063
           ]
         ],
         "female": [
           [
             20,
-            0.0000578837393
+            0.000057882
           ],
           [
             21,
-            0.0000653398366
+            0.000065418
           ],
           [
             22,
-            0.000073144059
+            0.000073277
           ],
           [
             23,
-            0.0000811660172
+            0.000081341
           ],
           [
             24,
-            0.0000893055881
+            0.00008952
           ],
           [
             25,
-            0.0000974893076
+            0.000097751
           ],
           [
             26,
-            0.000105666623
+            0.000105995
           ],
           [
             27,
-            0.000113805936
+            0.00011423
           ],
           [
             28,
-            0.000121890351
+            0.000122451
           ],
           [
             29,
-            0.000129913069
+            0.000130662
           ],
           [
             30,
-            0.000137872307
+            0.000138871
           ],
           [
             31,
-            0.000145070702
+            0.000146306
           ],
           [
             32,
-            0.000151084046
+            0.000152472
           ],
           [
             33,
-            0.000156334546
+            0.000157812
           ],
           [
             34,
-            0.000161260071
+            0.000162783
           ],
           [
             35,
-            0.000166310395
+            0.000167855
           ],
           [
             36,
-            0.000175460059
+            0.000177023
           ],
           [
             37,
-            0.00019223568
+            0.000193834
           ],
           [
             38,
-            0.000216103728
+            0.000217773
           ],
           [
             39,
-            0.000246365398
+            0.000248163
           ],
           [
             40,
-            0.000271623631
+            0.000273625
           ],
           [
             41,
-            0.000288660184
+            0.000290922
           ],
           [
             42,
-            0.000302904901
+            0.000305451
           ],
           [
             43,
-            0.000315664219
+            0.00031852
           ],
           [
             44,
-            0.000328222382
+            0.000331418
           ],
           [
             45,
-            0.000341840403
+            0.000345407
           ],
           [
             46,
-            0.000357753139
+            0.000361726
           ],
           [
             47,
-            0.000377164111
+            0.00038158
           ],
           [
             48,
-            0.00040123746
+            0.000406138
           ],
           [
             49,
-            0.000431086066
+            0.000436514
           ],
           [
             50,
-            0.000467754474
+            0.000473756
           ],
           [
             51,
-            0.000505332549
+            0.000511893
           ],
           [
             52,
-            0.000538748785
+            0.000545816
           ],
           [
             53,
-            0.000570265837
+            0.000577826
           ],
           [
             54,
-            0.000602200447
+            0.000610281
           ],
           [
             55,
-            0.000636945495
+            0.000645612
           ],
           [
             56,
-            0.000676985036
+            0.000686344
           ],
           [
             57,
-            0.000724898697
+            0.000735096
           ],
           [
             58,
-            0.00078335123
+            0.000794574
           ],
           [
             59,
-            0.000855063372
+            0.00086754
           ],
           [
             60,
-            0.000942762107
+            0.000956762
           ],
           [
             61,
-            0.00101325215
+            0.001028686
           ],
           [
             62,
-            0.00104337459
+            0.001059909
           ],
           [
             63,
-            0.00105057625
+            0.001068096
           ],
           [
             64,
-            0.00105190858
+            0.001070516
           ],
           [
             65,
-            0.00106397906
+            0.001083999
           ],
           [
             66,
-            0.00110283498
+            0.001124816
           ],
           [
             67,
-            0.00118377465
+            0.001208492
           ],
           [
             68,
-            0.00132107913
+            0.001349544
           ],
           [
             69,
-            0.00152765373
+            0.001561125
           ],
           [
             70,
-            0.00181456311
+            0.001854563
           ],
           [
             71,
-            0.00196642664
+            0.002013539
           ],
           [
             72,
-            0.00184163587
+            0.00189566
           ],
           [
             73,
-            0.00155867656
+            0.001619942
           ],
           [
             74,
-            0.00123378943
+            0.001303189
           ],
           [
             75,
-            0.000980422713
+            0.00105945
           ],
           [
             76,
-            0.000907495984
+            0.0009983
           ],
           [
             77,
-            0.00111882315
+            0.001224285
           ],
           [
             78,
-            0.00171183755
+            0.001835681
           ],
           [
             79,
-            0.00277378597
+            0.002920733
           ],
           [
             80,
-            0.00437739789
+            0.004553398
           ],
           [
             81,
-            0.00647885687
+            0.006692754
           ],
           [
             82,
-            0.00884861007
+            0.009111255
           ],
           [
             83,
-            0.0112574697
+            0.011579951
           ],
           [
             84,
-            0.0134719358
+            0.013865632
           ],
           [
             85,
-            0.0152659782
+            0.015742448
           ],
           [
             86,
-            0.0164388119
+            0.017009449
           ],
           [
             87,
-            0.0168357054
+            0.017511061
           ],
           [
             88,
-            0.0163764572
+            0.017165107
           ],
           [
             89,
-            0.0150936376
+            0.016000487
           ],
           [
             90,
-            0.0131703842
+            0.014194384
           ],
           [
             91,
-            0.0143597003
+            0.015499107
           ],
           [
             92,
-            0.0155199121
+            0.016777664
           ],
           [
             93,
-            0.0167235754
+            0.018102899
           ],
           [
             94,
-            0.0180400998
+            0.0195448
           ],
           [
             95,
-            0.0195348467
+            0.02116969
           ],
           [
             96,
-            0.0212680891
+            0.023039291
           ],
           [
             97,
-            0.0232937173
+            0.02520957
           ],
           [
             98,
-            0.0256574777
+            0.027729166
           ],
           [
             99,
-            0.028394369
+            0.030637053
           ],
           [
             100,
-            0.031524531
+            0.033958822
           ],
           [
             101,
-            0.0347432629
+            0.037391154
           ],
           [
             102,
-            0.037838771
+            0.040720413
           ],
           [
             103,
-            0.0409546009
+            0.044092383
           ],
           [
             104,
-            0.0442327622
+            0.047651541
           ],
           [
             105,
-            0.0478137511
+            0.051541078
           ],
           [
             106,
-            0.0518366845
+            0.055903018
           ],
           [
             107,
-            0.0564396104
+            0.060878486
           ],
           [
             108,
-            0.0617600776
+            0.066608203
           ],
           [
             109,
-            0.0679360935
+            0.073233309
           ],
           [
             110,
-            0.0751076142
+            0.080896655
           ],
           [
             111,
-            0.0825846646
+            0.088907162
           ],
           [
             112,
-            0.089820358
+            0.096717199
           ],
           [
             113,
-            0.0971685048
+            0.104684168
           ],
           [
             114,
-            0.104976483
+            0.11315999
           ],
           [
             115,
-            0.11358226
+            0.122488559
           ],
           [
             116,
-            0.123310204
+            0.133002164
           ],
           [
             117,
-            0.13446515
+            0.145016421
           ],
           [
             118,
-            0.147323894
+            0.158823008
           ],
           [
             119,
-            0.162122672
+            0.17467897
           ],
           [
             120,
-            0.179038168
+            0.192790503
           ],
           [
             121,
-            0.198983547
+            0.214033651
           ],
           [
             122,
-            0.22238382
+            0.238767207
           ],
           [
             123,
-            0.248583656
+            0.266336364
           ],
           [
             124,
-            0.276852881
+            0.296022615
           ],
           [
             125,
-            0.306352887
+            0.327015187
           ],
           [
             126,
-            0.336093169
+            0.358374099
           ],
           [
             127,
-            0.364865976
+            0.388974603
           ],
           [
             128,
-            0.391132188
+            0.417410195
           ],
           [
             129,
-            0.412798195
+            0.441803036
           ],
           [
             130,
-            0.426737011
+            0.459397222
           ]
         ]
       },
-      "note": "DENSE per-integer-age remainder, HARMONIZED to CDC WONDER 2019 all-cause (no COVID). = 2019 all-cause − all bands − extrinsic at every integer age (≤90 from data; >90 re-anchored old-age escalation). 2026-06-11."
+      "note": "DENSE per-integer-age remainder, HARMONIZED to CDC WONDER 2019 all-cause (no COVID). = 2019 all-cause − all bands − extrinsic at every integer age (≤90 from data; >90 re-anchored old-age escalation). 2026-06-11. UPDATED 2026-06-11: E40-E46 malnutrition mass rebucketed from falls cause into residual (engine-based recompute: residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual)). #gap: array written at ~9 sig figs ⇒ baseline LE drifts ~1e-7 from the empirical anchor (vs the SOP 1e-9 ideal) — below test tolerance + harmless, but regenerate the dense residual at FULL float precision to restore exactness."
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
@@ -2194,43 +2208,43 @@
       }
     },
     {
-      "id": "frailty-mortality",
-      "label": "Frailty / failure-to-thrive",
+      "id": "falls-mortality",
+      "label": "Falls (external injury)",
       "layer": "phenotype",
       "tractability": "moderate",
-      "provenance": "calibrated. Op B 2026-06-11: new cause node. CDC WONDER D76 2019 W00-W19 (falls) + E40-E46 (malnutrition) per sex x ten-year age. Rmax = age-90 (85+ band) anchor. Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. betaByCause=0.8755 (reuse residual beta; deliberate behavior-invariant pass). #gap: falls-specific frailty HR (Peng 2022 respiratory 4.9x) deferred; SWAP-TO-2022 pending; R54 senility + J69 aspiration deferred (stay in residual).",
+      "provenance": "calibrated. Op A split 2026-06-11: E40-E46 malnutrition removed from the falls bucket; falls cause is now W00-W19 only. CDC WONDER D76 2019 W00-W19 (individual codes W00-W19) per sex x ten-year age. RmaxPerYear = 85+ band rate (311.2/100k M, 256.9/100k F). Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. Malnutrition mass (E40-E46, 2019 net rates: M 81.5/100k @85+, F 102.4/100k @85+) rebucketed into dense residual via engine-based recompute (residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual) at every integer age 20-130). sarcopenia→falls frailty edge (β 0.6366, Yeung 2019) unchanged. #gap: external-injury merge deferred; SWAP-TO-2022 pending; R54 senility + J69 aspiration stay in residual.",
       "role": "mortality-cause",
-      "mortalityCause": "frailty",
+      "mortalityCause": "falls",
       "curve": {
         "form": "table",
         "byAge": [
           [
             20,
-            0.001779
+            0.002244
           ],
           [
             30,
-            0.003046
+            0.003841
           ],
           [
             40,
-            0.005571
+            0.006386
           ],
           [
             50,
-            0.012324
+            0.014254
           ],
           [
             60,
-            0.02773
+            0.029925
           ],
           [
             70,
-            0.064109
+            0.067146
           ],
           [
             80,
-            0.198408
+            0.20592
           ],
           [
             90,
@@ -2257,31 +2271,31 @@
           "byAge": [
             [
               20,
-              0.000556
+              0.000778
             ],
             [
               30,
-              0.000834
+              0.000778
             ],
             [
               40,
-              0.002222
+              0.00233
             ],
             [
               50,
-              0.005536
+              0.00542
             ],
             [
               60,
-              0.015616
+              0.016462
             ],
             [
               70,
-              0.043906
+              0.046399
             ],
             [
               80,
-              0.167709
+              0.17581
             ],
             [
               90,
@@ -2309,11 +2323,11 @@
     },
     {
       "id": "sarcopenia",
-      "label": "Sarcopenia / frailty",
+      "label": "Sarcopenia (muscle)",
       "layer": "phenotype",
       "tractability": "moderate",
-      "provenance": "anchored-direction",
-      "role": "frailty-multiplier",
+      "provenance": "anchored-direction. 2026-06-11: DISCONNECTED from the global cause multiplier (was role:frailty-multiplier). 2026-06-12: now an ORDINARY causal driver (role:driver, like clonal-hematopoiesis) — drives the falls cause via a regular node-source cause edge (sarcopenia→falls, form nodeLogLinear), NOT a special frailty multiplier. The age-sigmoid value is itself age-pegged (migration target: ∫rate·dt).",
+      "role": "driver",
       "curve": {
         "form": "sigmoid",
         "params": {
@@ -2914,63 +2928,109 @@
     },
     {
       "from": "sarcopenia",
-      "to": "cardiovascular",
-      "kind": "frailty",
-      "beta": 0.9708
+      "to": "falls",
+      "kind": "cause",
+      "form": "nodeLogLinear",
+      "beta": 0.6366,
+      "provenance": "calibrated 2026-06-11 (populated from the sarcopenia→falls stub); UNIFIED 2026-06-12: kind frailty→cause (form nodeLogLinear). This is a regular node-source driver→cause edge — the SAME multiplicative exp(β·(B−T)) form as a mediator cause edge (cf. LDL→cardiovascular), just sourced from a burden-layer node — NOT a special 'frailty amplifier'. sarcopenia is now an ordinary causal driver of the falls cause (structural twin of clonal-hematopoiesis→atherosclerosis). The `frailty` KIND is retired here (no live frailty edges) and reserved for a future non-specific physiologic-reserve node (ONE source × MANY causes — a genuinely different shape). The NARROW, mechanistically-direct replacement for the removed generic sarcopenia→every-cause multiplier — multiplies ONLY the falls cause hazard. β = ln(OR) for a full-span (robust→sarcopenic) sarcopenia (B−T) deviation; =1 at baseline. Anchor: Yeung 2019 meta-analysis (PMID 30993881, J Cachexia Sarcopenia Muscle, 742 cites): sarcopenia→falls PROSPECTIVE OR 1.89 (95% CI 1.33-2.68; cross-sectional OR 1.60); ln(1.89)=0.6366. Fall INCIDENCE OR used as the fall-MORTALITY multiplier — conservative, since sarcopenia also raises case-fatality (not added). Muscle weakness→falls is mechanistically direct, unlike the discarded sarcopenia→cancer/CKD/liver links. SINGLE frailty source for 'falls' (validator-enforced one-per-cause). #gap: a fall-DEATH-specific HR (vs incidence) would refine this; #gap: other fall drivers (balance/vision/neuropathy/hypotension/osteoporosis) are node-add candidates, not yet wired."
     },
     {
-      "from": "sarcopenia",
-      "to": "cancer",
-      "kind": "frailty",
-      "beta": 0.678
+      "kind": "mediator",
+      "from": "physicalActivity",
+      "to": "restingHR",
+      "coeff": -5.4,
+      "form": "exerciseScaled",
+      "provenance": "calibrated 2026-06-12 (populated from stub). Aerobic training bradycardia — the dominant modifiable RHR driver. Mechanism: enhanced vagal (parasympathetic) tone + increased stroke volume from cardiac remodeling → lower rate needed to maintain resting cardiac output. COEFFICIENT DERIVATION: Chen/Jabbarzadeh 2024 RCT meta-analysis (Jabbarzadeh Ganjeh B et al., Hypertension Research 2024; doi:10.1038/s41440-023-01467-9; PMID 37872373; 34 randomized trials, n=1,787 hypertensive patients): each 30 min/wk aerobic exercise reduces RHR by −1.08 bpm (95% CI −1.46 to −0.71). The exerciseScaled form evaluates exerciseScale(activity−150)=clamp((activity−150)/150, −1, 1.5); coeff is the full shift at exerciseScale=1 (+150 min/wk above popMean=150). From Chen 2024: −1.08 bpm/30 min/wk × 5 (= 150/30) = −5.4 bpm. At activity=150 (popMean), exerciseScale=0 → shift=0 → BASELINE LE EXACTLY UNCHANGED. Sedentary (0 min/wk): +5.4 bpm higher RHR; active (300 min/wk): −5.4 bpm lower RHR. CONSISTENCY CHECK: Reimers 2018 systematic review + meta-analysis (191 interventional studies; doi:10.3390/jcm7120503; PMID 30513777): endurance training and yoga were the only modalities that significantly reducing RHR in both sexes; typical training-induced reductions 5–15 bpm depending on baseline and volume — our −5.4 bpm at +150 min/wk (half the max range) is within that range. DOUBLE-COUNT CONFIRMATION: this edge mechanistically routes part of physicalActivity's mortality benefit via restingHR → elastin-fatigue → arterial-stiffness → cardiovascular. The parallel physicalActivity→allcause (activityFitness) edge is the VO₂max/fitness channel (Kodama 2009 cardiorespiratory fitness pathway — autonomically and mechanistically DISTINCT from the cardiac-cycle pulsatile-fatigue path modeled here). The stiffness path currently has no other activity input, so there is no overlap at present; this is confirmed by the zero-shift at popMean activity (exerciseScale=0 → Δ=0 → no double-count at the calibration point). OPEN GAPS: #gap: Chen 2024 is in hypertensive patients (attenuated generalizability to general population); Reimers 2018 general-population point estimate not dose-resolved per min/wk; the −5.4 bpm figure should be reconciled against a future dose-response meta-analysis in non-hypertensive adults. #gap: no sex-differentiated coefficient (Nauman 2010 found stronger RHR-IHD association in women; Nordeidet 2024 found sex-specific GWAS architecture; sex-specific training response not characterized here). #gap/needs-mechanism: the blunted training bradycardia in older adults is NOT an age effect to capture with an age term. It is BLOCKING (not countering): intrinsic SA-node aging (pacemaker-cell loss / I_f-HCN4 substrate degradation, per the verified biomarker page) degrades the very substrate training remodels, so trainability is gated by SA-NODE PACEMAKER RESERVE -- an accumulating-damage state -- NOT chronological age. Do NOT add a chronological-age attenuation to this coeff: that would be a Tier-C age-peg (cf. age-hardcoding-audit.md C1 SBP->CVD betaAgeMod). The FLAT coeff is the honest age-NEUTRAL placeholder until SA-node reserve is modeled as a state node; when modeled it is a STATE-GATED coefficient (coeff*f(reserve)), NOT a separate countering driver. Primary anchor: [[biomarkers/resting-heart-rate-biomarker]] (verified 2026-06-11). ILLUSTRATIVE coeff; SOLID-direction (Chen 2024 / Reimers 2018)."
     },
     {
-      "from": "sarcopenia",
-      "to": "neurodegeneration",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "mediator",
+      "from": "BMI",
+      "to": "restingHR",
+      "evidenceStrength": "moderate",
+      "note": "stub: BMI->restingHR. Adiposity raises resting HR (reduced vagal tone + sympathetic activation; verified biomarker page Factors table). Direction SOLID; POPULATE BLOCKED: no verified primary-source Delta-bpm-per-kg/m2 dose-response yet (BMI->HR cross-sectional or MR study, e.g. Emdin 2017). Natural variable: bpm per kg/m2 above popMean BMI. #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "infection",
-      "kind": "frailty",
-      "beta": 1.5913
+      "kind": "stub",
+      "intendedKind": "mediator",
+      "from": "sleep",
+      "to": "restingHR",
+      "evidenceStrength": "moderate",
+      "note": "stub: sleep->restingHR. Short/disrupted sleep raises resting HR (sympathetic activation, incomplete nocturnal vagal recovery). Direction SOLID; POPULATE BLOCKED: no cited Delta-bpm-per-hour dose-response in the verified page. Natural variable: bpm per hour deviation from the 7-8h nadir (asymmetric, like the sleep->allcause uShape). #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "residual",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "mediator",
+      "from": "alcohol",
+      "to": "restingHR",
+      "evidenceStrength": "weak",
+      "note": "stub: alcohol->restingHR. Alcohol raises resting HR (acute autonomic effect; chronic heavy use via cardiomyopathy / autonomic neuropathy). WEAK/CONFOUNDED: NOT listed as a chronic RHR driver in the verified biomarker page. POPULATE only if a verified CHRONIC (non-acute, non-confounded) dose-response is established. #gap/needs-verified-source",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "diabetes",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "augment",
+      "fromState": "sinoatrial-node-reserve",
+      "mediator": "restingHR",
+      "evidenceStrength": "moderate",
+      "note": "stub: sinoatrial-node-reserve -> restingHR. The planned sinoatrial-node (heart's pacemaker) reserve state would (a) shift the intrinsic resting rate as the pacemaker substrate declines, and (b) GATE the physicalActivity->restingHR training coefficient (BLOCKING: trainability shrinks as reserve declines -- see that edge's #gap/needs-mechanism and age-hardcoding-audit.md). Coefficient-gating is not yet a standard edge type; rendered here as a state->mediator placeholder. Populate alongside the sinoatrial-node-reserve node. #gap/needs-mechanism",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "copd",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "coupling",
+      "from": "mitochondrial-dysfunction",
+      "to": "genomic-instability",
+      "evidenceStrength": "moderate",
+      "note": "stub: mitochondrial-dysfunction -> genomic-instability. Mitochondrial ROS (superoxide, H2O2) generated by dysfunctional complexes I/III escapes into the nucleus and causes oxidative DNA lesions (8-oxo-dG, strand breaks), directly contributing to the genomic-instability lesion load. Mechanism grounded in the verified genomic-instability atomic page (hallmarks/genomic-instability.md § Hypotheses: 'ROS-driven DNA damage (8-oxo-dG, strand breaks) contributes to the nuclear lesion load that constitutes genomic instability') and the superseded-but-evidence-retaining free-radical-theory-of-aging page. causal-graph-data.md does NOT list this edge in the 34-edge verified set -- it is inferred from the verified atomic page mechanism. Natural variable: β in normalized coupling gain (no physical-unit dose-response verified yet; no Mendelian-randomization study for mito-dysfunction → DNA-damage burden specifically). Mediation note: the existing mitochondrial-dysfunction → cellular-senescence (disputed) path carries some of the same biological signal (mito stress → DDR → senescence); populate pass must decompose -- the direct mito-ROS → nuclear-DNA-lesion mechanism is mechanistically prior to senescence, so a non-zero direct edge is plausible. #gap/needs-verified-source #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "ckd",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "coupling",
+      "from": "genomic-instability",
+      "to": "stem-cell-exhaustion",
+      "evidenceStrength": "moderate",
+      "note": "stub: genomic-instability -> stem-cell-exhaustion. Two distinct mechanisms: (1) CHIP -- somatic driver mutations (DNMT3A, TET2, ASXL1) in HSCs shift clonal composition and alter differentiation output (Jaiswal 2014 n=17,182; Genovese 2014 n=12,380; verified in hallmarks/genomic-instability.md and hematopoietic-stem-cells.md); this is a distinct path from the telomere-attrition → stem-cell-exhaustion or cellular-senescence → stem-cell-exhaustion edges. (2) p21-mediated arrest of stem-cell proliferative capacity via persistent DDR signaling (p21 KO in Terc−/− mice rescues stem function -- but that is via telomere-derived DDR; the broader DNA damage → p53/p21 → stem-cell quiescence/arrest mechanism applies to non-telomeric damage too). causal-graph-data.md does NOT list this edge in the 34-edge verified set; mechanism inferred from the verified atomic page (hallmarks/genomic-instability.md § Position in causal hierarchy + frontmatter key-phenotypes). Natural variable: β in normalized coupling gain. Mediation / double-count note: the coupling gain partially overlaps with genomic-instability → clonal-hematopoiesis → (atherosclerosis) path for CHIP, and with the genomic-instability → cellular-senescence → stem-cell-exhaustion chain for the p21 arm. Populate pass must apply mediation-decomposition to avoid double-counting. #gap/needs-verified-source #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "liver",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "coupling",
+      "from": "epigenetic-alterations",
+      "to": "genomic-instability",
+      "evidenceStrength": "weak",
+      "note": "stub: epigenetic-alterations -> genomic-instability. Epigenetic mechanisms regulate DNA repair fidelity: (1) SIRT1/SIRT6 (NAD+-dependent histone deacetylases) are required for DDR complex assembly and HR fidelity; declining NAD+ with age → SIRT1/SIRT6 loss → impaired DDR capacity → higher unrepaired lesion burden. (2) Age-related CpG methylation drift silences DDR/repair gene promoters (BRCA1 methylation in aged tissue, MLH1 methylation in sporadic colorectal cancer). (3) Heterochromatin erosion (H3K9me3 loss) with aging exposes repetitive elements to transcription → R-loops → replication stress → DSBs. WEAK: no verified primary-source dose-response for the epigenetic → repair-fidelity → lesion-rate quantitative link in the wiki; direction is biologically grounded but not verified at the strength of the 34-edge set. The verified epigenetic-alterations page notes the NAD+/SIRT1 link to DDR. causal-graph-data.md does not list this edge. Natural variable: β in normalized coupling gain. Populate blocker: a verified primary source for the epigenetic-regulation → DDR-fidelity quantitative relationship in aged human tissue. #gap/needs-verified-source #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "frailty",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "driver",
+      "from": "smoking",
+      "to": "genomic-instability",
+      "evidenceStrength": "strong",
+      "note": "stub: smoking->genomic-instability. Tobacco smoke polycyclic aromatic hydrocarbons (benzo[a]pyrene and related PAHs) form bulky DNA adducts on guanine N2/O6 positions; unrepaired adducts produce G→T transversions that define the tobacco mutational signature SBS4. Alexandrov et al. 2016 (Science, doi:10.1126/science.aag0299) quantified somatic mutation burden in 17 cancer types across 5,243 tumours: lung cancer (smoke-exposed) carries ~150 clonal mutations per year of smoking, directly scaling SBS4 burden with pack-years — the clearest human population-level dose-response linking a modifiable exposure to genomic-instability accrual rate. The mutagenic mechanism is mechanistically grounded in the verified genomic-instability atomic page (hallmarks/genomic-instability.md). Natural variable: β in ln(rate of somatic mutation accrual) per pack-year (cig/day × years / 20). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node (form: linear, t0:0.05, slope:0.01). Populating this driver term requires FIRST migrating genomic-instability from its age-curve to a ∫rate·dt state node (the de-age-pegging step, Phase C of the migration roadmap) — otherwise this exogenous forcing would be added on top of a hard-coded age line, double-driving the node. Until that migration, this stub is inert (engine excludes it). Mediation note: smoking already drives cancer directly (PAF 28.8%, existing live cause edge smokingStatus→cancer) via the bundled carcinogenesis route. When this driver stub is populated, the populate pass must mediation-decompose the cancer cause edge to subtract the genomic-instability-mediated slice — consistent with the route-once discipline (smoke→GI→cancer replaces part of the direct smoke→cancer bundled edge). POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response (Δ-mutation-burden per pack-year in non-cancer normal tissue, not just cancer-derived) is needed for the wiki — the Alexandrov 2016 anchor covers cancer-tissue mutation burden; normal-tissue equivalents (e.g. Blokzijl 2016 liver stem cells by smoking status) should be confirmed. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "provenance": "stub"
+    },
+    {
+      "kind": "stub",
+      "intendedKind": "driver",
+      "from": "alcohol",
+      "to": "genomic-instability",
+      "evidenceStrength": "strong",
+      "note": "stub: alcohol->genomic-instability. Ethanol is metabolized to acetaldehyde (by ADH enzymes) and further to acetate (by ALDH2). Acetaldehyde is a genotoxin: it crosslinks DNA bases (primarily N2-dG adducts and interstrand crosslinks) and depletes glutathione. Garaycoechea & Patel et al. 2018 (Nature, doi:10.1038/nature25154) provide the canonical mechanistic anchor using ALDH2-/-/FANCD2-/- double-knockout mice: loss of both acetaldehyde clearance (ALDH2) and Fanconi anemia DNA repair (FANCD2) produces severe HSC genotoxicity and acute bone marrow failure, establishing that acetaldehyde-induced DNA damage is a primary driver of hematopoietic stem cell genomic instability in the absence of repair. The mechanism is grounded in the verified hallmarks/genomic-instability.md page (progeroid syndromes section: Fanconi anemia as DDR-defect phenocopy of accelerated aging). Natural variable: β in ln(rate of acetaldehyde-DNA adduct accrual) per g/day ethanol (linked to acetaldehyde area-under-curve, which varies by ALDH2 genotype — a key effect modifier). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node. Populating this driver term requires FIRST migrating genomic-instability to a ∫rate·dt state node. Until that migration, this stub is inert. Mediation note: alcohol already drives liver mortality directly (existing live cause edge alcohol→liver via the alcoholThreshold form). The genomic-instability-mediated path from alcohol carries a DISTINCT downstream effect (cancer risk elevation via DNA damage, particularly esophageal/head-and-neck/colorectal SBS16 signature) and is NOT double-counted with the liver edge. However, when populating, confirm that cancer cause edges are not double-counting the alcohol-genomic-instability-cancer chain against the liver edge. POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response for acetaldehyde → DNA-adduct burden per g/day ethanol in human tissue is needed in the wiki — the Garaycoechea/Patel 2018 anchor is mouse DKOKOD mechanistic; a human epidemiological dose-response (e.g. alcohol-associated SBS16 burden per unit drink/day in normal tissue) should be confirmed. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "provenance": "stub"
+    },
+    {
+      "kind": "stub",
+      "intendedKind": "driver",
+      "from": "airPollution",
+      "to": "genomic-instability",
+      "evidenceStrength": "moderate",
+      "note": "stub: airPollution->genomic-instability. Ambient particulate matter (PM2.5) is classified IARC Group 1 human carcinogen (IARC Monograph vol. 109, 2015). Two genotoxic mechanisms: (1) PAH adsorbed on fine particles form bulky DNA adducts (structural similarity to tobacco SBS4 mechanism, but lower dose per µg/m³ than direct smoking); (2) oxidative stress from reactive oxygen species generated by transition metals (iron, copper) on PM2.5 surface → 8-oxo-dG, strand breaks. Lung cancer dose-response in the GBD/Burnett 2018 integrated exposure-response (IER) model provides the best-characterized population-level link. Natural variable: β in ln(rate of DNA-damage accrual) per µg/m³ PM2.5 annual mean (WHO guideline threshold 5 µg/m³; US EPA NAAQS 12 µg/m³; global range 5–200 µg/m³ in high-pollution urban settings). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node. Populating this driver term requires FIRST migrating genomic-instability to a ∫rate·dt state node. Until that migration, this stub is inert. Mediation note: airPollution already drives COPD and cardiovascular mortality directly (existing live cause edges airPollution→copd, airPollution→cardiovascular). The genomic-instability-mediated path from airPollution represents the carcinogenic/mutagenic channel (lung cancer, bladder cancer via particle-mediated systemic adducts) and is DISTINCT from the inflammatory/bronchospasm COPD channel and the oxidative-endothelial CVD channel — not a double-count. However, when populating, mediation-decompose the cancer cause edge to avoid double-counting the PM2.5→GI→cancer chain against any direct PM2.5→cancer edge that might be added. POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response for PM2.5 → DNA-adduct/oxidative-lesion burden per µg/m³ in human tissue is needed in the wiki — the IARC Group 1 classification confirms carcinogenicity but the dose-response per unit exposure in terms of lesion accrual rate is not yet verified in the wiki. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "provenance": "stub"
     }
   ],
   "bLayer": {
@@ -3505,6 +3565,14 @@
           ]
         },
         "provenance": "ALGEBRAIC physiology node (2026-06-10; A3 + B0). value(age) = Σ contributions AT each age, NOT ∫rate·dt: stiffness is the CURRENT consequence of currently-accumulated damage, and its inputs are themselves time-integrals / burdens. cfPWV proxy = 0.50·elastin-fatigue + 0.30·ecm-crosslink + 0.80·cellular-senescence; weights ILLUSTRATIVE and ELASTIN-DOMINANT (elastin fragmentation is the dominant structural driver, AGE crosslinking secondary — phenotypes/arterial-stiffening.md), normalized so the population male trajectory ~1.0 at age 80, with the senescence term carrying ~20% of stiffness@80 (Clayton 2023: senolytics reverse ~20% aortic PWV in mice). **B0 (2026-06-10) cleared the deferred senescence term**: `cellular-senescence` is a NODE-layer burden (B), now readable from the state-node phase because simulate() passes node burdens into mediators() (the node↔state-node seam dismantled for the node→state-node direction). So a senescence-FREEZE intervention now lowers arterial stiffness — the first node→state-node mechanistic edge. NOT YET wired to SBP/mortality (that is Phase B3: stiffness → SBP/CVD, with mediation-decomposition of the redundant direct edges). Illustrative; SOLID-direction."
+      },
+      {
+        "id": "sinoatrial-node-reserve",
+        "class": "damage",
+        "units": "normalized",
+        "label": "Sinoatrial-node reserve",
+        "provenance": "stub",
+        "note": "STUB (planned, not yet modeled; engine-inert, rendered greyed). The sinoatrial node is the heart's pacemaker; its functional reserve declines cumulatively with age via pacemaker-cell loss + I_f/HCN4 funny-current substrate degradation (per the verified resting-heart-rate biomarker page). Intended as a rate-integrated state node (integral of an SA-node-aging rate over time) that GATES the physicalActivity->restingHR training coefficient (BLOCKING, not countering: training bradycardia is blunted when reserve is low, NOT because age blocks it) and shifts the intrinsic resting rate. Has no rate/value yet by design. See age-hardcoding-audit.md and the sinoatrial-node-reserve->restingHR stub edge."
       }
     ],
     "stateAugmentsNote": "STATE→MEDIATOR AUGMENTS (2026-06-10; β-cell→HbA1c vertical). Each {fromState, mediator, coeff} injects coeff·stateValue INTO a mediator mid-march (per-age, AFTER the mediator phase + offsets, BEFORE state rates advance), so a state node's accumulated value can re-shape a mediator trajectory that the SAME march's downstream integrals then read. coeff is a number or a {male,female} map. This is the substrate that lets an emergent damage variable un-pin a formerly age-tabled mediator: β-cell-decline → HbA1c replaces the HbA1c age-table with a flat 5.3 baseline + the emergent rise. Anchoring stays exact in Increment 2 because the augment is input-independent (constant base rate), so computeOffsets' post-augment prediction cancels; Increment 3 (glucotox feedback makes the augment input-dependent) revisits anchor semantics.",

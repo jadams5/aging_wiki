@@ -125,6 +125,19 @@
     color: #2e86c1; text-decoration: none; font-weight: 600; white-space: nowrap; margin-left: 4px;
   }
   #graphNodeInfo a.gni-link:hover { text-decoration: underline; }
+  /* collapsible derived "how it computes" panel */
+  #graphNodeInfo .nc { margin-top: 6px; font-size: 11px; }
+  #graphNodeInfo .nc > summary { cursor: pointer; color: #2e86c1; font-weight: 600; list-style: none; }
+  #graphNodeInfo .nc > summary::-webkit-details-marker { display: none; }
+  #graphNodeInfo .nc-b { margin: 4px 0 0 2px; border-left: 2px solid #e3e8ee; padding-left: 7px; }
+  #graphNodeInfo .nc-b > div { margin: 3px 0; }
+  #graphNodeInfo .nc-k { display: inline-block; min-width: 56px; color: var(--muted); text-transform: uppercase; font-size: 9px; letter-spacing: .04em; vertical-align: top; }
+  #graphNodeInfo .nc-f { font-family: ui-monospace, monospace; font-size: 10.5px; white-space: pre-wrap; color: #2c3e50; }
+  #graphNodeInfo .nc-age-keyed { color: #c0392b; }
+  #graphNodeInfo .nc-age-emergent { color: #1e8449; }
+  #graphNodeInfo .nc ul { margin: 2px 0; padding-left: 15px; }
+  #graphNodeInfo .nc li { font-family: ui-monospace, monospace; font-size: 10px; color: #34495e; }
+  #graphNodeInfo .nc-stub { color: #8a94a0; font-style: italic; }  /* planned/β-pending stub edge, matches the graph's grey-dashed */
   .legend { font-size: 11px; color: var(--muted); }
   .legend .item { display: inline-block; white-space: nowrap; margin: 0 10px 4px 0; }
   .legend .item > svg, .legend .swatch, .legend .infodot { vertical-align: middle; }
@@ -461,8 +474,9 @@ function curveT(node, sex, age, AGE0 = 20) {
 // Cause order for the competing-hazards decomposition (v0.4.1: residual split into
 // named CDC causes — diabetes/COPD/CKD/liver — so the stacked chart + readout show
 // them; residual stays last as the unmodeled remainder).
-// Op B 2026-06-11: added "frailty" (falls W00-W19 + malnutrition E40-E46) before "residual".
-const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "diabetes", "copd", "ckd", "liver", "frailty", "residual"];
+// Op B 2026-06-11: added the falls bucket (W00-W19 falls + E40-E46 malnutrition, bundled)
+// before "residual"; RENAMED "frailty" → "falls" 2026-06-11 (the cause was never frailty).
+const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration", "infection", "diabetes", "copd", "ckd", "liver", "falls", "residual"];
 
 /**
  * simulate(MODEL, opts) — integrate the v0.3 model forward over age.
@@ -486,7 +500,14 @@ const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration"
 // Legacy fallback: if MODEL.edges carries no `kind` tags (pre-unification data), read the
 // old coupling array + bLayer.{causeEdges,mediatorEdges,stateAugments} + frailty.betaByCause.
 function edgesByKind(MODEL) {
-  const E = MODEL.edges || [];
+  // STRUCTURAL STUBS are excluded from ALL execution here, at the single partition
+  // point — so a stub is inert by construction, independent of any per-form zero value
+  // (`beta:0` does NOT neutralize forms like mediatorThresholdRamp, which read slope/
+  // threshold/cap, and a zero-beta frailty edge would otherwise OVERWRITE the live beta
+  // for its target in the betaByCause map below). The viz still renders stubs (it reads
+  // MODEL.edges directly). A stub is any edge tagged kind:"stub" or provenance:"stub".
+  // See sops/adding-causal-graph-nodes.md § 0a.
+  const E = (MODEL.edges || []).filter((e) => e.kind !== "stub" && e.provenance !== "stub");
   const kinded = E.some((e) => e.kind);
   const B = MODEL.bLayer || {};
   const fr = (MODEL.mortality && MODEL.mortality.frailty) || {};
@@ -515,7 +536,11 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
   const N_AGE = AGES.length;
 
-  const NODES = MODEL.nodes;
+  // STUB NODES (provenance:"stub") are excluded from the simulation here — the single point
+  // where MODEL.nodes enters the engine — so a planned-but-unmodeled node (e.g. a future
+  // sinoatrial-node-reserve state) is inert by construction, exactly like a kind:"stub" edge.
+  // The viz still renders it (greyed) so the gap is VISIBLE on the graph. See § stub rung.
+  const NODES = (MODEL.nodes || []).filter((n) => n.provenance !== "stub");
   const NN = NODES.length;
   const NODE_IDX = {};
   NODES.forEach((n, i) => { NODE_IDX[n.id] = i; });
@@ -626,7 +651,20 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
     const list = causeEdgesByTarget[target];
     if (!list) return 1;
     let m = 1;
-    for (const e of list) m *= causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean);
+    for (const e of list) {
+      // node-source cause edge (e.g. sarcopenia→falls): a phenotype/hallmark NODE drives a
+      // specific cause's hazard via exp(β·(B−T)) — the SAME multiplicative form as a mediator
+      // cause edge (e.g. LDL→cardiovascular), only the source is a burden-layer node read as its
+      // deviation from baseline trajectory, not a clinical mediator. This is the regular
+      // driver→cause edge; it REPLACES the legacy per-cause `frailty` multiplier for one named
+      // cause. (The `frailty` KIND remains for a future non-specific reserve node: one source ×
+      // MANY causes — which is a genuinely different shape.)
+      if (e.form === "nodeLogLinear") {
+        m *= Math.exp(e.beta * (nodeBurdensLive[e.from][k] - nodeBurdensBase[e.from][k]));
+      } else {
+        m *= causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean);
+      }
+    }
     return m;
   }
 
@@ -1154,7 +1192,7 @@ function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nod
   // age — the diabetes-spiral feedback. With no augments this is bit-identical to the former
   // per-node loop: within a step, integrated nodes publish their accumulator, algebraic nodes
   // (topo-ordered) compute Σ value-terms, then integrated nodes advance by rate(k)·DT.
-  const stateNodes = b.stateNodes || b.stocks || [];
+  const stateNodes = (b.stateNodes || b.stocks || []).filter((s) => s.provenance !== "stub");  // stub state nodes are inert (rendered greyed by the viz)
   const ordered = topoSortStateNodes(stateNodes);
   const integ = {};                                   // running accumulators for integrated nodes
   for (const s of ordered) { out[s.id] = new Array(AGES.length); if (!s.value) integ[s.id] = s.initial ?? 0; }
@@ -1324,7 +1362,7 @@ const MODEL = {
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
       "lifestyleMult": 1,
-      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (frailty, not lifestyle).",
+      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (they live in the separate 'falls' terminal cause W00-W19, NOT lifestyle-scaled — a future external-injury merge would fold them back under one umbrella while keeping this non-fall component lifestyle-scaled; see PROJECT-NOTES § frailty).",
       "byAge": {
         "male": [
           [
@@ -1398,7 +1436,20 @@ const MODEL = {
     },
     "frailty": {
       "node": "sarcopenia",
-      "note": "B2 (2026-06-08): CAUSE-SPECIFIC frailty multiplier. Peng 2022 frail-vs-robust cause-specific HRs: respiratory 4.91->infection, CV 2.64->cardiovascular, cancer 1.97->cancer; general ~2.4->neurodegeneration/residual. beta_cause = ln(HR) for a FULL-span (robust->frail) sarcopenia deviation (B-T). =1 at baseline. Replaces the global beta 0.6, which was mis-anchored to a wrong Kojima 1.83 (real frail-vs-robust ~2.4, Peng 2022)."
+      "DISABLED": true,
+      "betaByCause_DISABLED_gap": {
+        "cardiovascular": 0.9708,
+        "cancer": 0.678,
+        "neurodegeneration": 0.8755,
+        "infection": 1.5913,
+        "diabetes": 0.8755,
+        "copd": 0.8755,
+        "ckd": 0.8755,
+        "liver": 0.8755,
+        "falls": 0.8755,
+        "residual": 0.8755
+      },
+      "note": "DISABLED 2026-06-11 (frailty EDGES removed from MODEL.edges). Was a cause-specific frailty multiplier exp(beta_cause·(sarcopenia B−T)) on EVERY intrinsic cause. REMOVED: it was identified with the SARCOPENIA node (an age sigmoid) yet carried Peng-2022 frail-vs-ROBUST cause-specific HRs, so a sarcopenia intervention implausibly bought less liver/CKD/cancer death (the entire 4.137-yr sarcopenia ΔLE was this multiplier — sarcopenia has no other modeled mortality path). Two reasons it could not just be renamed: (1) deviation-form (=1 at baseline) ⇒ it explained NO baseline mortality, only granted intervention benefits — not a real reserve state; (2) Peng frail-vs-robust HRs bundle disability/comorbidity/severity/reverse-causation and cannot be transplanted onto a normalized 0→1 latent without calibration. Betas PARKED above as #gap/needs-independent-modeling — NOT executed (the engine reads frailty edges, which are gone; this key is non-functional). A real physiologic-reserve state (own observable trajectory + baseline calibration + evidence interventions move it) is the future replacement — see model/PROJECT-NOTES.md § frailty. #gap/no-mechanism"
     },
     "causes": {
       "cardiovascular": {
@@ -1469,13 +1520,14 @@ const MODEL = {
         "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
         "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: SWAP-TO-2022 pending."
       },
-      "frailty": {
-        "node": "frailty-mortality",
+      "falls": {
+        "node": "falls-mortality",
         "RmaxPerYear": {
-          "male": 0.003927,
-          "female": 0.003593
+          "male": 0.003112,
+          "female": 0.002569
         },
-        "cdc": "W00-W19 falls + E40-E46 malnutrition, CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending"
+        "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). SWAP-TO-2022 pending. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
+        "provenance": "calibrated"
       }
     },
     "residual": {
@@ -1483,897 +1535,897 @@ const MODEL = {
         "male": [
           [
             20,
-            0.000106825669
+            0.000106825
           ],
           [
             21,
-            0.000116394703
+            0.000116385
           ],
           [
             22,
-            0.000122493954
+            0.000122462
           ],
           [
             23,
-            0.000126599355
+            0.000126536
           ],
           [
             24,
-            0.000130180776
+            0.000130085
           ],
           [
             25,
-            0.000134702387
+            0.000134577
           ],
           [
             26,
-            0.000141622316
+            0.000141478
           ],
           [
             27,
-            0.000152391554
+            0.000152244
           ],
           [
             28,
-            0.000168452019
+            0.000168324
           ],
           [
             29,
-            0.000191233692
+            0.000191152
           ],
           [
             30,
-            0.000222150686
+            0.00022215
           ],
           [
             31,
-            0.000252943775
+            0.000253061
           ],
           [
             32,
-            0.000275607382
+            0.000275877
           ],
           [
             33,
-            0.000291913392
+            0.000292364
           ],
           [
             34,
-            0.000303624164
+            0.000304277
           ],
           [
             35,
-            0.000312492122
+            0.000313364
           ],
           [
             36,
-            0.000320257492
+            0.000321358
           ],
           [
             37,
-            0.000328644181
+            0.000329978
           ],
           [
             38,
-            0.000339353768
+            0.000340919
           ],
           [
             39,
-            0.000354057582
+            0.000355847
           ],
           [
             40,
-            0.000374386788
+            0.000376386
           ],
           [
             41,
-            0.000396449373
+            0.000398605
           ],
           [
             42,
-            0.000416416062
+            0.000418661
           ],
           [
             43,
-            0.000435946021
+            0.00043824
           ],
           [
             44,
-            0.000456661375
+            0.000458995
           ],
           [
             45,
-            0.000480145115
+            0.000482537
           ],
           [
             46,
-            0.000507933949
+            0.000510432
           ],
           [
             47,
-            0.000541505757
+            0.000544188
           ],
           [
             48,
-            0.000582260907
+            0.000585235
           ],
           [
             49,
-            0.000631496179
+            0.0006349
           ],
           [
             50,
-            0.000690369224
+            0.00069437
           ],
           [
             51,
-            0.000752267269
+            0.000756983
           ],
           [
             52,
-            0.000810837067
+            0.000816329
           ],
           [
             53,
-            0.000867585392
+            0.000873932
           ],
           [
             54,
-            0.000924235402
+            0.000931532
           ],
           [
             55,
-            0.000982846387
+            0.000991206
           ],
           [
             56,
-            0.00104592147
+            0.001055474
           ],
           [
             57,
-            0.00111647343
+            0.001127369
           ],
           [
             58,
-            0.00119800375
+            0.001210409
           ],
           [
             59,
-            0.00129434457
+            0.001308445
           ],
           [
             60,
-            0.00140933313
+            0.001425335
           ],
           [
             61,
-            0.00150669079
+            0.001524539
           ],
           [
             62,
-            0.00156061359
+            0.001580087
           ],
           [
             63,
-            0.00158996067
+            0.001611004
           ],
           [
             64,
-            0.00161304195
+            0.001635765
           ],
           [
             65,
-            0.00164756885
+            0.001672253
           ],
           [
             66,
-            0.00171052225
+            0.001737622
           ],
           [
             67,
-            0.00181793081
+            0.00184808
           ],
           [
             68,
-            0.00198455043
+            0.002018566
           ],
           [
             69,
-            0.0022234297
+            0.002262327
           ],
           [
             70,
-            0.00254533908
+            0.002590342
           ],
           [
             71,
-            0.00275472002
+            0.002806408
           ],
           [
             72,
-            0.00272137731
+            0.00277977
           ],
           [
             73,
-            0.00255041938
+            0.002615899
           ],
           [
             74,
-            0.00234459687
+            0.00241794
           ],
           [
             75,
-            0.00220380746
+            0.002286214
           ],
           [
             76,
-            0.00222515526
+            0.0023183
           ],
           [
             77,
-            0.00250132694
+            0.002607417
           ],
           [
             78,
-            0.00311819067
+            0.003240053
           ],
           [
             79,
-            0.00415344617
+            0.004294645
           ],
           [
             80,
-            0.00567379097
+            0.005838791
           ],
           [
             81,
-            0.00766954843
+            0.007864967
           ],
           [
             82,
-            0.0099565565
+            0.010190503
           ],
           [
             83,
-            0.0123242569
+            0.012604983
           ],
           [
             84,
-            0.0145603844
+            0.014896294
           ],
           [
             85,
-            0.0164586908
+            0.016858246
           ],
           [
             86,
-            0.0178298955
+            0.018301362
           ],
           [
             87,
-            0.018513613
+            0.019064589
           ],
           [
             88,
-            0.0183956171
+            0.019032279
           ],
           [
             89,
-            0.0174297577
+            0.018155759
           ],
           [
             90,
-            0.0156595087
+            0.016474509
           ],
           [
             91,
-            0.017196664
+            0.018100225
           ],
           [
             92,
-            0.0186847361
+            0.019679996
           ],
           [
             93,
-            0.0201996682
+            0.021290102
           ],
           [
             94,
-            0.0218159855
+            0.023005584
           ],
           [
             95,
-            0.0236064049
+            0.024899905
           ],
           [
             96,
-            0.0256413582
+            0.027044545
           ],
           [
             97,
-            0.0279883821
+            0.02950848
           ],
           [
             98,
-            0.0307113013
+            0.032357493
           ],
           [
             99,
-            0.0338690722
+            0.035653187
           ],
           [
             100,
-            0.0375140635
+            0.039451512
           ],
           [
             101,
-            0.0413079873
+            0.04341544
           ],
           [
             102,
-            0.0449898002
+            0.047283295
           ],
           [
             103,
-            0.0487202767
+            0.051217632
           ],
           [
             104,
-            0.0526587592
+            0.05537976
           ],
           [
             105,
-            0.056963173
+            0.059929747
           ],
           [
             106,
-            0.0617901459
+            0.065026534
           ],
           [
             107,
-            0.0672952852
+            0.07082818
           ],
           [
             108,
-            0.0736336948
+            0.07749231
           ],
           [
             109,
-            0.0809608426
+            0.085176888
           ],
           [
             110,
-            0.0894339193
+            0.094041408
           ],
           [
             111,
-            0.0982909898
+            0.103323056
           ],
           [
             112,
-            0.106928313
+            0.112417498
           ],
           [
             113,
-            0.115739551
+            0.121721256
           ],
           [
             114,
-            0.125112379
+            0.131625619
           ],
           [
             115,
-            0.135425728
+            0.142514237
           ],
           [
             116,
-            0.147045906
+            0.154759722
           ],
           [
             117,
-            0.160321101
+            0.168718841
           ],
           [
             118,
-            0.175573489
+            0.184725616
           ],
           [
             119,
-            0.193087639
+            0.203081177
           ],
           [
             120,
-            0.213092902
+            0.224038364
           ],
           [
             121,
-            0.23655266
+            0.248531014
           ],
           [
             122,
-            0.263858349
+            0.276897861
           ],
           [
             123,
-            0.294288712
+            0.308418065
           ],
           [
             124,
-            0.327052689
+            0.34230985
           ],
           [
             125,
-            0.361258028
+            0.377703121
           ],
           [
             126,
-            0.39587067
+            0.413604028
           ],
           [
             127,
-            0.429653657
+            0.448841676
           ],
           [
             128,
-            0.461060418
+            0.481975043
           ],
           [
             129,
-            0.488026025
+            0.511110933
           ],
           [
             130,
-            0.507518852
+            0.533513063
           ]
         ],
         "female": [
           [
             20,
-            0.0000578837393
+            0.000057882
           ],
           [
             21,
-            0.0000653398366
+            0.000065418
           ],
           [
             22,
-            0.000073144059
+            0.000073277
           ],
           [
             23,
-            0.0000811660172
+            0.000081341
           ],
           [
             24,
-            0.0000893055881
+            0.00008952
           ],
           [
             25,
-            0.0000974893076
+            0.000097751
           ],
           [
             26,
-            0.000105666623
+            0.000105995
           ],
           [
             27,
-            0.000113805936
+            0.00011423
           ],
           [
             28,
-            0.000121890351
+            0.000122451
           ],
           [
             29,
-            0.000129913069
+            0.000130662
           ],
           [
             30,
-            0.000137872307
+            0.000138871
           ],
           [
             31,
-            0.000145070702
+            0.000146306
           ],
           [
             32,
-            0.000151084046
+            0.000152472
           ],
           [
             33,
-            0.000156334546
+            0.000157812
           ],
           [
             34,
-            0.000161260071
+            0.000162783
           ],
           [
             35,
-            0.000166310395
+            0.000167855
           ],
           [
             36,
-            0.000175460059
+            0.000177023
           ],
           [
             37,
-            0.00019223568
+            0.000193834
           ],
           [
             38,
-            0.000216103728
+            0.000217773
           ],
           [
             39,
-            0.000246365398
+            0.000248163
           ],
           [
             40,
-            0.000271623631
+            0.000273625
           ],
           [
             41,
-            0.000288660184
+            0.000290922
           ],
           [
             42,
-            0.000302904901
+            0.000305451
           ],
           [
             43,
-            0.000315664219
+            0.00031852
           ],
           [
             44,
-            0.000328222382
+            0.000331418
           ],
           [
             45,
-            0.000341840403
+            0.000345407
           ],
           [
             46,
-            0.000357753139
+            0.000361726
           ],
           [
             47,
-            0.000377164111
+            0.00038158
           ],
           [
             48,
-            0.00040123746
+            0.000406138
           ],
           [
             49,
-            0.000431086066
+            0.000436514
           ],
           [
             50,
-            0.000467754474
+            0.000473756
           ],
           [
             51,
-            0.000505332549
+            0.000511893
           ],
           [
             52,
-            0.000538748785
+            0.000545816
           ],
           [
             53,
-            0.000570265837
+            0.000577826
           ],
           [
             54,
-            0.000602200447
+            0.000610281
           ],
           [
             55,
-            0.000636945495
+            0.000645612
           ],
           [
             56,
-            0.000676985036
+            0.000686344
           ],
           [
             57,
-            0.000724898697
+            0.000735096
           ],
           [
             58,
-            0.00078335123
+            0.000794574
           ],
           [
             59,
-            0.000855063372
+            0.00086754
           ],
           [
             60,
-            0.000942762107
+            0.000956762
           ],
           [
             61,
-            0.00101325215
+            0.001028686
           ],
           [
             62,
-            0.00104337459
+            0.001059909
           ],
           [
             63,
-            0.00105057625
+            0.001068096
           ],
           [
             64,
-            0.00105190858
+            0.001070516
           ],
           [
             65,
-            0.00106397906
+            0.001083999
           ],
           [
             66,
-            0.00110283498
+            0.001124816
           ],
           [
             67,
-            0.00118377465
+            0.001208492
           ],
           [
             68,
-            0.00132107913
+            0.001349544
           ],
           [
             69,
-            0.00152765373
+            0.001561125
           ],
           [
             70,
-            0.00181456311
+            0.001854563
           ],
           [
             71,
-            0.00196642664
+            0.002013539
           ],
           [
             72,
-            0.00184163587
+            0.00189566
           ],
           [
             73,
-            0.00155867656
+            0.001619942
           ],
           [
             74,
-            0.00123378943
+            0.001303189
           ],
           [
             75,
-            0.000980422713
+            0.00105945
           ],
           [
             76,
-            0.000907495984
+            0.0009983
           ],
           [
             77,
-            0.00111882315
+            0.001224285
           ],
           [
             78,
-            0.00171183755
+            0.001835681
           ],
           [
             79,
-            0.00277378597
+            0.002920733
           ],
           [
             80,
-            0.00437739789
+            0.004553398
           ],
           [
             81,
-            0.00647885687
+            0.006692754
           ],
           [
             82,
-            0.00884861007
+            0.009111255
           ],
           [
             83,
-            0.0112574697
+            0.011579951
           ],
           [
             84,
-            0.0134719358
+            0.013865632
           ],
           [
             85,
-            0.0152659782
+            0.015742448
           ],
           [
             86,
-            0.0164388119
+            0.017009449
           ],
           [
             87,
-            0.0168357054
+            0.017511061
           ],
           [
             88,
-            0.0163764572
+            0.017165107
           ],
           [
             89,
-            0.0150936376
+            0.016000487
           ],
           [
             90,
-            0.0131703842
+            0.014194384
           ],
           [
             91,
-            0.0143597003
+            0.015499107
           ],
           [
             92,
-            0.0155199121
+            0.016777664
           ],
           [
             93,
-            0.0167235754
+            0.018102899
           ],
           [
             94,
-            0.0180400998
+            0.0195448
           ],
           [
             95,
-            0.0195348467
+            0.02116969
           ],
           [
             96,
-            0.0212680891
+            0.023039291
           ],
           [
             97,
-            0.0232937173
+            0.02520957
           ],
           [
             98,
-            0.0256574777
+            0.027729166
           ],
           [
             99,
-            0.028394369
+            0.030637053
           ],
           [
             100,
-            0.031524531
+            0.033958822
           ],
           [
             101,
-            0.0347432629
+            0.037391154
           ],
           [
             102,
-            0.037838771
+            0.040720413
           ],
           [
             103,
-            0.0409546009
+            0.044092383
           ],
           [
             104,
-            0.0442327622
+            0.047651541
           ],
           [
             105,
-            0.0478137511
+            0.051541078
           ],
           [
             106,
-            0.0518366845
+            0.055903018
           ],
           [
             107,
-            0.0564396104
+            0.060878486
           ],
           [
             108,
-            0.0617600776
+            0.066608203
           ],
           [
             109,
-            0.0679360935
+            0.073233309
           ],
           [
             110,
-            0.0751076142
+            0.080896655
           ],
           [
             111,
-            0.0825846646
+            0.088907162
           ],
           [
             112,
-            0.089820358
+            0.096717199
           ],
           [
             113,
-            0.0971685048
+            0.104684168
           ],
           [
             114,
-            0.104976483
+            0.11315999
           ],
           [
             115,
-            0.11358226
+            0.122488559
           ],
           [
             116,
-            0.123310204
+            0.133002164
           ],
           [
             117,
-            0.13446515
+            0.145016421
           ],
           [
             118,
-            0.147323894
+            0.158823008
           ],
           [
             119,
-            0.162122672
+            0.17467897
           ],
           [
             120,
-            0.179038168
+            0.192790503
           ],
           [
             121,
-            0.198983547
+            0.214033651
           ],
           [
             122,
-            0.22238382
+            0.238767207
           ],
           [
             123,
-            0.248583656
+            0.266336364
           ],
           [
             124,
-            0.276852881
+            0.296022615
           ],
           [
             125,
-            0.306352887
+            0.327015187
           ],
           [
             126,
-            0.336093169
+            0.358374099
           ],
           [
             127,
-            0.364865976
+            0.388974603
           ],
           [
             128,
-            0.391132188
+            0.417410195
           ],
           [
             129,
-            0.412798195
+            0.441803036
           ],
           [
             130,
-            0.426737011
+            0.459397222
           ]
         ]
       },
-      "note": "DENSE per-integer-age remainder, HARMONIZED to CDC WONDER 2019 all-cause (no COVID). = 2019 all-cause − all bands − extrinsic at every integer age (≤90 from data; >90 re-anchored old-age escalation). 2026-06-11."
+      "note": "DENSE per-integer-age remainder, HARMONIZED to CDC WONDER 2019 all-cause (no COVID). = 2019 all-cause − all bands − extrinsic at every integer age (≤90 from data; >90 re-anchored old-age escalation). 2026-06-11. UPDATED 2026-06-11: E40-E46 malnutrition mass rebucketed from falls cause into residual (engine-based recompute: residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual)). #gap: array written at ~9 sig figs ⇒ baseline LE drifts ~1e-7 from the empirical anchor (vs the SOP 1e-9 ideal) — below test tolerance + harmless, but regenerate the dense residual at FULL float precision to restore exactness."
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
@@ -3493,43 +3545,43 @@ const MODEL = {
       }
     },
     {
-      "id": "frailty-mortality",
-      "label": "Frailty / failure-to-thrive",
+      "id": "falls-mortality",
+      "label": "Falls (external injury)",
       "layer": "phenotype",
       "tractability": "moderate",
-      "provenance": "calibrated. Op B 2026-06-11: new cause node. CDC WONDER D76 2019 W00-W19 (falls) + E40-E46 (malnutrition) per sex x ten-year age. Rmax = age-90 (85+ band) anchor. Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. betaByCause=0.8755 (reuse residual beta; deliberate behavior-invariant pass). #gap: falls-specific frailty HR (Peng 2022 respiratory 4.9x) deferred; SWAP-TO-2022 pending; R54 senility + J69 aspiration deferred (stay in residual).",
+      "provenance": "calibrated. Op A split 2026-06-11: E40-E46 malnutrition removed from the falls bucket; falls cause is now W00-W19 only. CDC WONDER D76 2019 W00-W19 (individual codes W00-W19) per sex x ten-year age. RmaxPerYear = 85+ band rate (311.2/100k M, 256.9/100k F). Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. Malnutrition mass (E40-E46, 2019 net rates: M 81.5/100k @85+, F 102.4/100k @85+) rebucketed into dense residual via engine-based recompute (residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual) at every integer age 20-130). sarcopenia→falls frailty edge (β 0.6366, Yeung 2019) unchanged. #gap: external-injury merge deferred; SWAP-TO-2022 pending; R54 senility + J69 aspiration stay in residual.",
       "role": "mortality-cause",
-      "mortalityCause": "frailty",
+      "mortalityCause": "falls",
       "curve": {
         "form": "table",
         "byAge": [
           [
             20,
-            0.001779
+            0.002244
           ],
           [
             30,
-            0.003046
+            0.003841
           ],
           [
             40,
-            0.005571
+            0.006386
           ],
           [
             50,
-            0.012324
+            0.014254
           ],
           [
             60,
-            0.02773
+            0.029925
           ],
           [
             70,
-            0.064109
+            0.067146
           ],
           [
             80,
-            0.198408
+            0.20592
           ],
           [
             90,
@@ -3556,31 +3608,31 @@ const MODEL = {
           "byAge": [
             [
               20,
-              0.000556
+              0.000778
             ],
             [
               30,
-              0.000834
+              0.000778
             ],
             [
               40,
-              0.002222
+              0.00233
             ],
             [
               50,
-              0.005536
+              0.00542
             ],
             [
               60,
-              0.015616
+              0.016462
             ],
             [
               70,
-              0.043906
+              0.046399
             ],
             [
               80,
-              0.167709
+              0.17581
             ],
             [
               90,
@@ -3608,11 +3660,11 @@ const MODEL = {
     },
     {
       "id": "sarcopenia",
-      "label": "Sarcopenia / frailty",
+      "label": "Sarcopenia (muscle)",
       "layer": "phenotype",
       "tractability": "moderate",
-      "provenance": "anchored-direction",
-      "role": "frailty-multiplier",
+      "provenance": "anchored-direction. 2026-06-11: DISCONNECTED from the global cause multiplier (was role:frailty-multiplier). 2026-06-12: now an ORDINARY causal driver (role:driver, like clonal-hematopoiesis) — drives the falls cause via a regular node-source cause edge (sarcopenia→falls, form nodeLogLinear), NOT a special frailty multiplier. The age-sigmoid value is itself age-pegged (migration target: ∫rate·dt).",
+      "role": "driver",
       "curve": {
         "form": "sigmoid",
         "params": {
@@ -4213,63 +4265,109 @@ const MODEL = {
     },
     {
       "from": "sarcopenia",
-      "to": "cardiovascular",
-      "kind": "frailty",
-      "beta": 0.9708
+      "to": "falls",
+      "kind": "cause",
+      "form": "nodeLogLinear",
+      "beta": 0.6366,
+      "provenance": "calibrated 2026-06-11 (populated from the sarcopenia→falls stub); UNIFIED 2026-06-12: kind frailty→cause (form nodeLogLinear). This is a regular node-source driver→cause edge — the SAME multiplicative exp(β·(B−T)) form as a mediator cause edge (cf. LDL→cardiovascular), just sourced from a burden-layer node — NOT a special 'frailty amplifier'. sarcopenia is now an ordinary causal driver of the falls cause (structural twin of clonal-hematopoiesis→atherosclerosis). The `frailty` KIND is retired here (no live frailty edges) and reserved for a future non-specific physiologic-reserve node (ONE source × MANY causes — a genuinely different shape). The NARROW, mechanistically-direct replacement for the removed generic sarcopenia→every-cause multiplier — multiplies ONLY the falls cause hazard. β = ln(OR) for a full-span (robust→sarcopenic) sarcopenia (B−T) deviation; =1 at baseline. Anchor: Yeung 2019 meta-analysis (PMID 30993881, J Cachexia Sarcopenia Muscle, 742 cites): sarcopenia→falls PROSPECTIVE OR 1.89 (95% CI 1.33-2.68; cross-sectional OR 1.60); ln(1.89)=0.6366. Fall INCIDENCE OR used as the fall-MORTALITY multiplier — conservative, since sarcopenia also raises case-fatality (not added). Muscle weakness→falls is mechanistically direct, unlike the discarded sarcopenia→cancer/CKD/liver links. SINGLE frailty source for 'falls' (validator-enforced one-per-cause). #gap: a fall-DEATH-specific HR (vs incidence) would refine this; #gap: other fall drivers (balance/vision/neuropathy/hypotension/osteoporosis) are node-add candidates, not yet wired."
     },
     {
-      "from": "sarcopenia",
-      "to": "cancer",
-      "kind": "frailty",
-      "beta": 0.678
+      "kind": "mediator",
+      "from": "physicalActivity",
+      "to": "restingHR",
+      "coeff": -5.4,
+      "form": "exerciseScaled",
+      "provenance": "calibrated 2026-06-12 (populated from stub). Aerobic training bradycardia — the dominant modifiable RHR driver. Mechanism: enhanced vagal (parasympathetic) tone + increased stroke volume from cardiac remodeling → lower rate needed to maintain resting cardiac output. COEFFICIENT DERIVATION: Chen/Jabbarzadeh 2024 RCT meta-analysis (Jabbarzadeh Ganjeh B et al., Hypertension Research 2024; doi:10.1038/s41440-023-01467-9; PMID 37872373; 34 randomized trials, n=1,787 hypertensive patients): each 30 min/wk aerobic exercise reduces RHR by −1.08 bpm (95% CI −1.46 to −0.71). The exerciseScaled form evaluates exerciseScale(activity−150)=clamp((activity−150)/150, −1, 1.5); coeff is the full shift at exerciseScale=1 (+150 min/wk above popMean=150). From Chen 2024: −1.08 bpm/30 min/wk × 5 (= 150/30) = −5.4 bpm. At activity=150 (popMean), exerciseScale=0 → shift=0 → BASELINE LE EXACTLY UNCHANGED. Sedentary (0 min/wk): +5.4 bpm higher RHR; active (300 min/wk): −5.4 bpm lower RHR. CONSISTENCY CHECK: Reimers 2018 systematic review + meta-analysis (191 interventional studies; doi:10.3390/jcm7120503; PMID 30513777): endurance training and yoga were the only modalities that significantly reducing RHR in both sexes; typical training-induced reductions 5–15 bpm depending on baseline and volume — our −5.4 bpm at +150 min/wk (half the max range) is within that range. DOUBLE-COUNT CONFIRMATION: this edge mechanistically routes part of physicalActivity's mortality benefit via restingHR → elastin-fatigue → arterial-stiffness → cardiovascular. The parallel physicalActivity→allcause (activityFitness) edge is the VO₂max/fitness channel (Kodama 2009 cardiorespiratory fitness pathway — autonomically and mechanistically DISTINCT from the cardiac-cycle pulsatile-fatigue path modeled here). The stiffness path currently has no other activity input, so there is no overlap at present; this is confirmed by the zero-shift at popMean activity (exerciseScale=0 → Δ=0 → no double-count at the calibration point). OPEN GAPS: #gap: Chen 2024 is in hypertensive patients (attenuated generalizability to general population); Reimers 2018 general-population point estimate not dose-resolved per min/wk; the −5.4 bpm figure should be reconciled against a future dose-response meta-analysis in non-hypertensive adults. #gap: no sex-differentiated coefficient (Nauman 2010 found stronger RHR-IHD association in women; Nordeidet 2024 found sex-specific GWAS architecture; sex-specific training response not characterized here). #gap/needs-mechanism: the blunted training bradycardia in older adults is NOT an age effect to capture with an age term. It is BLOCKING (not countering): intrinsic SA-node aging (pacemaker-cell loss / I_f-HCN4 substrate degradation, per the verified biomarker page) degrades the very substrate training remodels, so trainability is gated by SA-NODE PACEMAKER RESERVE -- an accumulating-damage state -- NOT chronological age. Do NOT add a chronological-age attenuation to this coeff: that would be a Tier-C age-peg (cf. age-hardcoding-audit.md C1 SBP->CVD betaAgeMod). The FLAT coeff is the honest age-NEUTRAL placeholder until SA-node reserve is modeled as a state node; when modeled it is a STATE-GATED coefficient (coeff*f(reserve)), NOT a separate countering driver. Primary anchor: [[biomarkers/resting-heart-rate-biomarker]] (verified 2026-06-11). ILLUSTRATIVE coeff; SOLID-direction (Chen 2024 / Reimers 2018)."
     },
     {
-      "from": "sarcopenia",
-      "to": "neurodegeneration",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "mediator",
+      "from": "BMI",
+      "to": "restingHR",
+      "evidenceStrength": "moderate",
+      "note": "stub: BMI->restingHR. Adiposity raises resting HR (reduced vagal tone + sympathetic activation; verified biomarker page Factors table). Direction SOLID; POPULATE BLOCKED: no verified primary-source Delta-bpm-per-kg/m2 dose-response yet (BMI->HR cross-sectional or MR study, e.g. Emdin 2017). Natural variable: bpm per kg/m2 above popMean BMI. #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "infection",
-      "kind": "frailty",
-      "beta": 1.5913
+      "kind": "stub",
+      "intendedKind": "mediator",
+      "from": "sleep",
+      "to": "restingHR",
+      "evidenceStrength": "moderate",
+      "note": "stub: sleep->restingHR. Short/disrupted sleep raises resting HR (sympathetic activation, incomplete nocturnal vagal recovery). Direction SOLID; POPULATE BLOCKED: no cited Delta-bpm-per-hour dose-response in the verified page. Natural variable: bpm per hour deviation from the 7-8h nadir (asymmetric, like the sleep->allcause uShape). #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "residual",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "mediator",
+      "from": "alcohol",
+      "to": "restingHR",
+      "evidenceStrength": "weak",
+      "note": "stub: alcohol->restingHR. Alcohol raises resting HR (acute autonomic effect; chronic heavy use via cardiomyopathy / autonomic neuropathy). WEAK/CONFOUNDED: NOT listed as a chronic RHR driver in the verified biomarker page. POPULATE only if a verified CHRONIC (non-acute, non-confounded) dose-response is established. #gap/needs-verified-source",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "diabetes",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "augment",
+      "fromState": "sinoatrial-node-reserve",
+      "mediator": "restingHR",
+      "evidenceStrength": "moderate",
+      "note": "stub: sinoatrial-node-reserve -> restingHR. The planned sinoatrial-node (heart's pacemaker) reserve state would (a) shift the intrinsic resting rate as the pacemaker substrate declines, and (b) GATE the physicalActivity->restingHR training coefficient (BLOCKING: trainability shrinks as reserve declines -- see that edge's #gap/needs-mechanism and age-hardcoding-audit.md). Coefficient-gating is not yet a standard edge type; rendered here as a state->mediator placeholder. Populate alongside the sinoatrial-node-reserve node. #gap/needs-mechanism",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "copd",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "coupling",
+      "from": "mitochondrial-dysfunction",
+      "to": "genomic-instability",
+      "evidenceStrength": "moderate",
+      "note": "stub: mitochondrial-dysfunction -> genomic-instability. Mitochondrial ROS (superoxide, H2O2) generated by dysfunctional complexes I/III escapes into the nucleus and causes oxidative DNA lesions (8-oxo-dG, strand breaks), directly contributing to the genomic-instability lesion load. Mechanism grounded in the verified genomic-instability atomic page (hallmarks/genomic-instability.md § Hypotheses: 'ROS-driven DNA damage (8-oxo-dG, strand breaks) contributes to the nuclear lesion load that constitutes genomic instability') and the superseded-but-evidence-retaining free-radical-theory-of-aging page. causal-graph-data.md does NOT list this edge in the 34-edge verified set -- it is inferred from the verified atomic page mechanism. Natural variable: β in normalized coupling gain (no physical-unit dose-response verified yet; no Mendelian-randomization study for mito-dysfunction → DNA-damage burden specifically). Mediation note: the existing mitochondrial-dysfunction → cellular-senescence (disputed) path carries some of the same biological signal (mito stress → DDR → senescence); populate pass must decompose -- the direct mito-ROS → nuclear-DNA-lesion mechanism is mechanistically prior to senescence, so a non-zero direct edge is plausible. #gap/needs-verified-source #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "ckd",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "coupling",
+      "from": "genomic-instability",
+      "to": "stem-cell-exhaustion",
+      "evidenceStrength": "moderate",
+      "note": "stub: genomic-instability -> stem-cell-exhaustion. Two distinct mechanisms: (1) CHIP -- somatic driver mutations (DNMT3A, TET2, ASXL1) in HSCs shift clonal composition and alter differentiation output (Jaiswal 2014 n=17,182; Genovese 2014 n=12,380; verified in hallmarks/genomic-instability.md and hematopoietic-stem-cells.md); this is a distinct path from the telomere-attrition → stem-cell-exhaustion or cellular-senescence → stem-cell-exhaustion edges. (2) p21-mediated arrest of stem-cell proliferative capacity via persistent DDR signaling (p21 KO in Terc−/− mice rescues stem function -- but that is via telomere-derived DDR; the broader DNA damage → p53/p21 → stem-cell quiescence/arrest mechanism applies to non-telomeric damage too). causal-graph-data.md does NOT list this edge in the 34-edge verified set; mechanism inferred from the verified atomic page (hallmarks/genomic-instability.md § Position in causal hierarchy + frontmatter key-phenotypes). Natural variable: β in normalized coupling gain. Mediation / double-count note: the coupling gain partially overlaps with genomic-instability → clonal-hematopoiesis → (atherosclerosis) path for CHIP, and with the genomic-instability → cellular-senescence → stem-cell-exhaustion chain for the p21 arm. Populate pass must apply mediation-decomposition to avoid double-counting. #gap/needs-verified-source #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "liver",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "coupling",
+      "from": "epigenetic-alterations",
+      "to": "genomic-instability",
+      "evidenceStrength": "weak",
+      "note": "stub: epigenetic-alterations -> genomic-instability. Epigenetic mechanisms regulate DNA repair fidelity: (1) SIRT1/SIRT6 (NAD+-dependent histone deacetylases) are required for DDR complex assembly and HR fidelity; declining NAD+ with age → SIRT1/SIRT6 loss → impaired DDR capacity → higher unrepaired lesion burden. (2) Age-related CpG methylation drift silences DDR/repair gene promoters (BRCA1 methylation in aged tissue, MLH1 methylation in sporadic colorectal cancer). (3) Heterochromatin erosion (H3K9me3 loss) with aging exposes repetitive elements to transcription → R-loops → replication stress → DSBs. WEAK: no verified primary-source dose-response for the epigenetic → repair-fidelity → lesion-rate quantitative link in the wiki; direction is biologically grounded but not verified at the strength of the 34-edge set. The verified epigenetic-alterations page notes the NAD+/SIRT1 link to DDR. causal-graph-data.md does not list this edge. Natural variable: β in normalized coupling gain. Populate blocker: a verified primary source for the epigenetic-regulation → DDR-fidelity quantitative relationship in aged human tissue. #gap/needs-verified-source #gap/needs-effect-size",
+      "provenance": "stub"
     },
     {
-      "from": "sarcopenia",
-      "to": "frailty",
-      "kind": "frailty",
-      "beta": 0.8755
+      "kind": "stub",
+      "intendedKind": "driver",
+      "from": "smoking",
+      "to": "genomic-instability",
+      "evidenceStrength": "strong",
+      "note": "stub: smoking->genomic-instability. Tobacco smoke polycyclic aromatic hydrocarbons (benzo[a]pyrene and related PAHs) form bulky DNA adducts on guanine N2/O6 positions; unrepaired adducts produce G→T transversions that define the tobacco mutational signature SBS4. Alexandrov et al. 2016 (Science, doi:10.1126/science.aag0299) quantified somatic mutation burden in 17 cancer types across 5,243 tumours: lung cancer (smoke-exposed) carries ~150 clonal mutations per year of smoking, directly scaling SBS4 burden with pack-years — the clearest human population-level dose-response linking a modifiable exposure to genomic-instability accrual rate. The mutagenic mechanism is mechanistically grounded in the verified genomic-instability atomic page (hallmarks/genomic-instability.md). Natural variable: β in ln(rate of somatic mutation accrual) per pack-year (cig/day × years / 20). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node (form: linear, t0:0.05, slope:0.01). Populating this driver term requires FIRST migrating genomic-instability from its age-curve to a ∫rate·dt state node (the de-age-pegging step, Phase C of the migration roadmap) — otherwise this exogenous forcing would be added on top of a hard-coded age line, double-driving the node. Until that migration, this stub is inert (engine excludes it). Mediation note: smoking already drives cancer directly (PAF 28.8%, existing live cause edge smokingStatus→cancer) via the bundled carcinogenesis route. When this driver stub is populated, the populate pass must mediation-decompose the cancer cause edge to subtract the genomic-instability-mediated slice — consistent with the route-once discipline (smoke→GI→cancer replaces part of the direct smoke→cancer bundled edge). POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response (Δ-mutation-burden per pack-year in non-cancer normal tissue, not just cancer-derived) is needed for the wiki — the Alexandrov 2016 anchor covers cancer-tissue mutation burden; normal-tissue equivalents (e.g. Blokzijl 2016 liver stem cells by smoking status) should be confirmed. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "provenance": "stub"
+    },
+    {
+      "kind": "stub",
+      "intendedKind": "driver",
+      "from": "alcohol",
+      "to": "genomic-instability",
+      "evidenceStrength": "strong",
+      "note": "stub: alcohol->genomic-instability. Ethanol is metabolized to acetaldehyde (by ADH enzymes) and further to acetate (by ALDH2). Acetaldehyde is a genotoxin: it crosslinks DNA bases (primarily N2-dG adducts and interstrand crosslinks) and depletes glutathione. Garaycoechea & Patel et al. 2018 (Nature, doi:10.1038/nature25154) provide the canonical mechanistic anchor using ALDH2-/-/FANCD2-/- double-knockout mice: loss of both acetaldehyde clearance (ALDH2) and Fanconi anemia DNA repair (FANCD2) produces severe HSC genotoxicity and acute bone marrow failure, establishing that acetaldehyde-induced DNA damage is a primary driver of hematopoietic stem cell genomic instability in the absence of repair. The mechanism is grounded in the verified hallmarks/genomic-instability.md page (progeroid syndromes section: Fanconi anemia as DDR-defect phenocopy of accelerated aging). Natural variable: β in ln(rate of acetaldehyde-DNA adduct accrual) per g/day ethanol (linked to acetaldehyde area-under-curve, which varies by ALDH2 genotype — a key effect modifier). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node. Populating this driver term requires FIRST migrating genomic-instability to a ∫rate·dt state node. Until that migration, this stub is inert. Mediation note: alcohol already drives liver mortality directly (existing live cause edge alcohol→liver via the alcoholThreshold form). The genomic-instability-mediated path from alcohol carries a DISTINCT downstream effect (cancer risk elevation via DNA damage, particularly esophageal/head-and-neck/colorectal SBS16 signature) and is NOT double-counted with the liver edge. However, when populating, confirm that cancer cause edges are not double-counting the alcohol-genomic-instability-cancer chain against the liver edge. POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response for acetaldehyde → DNA-adduct burden per g/day ethanol in human tissue is needed in the wiki — the Garaycoechea/Patel 2018 anchor is mouse DKOKOD mechanistic; a human epidemiological dose-response (e.g. alcohol-associated SBS16 burden per unit drink/day in normal tissue) should be confirmed. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "provenance": "stub"
+    },
+    {
+      "kind": "stub",
+      "intendedKind": "driver",
+      "from": "airPollution",
+      "to": "genomic-instability",
+      "evidenceStrength": "moderate",
+      "note": "stub: airPollution->genomic-instability. Ambient particulate matter (PM2.5) is classified IARC Group 1 human carcinogen (IARC Monograph vol. 109, 2015). Two genotoxic mechanisms: (1) PAH adsorbed on fine particles form bulky DNA adducts (structural similarity to tobacco SBS4 mechanism, but lower dose per µg/m³ than direct smoking); (2) oxidative stress from reactive oxygen species generated by transition metals (iron, copper) on PM2.5 surface → 8-oxo-dG, strand breaks. Lung cancer dose-response in the GBD/Burnett 2018 integrated exposure-response (IER) model provides the best-characterized population-level link. Natural variable: β in ln(rate of DNA-damage accrual) per µg/m³ PM2.5 annual mean (WHO guideline threshold 5 µg/m³; US EPA NAAQS 12 µg/m³; global range 5–200 µg/m³ in high-pollution urban settings). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node. Populating this driver term requires FIRST migrating genomic-instability to a ∫rate·dt state node. Until that migration, this stub is inert. Mediation note: airPollution already drives COPD and cardiovascular mortality directly (existing live cause edges airPollution→copd, airPollution→cardiovascular). The genomic-instability-mediated path from airPollution represents the carcinogenic/mutagenic channel (lung cancer, bladder cancer via particle-mediated systemic adducts) and is DISTINCT from the inflammatory/bronchospasm COPD channel and the oxidative-endothelial CVD channel — not a double-count. However, when populating, mediation-decompose the cancer cause edge to avoid double-counting the PM2.5→GI→cancer chain against any direct PM2.5→cancer edge that might be added. POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response for PM2.5 → DNA-adduct/oxidative-lesion burden per µg/m³ in human tissue is needed in the wiki — the IARC Group 1 classification confirms carcinogenicity but the dose-response per unit exposure in terms of lesion accrual rate is not yet verified in the wiki. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "provenance": "stub"
     }
   ],
   "bLayer": {
@@ -4804,6 +4902,14 @@ const MODEL = {
           ]
         },
         "provenance": "ALGEBRAIC physiology node (2026-06-10; A3 + B0). value(age) = Σ contributions AT each age, NOT ∫rate·dt: stiffness is the CURRENT consequence of currently-accumulated damage, and its inputs are themselves time-integrals / burdens. cfPWV proxy = 0.50·elastin-fatigue + 0.30·ecm-crosslink + 0.80·cellular-senescence; weights ILLUSTRATIVE and ELASTIN-DOMINANT (elastin fragmentation is the dominant structural driver, AGE crosslinking secondary — phenotypes/arterial-stiffening.md), normalized so the population male trajectory ~1.0 at age 80, with the senescence term carrying ~20% of stiffness@80 (Clayton 2023: senolytics reverse ~20% aortic PWV in mice). **B0 (2026-06-10) cleared the deferred senescence term**: `cellular-senescence` is a NODE-layer burden (B), now readable from the state-node phase because simulate() passes node burdens into mediators() (the node↔state-node seam dismantled for the node→state-node direction). So a senescence-FREEZE intervention now lowers arterial stiffness — the first node→state-node mechanistic edge. NOT YET wired to SBP/mortality (that is Phase B3: stiffness → SBP/CVD, with mediation-decomposition of the redundant direct edges). Illustrative; SOLID-direction."
+      },
+      {
+        "id": "sinoatrial-node-reserve",
+        "class": "damage",
+        "units": "normalized",
+        "label": "Sinoatrial-node reserve",
+        "provenance": "stub",
+        "note": "STUB (planned, not yet modeled; engine-inert, rendered greyed). The sinoatrial node is the heart's pacemaker; its functional reserve declines cumulatively with age via pacemaker-cell loss + I_f/HCN4 funny-current substrate degradation (per the verified resting-heart-rate biomarker page). Intended as a rate-integrated state node (integral of an SA-node-aging rate over time) that GATES the physicalActivity->restingHR training coefficient (BLOCKING, not countering: training bradycardia is blunted when reserve is low, NOT because age blocks it) and shifts the intrinsic resting rate. Has no rate/value yet by design. See age-hardcoding-audit.md and the sinoatrial-node-reserve->restingHR stub edge."
       }
     ],
     "stateAugmentsNote": "STATE→MEDIATOR AUGMENTS (2026-06-10; β-cell→HbA1c vertical). Each {fromState, mediator, coeff} injects coeff·stateValue INTO a mediator mid-march (per-age, AFTER the mediator phase + offsets, BEFORE state rates advance), so a state node's accumulated value can re-shape a mediator trajectory that the SAME march's downstream integrals then read. coeff is a number or a {male,female} map. This is the substrate that lets an emergent damage variable un-pin a formerly age-tabled mediator: β-cell-decline → HbA1c replaces the HbA1c age-table with a flat 5.3 baseline + the emergent rise. Anchoring stays exact in Increment 2 because the augment is input-independent (constant base rate), so computeOffsets' post-augment prediction cancels; Increment 3 (glucotox feedback makes the augment input-dependent) revisits anchor semantics.",
@@ -5132,14 +5238,16 @@ const KIND_COLOR = {
   mediator:  "#2e86c1",   // blue — clinical risk-factor mediators
   state:     "#138d75",   // teal — integrated damage/physiology state nodes
   mortality: "#922b21",   // dark red — the terminal sink
-  intermediate: LAYER_COLOR.phenotype   // non-terminal phenotype/driver (sarcopenia, CHIP)
+  intermediate: "#af7ac5"   // light purple — DRIVER PHENOTYPE (sarcopenia, CHIP): same purple hue
+                            // family as a pathology node, but LIGHTER = upstream/non-terminal, so it
+                            // is visually distinct from the deep-purple (#7d3c98) terminal cause nodes
   // tier1/tier2/tier3/phenotype reuse LAYER_COLOR
 };
 function kindColor(kind){ return KIND_COLOR[kind] || LAYER_COLOR[kind] || "#888"; }
 const KIND_LABEL = {
   input: "exogenous input", mediator: "mediator (risk factor)", state: "state (∫rate damage)",
   tier1: "hallmark tier-1", tier2: "hallmark tier-2", tier3: "hallmark tier-3",
-  intermediate: "intermediate phenotype / driver",
+  intermediate: "driver phenotype",
   phenotype: "pathology / cause of death", mortality: "mortality sink"
 };
 // Edge category → stroke colour + dash. augment (state→mediator feedback) + disabled
@@ -5156,7 +5264,7 @@ const EDGE_STYLE = {
 const EDGE_CAT_LABEL = {
   latent: "hallmark coupling", mediator: "input→mediator", driver: "driver→state",
   augment: "state→mediator (feedback)", cause: "→ cause hazard",
-  frailty: "frailty amplifies cause (×)", terminal: "cause → mortality"
+  frailty: "reserve → all causes (×, reserved)", terminal: "cause → mortality"
 };
 // A mortality cause-key (cause/frailty edge target) → the node that carries that death
 // line. Derived from each cause node's own `mortalityCause` tag (cardiovascular →
@@ -5187,6 +5295,12 @@ const UNI = (function buildUnifiedGraph(){
   // SINGLE SOURCE OF TRUTH: render MODEL.edges directly, dispatched by `kind`. No
   // reconstruction from scattered structures — adding an edge to MODEL.edges makes it
   // appear here automatically (this is what stops the viz drifting from the model).
+  // A structural stub (kind:"stub", edge-auditor output) is EXCLUDED from the engine
+  // (edgesByKind) — it never touches the simulation — but is rendered here grey-dashed and
+  // greyed onto a planned node, so "biology says this edge exists, β not yet derived" shows
+  // on-graph. `intendedKind` picks the lane it WILL occupy once populated. See
+  // sops/adding-causal-graph-nodes.md § 0a.
+  const STUB_CAT = { coupling:"latent", mediator:"mediator", cause:"cause", augment:"augment", frailty:"frailty", driver:"driver" };
   MODEL.edges.forEach(e => {
     switch (e.kind) {
       case "coupling": edges.push({ from: e.from, to: e.to, cat: "latent", strength: e.strength }); break;
@@ -5194,6 +5308,14 @@ const UNI = (function buildUnifiedGraph(){
       case "cause":    edges.push({ from: e.from || e.input, to: causeKeyToNode(e.to), cat: "cause" }); break;
       case "augment":  edges.push({ from: e.fromState, to: e.mediator, cat: "augment" }); break;
       case "frailty":  edges.push({ from: e.from, to: causeKeyToNode(e.to), cat: "frailty" }); break;
+      case "stub": {
+        const ik = e.intendedKind;
+        const to   = (ik === "cause" || ik === "frailty") ? causeKeyToNode(e.to)
+                   : (ik === "augment") ? e.mediator : e.to;
+        const from = (ik === "augment") ? e.fromState : (e.from || e.input);
+        edges.push({ from, to, cat: STUB_CAT[ik] || "latent", disabled: true });
+        break;
+      }
     }
   });
   // state-node driver refs (mediator/state/node → state). A term with coeff 0 is a
@@ -5279,20 +5401,13 @@ function el(tag, attrs, parent){
   return e;
 }
 
-// Human-readable role descriptor for a node (frontmatter `role`).
-function roleLabel(node){
-  if (node.role === "mortality-cause") return "mortality cause: " + (node.mortalityCause || "?");
-  if (node.role === "frailty-multiplier") return "frailty multiplier (amplifies all intrinsic causes)";
-  if (node.role === "driver") return "driver (no own death line)";
-  return null;
-}
-// Small glyph for role.
-function roleGlyph(node){
-  if (node.role === "mortality-cause") return "†";       // dagger
-  if (node.role === "frailty-multiplier") return "×";    // multiplication
-  if (node.role === "driver") return "▸";                // small triangle
-  return null;
-}
+// NOTE: the cosmetic role DISPLAY (in-node glyph + "role:" descriptor) was removed — it was
+// redundant (cause nodes are already shown by the cause column + deep-purple fill + "Cause-of-death
+// node" card + the red terminal→mortality edge) and the only non-cause role mark ("▸ driver") was
+// inconsistent (chronic-inflammation is structurally the same driver but role:"—"). The `role` FIELD
+// stays as STRUCTURAL data: role:"mortality-cause" still drives CAUSE_KEY_TO_NODE, the terminal edges,
+// column routing, and the self-check below. (It could be derived from mortality.causes membership
+// instead, to drop the tag entirely — deferred.)
 
 // ---- Graph panel (unified causal graph) ----
 // graphView = the current zoom/pan viewBox; persists across re-renders so a
@@ -5352,10 +5467,10 @@ function renderGraph(sim, base){
   svg.setAttribute("viewBox", `${graphView.x} ${graphView.y} ${graphView.w} ${graphView.h}`);
 
   const defs = el("defs", {}, svg);
-  ["arrow", "arrowDim", "arrowHot", "arrowGood"].forEach((id, i) => {
+  ["arrow", "arrowDim", "arrowHot", "arrowGood", "arrowDisabled"].forEach((id, i) => {
     const m = el("marker", { id, viewBox: "0 0 10 10", refX: "9", refY: "5",
       markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" }, defs);
-    const fill = ["#9aa", "#dfe3e7", "#c0392b", "#1e8449"][i];
+    const fill = ["#9aa", "#c2cad1", "#c0392b", "#1e8449", "#79838f"][i];
     el("path", { d: "M0,0 L10,5 L0,10 z", fill }, m);
   });
 
@@ -5391,8 +5506,8 @@ function renderGraph(sim, base){
         else if (sig.dir < 0){ stroke = "#1e8449"; marker = "arrowGood"; opacity = 0.9; }
       }
     }
-    if (disabled){ stroke = "#cfd6dd"; width = 1.0; opacity = 0.55; marker = "arrowDim"; }
-    if (dimmed){ opacity = 0.08; marker = "arrowDim"; }
+    if (disabled){ stroke = "#79838f"; width = 1.3; opacity = 0.85; marker = "arrowDisabled"; }
+    if (dimmed){ opacity = 0.26; marker = "arrowDim"; }   // fade reduced 20% (was 0.08): 1−0.8·(1−0.08)
 
     el("path", {
       d: `M${x1},${y1} Q${mx},${my} ${x2},${y2}`,
@@ -5419,7 +5534,7 @@ function renderGraph(sim, base){
 
     const g = el("g", { class: "nodeg", transform: `translate(${p.x},${p.y})`,
       style: "cursor:" + (latent ? "pointer" : "default") }, svg);
-    const op = dimmed ? 0.18 : 1;
+    const op = dimmed ? 0.34 : 1;   // fade reduced 20% (was 0.18): 1−0.8·(1−0.18)
     g.setAttribute("opacity", op);
 
     // tractability ring weight (latent only); inputs/mediators/state get a plain ring.
@@ -5444,11 +5559,6 @@ function renderGraph(sim, base){
         "stroke-width": strokeW, "stroke-dasharray": dash === "none" ? "" : dash }, g);
     }
 
-    const glyph = latent ? roleGlyph(ref) : null;
-    if (glyph){
-      el("text", { x: 0, y: 3.2, "text-anchor": "middle", "font-size": "9",
-        fill: "#fff", "font-weight": "700" }, g).textContent = glyph;
-    }
     if (active){
       el("text", { x: 0, y: -NODE_R - 6, "text-anchor": "middle", "font-size": "13",
         fill: "#1e8449" }, g).textContent = "❄";
@@ -5467,9 +5577,9 @@ function renderGraph(sim, base){
     // interaction: latent nodes drive interventions; ALL nodes drive ego-focus + tooltip.
     g.addEventListener("click", () => { if (node.kind !== "mortality") selectNode(node.id); });
     g.addEventListener("mouseenter", () => { graphFocus = node.id; renderGraph(window._lastSim); if (tlRestyle) tlRestyle(null); showGraphNodeInfo(node.id); });
-    // Note: the description card is NOT hidden on node mouseleave — it persists so
-    // the user can move onto it to click the wiki link. It's cleared when the whole
-    // graph area is left (graphWrap mouseleave) or replaced by the next node hover.
+    // Note: the description card is NOT hidden on node mouseleave — it's STICKY. It persists
+    // (so you can move onto it / read the expanded "how it computes" panel) until you hover
+    // another node or explicitly dismiss it (Esc or a click on the empty graph background).
     g.addEventListener("mouseleave", () => { graphFocus = null; renderGraph(window._lastSim); hideTip(); if (tlRestyle) tlRestyle(null); });
     g.addEventListener("mousemove", (ev) => {
       showTip(ev.clientX, ev.clientY, nodeTipHtml(node));
@@ -5485,7 +5595,6 @@ function nodeTipHtml(node){
   if (node.greyed) s += `<br><span style="color:#e6b800">⚠ unlinked / planned (no active edge)</span>`;
   if (node.latent){
     s += `<br>tractability: ${ref.tractability}`;
-    const rl = roleLabel(ref); if (rl) s += `<br>role: ${rl}`;
     const iv = state.interventions[node.id];
     if (iv && iv.efficacy > 0) s += `<br><span style="color:#2ecc71">❄ freeze ${Math.round(iv.efficacy*100)}% from age ${iv.startAge}</span>`;
     if (ref.provenance) s += `<br><span style="color:#aaa">${ref.provenance}</span>`;
@@ -5508,6 +5617,7 @@ function nodeTipHtml(node){
 const WIKI_BASE = "https://jadams5.github.io/aging_wiki/";
 const KIND_INFO_LABEL = {
   hallmark: "Hallmark of aging", cause: "Cause-of-death node",
+  driver: "Driver phenotype",
   mediator: "Clinical risk factor", state: "Accumulating-damage state",
   input: "Lifestyle / environment input", terminal: "Mortality",
 };
@@ -5535,8 +5645,9 @@ const NODE_INFO = {
   "copd": { kind: "cause", wiki: "phenotypes/copd", desc: "Cumulative lung damage — airflow obstruction, airspace enlargement, lost elastic recoil — whose buildup raises the risk of death from chronic respiratory failure." },
   "ckd": { kind: "cause", wiki: "phenotypes/chronic-kidney-disease", desc: "The kidney's accumulating filtration loss and scarring that, past a threshold, raises your risk of kidney-failure death and its cardiovascular knock-on effects." },
   "liver": { kind: "cause", wiki: "phenotypes/liver-fibrosis", desc: "Cumulative scarring of the liver from years of injury, hardening tissue toward cirrhosis and raising the chance of death from liver failure." },
-  "sarcopenia": { kind: "cause", wiki: "phenotypes/sarcopenia", desc: "Age-related loss of muscle mass and strength that erodes physical reserve, raising the risk of falls, frailty, lost independence, and death." },
-  "clonal-hematopoiesis": { kind: "cause", wiki: "phenotypes/clonal-hematopoiesis", desc: "Age-related expansion of mutant blood-cell clones from aging stem cells — a hidden burden raising the hazard of cardiovascular death and blood cancer." },
+  "falls-mortality": { kind: "cause", wiki: null, desc: "Death from a fall (ICD W00-W19) — the aging-related external-injury cause; its hazard is driven by sarcopenia (muscle weakness raises fall risk). Currently also carries a small bundled malnutrition residual being split out." },
+  "sarcopenia": { kind: "driver", wiki: "phenotypes/sarcopenia", desc: "Age-related loss of muscle mass and strength that erodes physical reserve. An upstream driver — it raises the falls cause hazard (sarcopenia→falls), not a cause of death itself." },
+  "clonal-hematopoiesis": { kind: "driver", wiki: "phenotypes/clonal-hematopoiesis", desc: "Age-related expansion of mutant blood-cell clones from aging stem cells. An upstream driver — it raises atherosclerosis burden (→ cardiovascular death) and blood-cancer risk, not a cause of death itself." },
   // 5 clinical-risk-factor mediators
   "LDL": { kind: "mediator", wiki: "pathways/lipoprotein-metabolism", desc: "A modifiable blood-cholesterol level (mg/dL) whose cumulative lifetime exposure drives artery-clogging atherosclerosis — the leading lever on cardiovascular death." },
   "systolicBP": { kind: "mediator", wiki: "phenotypes/hypertension", desc: "The pressure blood exerts on artery walls with each heartbeat; its rise with age multiplies the hazard of stroke, heart disease, and death." },
@@ -5563,6 +5674,99 @@ const NODE_INFO = {
   "_mortality": { kind: "terminal", wiki: null, desc: "The terminal node — total mortality, summed as competing risks across every cause in the model." },
 };
 
+// ---- Derived per-node computation introspector (NOT hand-written — reads MODEL) ----
+// For any node, surfaces: its compute rule with the REAL constants, its age-handling
+// (age-keyed table/sigmoid vs age-emergent ∫rate·dt vs exogenous — the no-age-pegging
+// signal), what it does to each INPUT edge, and how it drives each OUTPUT edge. Every
+// line is derived from MODEL (params + the engine form names) — change a rule and this
+// follows automatically.
+// Sticky-card state: graphInfoId = which node's card is currently shown (persists when the
+// mouse leaves the graph); ncOpen = whether the "how it computes" panel is expanded (remembered
+// across re-renders so it doesn't collapse every time you hover a node).
+let graphInfoId = null, ncOpen = false;
+function nodeComputeHtml(id){
+  const Bl = MODEL.bLayer || {};
+  const MEDm = new Map((Bl.mediators||[]).map(x=>[x.id,x]));
+  const STm  = new Map((Bl.stateNodes||[]).map(x=>[x.id,x]));
+  const INm  = new Map((Bl.exogenousInputs||[]).map(x=>[x.id,x]));
+  const NDm  = new Map((MODEL.nodes||[]).map(x=>[x.id,x]));
+  const causeByNode={}; for(const [k,v] of Object.entries(MODEL.mortality.causes)) causeByNode[v.node]={key:k,...v};
+  const num = x => { if(typeof x!=="number") return String(x); if(x===0) return "0"; if(Math.abs(x)<1e-4||Math.abs(x)>=1e5) return x.toExponential(3); return String(x); };
+  const cf = c => !c?"(none)": c.form==="sigmoid"?`L/(1+e^(−k·(age−mid)))  L=${c.params.L} k=${c.params.k} mid=${c.params.mid}`: c.form==="exponential"?`A·e^(r·age)  A=${c.params.A} r=${c.params.r}`: c.form==="table"?`piecewise age table, ${c.byAge.length} anchors (per sex)`: c.form;
+  const dv = d => { if(typeof d==="string") return d; let s=d.id; if(d.minus!=null)s=`(${s}−${d.minus})`; if(d.floor!=null)s=`max(${d.floor},${s})`; if(d.cap!=null)s=`min(${d.cap},${s})`; return s; };
+  const tm = t => { const a=(t.drivers||[]).map(dv); if(!a.length) return `${num(t.coeff)} (constant — intrinsic age-residual)`; const b=t.op==="product"?a.join("·"):a.join(", "); return `${num(t.coeff)}·${b}${t.coeff===0?" [DISABLED]":""}`; };
+  const ce = e => { const f=e.form;
+    if(f==="mediatorLogLinear")return `exp(β·(${e.med}−base)) β=${num(e.beta)}`;
+    if(f==="nodeLogLinear")return `exp(β·(${e.from} B−T)) β=${num(e.beta)}`;
+    if(f==="mediatorThresholdRamp")return `min(${e.cap},exp(${num(e.slope)}·max(0,${e.med}−${e.threshold})))÷base`;
+    if(f==="bmiThresholdRatio")return `exp(${num(e.beta)}·max(0,${e.med}−${e.threshold??25}))`;
+    if(f==="directLogLinear")return `exp(${num(e.beta)}·(${e.input}−popMean))`;
+    if(f==="smokingCategorical")return `RR by ${e.input} (never/former/current)`;
+    if(f==="activityFitness")return `exp(${num(e.betaPerMet)}·ΔMETs(${e.input}))`;
+    if(f==="bmiJcurve")return `J-curve ${e.med} (βup=${num(e.betaUpper)} βdn=${num(e.betaLower)})`;
+    if(f==="uShape"||f==="ushaped")return `U-shape ${e.input} nadir ${JSON.stringify(e.nadir)} β=${num(e.beta)}`;
+    return `${f} ${num(e.beta??e.coeff)}`; };
+  const me = e => { const f=e.form, c=num(e.coeff);
+    if(f==="linear")return `${c}·(${e.from}−popMean)`;
+    if(f==="mediatorLinear")return `${c}·(${e.from}−base)`;
+    if(f==="sodiumConvex")return `${c}·(Δ${e.from}/100)·saltSensitivity, ±20mmHg cap  [saltSensitivity = clamped ramp 0.35× at baseSBP 110 → 1.15× at 155: salt-resistant when normotensive, salt-sensitive when hypertensive]`;
+    if(f==="alcoholThreshold")return `0 up to 2/day, then ${c}·(${e.from}−2)/4  [threshold]`;
+    if(f==="exerciseScaled"||f==="exerciseHbA1c")return `${c}·clamp(Δ${e.from}/150)  [full effect at +150 min/wk vs sedentary]`;
+    if(f==="fiberSaturating")return `${c}·(fiberSat(${e.from})−fiberSat(popMean))  [saturates above popMean+10]`;
+    if(f==="weightDynamic")return `Δkg(${e.from})/heightRef²  [Hall-2013 dynamic weight→BMI]`;
+    return `${f}(${e.from}) ${c}`; };
+  const ac = c => typeof c==="object"?num(c.male):num(c);
+
+  const eOut=MODEL.edges.filter(e=>(e.from||e.fromState)===id);   // includes kind:"stub" (planned, β-pending)
+  const eIn =MODEL.edges.filter(e=>(e.to===id||e.mediator===id));
+  const n=NDm.get(id), med=MEDm.get(id), st=STm.get(id), inp=INm.get(id);
+  let type, rule, age, ageClass="";
+  const _stubN = (st&&st.provenance==="stub")||(n&&n.provenance==="stub")||(med&&med.provenance==="stub")||(inp&&inp.provenance==="stub");
+  if(_stubN){ const sn=st||n||med||inp;
+    type="STUB node — planned, not yet modeled";
+    rule=`Engine-inert placeholder (no rate/curve yet) — rendered greyed so the gap is visible on the graph. ${sn.note||sn.label||""}`;
+    age="stub — does not affect the simulation; populate it (give it a rate/curve + wire its edges) to model it"; }
+  else if(inp){ type="Exogenous input"; rule=`set directly (slider); popMean=${inp.populationMean}${inp.unit?" "+inp.unit:""}, range ${JSON.stringify(inp.range)}`; age="exogenous — no age dependence; deviations measured vs popMean"; }
+  else if(st){ if(st.value){ type=`State node (${st.class}, algebraic)`; rule=`value = `+(st.value.terms||[]).map(tm).join(" + ")+`  (no integral)`; } else { type=`State node (${st.class}, ∫rate·dt)`; rule=`value(age) = initial(${st.initial}) + ∫ rate·dt\nrate = `+(st.rate.terms||[]).map(tm).join("\n     + "); } age="✓ AGE-EMERGENT — age is not an input; it emerges from the integral"; ageClass="nc-age-emergent"; }
+  else if(med){ type=`Mediator (clinical risk factor${med.unit?", "+med.unit:""})`; const bl=med.baseline, flat=bl&&bl.male&&bl.male.every(p=>p[1]===bl.male[0][1]); const augs=MODEL.edges.filter(e=>e.kind==="augment"&&e.mediator===id); rule=`value(age) = baseline(age) + Σ(input edges) + Σ(augments) + personal offset`; if(augs.length) rule+=`\naugments: `+augs.map(a=>`${a.fromState} ×${ac(a.coeff)}`).join(", "); age = !flat ? `⚠ AGE-KEYED baseline — a per-sex age table (${bl?.male?.length||0} anchors)` : augs.length ? `✓ FLAT baseline (${bl.male[0][1]}) — age-pegging REMOVED; the age-rise emerges via an augment (${augs.map(a=>a.fromState).join(", ")})` : `FLAT baseline (${bl.male[0][1]}) — constant; no age trend and no modeled drivers`; ageClass = !flat ? "nc-age-keyed" : augs.length ? "nc-age-emergent" : ""; }
+  else if(n){ const BTD=`\nwhere  B = live burden [0,1]  ·  T(age) = baseline age-curve (population default, no intervention)  ·  Δ = deviation propagated through the coupling matrix  (at baseline Δ=0 ⇒ B=T)`; const c=causeByNode[id]; if(c){ type=`Cause-of-death node (mortalityCause: ${c.key})`; rule=`B(age) = clamp01( T(age) + Δ );  T = ${cf(n.curve)}\nhazard = Rmax·B/(1−B)·Π(mults);  Rmax = {M ${num(c.RmaxPerYear.male)}, F ${num(c.RmaxPerYear.female)}}`+BTD; } else { type=`${n.layer==="phenotype"?"Driver":"Hallmark"} burden (layer ${n.layer})`; rule=`B(age) = clamp01( T(age) + Δ );  T = ${cf(n.curve)}`+BTD; } age=`⚠ AGE-KEYED — T baseline is a ${n.curve?.form||"curve"} over age (the burden rises with age by construction)`; ageClass="nc-age-keyed"; }
+  else return "";
+
+  const stubSrc=e=> e.intendedKind==="augment"?e.fromState:(e.from||e.input);
+  const stubDst=e=> e.intendedKind==="augment"?e.mediator:e.to;
+  const inI=e=> e.kind==="stub"?`<span class="nc-stub">${stubSrc(e)} → [planned ${e.intendedKind} · β pending, ${e.evidenceStrength||"?"}]</span>`
+    : e.kind==="coupling"?`${e.from} → coupling(${e.strength}, gain ${MODEL.strengthToGain[e.strength]})`
+    : e.kind==="mediator"?`${e.from} → ${me(e)}`
+    : e.kind==="cause"?`${e.from||e.input} → ${ce(e)}`
+    : e.kind==="augment"?`${e.fromState} → augment ×${ac(e.coeff)}`
+    : `${e.from} → ${e.kind}`;
+  const outI=e=>{ if(e.kind==="stub") return `<span class="nc-stub">${stubDst(e)} [planned ${e.intendedKind} · β pending]</span>`;
+    const t=e.to||e.mediator; return e.kind==="coupling"?`${t} (coupling ${e.strength})`
+    : e.kind==="cause"?`${t}: ${ce(e)}`
+    : e.kind==="mediator"?`${t}: ${me(e)}`
+    : e.kind==="augment"?`${t}: augment ×${ac(e.coeff)}`
+    : `${t} (${e.kind})`; };
+  // state-node drivers live in rate/value `terms`, NOT in MODEL.edges — the graph derives the
+  // driver edges from terms in BOTH directions, so cross-reference them here too (else a state
+  // node shows no inputs and a driver shows no output, while the formula/graph use them).
+  const inList = eIn.map(inI);
+  if (st) { const terms=(st.rate?.terms||[]).concat(st.value?.terms||[]); const seen=new Set();
+    terms.forEach(t=>(t.drivers||[]).forEach(d=>{ const did=typeof d==="string"?d:d.id; if(seen.has(did))return; seen.add(did); inList.push(`${did} → ${st.value?"value":"∫rate"} term: ${tm(t)}`); })); }
+  const outList = eOut.map(outI);
+  (MODEL.bLayer.stateNodes||[]).forEach(s2=>{ const terms=(s2.rate?.terms||[]).concat(s2.value?.terms||[]);
+    const refs=terms.filter(t=>(t.drivers||[]).some(d=>(typeof d==="string"?d:d.id)===id));
+    if(refs.length){ const live=refs.some(t=>t.coeff!==0); outList.push(`${s2.id}: drives its ${s2.value?"value":"∫rate"}${live?"":" [disabled, coeff 0]"}`); } });
+  if (n && causeByNode[id]) outList.push("mortality — terminal hazard line (the Rmax·B/(1−B)·Π above)");
+  const ul=a=>a.length?`<ul>`+a.map(x=>`<li>${x}</li>`).join("")+`</ul>`:` (none)`;
+  return `<details class="nc"${ncOpen?" open":""}><summary>▸ how it computes</summary><div class="nc-b">`
+    +`<div><span class="nc-k">type</span> ${type}</div>`
+    +`<div><span class="nc-k">computes</span> <code class="nc-f">${rule}</code></div>`
+    +`<div class="${ageClass}"><span class="nc-k">age</span> ${age}</div>`
+    +`<div><span class="nc-k">inputs</span> ${ul(inList)}</div>`
+    +`<div><span class="nc-k">outputs</span> ${ul(outList)}</div>`
+    +`</div></details>`;
+}
+
 // Build the inner HTML for the docked card for a node id (null if no entry).
 function graphNodeInfoHtml(id){
   const info = NODE_INFO[id];
@@ -5575,19 +5779,28 @@ function graphNodeInfoHtml(id){
   if (kindL) s += ` <span class="gni-kind">· ${kindL}</span>`;
   s += `<br><span class="gni-desc">${info.desc}</span>`;
   if (info.wiki) s += ` <a class="gni-link" href="${WIKI_BASE}${info.wiki}" target="_blank" rel="noopener noreferrer">wiki&nbsp;&#8599;</a>`;
+  s += nodeComputeHtml(id);
   return s;
 }
 
 // Show the card for `id`; falls back to the click-selected node; hides if neither
 // has an entry. Driven by node mouseover + selection.
 function showGraphNodeInfo(id){
+  if (id) graphInfoId = id;          // STICKY: remember the node so the card persists on leave
   const box = document.getElementById("graphNodeInfo");
   if (!box) return;
-  const eff = id || state.selected;
+  const eff = graphInfoId || state.selected;
   const html = eff ? graphNodeInfoHtml(eff) : null;
   if (!html){ box.style.display = "none"; box.innerHTML = ""; return; }
   box.innerHTML = html;
   box.style.display = "block";
+  const d = box.querySelector("details.nc");   // remember the panel's open/closed state across re-renders
+  if (d) d.addEventListener("toggle", () => { ncOpen = d.open; });
+}
+function hideGraphNodeInfo(){
+  graphInfoId = null;
+  const box = document.getElementById("graphNodeInfo");
+  if (box){ box.style.display = "none"; box.innerHTML = ""; }
 }
 
 // Wheel-zoom + drag-pan on the graph SVG (mutates graphView; cheap viewBox re-set, no
@@ -5634,11 +5847,9 @@ function wireGraphZoomPan(){
     if (ev.key === "Escape") deselectNode();
   });
 
-  // Leaving the whole graph area collapses the description card back to the
-  // selected node (or hides it). Attached to the wrapper so moving from a node
-  // ONTO the card — to click its wiki link — does not dismiss it.
-  const wrap = document.getElementById("graphWrap");
-  if (wrap) wrap.addEventListener("mouseleave", () => showGraphNodeInfo(null));
+  // STICKY card: leaving the graph area does NOT dismiss the card — it persists (showing the
+  // last hovered/selected node) so the expanded "how it computes" panel stays readable.
+  // Dismiss explicitly with Esc or a click on the empty graph background.
 }
 
 /* ---- decomposition accessor: engine returns decomposition[k].parts ---- */
@@ -6056,13 +6267,13 @@ function selectNode(id){
 // re-enable the full graph, and reset the intervention panel. Wired to Esc + an
 // empty-space click on the graph background.
 function deselectNode(){
-  if (state.selected === null && graphFocus === null) return;
+  if (state.selected === null && graphFocus === null && graphInfoId === null) return;
   state.selected = null;
   graphFocus = null;
   hideTip();
   syncIntervControls();
   renderAll();
-  showGraphNodeInfo(null);   // collapse the description card
+  hideGraphNodeInfo();   // dismiss the sticky description card (Esc / empty-background click)
 }
 
 function syncIntervControls(){
@@ -6097,10 +6308,8 @@ function syncIntervControls(){
   }
   nameEl.textContent = node.label;
   const tcol = LAYER_COLOR[node.layer];
-  const rl = roleLabel(node);
   metaEl.innerHTML = `<span class="badge" style="background:${tcol}">${node.layer}</span> ` +
-    `tractability: <b>${node.tractability}</b> &middot; provenance: ${node.provenance}` +
-    (rl ? ` &middot; ${rl}` : "");
+    `tractability: <b>${node.tractability}</b> &middot; provenance: ${node.provenance}`;
 
   startS.disabled = effS.disabled = clearB.disabled = false;
   const iv = state.interventions[id] || { startAge: 50, efficacy: 0 };
@@ -6308,6 +6517,7 @@ const LEGEND_TIPS = {
   state: "<b>State node (&int;rate)</b> &mdash; the rate-integration substrate (ECM-crosslink, elastin-fatigue, &beta;-cell-decline, arterial-stiffness). S(age) = S&#8320; + &int;rate&middot;dt (a sub-kind is algebraic: value = &Sigma; terms). Normalized accumulating damage/physiology whose age-correlation <b>emerges</b> from the integral &mdash; it is <i>not</i> pegged to age. Feeds mediators and cause hazards. <i>Mediator, state and burden are functionally peers &mdash; all time-evolving variables driving mortality; the split tracks units + how they're computed + measurability, a representational seam being removed node by node.</i>",
   burden: "<b>Hallmark burden (tier-N)</b> &mdash; a latent, normalized [0,1] reserve-depletion / damage fraction (0 = pristine, 1 = exhausted). B&#7522; = clamp(T&#7522; + &Delta;&#7522;): T = the node's baseline age-curve, &Delta; = deviation from interventions propagated through the coupling matrix as a bounded fixed point. Mostly <i>latent</i> / not directly measurable. Tier = depth in the causal cascade (tier-1 most proximal).",
   phenotype: "<b>Pathology / cause node</b> &mdash; a latent [0,1] reserve-depletion burden whose T baseline comes from a CDC cause-of-death table; maps to death via cause_hazard = Rmax&middot;B&middot;&Pi;(multipliers).",
+  driver: "<b>Driver phenotype</b> &mdash; an aging phenotype that sits UPSTREAM of a terminal cause and drives it (sarcopenia &rarr; falls; clonal-hematopoiesis &rarr; atherosclerosis), rather than being a cause of death itself. Same latent [0,1] reserve form as a pathology node, but routed to the intermediate column &mdash; shown a lighter purple to distinguish it from the deep-purple terminal cause nodes.",
   mortality: "<b>Mortality sink</b> &mdash; the terminal node; a sex-specific competing-hazards sum over the cause nodes (CDC WONDER 2022).",
   tractHigh: "<b>High clinical tractability</b> &mdash; a clinical drug or validated probe already engages this node for an aging-relevant indication. Drawn as a thick solid node border.",
   tractMod: "<b>Moderate tractability</b> &mdash; a high-quality chemical probe or early-clinical agent exists, but no aging-validated modulator yet. Medium-weight solid border.",
@@ -6331,6 +6541,7 @@ function buildLegend(){
     const lbl = (L === "phenotype") ? "pathology" : L;
     html += `<span class="item">${dot(LAYER_COLOR[L])}${lbl}${ib(tipKey)}</span>`;
   });
+  html += `<span class="item">${dot(KIND_COLOR.intermediate)}driver phenotype${ib("driver")}</span>`;
   html += `<span class="item">${dot(KIND_COLOR.mortality)}◆ mortality${ib("mortality")}</span>`;
   html += `<span class="item">${dot("#c4ccd4")}<i>greyed = unlinked / planned</i></span>`;
   // Row 2: edge categories
@@ -6340,17 +6551,14 @@ function buildLegend(){
     `<span class="item">${eline(EDGE_STYLE.driver.stroke)}driver→state</span>` +
     `<span class="item">${eline(EDGE_STYLE.augment.stroke, "5,3")}state→mediator feedback</span>` +
     `<span class="item">${eline(EDGE_STYLE.cause.stroke)}→ cause / mortality</span>` +
-    `<span class="item">${eline(EDGE_STYLE.frailty.stroke, "2,3")}frailty amplifies cause</span>` +
-    `<span class="item">${eline("#cfd6dd", "4,3")}disabled (coeff 0)</span>`;
+    `<span class="item">${eline(EDGE_STYLE.frailty.stroke, "2,3")}reserve → all causes (reserved)</span>` +
+    `<span class="item">${eline("#79838f", "4,3")}disabled (coeff 0)</span>`;
   // Row 3: tractability ring + glyphs (each tractability level gets an (i) bubble)
   html += "</div><div style='margin-bottom:4px'>" +
     `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="3"/></svg>high tractability${ib("tractHigh")}</span>` +
     `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.8"/></svg>moderate${ib("tractMod")}</span>` +
     `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.5" stroke-dasharray="3,2"/></svg>low${ib("tractLow")}</span>` +
     `<span class="item">&#10052; active freeze</span>` +
-    `<span class="item">&#8224; mortality cause</span>` +
-    `<span class="item">&#215; frailty multiplier</span>` +
-    `<span class="item">&#9656; driver</span>` +
     "</div>";
   wrap.innerHTML = html;
   // Attach the tooltip handlers to each registered (i) bubble.
@@ -6369,7 +6577,7 @@ function buildLegend(){
   const info = document.getElementById("graphInfo");
   if (!info) return;
   const html =
-    "Border weight/style = clinical tractability; fill color = biological layer; in-node glyph = role. " +
+    "Border weight/style = clinical tractability; fill color = biological layer. " +
     "<code>ordinal-default</code> parameters are illustrative only. " +
     "Mortality is a sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; " +
     "female CVD-onset delay &amp; male external excess emerge from data), amplified by a " +

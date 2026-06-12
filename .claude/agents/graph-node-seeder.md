@@ -35,6 +35,7 @@ The main agent invokes you with: the pathology/cause name; the **op** (A extend-
 A concise report: the op + node, the data source + Rmax/curve, the edges + β anchors, the LE before/after (proving invariance), open `#gap`s and what the validator must cross-check, and any test target that needs re-baselining. Do NOT git-commit.
 
 ## Discipline
+- **Close out the tracker.** If the edge/node you populated has a row in `model/age-hardcoding-audit.md` § "Deferred — MUST REVISIT" (the standing edge-work queue), mark it ✅ done there (with the date + result), so the queue reflects reality. Don't leave a completed item showing as deferred.
 - Baseline-LE invariance and no-age-pegging are non-negotiable (SOP §1). 
 - Partition by **driver mechanism, not ICD chapter** (K55 infarction → cardiovascular, not digestive).
 - Don't propagate sim numbers onto atomic wiki pages. Citation discipline applies to biological claims in `provenance:`.

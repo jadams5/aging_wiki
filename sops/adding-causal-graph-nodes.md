@@ -8,8 +8,11 @@ aliases: [adding sim nodes, cause-node recipe, node-adder]
 How to add or extend a node in the simulator model (`frameworks/causal-graph-parameters.md` →
 `model/` → `viz/aging-simulator.html`) **without breaking the calibration invariant or
 re-introducing age-pegging.** This is the model analogue of `sops/adding-a-claim.md`: it carries
-the conventions so the `graph-node-seeder` / `graph-node-validator` subagents (and the main agent)
-produce consistent, defensible model changes.
+the conventions so the `edge-auditor` / `graph-node-seeder` / `graph-node-validator` subagents
+(and the main agent) produce consistent, defensible model changes. The three subagents map onto
+the wiki's three roles: `edge-auditor` = lint-discovery + `#stub` creation (survey the graph,
+stub the missing edges — § 0a); `graph-node-seeder` = wiki-seeder (calibrate a stub into a built
+node/edge); `graph-node-validator` = wiki-verifier (cross-check vs source, promote).
 
 > Read first: `model/PROJECT-NOTES.md` (build flow, fixed-mistakes list, §8a cause recipe) and
 > `model/age-hardcoding-audit.md` (the no-age-pegging principle, the uniform node schema, the
@@ -30,6 +33,114 @@ A "node addition" is always one of three shapes. Pick the smallest one that fits
 
 Most of the cause-of-death residual partition (`model/cod-residual-partition-2019.md`) is **Op A**
 folds; the frailty bucket is **Op B**; mechanizing a driver is **Op C**.
+
+---
+
+## 0a. The edge-audit / stub pass (the structural layer beneath A/B/C)
+
+Before any op *calibrates* a node, the graph can be *surveyed and stubbed* — the model analogue
+of the wiki's lint-pass inbound-count discovery + `#stub` page creation. This is the
+**`edge-auditor`** subagent's job (read-heavy, fan-out per node):
+
+1. For a node, enumerate its current inbound + outbound edges in `MODEL.edges` (by `kind`:
+   `coupling | mediator | cause | augment | frailty`, plus the `driver` terms derived from
+   `bLayer.stateNodes[].rate.terms`).
+2. **Diff against the verified biology** — `frameworks/causal-graph-data.md` (the 34-edge,
+   evidence-graded hallmark→hallmark truth) + the node's *verified* atomic wiki page. Which
+   biology edges are present, missing, mis-directed, or mis-`kind`ed? The model **must not
+   diverge** from the verified edge structure (§ 2.1). **Not every biological relation becomes a
+   stub** — `causal-graph-data.md` is itself auto-extracted, and atomic pages mix associations,
+   feedback loops, model-organism-only evidence, and non-simulator relationships. Auto-stub
+   only an edge that clears the **admission criteria** (§ 0b); everything else is a *candidate*
+   listed in the report for human adjudication.
+3. For each *admitted* missing edge, append a **structural stub** to the `MODEL.edges` array
+   (see schema below). The stub carries the *located* biology anchor — the `causal-graph-data.md`
+   evidence-strength, the key-citation, the atomic-page wikilink, the **natural variable** β will
+   be expressed in (β = ln(HR) per unit), and the open `#gap`. **β is NOT derived here** —
+   locating where it will come from is the whole job; deriving it is the populate pass.
+
+**Stub schema — a stub is a structural annotation the engine NEVER executes.** Inertness does
+**not** rely on a magnitude being zero (it can't: `beta: 0` does not neutralize forms like
+`mediatorThresholdRamp`, which read `slope`/`threshold`/`cap`, and a zero-`beta` *frailty* edge
+would silently **overwrite** the live `beta` for its target in `betaByCause`). Instead, stubs are
+**excluded at the single partition point** — `edgesByKind()` in `engine.mjs` filters out
+`kind:"stub"` / `provenance:"stub"` before any math — so a stub cannot touch the simulation at
+all, regardless of intended kind or form. **Stub NODES work the same way**: a `provenance:"stub"`
+entry in `nodes` or `bLayer.stateNodes` is filtered out at the two points where the engine reads the
+node sets (`const NODES = MODEL.nodes.filter(…)`, `const stateNodes = (b.stateNodes||…).filter(…)`),
+so it's engine-inert; the viz still renders it (greyed, via the unlinked-node greying), making a
+planned-but-unmodeled node visible (cf. `sinoatrial-node-reserve`). A stub edge names the lane it
+*will* occupy via `intendedKind`:
+
+```json
+{ "kind": "stub", "intendedKind": "cause", "from": "<src>", "to": "<causeKey>",
+  "evidenceStrength": "moderate",
+  "note": "stub: HbA1c→ckd. causal-graph-data moderate; Fox 2012 eGFR-decline per +1% HbA1c. β in ln(HR) per +1% HbA1c. #gap/needs-effect-size",
+  "provenance": "stub" }
+```
+- `intendedKind: cause | frailty` → `to` is a **cause key**; `mediator | augment` → `to`/`mediator` is a **mediator**; `driver` → `to` is a **state node** (this is how a missing `∫rate·dt` driver term is stubbed even though driver edges live in `stateNodes`, not `MODEL.edges`); `coupling` → both endpoints are hallmark nodes. `augment` uses `fromState`/`mediator`; the rest use `from`/`to`.
+- **No magnitude/form fields** — the engine never reads them, so including them is misleading. The populate pass adds the form + coefficient when it converts the stub to a live edge.
+
+A stub is therefore **inert by construction** — a stub pass needs **NO residual recompute**, and
+baseline LE *and every intervention ΔLE* are unchanged (pinned by the `stub:` regression tests in
+`model/test.mjs`, which inject one stub per `intendedKind` — including a frailty stub to
+`cardiovascular` — and assert hazard-array identity + sarcopenia-intervention-LE invariance to
+1e-9). Yet it is *visible*: `buildUnifiedGraph` (`viz/aging-simulator.html`) renders a
+`kind:"stub"` edge **grey-dashed** (via `intendedKind`→category) and **greys any planned node it
+alone touches** (the `smoking`-style treatment), so the graph surfaces "we know this edge exists,
+β not yet derived" as a first-class on-graph `#gap` marker.
+
+**Stub vs. disabled — do not conflate.** They mean opposite things to the populate pass:
+
+| | marker | engine | meaning to the populate pass |
+|---|---|---|---|
+| **stub** | `kind:"stub"` (+ `provenance:"stub"`) | excluded at `edgesByKind` | β was *never derived* — go calibrate it. |
+| **disabled** | a live edge / `rate.term` with `coeff: 0` + a prose `…DEFERRED…` provenance (e.g. the BMI→β-cell lipotoxicity arm) | executed, contributes 0 | β *is* known, deliberately switched off — leave it off. |
+
+Populating a stub (`stub → placeholder`) is the relevant op (A/B/C) applied to that one edge:
+replace the `kind:"stub"` entry with a live `kind:"<intendedKind>"` edge whose form + β are
+derived from the recorded citation (recency search per §2), apply mediation-decomposition (§5),
+re-baseline any ΔLE that legitimately moves, then hand to `graph-node-validator` to promote.
+
+---
+
+## 0b. Edge-admission — STUB liberally (visible), POPULATE strictly (verified)
+
+There are **two bars, and they are different**. **Stubbing** makes a believed-but-unmodeled relation
+VISIBLE on the graph as an inert grey-dashed edge (or a greyed node) — its bar is *plausibility*.
+**Populating** turns a stub into a live calibrated edge — its bar is *verified evidence + a derived
+coefficient*. Don't conflate them: the whole point of a stub is to **show the gap**, so stub on
+plausibility (and record the evidence status), and hold the verified-citation requirement for the
+populate pass. (Earlier this SOP gated *stubbing* on verified scope — wrong; that gates *populating*.)
+
+**STUB a missing relation (grey, inert, visible) when ALL hold:**
+1. **Explicit causal direction** — a directional mechanism, not a bare "X is associated with Y".
+2. **Biologically grounded** — a real mechanism in the wiki or established physiology (not invented
+   from training memory). The *evidence strength* (`strong`/`moderate`/`weak`) is RECORDED in the
+   stub's `evidenceStrength` + `note`; it is **not** a stub gate.
+3. **A defensible `intendedKind`** — the relation maps cleanly to one kind.
+4. **Mediation / double-count reviewed** — if the effect is already carried by an existing path, the
+   `note` flags that the populate pass must mediation-decompose (§5), not add a parallel edge.
+5. **Endpoints** — if both are in the sim, stub the edge. **If an endpoint is NOT yet a node, stub the
+   NODE too** — a `provenance:"stub"` entry in `nodes` / `bLayer.stateNodes` (engine-inert: both
+   `engine.mjs` node loops filter `provenance:"stub"`), greyed by the viz — *and* the edge to it, so
+   the missing node is visible, not merely described (cf. the `sinoatrial-node-reserve` stub node).
+
+**Adjudicate (report, do NOT stub)** only the genuine residue: ambiguous/contested direction, or a
+relation that maps to no edge/node shape.
+
+**POPULATE a stub (stub → placeholder/calibrated)** requires what stubbing does not: a **verified
+primary-source dose-response** (a verified atomic/study page, cited by DOI — not
+`causal-graph-data.md`'s auto-extracted status alone, not model-organism-only without an extrapolation
+note) **plus a derived coefficient**. So `weak`/uncited relations still get **stubbed** (grey); the
+missing citation is a POPULATE blocker, recorded in the stub `note` (`#gap/needs-effect-size` /
+`#gap/needs-verified-source`) and is the trigger to dispatch `wiki-seeder` first.
+
+`frailty`-kind stubs get an extra gate: the engine supports **one frailty source per cause**
+(`betaByCause` keys by target). A frailty stub is allowed (it's inert) but its `note` must flag
+that the populate pass cannot simply add it — it must either replace the existing source or the
+engine must first be extended to sum multiple named frailty sources (see § frailty caveat in
+`model/PROJECT-NOTES.md`). `validate-graph.mjs` enforces single-source among *live* frailty edges.
 
 ---
 
@@ -170,15 +281,18 @@ a rate×time integral, and let the residual carry only the fraction tied to a sp
 
 ## 6. Maturity ladder (the `provenance:` field)
 
-Mirrors the wiki's `verified:` flow. A node ships as a placeholder and is promoted on validation:
+Mirrors the wiki's `#stub` → `verified:` flow. An edge/node ships as a `stub` or `placeholder`
+and is promoted as it matures:
 
 | Stage | `provenance:` marker | Meaning |
 |---|---|---|
+| structural stub | `kind:"stub"` (`provenance:"stub"`) | edge-auditor's pass (§ 0a): the edge SHOULD exist per `causal-graph-data.md`; direction/`intendedKind`/citation/natural-variable recorded. **Excluded from the engine** at `edgesByKind` ⇒ LE- and ΔLE-invariant, **no** residual recompute; renders grey-dashed. β NOT yet derived. |
 | draft | `placeholder` / `illustrative; SOLID-direction` | seeder's first pass; magnitudes provisional, direction defensible |
 | validated | `calibrated` | numbers cross-checked vs CDC/literature; β's literature-anchored |
 | gold | `anchored` | fully reconciled, regression-pinned, **no open `#gap`** |
 
-The seeder writes `placeholder`; the validator promotes it and re-baselines tests. **`anchored` is
+The edge-auditor writes `stub`; the seeder calibrates it to `placeholder` (deriving β, flipping
+the magnitude off 0 — § 0a); the validator promotes it and re-baselines tests. **`anchored` is
 strict:** any open gap caps the node at `calibrated`. A cause built on **D76 2019 with a
 `SWAP-TO-2022` marker** in its `cdc:` field has an open gap → it stays `calibrated`, consistent with
 the other 2019 bands (pilot 2026-06-11: the seeder over-claimed `anchored`; the validator corrected
@@ -194,11 +308,20 @@ Source of truth is the ```json block in `frameworks/causal-graph-parameters.md`.
 
 ```
 # edit the json block in frameworks/causal-graph-parameters.md (and engine.mjs only for math)
-node model/build-params.mjs     # .md json block → params.json
+node model/build-params.mjs     # .md json block → params.json; FAILS on a graph-validation error
+node model/validate-graph.mjs   # (also run by build-params) structural gate — see below
 node model/test.mjs             # MUST stay green; re-baseline deliberately if LE legitimately moved
-node model/cli.mjs le --sex male   # sanity: ~77.459
 node model/build-app.mjs        # inline engine + params → viz/aging-simulator.html
 ```
+`build-params.mjs` runs `validateGraph()` and **throws** on any structural error — unknown
+endpoints, invalid cause-targets, a **duplicate/colliding frailty target** (the `betaByCause` map
+keys by target, so a second live frailty edge to a cause silently overwrites the first — baseline
+LE won't catch it), duplicate live edges, malformed cause/mediator forms (missing required fields
+→ NaN), and malformed stubs. These pass a baseline-LE check otherwise, which is why the gate is
+structural, not LE-based. **Do not check LE invariance with `cli.mjs le --sex male --sex female`** —
+the flag parser keeps only the last `--sex` and prints two decimals; use `model/test.mjs` (the
+`stub:` tests assert full-precision baseline + intervention-LE invariance for both sexes).
+
 Then the **headless render check** (Proxy-stub `document`/`window` — catches blank-panel crashes the
 unit tests miss) and, for UI-visible changes, `model/e2e-playwright.mjs`. A new mediator must be
 registered in the app's `MED_SCALE` + `MED_COLOR` or `renderMediators` throws.
