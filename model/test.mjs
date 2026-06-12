@@ -625,6 +625,49 @@ str("B3b: underweight penalty steep (< obese)", String(
   str("validator: catches unknown endpoint", String(inject({ kind: "coupling", from: "NOPE", to: "cancer", strength: "weak" }) > 0), "true");
 }
 
+// ---- genomic-instability ∫rate·dt migration (Phase C3, 2026-06-12) ----
+// GI is de-age-pegged: closed-form linear curve → emergent ∫rate·dt baseline + an exogenous-driver
+// channel (accumDev, folded into the PRIMARY deviation so it propagates through the coupling solve).
+// Verifies, per the reviewed design: emergent baseline preserved; term=0 at popMean; the exposure
+// DEVIATION grows with duration AND propagates downstream; burdens stay in [0,1] and finite.
+{
+  const AGE0gi = MODEL.meta.ageRange[0];
+  const atAge = (B, age) => B[age - AGE0gi];
+
+  // baseline preserved: emergent integral reproduces 0.05 + 0.01·(age−20); GI@80 ≈ 0.65 (Δ=0 ⇒ B=T)
+  const rPop = simulate(MODEL, { sex: "male" });
+  num("GI-migration: emergent baseline GI@80 ≈ 0.65", atAge(rPop.B["genomic-instability"], 80), 0.65, 1e-6);
+
+  // inject a SYNTHETIC exogenous-driver term (does NOT touch params.json): coeff·(smoking−popMean)
+  const M2 = JSON.parse(JSON.stringify(MODEL));
+  M2.nodes.find((n) => n.id === "genomic-instability").rate.terms =
+    [{ coeff: 0.0002, drivers: [{ id: "smoking", minus: 2 }] }];
+
+  // term = 0 at popMean input (smoking=2) ⇒ GI burden identical to the no-term baseline
+  const rPop2 = simulate(M2, { sex: "male", inputs: { smoking: 2 } });
+  num("GI-migration: synthetic term = 0 at popMean",
+    atAge(rPop2.B["genomic-instability"], 80) - atAge(rPop.B["genomic-instability"], 80), 0, 1e-12);
+
+  // exposure DEVIATION (not level — baseline already rises) grows with duration: dev80 > dev50 > 0
+  const rExp = simulate(M2, { sex: "male", inputs: { smoking: 20 } });
+  const dev = (age) => atAge(rExp.B["genomic-instability"], age) - atAge(rPop.B["genomic-instability"], age);
+  str("GI-migration: exposure deviation grows with duration (dev80>dev50>0)",
+    String(dev(80) > dev(50) && dev(50) > 0), "true");
+
+  // PROPAGATION through the coupling solve: a downstream GI target rises under exposure
+  // (proves accumDev is INSIDE the solve, not added post-hoc — review correction #1)
+  str("GI-migration: exposure propagates downstream to cellular-senescence",
+    String(atAge(rExp.B["cellular-senescence"], 80) > atAge(rPop.B["cellular-senescence"], 80)), "true");
+
+  // bounds + finiteness under heavy exposure: GI∈[0,1] and every node burden finite
+  const rHeavy = simulate(M2, { sex: "male", inputs: { smoking: 40 } });
+  const giH = atAge(rHeavy.B["genomic-instability"], 100);
+  str("GI-migration: GI burden in [0,1] under heavy exposure", String(giH >= 0 && giH <= 1), "true");
+  let fin = true;
+  for (const id in rHeavy.B) for (let k = 0; k < rHeavy.ages.length; k++) if (!Number.isFinite(rHeavy.B[id][k])) fin = false;
+  str("GI-migration: all node burdens finite under heavy exposure", String(fin), "true");
+}
+
 export function runTests() {
   let allPass = true;
   const rows = tests.map((t) => {

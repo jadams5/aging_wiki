@@ -557,36 +557,71 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   }
   const COUPLE_ITERS = (MODEL.coupling && MODEL.coupling.iterations) || 60;
 
-  // Precompute baseline T over all ages: Tarr[i][k].
-  const Tarr = NODES.map((node) => AGES.map((a) => curveT(node, sex, a, AGE0)));
+  // Precompute baseline T over all ages: Tarr[i][k]. A node carrying an emergent `rate.base`
+  // (the de-age-pegging migration substrate — e.g. genomic-instability) integrates its baseline
+  // FORWARD — T[k]=T[k-1]+base·DT, T[0]=initial — instead of evaluating a closed-form age curve;
+  // age is no longer an input, the trajectory EMERGES from the integral. At the population
+  // default this reproduces the former curve within float tolerance (op-order, not byte-exact).
+  const Tarr = NODES.map((node) => {
+    if (node.rate) {
+      const base = node.rate.base || 0;
+      const arr = new Array(N_AGE);
+      arr[0] = clamp01(node.initial ?? 0);
+      for (let k = 1; k < N_AGE; k++) arr[k] = clamp01(arr[k - 1] + base * DT);
+      return arr;
+    }
+    return AGES.map((a) => curveT(node, sex, a, AGE0));
+  });
 
   // B[i][k] via bounded fixed-point coupling per age.
   const Barr = NODES.map(() => new Array(N_AGE));
   const prim = new Array(NN).fill(0);
 
+  // Node-level integrated exogenous-driver channel. A hallmark node may carry `rate:{base,terms}`;
+  // its `terms` (same schema as state-node rate terms, deviation-form {id,minus:popMean}) ACCUMULATE
+  // over age into `accumDev`, exactly as `prim` accumulates intervention effects. accumDev is folded
+  // into the PRIMARY deviation P (below) so an exposure-driven node burden propagates through the
+  // coupling matrix (smoke→GI→cancer). Terms resolve against EXOGENOUS INPUTS only (inter-hallmark
+  // drivers stay couplings); inputs are constant over a run, so `inMap[id][k]` is constant. At the
+  // population default every term is 0 ⇒ accumDev≡0 ⇒ the burden math is unchanged.
+  const inMap = {};
+  for (const x of (MODEL.bLayer && MODEL.bLayer.exogenousInputs) || []) {
+    const v = (typeof inputs[x.id] === "number") ? inputs[x.id]
+            : (typeof x.populationMean === "number") ? x.populationMean : 0;
+    inMap[x.id] = new Array(N_AGE).fill(v);
+  }
+  const accumDev = new Array(NN).fill(0);
+  const hasRateTerms = NODES.map((n) => !!(n.rate && n.rate.terms && n.rate.terms.length));
+
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
-    // Solve D = prim + couple*(G·D) by fixed-point iteration.
-    let D = prim.slice();
+    // Primary deviation P = interventions (prim) + integrated exogenous drivers (accumDev).
+    // Solving D = P + couple*(G·D) puts accumDev INSIDE the coupling solve, so an exposure-driven
+    // node burden propagates downstream through G (correction: must not be added post-solve).
+    const P = new Array(NN);
+    for (let i = 0; i < NN; i++) P[i] = prim[i] + accumDev[i];
+    let D = P.slice();
     for (let it = 0; it < COUPLE_ITERS; it++) {
       const ND = new Array(NN);
       for (let i = 0; i < NN; i++) {
         let s = 0;
         const Gi = G[i];
         for (let j = 0; j < NN; j++) { if (Gi[j] !== 0) s += Gi[j] * D[j]; }
-        ND[i] = prim[i] + couple * s;
+        ND[i] = P[i] + couple * s;
       }
       D = ND;
     }
     for (let i = 0; i < NN; i++) Barr[i][k] = clamp01(Tarr[i][k] + D[i]);
 
-    // Accumulate primary deviation for the NEXT step from active interventions.
+    // Accumulate for the NEXT step: interventions into prim, integrated exogenous drivers into
+    // accumDev (= ∫ rate-terms·dt, deviation-form ⇒ 0 at population-default inputs).
     if (k < N_AGE - 1) {
       for (let i = 0; i < NN; i++) {
         const iv = interventions[NODES[i].id];
         if (iv && age >= iv.startAge) {
           prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
         }
+        if (hasRateTerms[i]) accumDev[i] += termsSum(NODES[i].rate.terms, inMap, k) * DT;
       }
     }
   }
@@ -2443,12 +2478,11 @@ const MODEL = {
       "layer": "tier1",
       "tractability": "low",
       "provenance": "anchored",
-      "curve": {
-        "form": "linear",
-        "params": {
-          "t0": 0.05,
-          "slope": 0.01
-        }
+      "initial": 0.05,
+      "rate": {
+        "base": 0.01,
+        "terms": [],
+        "_migrated": "2026-06-12 Phase C3: de-age-pegged from curve{linear,t0:0.05,slope:0.01} to emergent ∫rate·dt. base=former slope; T[0]=initial=former t0; reproduces the linear curve within float tolerance. terms:[] = exogenous-driver channel, populate-ready (smoking/alcohol/airPollution stubs). See model/gi-migration-design.md."
       }
     },
     {
@@ -4352,7 +4386,7 @@ const MODEL = {
       "evidenceStrength": "strong",
       "citation": "Alexandrov LB et al. 2016, Science · doi:10.1126/science.aag0299",
       "wiki": "hallmarks/genomic-instability",
-      "note": "stub: smoking->genomic-instability. Tobacco smoke polycyclic aromatic hydrocarbons (benzo[a]pyrene and related PAHs) form bulky DNA adducts on guanine N2/O6 positions; unrepaired adducts produce G→T transversions that define the tobacco mutational signature SBS4. Alexandrov et al. 2016 (Science, doi:10.1126/science.aag0299) quantified somatic mutation burden in 17 cancer types across 5,243 tumours: lung cancer (smoke-exposed) carries ~150 clonal mutations per year of smoking, directly scaling SBS4 burden with pack-years — the clearest human population-level dose-response linking a modifiable exposure to genomic-instability accrual rate. The mutagenic mechanism is mechanistically grounded in the verified genomic-instability atomic page (hallmarks/genomic-instability.md). Natural variable: β in ln(rate of somatic mutation accrual) per pack-year (cig/day × years / 20). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node (form: linear, t0:0.05, slope:0.01). Populating this driver term requires FIRST migrating genomic-instability from its age-curve to a ∫rate·dt state node (the de-age-pegging step, Phase C of the migration roadmap) — otherwise this exogenous forcing would be added on top of a hard-coded age line, double-driving the node. Until that migration, this stub is inert (engine excludes it). Mediation note: smoking already drives cancer directly (PAF 28.8%, existing live cause edge smokingStatus→cancer) via the bundled carcinogenesis route. When this driver stub is populated, the populate pass must mediation-decompose the cancer cause edge to subtract the genomic-instability-mediated slice — consistent with the route-once discipline (smoke→GI→cancer replaces part of the direct smoke→cancer bundled edge). POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response (Δ-mutation-burden per pack-year in non-cancer normal tissue, not just cancer-derived) is needed for the wiki — the Alexandrov 2016 anchor covers cancer-tissue mutation burden; normal-tissue equivalents (e.g. Blokzijl 2016 liver stem cells by smoking status) should be confirmed. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "note": "stub: smoking->genomic-instability. Tobacco smoke polycyclic aromatic hydrocarbons (benzo[a]pyrene and related PAHs) form bulky DNA adducts on guanine N2/O6 positions; unrepaired adducts produce G→T transversions that define the tobacco mutational signature SBS4. Alexandrov et al. 2016 (Science, doi:10.1126/science.aag0299) quantified somatic mutation burden in 17 cancer types across 5,243 tumours: lung cancer (smoke-exposed) carries ~150 clonal mutations per year of smoking, directly scaling SBS4 burden with pack-years — the clearest human population-level dose-response linking a modifiable exposure to genomic-instability accrual rate. The mutagenic mechanism is mechanistically grounded in the verified genomic-instability atomic page (hallmarks/genomic-instability.md). Natural variable: β in ln(rate of somatic mutation accrual) per pack-year (cig/day × years / 20). DE-AGE-PEGGING: genomic-instability is now an emergent ∫rate·dt node (MIGRATED Phase C3, 2026-06-12; model/gi-migration-design.md) — this driver is POPULATE-READY as a rate-term. INPUT-ID RECONCILIATION: this stub sources from the unwired numeric `smoking` (cig/day) placeholder, whereas the wired canonical input is the categorical `smokingStatus` (used by smokingStatus→cancer/CVD/etc. and the senescence/inflammation/telomere stubs). The integrated rate-term machinery needs a NUMERIC dose, which categorical `smokingStatus` cannot provide directly — so populate must decide: use numeric `smoking`/cig-day (the Alexandrov pack-year dose-response fits this), add a `smokingStatus`→rate mapping, or bridge `smokingStatus`→cig-day. Resolve at populate time. Mediation note: smoking already drives cancer directly (PAF 28.8%, existing live cause edge smokingStatus→cancer) via the bundled carcinogenesis route. When this driver stub is populated, the populate pass must mediation-decompose the cancer cause edge to subtract the genomic-instability-mediated slice — consistent with the route-once discipline (smoke→GI→cancer replaces part of the direct smoke→cancer bundled edge). POPULATE BLOCKED: (1) genomic-instability is MIGRATED to ∫rate·dt ✓ (Phase C3, 2026-06-12); (2) a verified primary-source quantitative dose-response (Δ-mutation-burden per pack-year in non-cancer normal tissue, not just cancer-derived) is needed for the wiki — the Alexandrov 2016 anchor covers cancer-tissue mutation burden; normal-tissue equivalents (e.g. Blokzijl 2016 liver stem cells by smoking status) should be confirmed. #gap/needs-verified-source",
       "provenance": "stub"
     },
     {
@@ -4363,7 +4397,7 @@ const MODEL = {
       "evidenceStrength": "strong",
       "citation": "Garaycoechea JI, Patel KJ et al. 2018, Nature · doi:10.1038/nature25154",
       "wiki": "hallmarks/genomic-instability",
-      "note": "stub: alcohol->genomic-instability. Ethanol is metabolized to acetaldehyde (by ADH enzymes) and further to acetate (by ALDH2). Acetaldehyde is a genotoxin: it crosslinks DNA bases (primarily N2-dG adducts and interstrand crosslinks) and depletes glutathione. Garaycoechea & Patel et al. 2018 (Nature, doi:10.1038/nature25154) provide the canonical mechanistic anchor using ALDH2-/-/FANCD2-/- double-knockout mice: loss of both acetaldehyde clearance (ALDH2) and Fanconi anemia DNA repair (FANCD2) produces severe HSC genotoxicity and acute bone marrow failure, establishing that acetaldehyde-induced DNA damage is a primary driver of hematopoietic stem cell genomic instability in the absence of repair. The mechanism is grounded in the verified hallmarks/genomic-instability.md page (progeroid syndromes section: Fanconi anemia as DDR-defect phenocopy of accelerated aging). Natural variable: β in ln(rate of acetaldehyde-DNA adduct accrual) per g/day ethanol (linked to acetaldehyde area-under-curve, which varies by ALDH2 genotype — a key effect modifier). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node. Populating this driver term requires FIRST migrating genomic-instability to a ∫rate·dt state node. Until that migration, this stub is inert. Mediation note: alcohol already drives liver mortality directly (existing live cause edge alcohol→liver via the alcoholThreshold form). The genomic-instability-mediated path from alcohol carries a DISTINCT downstream effect (cancer risk elevation via DNA damage, particularly esophageal/head-and-neck/colorectal SBS16 signature) and is NOT double-counted with the liver edge. However, when populating, confirm that cancer cause edges are not double-counting the alcohol-genomic-instability-cancer chain against the liver edge. POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response for acetaldehyde → DNA-adduct burden per g/day ethanol in human tissue is needed in the wiki — the Garaycoechea/Patel 2018 anchor is mouse DKOKOD mechanistic; a human epidemiological dose-response (e.g. alcohol-associated SBS16 burden per unit drink/day in normal tissue) should be confirmed. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "note": "stub: alcohol->genomic-instability. Ethanol is metabolized to acetaldehyde (by ADH enzymes) and further to acetate (by ALDH2). Acetaldehyde is a genotoxin: it crosslinks DNA bases (primarily N2-dG adducts and interstrand crosslinks) and depletes glutathione. Garaycoechea & Patel et al. 2018 (Nature, doi:10.1038/nature25154) provide the canonical mechanistic anchor using ALDH2-/-/FANCD2-/- double-knockout mice: loss of both acetaldehyde clearance (ALDH2) and Fanconi anemia DNA repair (FANCD2) produces severe HSC genotoxicity and acute bone marrow failure, establishing that acetaldehyde-induced DNA damage is a primary driver of hematopoietic stem cell genomic instability in the absence of repair. The mechanism is grounded in the verified hallmarks/genomic-instability.md page (progeroid syndromes section: Fanconi anemia as DDR-defect phenocopy of accelerated aging). Natural variable: β in ln(rate of acetaldehyde-DNA adduct accrual) per g/day ethanol (linked to acetaldehyde area-under-curve, which varies by ALDH2 genotype — a key effect modifier). DE-AGE-PEGGING: genomic-instability is now an emergent ∫rate·dt node (MIGRATED Phase C3, 2026-06-12; model/gi-migration-design.md) — this driver is POPULATE-READY as a rate-term (append to genomic-instability.rate.terms, deviation-form). Mediation note: alcohol already drives liver mortality directly (existing live cause edge alcohol→liver via the alcoholThreshold form). The genomic-instability-mediated path from alcohol carries a DISTINCT downstream effect (cancer risk elevation via DNA damage, particularly esophageal/head-and-neck/colorectal SBS16 signature) and is NOT double-counted with the liver edge. However, when populating, confirm that cancer cause edges are not double-counting the alcohol-genomic-instability-cancer chain against the liver edge. POPULATE BLOCKED: (1) genomic-instability is MIGRATED to ∫rate·dt ✓ (Phase C3, 2026-06-12); (2) a verified primary-source quantitative dose-response for acetaldehyde → DNA-adduct burden per g/day ethanol in human tissue is needed in the wiki — the Garaycoechea/Patel 2018 anchor is mouse DKOKOD mechanistic; a human epidemiological dose-response (e.g. alcohol-associated SBS16 burden per unit drink/day in normal tissue) should be confirmed. #gap/needs-verified-source",
       "provenance": "stub"
     },
     {
@@ -4374,7 +4408,7 @@ const MODEL = {
       "evidenceStrength": "moderate",
       "citation": "IARC Monograph vol. 109 (2015); Burnett 2018 GBD IER · doi:10.1073/pnas.1803222115",
       "wiki": "hallmarks/genomic-instability",
-      "note": "stub: airPollution->genomic-instability. Ambient particulate matter (PM2.5) is classified IARC Group 1 human carcinogen (IARC Monograph vol. 109, 2015). Two genotoxic mechanisms: (1) PAH adsorbed on fine particles form bulky DNA adducts (structural similarity to tobacco SBS4 mechanism, but lower dose per µg/m³ than direct smoking); (2) oxidative stress from reactive oxygen species generated by transition metals (iron, copper) on PM2.5 surface → 8-oxo-dG, strand breaks. Lung cancer dose-response in the GBD/Burnett 2018 integrated exposure-response (IER) model provides the best-characterized population-level link. Natural variable: β in ln(rate of DNA-damage accrual) per µg/m³ PM2.5 annual mean (WHO guideline threshold 5 µg/m³; US EPA NAAQS 12 µg/m³; global range 5–200 µg/m³ in high-pollution urban settings). DE-AGE-PEGGING DEPENDENCY: genomic-instability is currently a Tier-B linear age-curve node. Populating this driver term requires FIRST migrating genomic-instability to a ∫rate·dt state node. Until that migration, this stub is inert. Mediation note: airPollution already drives COPD and cardiovascular mortality directly (existing live cause edges airPollution→copd, airPollution→cardiovascular). The genomic-instability-mediated path from airPollution represents the carcinogenic/mutagenic channel (lung cancer, bladder cancer via particle-mediated systemic adducts) and is DISTINCT from the inflammatory/bronchospasm COPD channel and the oxidative-endothelial CVD channel — not a double-count. However, when populating, mediation-decompose the cancer cause edge to avoid double-counting the PM2.5→GI→cancer chain against any direct PM2.5→cancer edge that might be added. POPULATE BLOCKED: (1) genomic-instability must be migrated to ∫rate·dt state node; (2) a verified primary-source quantitative dose-response for PM2.5 → DNA-adduct/oxidative-lesion burden per µg/m³ in human tissue is needed in the wiki — the IARC Group 1 classification confirms carcinogenicity but the dose-response per unit exposure in terms of lesion accrual rate is not yet verified in the wiki. #gap/needs-state-node-migration #gap/needs-verified-source",
+      "note": "stub: airPollution->genomic-instability. Ambient particulate matter (PM2.5) is classified IARC Group 1 human carcinogen (IARC Monograph vol. 109, 2015). Two genotoxic mechanisms: (1) PAH adsorbed on fine particles form bulky DNA adducts (structural similarity to tobacco SBS4 mechanism, but lower dose per µg/m³ than direct smoking); (2) oxidative stress from reactive oxygen species generated by transition metals (iron, copper) on PM2.5 surface → 8-oxo-dG, strand breaks. Lung cancer dose-response in the GBD/Burnett 2018 integrated exposure-response (IER) model provides the best-characterized population-level link. Natural variable: β in ln(rate of DNA-damage accrual) per µg/m³ PM2.5 annual mean (WHO guideline threshold 5 µg/m³; US EPA NAAQS 12 µg/m³; global range 5–200 µg/m³ in high-pollution urban settings). DE-AGE-PEGGING: genomic-instability is now an emergent ∫rate·dt node (MIGRATED Phase C3, 2026-06-12; model/gi-migration-design.md) — this driver is POPULATE-READY as a rate-term (append to genomic-instability.rate.terms, deviation-form). Mediation note: airPollution already drives COPD and cardiovascular mortality directly (existing live cause edges airPollution→copd, airPollution→cardiovascular). The genomic-instability-mediated path from airPollution represents the carcinogenic/mutagenic channel (lung cancer, bladder cancer via particle-mediated systemic adducts) and is DISTINCT from the inflammatory/bronchospasm COPD channel and the oxidative-endothelial CVD channel — not a double-count. However, when populating, mediation-decompose the cancer cause edge to avoid double-counting the PM2.5→GI→cancer chain against any direct PM2.5→cancer edge that might be added. POPULATE BLOCKED: (1) genomic-instability is MIGRATED to ∫rate·dt ✓ (Phase C3, 2026-06-12); (2) a verified primary-source quantitative dose-response for PM2.5 → DNA-adduct/oxidative-lesion burden per µg/m³ in human tissue is needed in the wiki — the IARC Group 1 classification confirms carcinogenicity but the dose-response per unit exposure in terms of lesion accrual rate is not yet verified in the wiki. #gap/needs-verified-source",
       "provenance": "stub"
     },
     {
@@ -6084,7 +6118,7 @@ function nodeComputeHtml(id){
   else if(inp){ type="Exogenous input"; rule=`set directly (slider); popMean=${inp.populationMean}${inp.unit?" "+inp.unit:""}, range ${JSON.stringify(inp.range)}`; age="exogenous — no age dependence; deviations measured vs popMean"; }
   else if(st){ if(st.value){ type=`State node (${st.class}, algebraic)`; rule=`value = `+(st.value.terms||[]).map(tm).join(" + ")+`  (no integral)`; } else { type=`State node (${st.class}, ∫rate·dt)`; rule=`value(age) = initial(${st.initial}) + ∫ rate·dt\nrate = `+(st.rate.terms||[]).map(tm).join("\n     + "); } age="✓ AGE-EMERGENT — age is not an input; it emerges from the integral"; ageClass="nc-age-emergent"; }
   else if(med){ type=`Mediator (clinical risk factor${med.unit?", "+med.unit:""})`; const bl=med.baseline, flat=bl&&bl.male&&bl.male.every(p=>p[1]===bl.male[0][1]); const augs=MODEL.edges.filter(e=>e.kind==="augment"&&e.mediator===id); rule=`value(age) = baseline(age) + Σ(input edges) + Σ(augments) + personal offset`; if(augs.length) rule+=`\naugments: `+augs.map(a=>`${a.fromState} ×${ac(a.coeff)}`).join(", "); age = !flat ? `⚠ AGE-KEYED baseline — a per-sex age table (${bl?.male?.length||0} anchors)` : augs.length ? `✓ FLAT baseline (${bl.male[0][1]}) — age-pegging REMOVED; the age-rise emerges via an augment (${augs.map(a=>a.fromState).join(", ")})` : `FLAT baseline (${bl.male[0][1]}) — constant; no age trend and no modeled drivers`; ageClass = !flat ? "nc-age-keyed" : augs.length ? "nc-age-emergent" : ""; }
-  else if(n){ const BTD=`\nwhere  B = live burden [0,1]  ·  T(age) = baseline age-curve (population default, no intervention)  ·  Δ = deviation propagated through the coupling matrix  (at baseline Δ=0 ⇒ B=T)`; const c=causeByNode[id]; if(c){ type=`Cause-of-death node (mortalityCause: ${c.key})`; rule=`B(age) = clamp01( T(age) + Δ );  T = ${cf(n.curve)}\nhazard = Rmax·B/(1−B)·Π(mults);  Rmax = {M ${num(c.RmaxPerYear.male)}, F ${num(c.RmaxPerYear.female)}}`+BTD; } else { type=`${n.layer==="phenotype"?"Driver":"Hallmark"} burden (layer ${n.layer})`; rule=`B(age) = clamp01( T(age) + Δ );  T = ${cf(n.curve)}`+BTD; } age=`⚠ AGE-KEYED — T baseline is a ${n.curve?.form||"curve"} over age (the burden rises with age by construction)`; ageClass="nc-age-keyed"; }
+  else if(n){ const BTD=`\nwhere  B = live burden [0,1]  ·  T = baseline (population default, no intervention)  ·  Δ = deviation propagated through the coupling matrix  (at baseline Δ=0 ⇒ B=T)`; const tStr = n.rate ? `initial(${num(n.initial??0)}) + ∫(base ${num(n.rate.base||0)}${(n.rate.terms&&n.rate.terms.length)?` + Σ ${n.rate.terms.length} exogenous driver-term(s)`:` + exogenous-driver channel [none populated yet]`})·dt   [emergent ∫rate·dt — de-age-pegged]` : cf(n.curve); const c=causeByNode[id]; if(c){ type=`Cause-of-death node (mortalityCause: ${c.key})`; rule=`B(age) = clamp01( T + Δ );  T = ${tStr}\nhazard = Rmax·B/(1−B)·Π(mults);  Rmax = {M ${num(c.RmaxPerYear.male)}, F ${num(c.RmaxPerYear.female)}}`+BTD; } else { type=`${n.layer==="phenotype"?"Driver":"Hallmark"} burden (layer ${n.layer})`; rule=`B(age) = clamp01( T + Δ );  T = ${tStr}`+BTD; } if(n.rate){ age=`✓ AGE-EMERGENT — age is NOT an input; the baseline emerges from ∫rate·dt (de-age-pegged). Exogenous drivers, once populated, accumulate into the burden history-dependently.`; ageClass="nc-age-emergent"; } else { age=`⚠ AGE-KEYED — T baseline is a ${n.curve?.form||"curve"} over age (the burden rises with age by construction)`; ageClass="nc-age-keyed"; } }
   else return "";
 
   const stubSrc=e=> e.intendedKind==="augment"?e.fromState:(e.from||e.input);

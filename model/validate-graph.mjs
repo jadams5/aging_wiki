@@ -49,6 +49,9 @@ const has = (e, f) => e[f] !== undefined && e[f] !== null;
 export function validateGraph(MODEL) {
   const errors = [], warnings = [];
   const nodes = new Set(MODEL.nodes.map((n) => n.id));
+  // nodes migrated to an emergent ∫rate·dt baseline (carry a `rate` channel) — a `driver` stub
+  // into one of these is populate-ready (the de-age-pegging step is done), so it does NOT warn.
+  const nodesWithRate = new Set(MODEL.nodes.filter((n) => n.rate).map((n) => n.id));
   const B = MODEL.bLayer || {};
   const inputs = new Set((B.exogenousInputs || []).map((x) => x.id));
   const mediators = new Set((B.mediators || []).map((x) => x.id));
@@ -76,7 +79,7 @@ export function validateGraph(MODEL) {
       if (!anySource(src)) errors.push(`${at}: stub source not in any registry: ${src}`);
       if (ik === "cause" || ik === "frailty") { if (!CAUSE_TARGETS.has(dst)) errors.push(`${at}: stub cause-target invalid: ${dst}`); }
       else if (ik === "mediator" || ik === "augment") { if (!mediators.has(dst)) errors.push(`${at}: stub mediator-target unknown: ${dst}`); }
-      else if (ik === "driver") { if (!states.has(dst) && !nodes.has(dst)) errors.push(`${at}: stub driver-target unknown: ${dst}`); else if (!states.has(dst)) warnings.push(`${at}: stub driver-target "${dst}" is a node, not yet a state node — populating requires migrating it to rate-integrated (∫rate·dt) form first (the de-age-pegging step)`); }
+      else if (ik === "driver") { if (!states.has(dst) && !nodes.has(dst)) errors.push(`${at}: stub driver-target unknown: ${dst}`); else if (!states.has(dst) && !nodesWithRate.has(dst)) warnings.push(`${at}: stub driver-target "${dst}" is a node, not yet a state node — populating requires migrating it to rate-integrated (∫rate·dt) form first (the de-age-pegging step)`); }
       else if (ik === "coupling") { if (!nodes.has(dst)) errors.push(`${at}: stub coupling-target unknown: ${dst}`); }
       if (!EVIDENCE.has(e.evidenceStrength)) warnings.push(`${at}: stub missing/invalid evidenceStrength (strong|moderate|weak|disputed)`);
       if (!has(e, "note")) warnings.push(`${at}: stub missing note (the located biology anchor + natural variable + #gap)`);

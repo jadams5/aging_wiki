@@ -163,36 +163,71 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   }
   const COUPLE_ITERS = (MODEL.coupling && MODEL.coupling.iterations) || 60;
 
-  // Precompute baseline T over all ages: Tarr[i][k].
-  const Tarr = NODES.map((node) => AGES.map((a) => curveT(node, sex, a, AGE0)));
+  // Precompute baseline T over all ages: Tarr[i][k]. A node carrying an emergent `rate.base`
+  // (the de-age-pegging migration substrate — e.g. genomic-instability) integrates its baseline
+  // FORWARD — T[k]=T[k-1]+base·DT, T[0]=initial — instead of evaluating a closed-form age curve;
+  // age is no longer an input, the trajectory EMERGES from the integral. At the population
+  // default this reproduces the former curve within float tolerance (op-order, not byte-exact).
+  const Tarr = NODES.map((node) => {
+    if (node.rate) {
+      const base = node.rate.base || 0;
+      const arr = new Array(N_AGE);
+      arr[0] = clamp01(node.initial ?? 0);
+      for (let k = 1; k < N_AGE; k++) arr[k] = clamp01(arr[k - 1] + base * DT);
+      return arr;
+    }
+    return AGES.map((a) => curveT(node, sex, a, AGE0));
+  });
 
   // B[i][k] via bounded fixed-point coupling per age.
   const Barr = NODES.map(() => new Array(N_AGE));
   const prim = new Array(NN).fill(0);
 
+  // Node-level integrated exogenous-driver channel. A hallmark node may carry `rate:{base,terms}`;
+  // its `terms` (same schema as state-node rate terms, deviation-form {id,minus:popMean}) ACCUMULATE
+  // over age into `accumDev`, exactly as `prim` accumulates intervention effects. accumDev is folded
+  // into the PRIMARY deviation P (below) so an exposure-driven node burden propagates through the
+  // coupling matrix (smoke→GI→cancer). Terms resolve against EXOGENOUS INPUTS only (inter-hallmark
+  // drivers stay couplings); inputs are constant over a run, so `inMap[id][k]` is constant. At the
+  // population default every term is 0 ⇒ accumDev≡0 ⇒ the burden math is unchanged.
+  const inMap = {};
+  for (const x of (MODEL.bLayer && MODEL.bLayer.exogenousInputs) || []) {
+    const v = (typeof inputs[x.id] === "number") ? inputs[x.id]
+            : (typeof x.populationMean === "number") ? x.populationMean : 0;
+    inMap[x.id] = new Array(N_AGE).fill(v);
+  }
+  const accumDev = new Array(NN).fill(0);
+  const hasRateTerms = NODES.map((n) => !!(n.rate && n.rate.terms && n.rate.terms.length));
+
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
-    // Solve D = prim + couple*(G·D) by fixed-point iteration.
-    let D = prim.slice();
+    // Primary deviation P = interventions (prim) + integrated exogenous drivers (accumDev).
+    // Solving D = P + couple*(G·D) puts accumDev INSIDE the coupling solve, so an exposure-driven
+    // node burden propagates downstream through G (correction: must not be added post-solve).
+    const P = new Array(NN);
+    for (let i = 0; i < NN; i++) P[i] = prim[i] + accumDev[i];
+    let D = P.slice();
     for (let it = 0; it < COUPLE_ITERS; it++) {
       const ND = new Array(NN);
       for (let i = 0; i < NN; i++) {
         let s = 0;
         const Gi = G[i];
         for (let j = 0; j < NN; j++) { if (Gi[j] !== 0) s += Gi[j] * D[j]; }
-        ND[i] = prim[i] + couple * s;
+        ND[i] = P[i] + couple * s;
       }
       D = ND;
     }
     for (let i = 0; i < NN; i++) Barr[i][k] = clamp01(Tarr[i][k] + D[i]);
 
-    // Accumulate primary deviation for the NEXT step from active interventions.
+    // Accumulate for the NEXT step: interventions into prim, integrated exogenous drivers into
+    // accumDev (= ∫ rate-terms·dt, deviation-form ⇒ 0 at population-default inputs).
     if (k < N_AGE - 1) {
       for (let i = 0; i < NN; i++) {
         const iv = interventions[NODES[i].id];
         if (iv && age >= iv.startAge) {
           prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
         }
+        if (hasRateTerms[i]) accumDev[i] += termsSum(NODES[i].rate.terms, inMap, k) * DT;
       }
     }
   }
