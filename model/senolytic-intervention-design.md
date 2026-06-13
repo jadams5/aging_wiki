@@ -120,6 +120,13 @@ single freeze/slow operator conflates.
 The reviewer's cautious priors are **confirmed** by the wiki, with three refinements (production-suppression is
 wiki-silent for ALL three; senomorphic is secondary/indirect for these agents; efficacy is mechanism-direction-only).
 
+> **D+Q is now calibrated (efficacy HELD) — see `model/dq-calibration-design.md` (2026-06-12).** Kill-fraction envelope
+> `ε_kill ≈ 0.17 / 0.35 / 0.62` (adipose, Hickson 2019); one-off campaign → discrete pulse, maintenance schedule → a
+> clearance-rate boost (sub-annual at `Δt=1yr`). **Decision: HOLD as a calibrated stub** — the kill magnitude is defensible
+> but the post-pulse trajectory is not while clearance/healing (`−c·S`) is frozen (a single course would give a permanent,
+> non-decaying benefit) and the rebound time-constant is wiki-absent. Live-wiring gated on clearance activation + a
+> rebound-τ source. Fisetin and quercetin-monotherapy remain placeholder stubs pending their own calibration passes.
+
 | agent | senolytic pulse `S←S·(1−ε)` | senomorphic (g attenuation) | production suppression | cell-type-selective | intermittent | human evidence |
 |---|---|---|---|---|---|---|
 | **fisetin** | **YES — primary** (in-vivo clears p16+ T/NK/endothelial/MSC; *spares* macrophages/DCs — "not a pan-senolytic," Yousefzadeh 2018) | **secondary, cell-type-dependent** (senomorphic in MEFs; lowers tissue IL-6/IL-8/MCP-1) | **NO — wiki-silent; do NOT assign** | **partial** (in-vivo broad-ish; Zhu 2017 in-vitro = HUVEC-only) | **YES** (hit-and-run; t½ 0.09/3.1 h; 2 d/mo) | **limited** — ex-vivo human only (n=3); no hard-endpoint RCT |
@@ -170,6 +177,8 @@ senolytic study page. Worth a future seeding pass before these trials anchor any
 
 - `c0`, `f(immunosenescence)` (clearance baseline + its immunosenescence sensitivity).
 - `ε_kill`, `ε_morph`, `ε_prod`, `ε_clear` per compound (from the verified wiki evidence + senolysis trial data).
+  **D+Q `ε_kill` calibrated 2026-06-12** (`0.17/0.35/0.62`, HELD — `dq-calibration-design.md`); fisetin / quercetin-mono
+  `ε_kill` and all `ε_morph`/`ε_prod`/`ε_clear` still deferred.
 - The loop gains `g_sen→infl`, `g_infl→sen` (from the loop note).
 - Cell-type-selectivity fractions (fisetin clears a *subset* of senescent-cell types — needs the wiki's specificity data).
 
