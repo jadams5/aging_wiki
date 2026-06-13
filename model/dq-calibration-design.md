@@ -164,9 +164,29 @@ only controlled D+Q trial established neither an endpoint, nor a SASP effect, no
 organism-level benefit is not cleanly anchored.
 
 **Alternative the user may choose (named, not recommended):** wire only the **one-off campaign** with `ε=0.35` and an explicit
-*"permanent-offset, non-decaying benefit"* limitation banner, accepting the implausible non-decay as a documented v0 artifact.
-Recommend **against**: it makes the simulator overstate the durability of a single drug course — the single most
+*"near-permanent benefit (heals only ~7%/decade)"* limitation banner, accepting the implausible non-decay as a documented v0
+artifact. Recommend **against**: it makes the simulator overstate the durability of a single drug course — the single most
 misleading-to-a-reader artifact a senolytic could introduce — and it depends on the very clearance dynamic that is frozen.
+
+**HOLD — empirically verified (engine run, 2026-06-13).** Running the existing `senolytic-pulse` operator (`ε=0.35` on the
+lumped senescence node, male) quantifies the artifact and confirms both gates:
+
+| scenario | ΔLE (yr) | does senescence S heal back? |
+|---|---|---|
+| one-off pulse @55, **clearance FROZEN (current state)** | **+0.110** | **no** — S sits 33 % below baseline at age 56, still **7 % below at age 90** (heals only ~7 %/decade, via the rate's constant offset term) |
+| one-off pulse @55, **clearance synthetically ON** (`c0=0.12`) | **+0.027** | **yes** — back to 97.5 % of baseline by age 70, 99.9 % by 90 |
+| every-5-yr 55–80, FROZEN | +0.404 | stacks (no inter-dose saturation) |
+| annual 55–85, FROZEN | +0.631 | stacks (no inter-dose saturation) |
+
+So a **single 3-day D+Q course, wired into the current clearance-frozen engine, buys ≈ +0.11 yr that persists across
+essentially the whole remaining lifespan** — a **~4× overstatement** vs the same course with clearance active (+0.027 yr,
+healing in ~10–15 yr — the biologically-sensible transient). Repeated dosing **stacks without bound** when frozen (no
+re-accumulation to an intermittent steady state), so it overstates maintenance dosing too. The kill propagates downstream as
+designed (inflammation −1.6 % at age 56 via the `0.2` G-edge). And synthetic clearance is **baseline-invariant** (no-operator
+LE = 77.458855, byte-identical) — so the gated clearance state can be switched on later **without disturbing the baseline.**
+This confirms the two gates precisely: **(a) clearance activation is what makes a one-off benefit decay correctly; (b) it does
+so without breaking baseline.** *(Wording refined from the earlier "permanent offset": it is not literally permanent — it heals
+~7 %/decade through the rate's offset term — but it is effectively permanent on any realistic post-treatment timescale.)*
 
 ---
 
