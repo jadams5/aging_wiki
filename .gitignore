@@ -7,7 +7,9 @@ protocols/
 
 # Agent config directories
 .agents
-.codex
+.codex/*
+!.codex/agents/
+!.codex/agents/*.toml
 
 # Claude Code local/per-machine config (paths, permission allowlists)
 .claude/settings.local.json

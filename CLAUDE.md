@@ -766,7 +766,22 @@ A verification pass means: the verifier has read the underlying primary source(s
 
 **For pages that cannot be verified** (e.g., closed-access papers without local PDF): keep `verified: false` indefinitely and tag `#gap/no-fulltext-access`. The banner stays, modified to note the verification blocker.
 
-The `verified` flag is enforced by the lint pass — see `sops/verifying-extraction.md` and `sops/lint-pass.md`. A project-level **`wiki-verifier`** subagent (defined at `.claude/agents/wiki-verifier.md`) handles the actual PDF reading + cross-checking with context isolation; the main agent invokes it via the Agent tool and handles downstream propagation.
+The `verified` flag is enforced by the lint pass — see `sops/verifying-extraction.md` and `sops/lint-pass.md`. A project-level **`wiki-verifier`** subagent handles the actual PDF reading + cross-checking with context isolation; definitions are provided for Claude Code at `.claude/agents/wiki-verifier.md` and Codex at `.codex/agents/wiki-verifier.toml`. The main agent delegates the verification and handles downstream propagation.
+
+---
+
+## Agent portability and memory discipline
+
+Project files are the durable source of truth for every agent host. Host-specific memories, conversation summaries, and cached project state are navigation aids only: before acting, re-read the relevant schema, SOP, tracker, design note, and current worktree. When memory conflicts with the repository, the repository wins.
+
+- **Persist reusable lessons, not private context.** Generic research or workflow rules may be promoted into `CLAUDE.md`, `schema-history.md`, an SOP, or a model design note. Personal health data, protocol decisions, tracking values, food/exercise records, and the personal reason a research question arose stay in the private `protocols/` repository. Never reconstruct or summarize them into public documentation.
+- **De-identify the lesson at the boundary.** If a private case reveals a reusable research lesson, document only the general method or failure mode. The public log records the neutral research action; the private log records the personal trigger and application.
+- **Delegate complete role ownership.** A seeder, verifier, auditor, or model agent performs its own wiki-first research and returns a bounded report. The parent agent owns cross-page propagation, batch-level reconciliation, and consolidated logging unless it supplied an exact public daily-log path.
+- **Verification remains adversarial.** Plan a verifier pass for every AI-extracted page before treating it as load-bearing. A prior `verified: true` flag is evidence of a completed pass, not immunity from error; conflicting extractions of the same source must be adjudicated against the primary source.
+- **Publication remains user-controlled.** Agents may prepare and validate local changes, but must not push the public or private repository without the user's explicit prior approval.
+- **Communicate without unexplained shorthand.** Spell out uncommon acronyms on first use in user-facing prose; add recurring domain acronyms to `acronyms.md`.
+
+Claude Code role definitions live in `.claude/agents/`; Codex project-agent definitions live in `.codex/agents/`. Both must implement the same repository-owned SOPs rather than accumulating divergent host-only policy.
 
 ---
 

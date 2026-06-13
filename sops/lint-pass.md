@@ -485,7 +485,7 @@ for f in $(grep -rl "^verified: false" --include="*.md" \
 done | sort -rn
 ```
 
-For each page on the list, **invoke the `wiki-verifier` subagent** (defined at `.claude/agents/wiki-verifier.md`) with the page path. The subagent reads the source PDF in its own context, cross-checks claims, edits the page, and returns a corrections summary. The main agent then handles downstream propagation. See [[verifying-extraction]] § "Use the wiki-verifier subagent" for invocation details.
+For each page on the list, **invoke the `wiki-verifier` subagent** (defined at `.claude/agents/wiki-verifier.md` for Claude Code and `.codex/agents/wiki-verifier.toml` for Codex) with the page path. The subagent reads the source PDF in its own context, cross-checks claims, edits the page, and returns a corrections summary. The main agent then handles downstream propagation. See [[verifying-extraction]] § "Use the wiki-verifier subagent" for invocation details.
 
 Closed-access papers that cannot be verified locally are tagged `#gap/no-fulltext-access` and stay `verified: false` indefinitely (with the banner updated to explain the blocker, not the absence of effort).
 

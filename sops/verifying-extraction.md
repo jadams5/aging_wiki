@@ -11,16 +11,15 @@ Run this as part of the lint pass (see [[lint-pass]]) or on demand when a specif
 
 ## Use the wiki-verifier subagent
 
-A project-level subagent at `.claude/agents/wiki-verifier.md` implements this SOP end-to-end with **context isolation** — it reads the PDF in its own context window so the main conversation doesn't blow up loading 30–60k tokens of paper text per verification.
+A project-level subagent implements this SOP end-to-end with **context isolation** — it reads the PDF in its own context window so the main conversation doesn't blow up loading 30–60k tokens of paper text per verification. Definitions are provided at `.claude/agents/wiki-verifier.md` for Claude Code and `.codex/agents/wiki-verifier.toml` for Codex.
 
 **Invoke from the main conversation:**
 
-```
-Use the Agent tool with subagent_type="wiki-verifier" and a prompt like:
-"Verify 
-```
+Ask the **wiki-verifier** subagent to verify `studies/example.md`.
 
-The subagent reads the page, locates the local PDF via , reads the PDF, cross-checks claims, edits the page, flips the `verified` flag, and returns a corrections summary. The main agent then handles **downstream propagation** — applying the corrections to entity pages that cite the corrected study via footnotes.
+Claude Code maps this role through `subagent_type="wiki-verifier"`. Codex loads project custom agents from `.codex/agents/`; explicitly delegate the page to the `wiki-verifier` custom agent.
+
+The subagent reads the page, resolves the full text through the private local tooling layer, cross-checks claims, edits the page, flips the `verified` flag, and returns a corrections summary. The main agent then handles **downstream propagation** — applying the corrections to entity pages that cite the corrected study via footnotes.
 
 **When to use the subagent vs do it inline:**
 - **Subagent** for any verification involving reading a full PDF (almost always the right move).
@@ -147,7 +146,7 @@ These are recurring, high-cost errors that originate during AI seeding and must 
 
 - **Verify outcomes, not just targets.** The seeder reliably identifies a paper's correct topic/target/mechanism but sometimes fabricates the specific experimental *endpoints* (n's, effect sizes, p-values, fracture/event rates). Confirm every quantitative outcome against the figure/table that reports it, not just that the citation is on-topic.
 - **Abstract-only verification can invert an effect-size sign.** A value read from an abstract (or a review citing it) can carry the wrong direction — a reduction stated as an increase, or a CI/WMD with flipped sign. Reading the full PDF (methods + the actual figure/table) catches this; an abstract-level pass often does not. When a sign is corrected on an atomic page, **propagate the correction to any synthesis/MOC page** that restated it. (Precedents: escin/horse-chestnut WMD on [[chronic-venous-disease]]; the MK-7 aortic-valve-calcification effect on [[vitamin-k]].)
-- **A `verified: true` page can still carry the verifier's own error.** Verification reduces but does not eliminate error. When a later page cross-checks a claim about a paper that was "verified elsewhere," do not treat the prior page as ground truth — adjudicate against the primary PDF, and correct the earlier page if it is wrong (e.g., a stale/incorrect DOI or eligibility detail surviving on an already-verified page).
+- **A `verified: true` page can still carry the verifier's own error.** Verification reduces but does not eliminate error. Before finalizing a page, search for each cited DOI on other verified pages and compare any overlapping endpoint, model, dose, and effect-size claims. Disagreement between independent extractions is a mandatory primary-source adjudication, not a majority vote. Correct every affected page and narrow `verified-scope:` where appropriate.
 - **Do not trust canonical identifiers (DOI, ChEMBL, UniProt, CAS, PubChem, ICD, Cell-Ontology) asserted from training memory** — they frequently resolve to an unrelated entity. Confirm every accession against the live database, and every DOI/year/journal against PubMed/Crossref, before flipping `verified`. (See [[schema-history]] R40/R41.)
 
 ## See also
