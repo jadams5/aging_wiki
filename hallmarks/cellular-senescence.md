@@ -13,7 +13,7 @@ key-phenotypes: ["[[cancer]]", "[[atherosclerosis]]", "[[osteoarthritis]]", "[[c
 verified: true
 verified-date: 2026-05-04
 verified-by: claude
-verified-scope: "Synthesis-MOC: no primary-source claims originated here. All quantitative claims inherited from verified atomic pages (listed below) cross-checked against their verified-scope notes. Corrections applied: Hickson 2019 dosing (3d×3 cycles → single 3-day course; Q dose 1,000 mg/day 500 mg×2); Justice 2019 p-values specified (p<0.05 → 6MWT p=0.012, gait p=0.024, chair-stands p=0.013; Q dose 1,250 mg/day added); Anderson 2019 navitoclax cardiac outcome corrected (cardiac improvement → hypertrophy+fibrosis reduced, EF unchanged NS). Wikilink resolution audit: all linked atomic pages resolve to existing files. Childs 2016 remains #gap/no-fulltext-access (not_oa)."
+verified-scope: "Synthesis-MOC: no primary-source claims originated here. All quantitative claims inherited from verified atomic pages (listed below) cross-checked against their verified-scope notes. Corrections applied: Hickson 2019 dosing (3d×3 cycles → single 3-day course; Q dose 1,000 mg/day 500 mg×2); Justice 2019 p-values specified (p<0.05 → 6MWT p=0.012, gait p=0.024, chair-stands p=0.013; Q dose 1,250 mg/day added); Anderson 2019 navitoclax cardiac outcome corrected (cardiac improvement → hypertrophy+fibrosis reduced, EF unchanged NS). 2026-06-13: Hickson 2019 cells-vs-mRNA reconciliation — corrected two instances of 'p16 mRNA' and 'p21 mRNA' to 'p16INK4A+ cells' and 'p21CIP1+ cells'; Hickson 2019 adipose IHC values are % positive cells per 100 adipocytes (not qPCR/mRNA); skin values were quantified (p16 −20% p=0.026, p21 −31% p=0.016) and are now stated explicitly (not 'directional only'). Wikilink resolution audit: all linked atomic pages resolve to existing files. Childs 2016 remains #gap/no-fulltext-access (not_oa)."
 ---
 
 # Cellular Senescence
@@ -162,7 +162,7 @@ The senolytic drug class targets SCAPs to selectively kill senescent cells. See 
 - Quercetin (BCL-xL / EFNB1 in HUVECs): [[quercetin]] (verified-partial)
 - Neither alone is a pan-senolytic; combination covers complementary cell-type populations
 - Justice 2019 (IPF pilot, open-label, n=14): D+Q for 3 weeks (Q 1,250 mg/day; 3 consecutive days/week × 3 weeks = 9 dosing days); 6-minute walk distance +21.5 m (p=0.012), gait speed +0.12 m/s (p=0.024), chair-stands −2.2 s (p=0.013); pulmonary function NS [^justice2019]
-- Hickson 2019 (DKD pilot, open-label, n=9): D+Q for 3 consecutive days (single course; Q 1,000 mg/day in 2 divided doses); p16 mRNA −35%, p21 mRNA −17%, SA-β-Gal −62% in adipose/skin biopsies at Day 14; senescent cell burden reduction confirmed in humans [^hickson2019]
+- Hickson 2019 (DKD pilot, open-label, n=9): D+Q for 3 consecutive days (single course; Q 1,000 mg/day in 2 divided doses); p16INK4A+ cells −35% (p=0.001), p21CIP1+ cells −17% (p=0.009), SA-β-Gal+ cells −62% (p=0.005) in abdominal subcutaneous adipose tissue biopsies at Day 14 — all three measured by IHC/immunohistochemistry cell counting (% positive cells per 100 adipocytes or per nucleus), NOT mRNA; skin epidermis showed separately-quantified reductions: p16INK4A+ cells −20% (p=0.026), p21CIP1+ cells −31% (p=0.016), both significant; senescent cell burden reduction confirmed in humans [^hickson2019]
 
 **Fisetin** — broad senolytic; [[fisetin]] (verified):
 - Yousefzadeh 2018: ~50% reduction in p16^+^c-Kit^+^ cells in aged mice; median healthspan extension
@@ -238,7 +238,7 @@ This hallmark has the widest verified disease-connection cluster in the wiki. Ea
 
 ### Human senescent-cell burden evidence
 
-Hickson 2019 (n=9 DKD patients, D+Q single 3-day course) is the first clinical demonstration that a pharmacological intervention reduces senescent-cell burden in human tissue: p16 mRNA −35%, p21 mRNA −17%, SA-β-Gal^+^ cells −62% in adipose/skin biopsies at Day 14; macrophages (CD68+) −28% and circulating SASP factors (IL-1α, IL-6, MMP-9/-12) also reduced [^hickson2019]. This establishes proof-of-target-engagement in humans; functional endpoints require larger trials.
+Hickson 2019 (n=9 DKD patients, D+Q single 3-day course) is the first clinical demonstration that a pharmacological intervention reduces senescent-cell burden in human tissue: p16INK4A+ cells −35% (p=0.001), p21CIP1+ cells −17% (p=0.009), SA-β-Gal+ cells −62% (p=0.005) in abdominal subcutaneous adipose biopsies at Day 14 — all measured by IHC cell counting (% positive cells per 100 adipocytes or per nucleus), not mRNA; skin epidermis separately quantified: p16INK4A+ cells −20% (p=0.026), p21CIP1+ cells −31% (p=0.016); macrophages (CD68+) −28% (p<0.0001) and circulating SASP factors (IL-1α, IL-6, MMP-9/-12) also reduced [^hickson2019]. This establishes proof-of-target-engagement in humans; functional endpoints require larger trials.
 
 ### Active human trials (as of 2026)
 
@@ -365,7 +365,7 @@ Edge evidence is in [[frameworks/causal-graph-data]].
 
 [^justice2019]: doi:10.1016/j.ebiom.2018.12.052 · Justice JN et al. 2019 · rct-pilot (open-label; n=14; IPF patients) · *EBioMedicine* · D 100 mg + Q 1,250 mg/day × 3 consecutive days/week × 3 weeks (9 dosing days); 6MWT +21.5 m (p=0.012), gait speed +0.12 m/s (p=0.024), chair-stands −2.2 s (p=0.013); pulmonary function NS; verified on [[interventions/pharmacological/senolytics]] (verified-partial)
 
-[^hickson2019]: doi:10.1016/j.ebiom.2019.08.069 · Hickson LJ et al. 2019 · rct-pilot (open-label; n=9; diabetic kidney disease) · *EBioMedicine* · D 100 mg/day + Q 1,000 mg/day (500 mg ×2) × 3 consecutive days (single course); biopsy at Day 0 and Day 14; p16 −35% (p=0.001), p21 −17% (p=0.009), SA-β-Gal −62% (p=0.005) in adipose biopsies; CD68+ macrophages −28% (p<0.0001); circulating SASP factors reduced; first human tissue senescent-cell reduction demonstration; verified on [[interventions/pharmacological/senolytics]] (verified-partial)
+[^hickson2019]: doi:10.1016/j.ebiom.2019.08.069 · Hickson LJ et al. 2019 · rct-pilot (open-label; n=9; diabetic kidney disease) · *EBioMedicine* · D 100 mg/day + Q 1,000 mg/day (500 mg ×2) × 3 consecutive days (single course); biopsy at Day 0 and Day 14; p16 −35% (p=0.001), p21 −17% (p=0.009), SA-β-Gal −62% (p=0.005) in adipose biopsies (all = % positive cells, IHC/SA-β-gal counts — NOT mRNA); skin epidermis p16 −20% (p=0.026), p21 −31% (p=0.016); CD68+ macrophages −28% (p<0.0001); circulating SASP factors reduced; first human tissue senescent-cell reduction demonstration; verified on [[interventions/pharmacological/senolytics]] (verified-partial)
 
 [^zhu2015]: doi:10.1111/acel.12344 · Zhu Y et al. (Kirkland lab) 2015 · in-vitro + in-vivo · *Aging Cell* · SCAP concept established; dasatinib+quercetin as first senolytic combination; cell-type-specific SCAP map; verified on [[interventions/pharmacological/senolytics]] (verified-partial)
 
