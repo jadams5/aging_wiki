@@ -34,6 +34,8 @@ Cellular senescence is stable cell-cycle exit characterized by:
 
 Senescent cells accumulate in virtually every aged tissue. Experimental clearance via genetic systems (INK-ATTAC, p16-3MR) or pharmacological senolytics extends healthspan and lifespan in mice and reduces senescent-cell burden in humans [^baker2016][^hickson2019].
 
+**Detecting senescent cells in tissue (SenNet 2024 consensus):** because no single marker is specific and senescent cells are rare in vivo, the SenNet Biomarkers Working Group recommends **tissue-specific multi-marker panels** — combining molecular senescence signatures, morphological features, and circulating markers — for detecting senescent cells, based on a literature analysis across **14 mouse/human tissues** [^suryadevara2024]. A curated 703-entry biomarker table (marker × tissue × cell × context × organism × hallmark, each with a PMID) accompanies it — snapshot at [[sources/sennet-biomarkers]].
+
 **SENS correspondence:** ApoptoSENS — the senescent cell type that should be removed by targeted induction of apoptosis. Senolytics implement this strategy pharmacologically.
 
 ---
@@ -110,6 +112,8 @@ Senescent cells are not a single uniform state. Prior wiki content already docum
 [^freizus2025]: [[studies/freizus-2025-atp6v1b2-persistent-senescence]] · Freizus N, Majewska JM, Ovadya Y et al. (Krizhanovsky lab, Weizmann Institute) · preprint (bioRxiv) · doi:10.1101/2025.11.30.691415 · 2025-12-01 · in-vitro (human + mouse senescent cells) + in-vivo (aging + fibrotic lungs) · abstract-only; not peer-reviewed · csV1B2-marked senescent subset; apoptosis-resistant; DNA-repair-associated transcriptional signature; ABT-737 resistance correlated with csV1B2 expression #gap/preprint-not-peer-reviewed
 
 [^anerillas2026]: [[studies/anerillas-2026-sencat]] · Anerillas C, Altés G, Gresova K et al.; NIH SenNet (NIA IRP; Basisty N, Gorospe M) · *Molecular Cell* 2026 Jun 11 (online ahead of print) · doi:10.1016/j.molcel.2026.05.017 · PMID 42276073 · multi-omic transcriptome+proteome profiling of 14 primary human cell types × >30 senescence paradigms · no universal marker; shared metabolic + damage-response/repair pathways; ML SenCat signatures for cross-dataset senescence scoring · peer-reviewed; paywalled/abstract-sourced #gap/no-fulltext-access
+
+[^suryadevara2024]: [[studies/suryadevara-2024-sennet-detection-recommendations]] · Suryadevara V, Hudgins AD et al.; NIH SenNet Biomarkers Working Group (79 authors) · *Nature Reviews Molecular Cell Biology* 2024;25(12):1001–1023 · doi:10.1038/s41580-024-00738-8 · PMID 38831121 · review/consensus · per-tissue senescence-detection recommendations across 14 mouse+human tissues (molecular signatures + morphology + circulating markers); no single universal marker · green-OA; abstract-sourced #gap/no-fulltext-access
 
 ---
 
