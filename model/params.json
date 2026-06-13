@@ -1176,6 +1176,12 @@
         },
         "terms": [],
         "_migrated": "2026-06-12 Phase C3b: de-age-pegged from curve{exponential,A:0.025,r:0.04} to emergent ∫rate·dt with a SELF-AMPLIFYING (value-proportional) rate = (e^r−1)·(value + A). Age-free: the exponential rise EMERGES from senescence's own paracrine/bystander feed-forward, not from an age input. coeff = e^0.04−1 is the discrete-time growth factor that reproduces the former exponential curve EXACTLY at the integer age grid (max err ~9e-16) ⇒ baseline + intervention LE numerically unchanged. terms:[] = exogenous-driver channel (smokingStatus/alcohol/airPollution/calorieBalance stubs now populate-ready). Pattern: model/gi-migration-design.md."
+      },
+      "clearance": {
+        "c0": 0,
+        "driver": "immunosenescence",
+        "beta": 0,
+        "_design": "2026-06-12 Phase: senescent-cell-clearance-capacity (ALGEBRAIC; design model/clearance-state-design.md). Deviation-form clearance contribution (−c0·x − Δc·S) folded into accumDev each step; x=carried deviation, Δc=−beta·(immunosenescence deviation). Acts on the DEVIATION x (NOT absolute S) ⇒ baseline exactly preserved. c0=beta=0 ⇒ DISABLED (baseline AND perturbation behaviour unchanged; the drop of a senolytic pulse persists). NOT behaviorally inert once c0>0 — biological c0/beta DISABLED until calibrated; drop-healing validated with SYNTHETIC values in test.mjs. Stability when connected: continuous c0 > r=0.04/yr; discrete |e^0.04 − c0·dt| < 1 (0.0408 is the discrete annual increment, not the continuous eigenvalue). Operationalizes the immunosenescence→cellular-senescence stub via immunosenescence→lowers c→raises S. #gap/needs-clearance-coefficients #gap/immunosenescence-age-table"
       }
     },
     {

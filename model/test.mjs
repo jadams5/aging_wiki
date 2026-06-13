@@ -807,6 +807,52 @@ str("B3b: underweight penalty steep (< obese)", String(
     String(dInfl(80) > dInfl(50) && dInfl(50) > 0), "true");
 }
 
+// ---- clearance-capacity state (design model/clearance-state-design.md; SYNTHETIC coeffs) ----
+// Clearance acts on the DEVIATION (−c0·x − Δc·S) ⇒ baseline preserved. Biological c0/beta ship DISABLED;
+// these tests use synthetic values. Covers: disabled ⇒ a senolytic-pulse drop PERSISTS; synthetic c0 ⇒ the
+// drop HEALS (the corrected re-accumulation — production already re-grows; clearance heals the deviation);
+// baseline-invariant under synthetic c0; immunosenescence deviation (synthetic beta) raises senescence
+// (clearance failure); the clearance-restoration operator clears the excess.
+{
+  const AGE0c = MODEL.meta.ageRange[0];
+  const atAge = (B, age) => B[age - AGE0c];
+  const baseSen = (age) => atAge(simulate(MODEL, { sex: "male" }).B["cellular-senescence"], age);
+  const pulseOp = [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60] }];
+
+  // (A) clearance DISABLED (default c0=beta=0) ⇒ the pulse drop PERSISTS (gap ~constant)
+  const disabled = simulate(MODEL, { sex: "male", operators: pulseOp });
+  const gapDis = (age) => baseSen(age) - atAge(disabled.B["cellular-senescence"], age);
+  str("clearance: disabled ⇒ senolytic drop PERSISTS (gap@80 ≈ gap@62 > 0.02)",
+    String(Math.abs(gapDis(80) - gapDis(62)) < 0.005 && gapDis(62) > 0.02), "true");
+
+  // (B) synthetic c0 ⇒ the drop HEALS (gap SHRINKS over time)
+  const Mc = JSON.parse(JSON.stringify(MODEL));
+  Mc.nodes.find((n) => n.id === "cellular-senescence").clearance.c0 = 0.15;
+  const baseSenC = (age) => atAge(simulate(Mc, { sex: "male" }).B["cellular-senescence"], age);
+  const healed = simulate(Mc, { sex: "male", operators: pulseOp });
+  const gapHeal = (age) => baseSenC(age) - atAge(healed.B["cellular-senescence"], age);
+  str("clearance: synthetic c0 ⇒ drop HEALS (gap@80 << gap@62)",
+    String(gapHeal(80) < gapHeal(62) * 0.5 && gapHeal(62) > 0.02), "true");
+
+  // (C) synthetic c0, NO perturbation ⇒ baseline preserved (clearance acts on deviation x=0)
+  num("clearance: synthetic c0, no perturbation ⇒ baseline LE invariant",
+    lifeExpectancy(Mc, { sex: "male" }) - baseM, 0, 1e-9);
+
+  // (D) immunosenescence deviation (synthetic beta) ⇒ clearance fails ⇒ senescence RISES
+  const Mb = JSON.parse(JSON.stringify(MODEL));
+  const clB = Mb.nodes.find((n) => n.id === "cellular-senescence").clearance; clB.c0 = 0.15; clB.beta = 0.3;
+  const immUp = { "immunosenescence": { efficacy: -1, startAge: 20 } };  // negative efficacy raises immunosenescence
+  const senHi = simulate(Mb, { sex: "male", interventions: immUp });
+  const senBase = simulate(Mb, { sex: "male" });
+  str("clearance: elevated immunosenescence (beta>0) ⇒ senescence RISES (clearance failure)",
+    String(atAge(senHi.B["cellular-senescence"], 80) > atAge(senBase.B["cellular-senescence"], 80)), "true");
+
+  // (E) clearance-restoration operator clears the immunosenescence-driven excess
+  const restore = simulate(Mb, { sex: "male", interventions: immUp, operators: [{ kind: "clearance-restoration", target: "cellular-senescence", boost: 0.3, startAge: 20, endAge: 130 }] });
+  str("clearance: clearance-restoration operator lowers the senescence excess",
+    String(atAge(restore.B["cellular-senescence"], 80) < atAge(senHi.B["cellular-senescence"], 80)), "true");
+}
+
 export function runTests() {
   let allPass = true;
   const rows = tests.map((t) => {

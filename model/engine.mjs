@@ -240,7 +240,7 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   //   • production-suppress {kind, target, atten, startAge, endAge} → over the window reduce the target's
   //       accrual increment by atten (lower the RATE of new burden; distinct from clearing existing).
   const pulseAcc = new Array(NN).fill(0);
-  const pulseOps = [], senomorphicOps = [], prodSuppressOps = [];
+  const pulseOps = [], senomorphicOps = [], prodSuppressOps = [], clearanceRestoreOps = [];
   for (const op of operators || []) {
     if (op.kind === "senolytic-pulse" && NODE_IDX[op.target] !== undefined)
       pulseOps.push({ idx: NODE_IDX[op.target], frac: op.killFraction || 0, ages: new Set(op.ages || []) });
@@ -248,7 +248,20 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
       senomorphicOps.push({ to: NODE_IDX[op.to], from: NODE_IDX[op.from], atten: op.atten || 0, startAge: op.startAge, endAge: op.endAge });
     else if (op.kind === "production-suppress" && NODE_IDX[op.target] !== undefined)
       prodSuppressOps.push({ idx: NODE_IDX[op.target], atten: op.atten || 0, startAge: op.startAge, endAge: op.endAge });
+    else if (op.kind === "clearance-restoration" && NODE_IDX[op.target] !== undefined)
+      clearanceRestoreOps.push({ idx: NODE_IDX[op.target], boost: op.boost || 0, startAge: op.startAge, endAge: op.endAge });
   }
+
+  // CLEARANCE-CAPACITY (design: senescent-cell-clearance-capacity). A node may carry an ALGEBRAIC
+  // `clearance:{c0, driver, beta}` (NOT an integrated state): the deviation-form clearance contribution
+  //   (−c0·x − Δc·S),  x = carried deviation,  Δc = −beta·(driver deviation, e.g. immunosenescence)
+  // is folded into the node's accumDev each step. It acts on the DEVIATION x (not absolute S), so the
+  // baseline is exactly preserved (x=0, Δc=0 at population default). Clearance is NOT behaviorally inert
+  // once c0>0 (baseline identical, but every perturbation/intervention response changes) — so biological
+  // c0/beta ship as 0 (disabled) and tests use synthetic values. Stability (when connected): continuous
+  // c0 > r=0.04/yr; discrete |e^0.04 − c0·dt| < 1. See model/clearance-state-design.md.
+  const clearanceNodes = [];
+  NODES.forEach((n, i) => { if (n.clearance) clearanceNodes.push({ idx: i, c0: n.clearance.c0 || 0, driverIdx: NODE_IDX[n.clearance.driver], beta: n.clearance.beta || 0 }); });
 
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
@@ -298,6 +311,18 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
       // senolytic pulse: at a dosing age, drop the target burden by frac·B (persistent negative deviation)
       for (const op of pulseOps) {
         if (op.ages.has(age)) pulseAcc[op.idx] -= op.frac * Barr[op.idx][k];
+      }
+      // clearance-capacity: fold the deviation-form contribution (−c0·x − Δc·S) into the node's accumDev.
+      // x = carried deviation (accumDev+pulseAcc); Δc = −beta·(driver deviation); + any clearance-restoration
+      // boost active this age. With c0=beta=0 and no boost ⇒ 0 ⇒ inert (drop persists, baseline unchanged).
+      for (const cl of clearanceNodes) {
+        let c0 = cl.c0;
+        for (const op of clearanceRestoreOps) { if (op.idx === cl.idx && age >= op.startAge && age <= op.endAge) c0 += op.boost; }
+        const dc = cl.beta && cl.driverIdx !== undefined ? -cl.beta * D[cl.driverIdx] : 0;  // Δc = −beta·driverDev
+        if (c0 !== 0 || dc !== 0) {
+          const x = accumDev[cl.idx] + pulseAcc[cl.idx];
+          accumDev[cl.idx] += (-c0 * x - dc * Barr[cl.idx][k]) * DT;
+        }
       }
     }
   }

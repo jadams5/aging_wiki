@@ -4,6 +4,27 @@
 Per user (2026-06-12). **Do NOT perform the sen→inflammation migration or wire compounds until reviewed.**
 **Author:** claude · 2026-06-12. Biology from the loop sub-agent's verified brief (`senescence-immune-surveillance.md`).
 
+## Implementation status (2026-06-12) — steps 1–2 landed, DISABLED
+
+Per the reviewer's "steps 1–2 are ready," implemented + tested with SYNTHETIC coefficients (biological `c0`/`β` ship
+**= 0 ⇒ disabled**; baseline AND perturbations unchanged ⇒ 176/176, baseline LE byte-identical). In `simulate()`:
+- **Clearance contribution `(−c0·x − Δc·S)`** folded into the senescence-node `accumDev` each step (`x` = carried
+  deviation; `Δc = −β·(immunosenescence deviation)`). Acts on the **deviation `x`**, so baseline is exact.
+- **`clearance-restoration` operator** `{kind,target,boost,startAge,endAge}` — raises `c0` over a window (the immune
+  lever; orthogonal to the drug-mediated senolytic-pulse).
+- **Node field** `cellular-senescence.clearance:{c0:0, driver:"immunosenescence", beta:0}` (disabled).
+
+Tests (synthetic): disabled ⇒ a senolytic-pulse drop **persists**; synthetic `c0` ⇒ the drop **heals**; baseline
+invariant under synthetic `c0`; elevated immunosenescence (synthetic `β`) **raises** senescence (clearance failure);
+the restoration operator **clears** the excess.
+
+**Deliberately deferred (frozen, per user):** the **`[f(S)−f(T)]` production-response** (the senescence deviation's own
+self-amplification) is NOT yet added — it arrives with **loop activation (step 3)**. Until then the clearance is *pure
+decay* (`dx/dt = −c0·x − Δc·S`), stable for any `c0 > 0`; the binding **`c0 > 0.04`** stability condition (§5) applies
+only once the production-response is on. Also frozen: the `sen→infl` G→rate migration and compound wiring.
+
+---
+
 ## 0. Governing equation + the re-accumulation correction (user)
 
 ```
@@ -22,22 +43,34 @@ perturbation (a senolytic pulse, or a loop excursion) **decays back toward the b
 "heals") versus persists, and (ii) whether the positive-feedback loop converges or runs away. So this note corrects the
 earlier senolytic-note framing ("re-accumulation needs clearance" → "drop-healing + stability need clearance").
 
-**Map to the deviation architecture.** `S = T + D` (baseline + deviation). At population default `dT/dt` reproduces
-the migrated exponential (it already lumps `production − c0·T`). Linearising the clearance term about baseline adds a
-**`−c0·D` decay** to the senescence-deviation dynamics: a perturbation `D` relaxes toward 0 at rate ~`c0` (the pulse
-heals), while production self-amp adds `+0.0408·D`. The **net senescence-deviation eigenvalue ≈ (0.0408 − c0)** — the
-concrete object the stability criterion (§5) bites on.
+**Map to the deviation architecture — clearance must act on the DEVIATION, not absolute `S` (reviewer correction).**
+Let `x = S − T` (deviation). The baseline-preserving clearance dynamics are:
+```
+dx/dt = [ f(S) − f(T) ]  −  c0·x  −  Δc·S
+```
+- `[f(S) − f(T)]` = the production self-dynamic difference (live minus baseline).
+- **`−c0·x`** = clearance decay **on the deviation `x`** (NOT `−c0·S`). An absolute `−c0·S` term would alter the
+  baseline unless balanced by an explicit production term — and we do not know that production/clearance decomposition
+  (wiki-silent). The deviation form **avoids needing it**: at baseline `x=0 ⇒ −c0·x = 0`, so `dT/dt` is untouched.
+- **`−Δc·S`** = the clearance-CAPACITY deviation (`Δc = c − c0`) times the full burden `S` — how a change in clearance
+  capacity (e.g. immunosenescence lowering `c`) adds/removes a fraction of the *whole* stock.
+
+At baseline `x=0`, `Δc=0` ⇒ both clearance terms vanish ⇒ baseline exactly preserved. The stability object is the
+sign of `dx/dt`'s `x`-coefficient — see §5 (and note the discrete-vs-continuous distinction there).
 
 ---
 
 ## Q1 — clearance capacity: a NODE, not a hidden parameter
 
-**Recommend a named state** `senescent-cell-clearance-capacity` (a `bLayer` state, normalized [0,1], baseline `c0`).
-Rationale: both of its relationships are *graph* relationships the model already represents elsewhere — it is **driven
-by `immunosenescence`** (an existing node) and **targeted by an immune-restoration intervention** (§4). A node makes
-both explicit and visible (greyed until activated), and it lets the existing **`immunosenescence → cellular-senescence`
-stub** be re-expressed mechanistically (Q2). A hidden parameter inside the senescence dynamics would bury both edges.
-Trade-off (a parameter is simpler) is outweighed by the need for drivable + interventable + inspectable behaviour.
+**Recommend a named ALGEBRAIC physiology/capacity node** `senescent-cell-clearance-capacity` — a `value`-type node
+(`value = c0 − β·(immunosenescence − baseline)`, normalized), **NOT an `∫rate·dt` integrated state** (reviewer
+correction). Clearance capacity is a *function of* its drivers (immunosenescence + interventions); it has no
+accumulation law of its own, so it is algebraic — like `arterial-stiffness` (`value = 0.65·elastin + 0.36·crosslink`),
+not like `ecm-crosslink` (`∫rate·dt`). It would only become an integrated state if clearance capacity itself accrued
+damage over time independent of its drivers (not warranted by the biology). Rationale for a node (vs a hidden
+parameter): both its relationships are *graph* relationships — **driven by `immunosenescence`** and **targeted by an
+immune-restoration intervention** (§4) — and it lets the existing **`immunosenescence → cellular-senescence` stub** be
+re-expressed mechanistically (Q2). A node makes both explicit, inspectable, and greyed-until-activated.
 
 ---
 
@@ -91,13 +124,19 @@ cells once" from "fix the remover." (The `clearance-restoration` operator is bui
 
 ## Q5 — stability: Jacobian + discrete-map criteria (the concrete conditions)
 
-The coupled system is `(D_sen, D_infl, Δc)`. Linearised about baseline, the **continuous-time Jacobian** must have all
-`Re(λ) < 0`; the **forward-Euler discrete update map** (at the model `dt`=1) must have all `|λ| < 1`. Spectral-radius
-alone is insufficient (carried correction). Concrete anchors this design provides:
+The coupled system is `(x_sen, x_infl, Δc)`. Stability must be checked in BOTH units, which are NOT interchangeable
+(reviewer correction — `0.0408` is the discrete annual increment, NOT a continuous Jacobian eigenvalue):
 
-- **Senescence-deviation self-term:** `∂(dD_sen/dt)/∂D_sen ≈ (production_self_amp − c0) = (0.0408 − c0)`. For the
-  senescence node alone to be self-stabilising (a pulse heals, doesn't grow), **`c0 > 0.0408`** — a concrete lower
-  bound on the baseline clearance rate, derived from the C3b self-amp coefficient.
+- **Continuous approximation (Jacobian, `Re(λ)<0`):** the senescence self-GROWTH RATE is the curve exponent
+  **`r = 0.04/year`** (from C3b's `curve{exponential, r:0.04}`). Local stability of the senescence node alone (a pulse
+  heals, doesn't grow) requires roughly **`c0 > 0.04 / year`** — the continuous eigenvalue is `(r − c0) = (0.04 − c0)`.
+- **Discrete update map (current engine, `Δt=1`, `|λ|<1`):** the one-step deviation multiplier is approximately
+  **`exp(0.04) − c0·Δt ≈ 1.0408 − c0·Δt`**; require its magnitude `< 1`, i.e. `c0·Δt > 0.0408` ⇒ **`c0 > 0.0408 / year`**
+  at `Δt=1`. Here `0.0408 = e^0.04 − 1` is the *discrete annual increment*, distinct from the continuous rate `0.04`.
+- The two bounds are close (0.04 vs 0.0408) but conceptually different; the calibration must satisfy **both**, and if
+  `Δt=1` makes the discrete bound bite too hard a sub-step integrator for the loop is an option (flag, don't assume).
+- **Loop + clearance rows:** the off-diagonal loop gains and the `−Δc·S` / immunosenescence coupling enter the full
+  3×3 Jacobian, which must stay Hurwitz (continuous) and inside the unit circle (discrete).
 - **Loop coupling:** the off-diagonal `g_sen→infl`, `g_infl→sen` (loop note) enter the Jacobian; the full 3×3 must stay
   Hurwitz. Roughly, the loop gain product must not overcome the combined clearance + inflammation-saturation damping.
 - **The clearance row:** `dΔc/dt` driven by immunosenescence (and optionally `−∂evasion/∂S·D_sen`) — the evasion term,
@@ -141,8 +180,16 @@ A uniform `c` + a single `S` cannot express that a drug clears *some* sub-pools 
 
 - `c0` (baseline clearance/healing rate; wiki "days–weeks" only ⇒ illustrative/calibration, `> 0.0408`), `β_imm`
   (immunosenescence sensitivity), evasion sensitivity (if added), loop gains (loop note).
-- **Build sequence (still design-first; review THIS note first):** (1) add `c(t)` as a `bLayer` state with `Δc=0`
-  baseline (immunosenescence-driven, inert) + the deviation-form `−c·S` decay; prove baseline-invariant + the
-  drop-healing test. (2) Add the `clearance-restoration` operator (inert). (3) THEN the atomic `sen→infl` G→rate
-  migration + loop activation with the Jacobian/discrete stability checks. (4) THEN compound wiring. **Do not do (3)/(4)
-  until this design is reviewed (per user).**
+**⚠ NOT behaviorally inert once `c0` is connected (reviewer correction).** Unlike the migrations/operators (which are
+fully inert at `ε=0`), connecting a biological `c0 > 0` keeps the **baseline identical** but **changes every senescence
+perturbation and intervention response** (the deviation now decays at `~c0` instead of persisting). Therefore: ship
+with **biological `c0` (and `β_imm`) DISABLED** (= 0 ⇒ both baseline AND perturbation behaviour unchanged), and use
+**SYNTHETIC `c0` / `Δc` values only in the drop-healing tests** until calibrated. "Disabled" here means the clearance
+*coefficients* are 0, not that the machinery is absent.
+
+- **Build sequence (still design-first; review THIS note first):** (1) add the algebraic `c` capacity node
+  (immunosenescence-driven, deviation-form) + the deviation-form clearance contribution `(−c0·x − Δc·S)` on the
+  senescence deviation, **with `c0 = β_imm = 0` by default** (baseline + perturbations unchanged); prove baseline-
+  invariant + a SYNTHETIC-coefficient drop-healing test. (2) Add the `clearance-restoration` operator (inert at `ε=0`).
+  (3) THEN the atomic `sen→infl` G→rate migration + loop activation with the Jacobian/discrete stability checks.
+  (4) THEN compound wiring. **Do not do (3)/(4) until reviewed (per user); loop activation + compounds stay frozen.**
