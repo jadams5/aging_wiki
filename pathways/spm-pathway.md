@@ -153,7 +153,7 @@ Native SPMs have short half-lives (minutes to hours) due to rapid metabolic inac
 | Compound | Class | Clinical stage | Indication |
 |---|---|---|---|
 | RX-10045 | Lipoxin A4 analog | Phase 3 (dry eye) | Dry eye disease; not yet tested in aging |
-| ARI-3037MO | Resolvin E1 analog | Phase 2 | Periodontal disease |
+| ARI-3037MO | Resolvin E1 analog | Phase 2 | Periodontal disease ([[periodontitis]]) |
 | Benzo-LXA4 analogs | Lipoxin A4 analogs | Preclinical | Various inflammatory models |
 
 No SPM analog has entered clinical trials for an aging indication as of 2026-05-09. #gap/needs-human-replication

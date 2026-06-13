@@ -210,7 +210,7 @@ Varicella-zoster virus (VZV) — the cause of childhood chickenpox — establish
 - **Direct amyloidogenesis.** VZV infection of primary human spinal astrocytes produced intracellular amylin and Aβ and generated an amyloidogenic extracellular environment that seeded peptide aggregation into amyloid fibrils [^bubak2020]. VZV may thus raise local amyloid burden directly, consistent with the antimicrobial-protection model.
 - **Vascular injury.** VZV is an established cause of cerebral vasculopathy (stroke, giant-cell and small-vessel arteritis), implicating it in **vascular dementia** as well as AD — i.e. it plausibly drives both major dementia subtypes. VZV reactivation may also act as a chronic immune stressor that potentiates HSV-1 and amplifies neuroinflammation.
 
-This mechanism is suggestive, not settled: VZV is one of several candidate pathogens (HSV-1, *P. gingivalis*, *C. pneumoniae*), and Hill's criteria for causation are only partly met. #gap/no-mechanism
+This mechanism is suggestive, not settled: VZV is one of several candidate pathogens (HSV-1, [[porphyromonas-gingivalis|*P. gingivalis*]], *C. pneumoniae*), and Hill's criteria for causation are only partly met. #gap/no-mechanism The *P. gingivalis* / gingipain route in particular is now tempered by the **negative GAIN trial** of the gingipain inhibitor atuzaginstat (COR388) — see [[porphyromonas-gingivalis]] and [[periodontitis]].
 
 ### Herpes-zoster vaccination lowers dementia incidence — quasi-experimental evidence
 

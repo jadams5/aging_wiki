@@ -165,7 +165,7 @@ PTB is the foundational thiazolium-class AGE breaker, the chemistry from which a
 |---|---|---|
 | STZ-diabetic rats, 10 mg/kg IP × 3–6 wk | Prevented vascular AGE accumulation; attenuated diabetes-associated vascular changes when given from disease onset | Cooper 2000 [^cooper2000] |
 | Glycation-induced bone fragility (rat) | Reduced fracture-relevant mechanical fragility | Tang *PLOS ONE* 2014 [^tang2014] |
-| Rat experimental periodontitis | Modulated AGE-RAGE axis; reduced inflammatory bone loss | Hu 2014 [^hu2014] |
+| Rat experimental [[periodontitis]] | Modulated AGE-RAGE axis; reduced inflammatory bone loss | Hu 2014 [^hu2014] |
 
 ### The Yang 2003 critique — do alagebrium-class breakers actually cleave real-tissue Maillard crosslinks?
 

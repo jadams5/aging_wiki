@@ -143,6 +143,7 @@ The Farr 2024 phase 2 RCT represents a pivotal framing for bone senolytics: the 
 - [[vitamin-k2]] (existing) — MGP carboxylation; bone + vascular benefit
 - [[interventions/pharmacological/senolytics]] (existing) — D+Q and other senolytics; full trial discussion
 - [[sarcopenia]] (verified) — osteosarcopenia; mechanical coupling of bone and muscle loss
+- [[alveolar-bone]] (seeded 2026-06-12) — the tooth-bearing bone of the jaw; shares age-related remodeling-imbalance and estrogen-decline mechanisms with systemic osteoporosis, though the causal link remains contested: a 2025 two-sample Mendelian randomization (Chen et al.) found *no* causal effect of periodontitis on systemic bone mineral density, but the reverse direction (systemic osteoporosis → alveolar bone loss) remains untested by MR
 
 ## Footnotes
 

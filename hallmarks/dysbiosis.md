@@ -209,6 +209,9 @@ Edge evidence is in [[frameworks/causal-graph-data]].
 - [[tmao]] — #stub — cardiovascular-risk metabolite
 - [[spermidine]] — #stub — polyamine-autophagy connection
 - [[gut-barrier]] — #stub — intestinal barrier biology; tight junctions, mucus layer
+- [[oral-microbiome-aging-shifts]] — the **oral cavity** is a second major dysbiotic niche in aging, distinct from the gut; subgingival inflammophilic dysbiosis is the keystone-pathogen mechanism behind [[periodontitis]]
+- [[porphyromonas-gingivalis]] — keystone oral pathogen; gingipain virulence; oral→systemic (cardiovascular, Alzheimer's) dissemination
+- [[periodontitis]] · [[gingival-recession]] · [[tooth-loss]] — oral-dysbiosis disease phenotypes feeding inflammaging and frailty
 - [[studies/lopez-otin-2023-hallmarks-expanding-universe]] — canonical 2023 expansion reference
 
 ---

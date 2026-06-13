@@ -84,7 +84,7 @@ The concept of **metabolic endotoxemia** — chronic low-grade elevation of circ
 
 ### 3. Localized infection and bacteremia
 
-In aged individuals, recurrent urinary tract infections, pneumonia, and dental/periodontal disease introduce gram-negative bacteria directly, providing episodic acute LPS pulses that, at low grade, may prime chronic TLR4 sensitization.
+In aged individuals, recurrent urinary tract infections, pneumonia, and dental/[[periodontitis|periodontal]] disease introduce gram-negative bacteria directly, providing episodic acute LPS pulses that, at low grade, may prime chronic TLR4 sensitization. The subgingival biofilm is an especially age-relevant gram-negative reservoir — see [[oral-microbiome-aging-shifts]] and the keystone pathogen [[porphyromonas-gingivalis]].
 
 ## Aging-specific changes in the LPS–TLR4 axis
 
