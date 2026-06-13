@@ -47,11 +47,11 @@ The framework is complementary to [[hallmarks-of-aging]] (López-Otín 2013/2023
 
 **Damage:** Senescent cells accumulate; resist apoptosis; secrete pro-inflammatory SASP factors.
 
-**Repair strategy:** Senolytics — drugs that selectively kill senescent cells. Current generation: BCL-2 family inhibitors (navitoclax, UBX1325/foselutoclax), tyrosine-kinase inhibitor combinations (D+Q), flavonols (fisetin), GPX4 modulators (RLS-1496), PROTAC degraders (DT2216, PZ15227), gene-therapy approaches (Oisin FAST-PLV), CAR-T (Amor uPAR-targeted).
+**Repair strategy:** Senolytics — drugs that selectively kill senescent cells. Current generation: BCL-2 family inhibitors (navitoclax, UBX1325/foselutoclax), tyrosine-kinase inhibitor combinations (D+Q), flavonols (fisetin), GPX4 modulators (RLS-1496), PROTAC degraders (DT2216, PZ15227), gene-therapy approaches (Oisin FAST-PLV), CAR-T (Amor uPAR-targeted), transcript-activated cell ablation (Cas12a2 chromatin shredding — preclinical, cancer-only; a programmable RNA-signature kill switch, [[transcript-activated-cell-ablation]]).
 
 **Maps to hallmark:** [[cellular-senescence]]
 
-**Related pages:** [[interventions/pharmacological/senolytics]], [[fisetin]], [[dasatinib]], [[quercetin]], [[navitoclax]], [[sasp]], [[frameworks/apoptosenes]]
+**Related pages:** [[interventions/pharmacological/senolytics]], [[fisetin]], [[dasatinib]], [[quercetin]], [[navitoclax]], [[sasp]], [[frameworks/apoptosenes]], [[transcript-activated-cell-ablation]]
 
 ### 4. Mitochondrial mutations — MitoSENS
 
