@@ -14,8 +14,11 @@ Per the user's Option-1-refined directive, the **generic operator machinery + no
 implemented and tested with SYNTHETIC coefficients** (no biological efficacies); all are inert by default
 (`operators:[]` ⇒ baseline LE byte-identical; **171/171**). Implemented in `simulate()`:
 - **senolytic-pulse** `{kind,target,killFraction,ages:[...]}` — drops the target burden at dosing ages (the
-  operator freeze/slow cannot express); **repeated schedules** supported. Re-accumulation NOT modeled (needs the
-  clearance state) — the drop persists for now.
+  operator freeze/slow cannot express); **repeated schedules** supported. The absolute burden DOES re-accumulate
+  (production / the baseline trajectory keeps rising); what is not yet modeled is the **drop HEALING back toward the
+  baseline trajectory** — the pulse's deviation currently persists as an offset because the clearance-deviation
+  dynamics (`−c·S`) are not yet implemented. Clearance controls the NET rate (drop-healing) + loop stability, NOT
+  whether burden re-grows (corrected per user; see model/clearance-state-design.md).
 - **senomorphic** `{kind,from,to,atten,startAge,endAge}` — temporarily scales a coupling gain (no clearing).
 - **production-suppress** `{kind,target,atten,startAge,endAge}` — slows accrual over a window.
 - **node-deviation rate-channel** — a node `rate.term` driver `{node:id}` reads the live deviation `D` (the
