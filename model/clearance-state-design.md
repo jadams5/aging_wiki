@@ -23,6 +23,16 @@ self-amplification) is NOT yet added — it arrives with **loop activation (step
 decay* (`dx/dt = −c0·x − Δc·S`), stable for any `c0 > 0`; the binding **`c0 > 0.04`** stability condition (§5) applies
 only once the production-response is on. Also frozen: the `sen→infl` G→rate migration and compound wiring.
 
+> **⚠ LIMITATION — deviation-form clearance ≠ absolute rejuvenation (explicit, per user).** Because clearance acts on the
+> **deviation `x = S − T`** (`−c0·x`), it can only restore `S` **toward the population baseline `T`** — it **cannot push
+> `S` BELOW baseline**. So `clearance-restoration` ("immune restoration") brings an elevated individual back down to the
+> population-average senescent burden, but is **NOT absolute rejuvenation** (it cannot clear the baseline senescent
+> load that the whole population carries). Lowering the *absolute* burden below baseline would require an **identified
+> production/clearance decomposition** of the lumped self-dynamic (so clearance could be raised above its baseline
+> contribution `c0`) — which is **wiki-silent**. `#gap/needs-production-clearance-decomposition`. (The same boundary
+> applies to a senolytic pulse's *steady state*: it drops `S` transiently, but absent the decomposition the trajectory
+> heals back toward — not below — baseline.)
+
 ---
 
 ## 0. Governing equation + the re-accumulation correction (user)

@@ -159,6 +159,92 @@ deferred — this pass only settles *how* they would work.
 - The **mediation accounting** the user flagged: when the forward rate edge is activated, the senescence-mediated slice
   of any downstream effect (e.g. inflammation→atherosclerosis already CANTOS-calibrated) must be route-once-decomposed.
 
-**Recommended sequence when we proceed (still design-first):** (1) add the clearance term design (the real bound);
-(2) migrate the forward `sen→infl` G-edge → rate edge with a sub-critical gain + the invariance/stability tests;
-(3) only then consider the reverse `infl→sen` arm. No coefficients until §6.1–6.4 pass structurally.
+**Recommended sequence — REVISED by the kinetics + reviewer (§8):** (1) clearance state ✅ (landed). (2) **PERMANENTLY
+KEEP `sen→infl` as the `0.2` G-edge** — the SASP arm is inferred-fast (`λ_infl·Δt ≫ 1`) ⇒ quasi-steady ⇒ the algebraic
+`0.2` is its correct reduced-order limit; the forward G→rate migration is **NOT warranted** (and stays so unless
+finer-than-annual inflammatory dynamics are introduced). (3) **KEEP the reverse `infl→sen` edge STUBBED** — the paracrine
+SASP feedback is already in senescence's self-amplification, so activating a reverse rate edge would double-count it; it
+needs evidence for an INDEPENDENT systemic-inflammation→persistent-senescence channel (not established). If ever
+activated, calibrate against the FULL effective loop multiplier (`≈0.2·g_reverse` + self-amp + `c` + all G-paths), never
+the single edge. **Net: migration inversion sound; reverse activation NOT yet justified.**
+
+---
+
+## 8. Sourcing/bounding the forward `sen→infl` rate coefficient (user 2026-06-12; PRECEDES the migration)
+
+> **REVISION (reviewer 2026-06-12) — these OVERRIDE the prose below where they conflict:**
+> 1. **Confidence:** the Day-14 biomarker measurements do **NOT** establish a 1–4 week *relaxation constant* — they give
+>    an **upper-bound timescale at best**. So `λ_infl ≈ 12–52/yr` is an **inferred plausible RANGE, not a firmly-sourced
+>    coefficient**; the "favours the fast end" / "central ≈ 25" is inference, not measurement.
+> 2. **`g = 0.2·λ` is a REDUCED-MODEL interpretation**, not recovery of a sourced coefficient — it holds *under* the
+>    steady-state/quasi-steady assumption, it is not an independently-measured rate.
+> 3. **Forward conclusion still holds, on conditional grounds:** *IF* the SASP/inflammatory response is much faster than
+>    the annual timestep (which the bounded evidence supports), THEN an **algebraic `0.2` edge is the correct reduced-order
+>    representation.** So: **permanently retain the forward `0.2` G-edge unless finer-than-annual inflammatory dynamics
+>    are introduced.**
+> 4. **DO NOT activate the reverse rate edge.** Acosta 2008 et al. establish **SASP-driven autocrine/paracrine
+>    senescence** — which **is already represented by senescence's own self-amplification** (the value-proportional C3b
+>    self-dynamic, literally documented as "senescence's own paracrine/bystander feed-forward"). A reverse
+>    `chronic-inflammation→senescence` rate edge would therefore **DOUBLE-COUNT the SASP feedback**. The reverse edge is
+>    justified only by evidence for an **INDEPENDENT chronic *systemic* inflammation → persistent senescence channel**
+>    (inflammation from non-senescence sources — dysbiosis/LPS, mito DAMPs — driving senescence), which the wiki does
+>    **not** establish. **Keep the reverse edge STUBBED pending that evidence.**
+> 5. **If the reverse edge is ever activated:** test the **effective loop multiplier** — approximately
+>    `0.2 · g_reverse` PLUS the senescence self-amplification, the clearance `c`, and ALL other G-matrix feedback paths —
+>    not the single edge in isolation.
+
+The reviewer is right that **the instantaneous `0.2` is dimensionally unusable as a rate** (a rate has units 1/time;
+`0.2` is a dimensionless instantaneous gain). But it is **recoverable as the steady-state RATIO**, which gives a clean
+bound — and the analysis surfaces a timescale finding that changes whether the forward arm should be rate-coupled at all.
+
+**The bridge — `g_sen→infl = 0.2 · λ_infl`.** Give inflammation's deviation a resolution rate `λ_infl` (it relaxes when
+its source changes): `d(accumDev_infl)/dt = g·D_sen − λ_infl·accumDev_infl`. At steady state (`D_sen` fixed):
+`accumDev_infl = (g/λ_infl)·D_sen`. Matching the G-matrix's `D_infl = 0.2·D_sen` ⇒ **`g/λ_infl = 0.2` ⇒
+`g_sen→infl = 0.2·λ_infl`**. So the `0.2` is preserved as the *equilibrium ratio*; the rate adds the time dimension via
+`λ_infl`. **This means the migration MUST also add an inflammation resolution term `λ_infl`** (the inflammation-side
+counterpart of the senescence clearance `c`) — otherwise the rate integral is unbounded. `λ_infl` is the senolysis→
+SASP-fall kinetics (being sourced: Hickson 2019 circulating-SASP timecourse, CANTOS).
+
+**The timescale-separation finding (decides whether the forward arm is even rate-like).** Senescence relaxes SLOWLY
+(`c0 ~ 0.04–0.15/yr` — multi-year). SASP/inflammation resolves FAST (the cytokine source vanishes within ~weeks of
+senolysis ⇒ `λ_infl` plausibly **tens per year**). At the model `Δt = 1 yr` this is **stiff**, with two cases:
+
+- **If `λ_infl·Δt ≫ 1` (fast SASP, weeks):** inflammation's deviation is **quasi-instantaneous** at the annual grid —
+  it equilibrates to `0.2·D_sen` within one step. Forward-Euler is then *unstable* for it (`|1 − λ_infl·Δt| ≫ 1`), so it
+  must be treated as **algebraic / quasi-steady = exactly the G-matrix relationship `0.2·D_sen`.** Conclusion: **the
+  fast forward (SASP) arm legitimately STAYS quasi-instantaneous (the `0.2` G-edge is correct for it)**; the genuine
+  rate-coupling belongs to the **SLOW reverse arm** (`infl→sen` paracrine — neighbours convert over time, then persist
+  and clear slowly via `c`). This *refines* §1: not "both arms rate-coupled," but **slow reverse arm integrated, fast
+  forward arm quasi-instantaneous** — which the kinetics, not aesthetics, dictate.
+- **If `λ_infl·Δt ~ 1 or less` (slow, months–years):** the forward arm is genuinely rate-integrated with
+  `g_sen→infl = 0.2·λ_infl`; migrate it as planned (with a sub-step integrator if `λ_infl·Δt` flirts with the stability
+  edge).
+
+**The INFERRED plausible range (`λ_infl`, agent 2026-06-12, wiki-first — NOT a fitted constant):** **`τ ≈ 1–4 weeks ⇒
+λ_infl ≈ 12–52 /yr`** as an *upper-bound-derived plausible range* (the Day-14 etc. samples bound `τ` above; no study
+fits a relaxation time-constant). Anchors: **Hickson 2019** (D+Q, n=9) circulating SASP (IL-1α/IL-6/MMP-9/
+MMP-12) significantly reduced by **Day 14** after a single 3-day course; **Farr 2024** P1NP response at **2 weeks**;
+acute-IL-6 *state* recovery **1–4 weeks** (`il-6-biomarker.md`); CANTOS effect present by 3 mo but dosing-schedule-limited
+(no earlier wiki sample). Cytokine plasma half-lives (hours) are a **red herring** — the *state* relaxation, set by how
+fast the SOURCE changes, is the right quantity (the wiki cleanly supports this distinction). Confidence: moderate,
+**bounded-above only** (no fitted time-constant; single before/after pairs). `λ_infl` is the SASP *resolution* rate, NOT
+the (decades-slow) inflammaging *accumulation* rate. `#gap` — no kinetic-sampling study.
+
+**VERDICT (conditional — the robust reading):** *IF* the inflammatory response is much faster than the annual timestep
+(which the bounded evidence supports — `λ_infl·Δt` is plausibly `≫ 1`, e.g. `≈ 25`, where forward-Euler would be
+unstable, `|1−25|=24`), THEN the inflammation deviation is **quasi-steady** and its correct **reduced-order
+representation is the algebraic `0.2·D_sen` — i.e. the existing G-edge.** This conclusion does **not** require pinning
+`λ_infl`; it only requires "much faster than annual," which is well-supported. **So: PERMANENTLY retain the `sen→infl`
+`0.2` G-edge** unless finer-than-annual inflammatory dynamics are later introduced. `g_sen→infl = 0.2·λ_infl` is a
+reduced-model *interpretation* of the `0.2`, not a separately-sourced rate; do **not** rate-migrate the forward arm.
+
+**The reverse arm `infl→sen`: KEEP STUBBED (double-count risk — reviewer).** The slow, cumulative paracrine senescence
+(Acosta 2008 CXCR2; IL-6/HMGB1) is **SASP-driven** — senescent cells inducing senescence in neighbours via their own
+secretome — which is **already represented by senescence's value-proportional self-amplification** (the C3b
+self-dynamic). So a reverse `chronic-inflammation→senescence` rate edge would **DOUBLE-COUNT** the SASP feedback already
+in the self-amp. The reverse edge is justified **only** by evidence for an **independent chronic *systemic*
+inflammation → persistent senescence channel** (inflammation from NON-senescence sources — dysbiosis/LPS, mito DAMPs —
+driving senescence beyond the SASP loop), which the wiki does **not** currently establish. **Keep it stubbed.** *If ever
+activated*, calibrate against the **effective loop multiplier** — `≈ 0.2·g_reverse` PLUS the self-amplification, the
+clearance `c`, and all other G-matrix feedback paths — never the single edge alone. **Net: the migration inversion is
+sound; reverse activation is NOT yet justified.**
