@@ -756,6 +756,57 @@ str("B3b: underweight penalty steep (< obese)", String(
     String(atAge(rExp.B["atherosclerosis"], 80) > atAge(r.B["atherosclerosis"], 80)), "true");
 }
 
+// ---- generic intervention operators + node-to-node rate-channel (machinery; SYNTHETIC coeffs) ----
+// Validates the operator MACHINERY with synthetic coefficients (no biological efficacies). operators:[]
+// is inert (baseline-invariant). Covers: senolytic pulse DROPS existing burden (which freeze/slow cannot);
+// production-suppress slows accrual without dropping existing burden; senomorphic attenuates a coupling
+// gain without clearing the source; and the node-deviation rate-channel integrates cumulatively.
+{
+  const AGE0o = MODEL.meta.ageRange[0];
+  const atAge = (B, age) => B[age - AGE0o];
+  const baseSen = (age) => atAge(simulate(MODEL, { sex: "male" }).B["cellular-senescence"], age);
+
+  num("operators: empty list ⇒ baseline LE invariant",
+    lifeExpectancy(MODEL, { sex: "male", operators: [] }) - baseM, 0, 1e-9);
+
+  // senolytic pulse DROPS existing burden; freeze/slow does NOT (the key distinction)
+  const pulse = simulate(MODEL, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60] }] });
+  const freeze = simulate(MODEL, { sex: "male", interventions: { "cellular-senescence": { efficacy: 0.5, startAge: 60 } } });
+  str("operators: senolytic pulse DROPS existing burden (B_sen@62 << baseline)",
+    String(atAge(pulse.B["cellular-senescence"], 62) < baseSen(62) - 0.02), "true");
+  str("operators: freeze/slow barely touches existing burden vs the pulse (freeze ≈ baseline, ≫ pulse)",
+    String((baseSen(62) - atAge(freeze.B["cellular-senescence"], 62)) < 0.012
+        && atAge(freeze.B["cellular-senescence"], 62) > atAge(pulse.B["cellular-senescence"], 62) + 0.03), "true");
+  const pulse2 = simulate(MODEL, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60, 80] }] });
+  str("operators: repeated pulses clear more (B_sen@90 with 2 pulses < with 1)",
+    String(atAge(pulse2.B["cellular-senescence"], 90) < atAge(pulse.B["cellular-senescence"], 90)), "true");
+
+  // production-suppress slows accrual over a window WITHOUT dropping existing burden
+  const prod = simulate(MODEL, { sex: "male", operators: [{ kind: "production-suppress", target: "cellular-senescence", atten: 0.5, startAge: 60, endAge: 90 }] });
+  str("operators: production-suppress leaves window-start burden unchanged but slows later accrual",
+    String(Math.abs(atAge(prod.B["cellular-senescence"], 60) - baseSen(60)) < 1e-9
+        && atAge(prod.B["cellular-senescence"], 85) < baseSen(85)), "true");
+
+  // senomorphic attenuates the sen→infl coupling WITHOUT changing senescence burden (perturb sen via a
+  // synthetic exogenous driver so the coupling carries a signal)
+  const Ms = JSON.parse(JSON.stringify(MODEL));
+  Ms.nodes.find((n) => n.id === "cellular-senescence").rate.terms = [{ coeff: 0.0002, drivers: [{ id: "smoking", minus: 2, floor: 0 }] }];
+  const noMorph = simulate(Ms, { sex: "male", inputs: { smoking: 20 } });
+  const morph = simulate(Ms, { sex: "male", inputs: { smoking: 20 }, operators: [{ kind: "senomorphic", from: "cellular-senescence", to: "chronic-inflammation", atten: 0.8, startAge: 20, endAge: 130 }] });
+  str("operators: senomorphic lowers downstream inflammation WITHOUT changing senescence",
+    String(atAge(morph.B["chronic-inflammation"], 80) < atAge(noMorph.B["chronic-inflammation"], 80)
+        && Math.abs(atAge(morph.B["cellular-senescence"], 80) - atAge(noMorph.B["cellular-senescence"], 80)) < 1e-9), "true");
+
+  // node-deviation rate-channel: an inflammation rate term reading D_sen integrates cumulatively
+  const Mr = JSON.parse(JSON.stringify(Ms));
+  Mr.nodes.find((n) => n.id === "chronic-inflammation").rate.terms = [{ coeff: 0.02, drivers: [{ node: "cellular-senescence" }] }];
+  const noChan = simulate(Ms, { sex: "male", inputs: { smoking: 20 } });
+  const chan = simulate(Mr, { sex: "male", inputs: { smoking: 20 } });
+  const dInfl = (age) => atAge(chan.B["chronic-inflammation"], age) - atAge(noChan.B["chronic-inflammation"], age);
+  str("operators: node-deviation rate-channel integrates cumulatively (dInfl80 > dInfl50 > 0)",
+    String(dInfl(80) > dInfl(50) && dInfl(50) > 0), "true");
+}
+
 export function runTests() {
   let allPass = true;
   const rows = tests.map((t) => {

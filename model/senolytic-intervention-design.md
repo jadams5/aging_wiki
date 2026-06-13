@@ -8,6 +8,27 @@ suppression**, **endogenous immune clearance**, and **pulsed senolysis**.
 
 ---
 
+## Implementation status (2026-06-12) — generic machinery landed, INERT
+
+Per the user's Option-1-refined directive, the **generic operator machinery + node-to-node rate-channel are
+implemented and tested with SYNTHETIC coefficients** (no biological efficacies); all are inert by default
+(`operators:[]` ⇒ baseline LE byte-identical; **171/171**). Implemented in `simulate()`:
+- **senolytic-pulse** `{kind,target,killFraction,ages:[...]}` — drops the target burden at dosing ages (the
+  operator freeze/slow cannot express); **repeated schedules** supported. Re-accumulation NOT modeled (needs the
+  clearance state) — the drop persists for now.
+- **senomorphic** `{kind,from,to,atten,startAge,endAge}` — temporarily scales a coupling gain (no clearing).
+- **production-suppress** `{kind,target,atten,startAge,endAge}` — slows accrual over a window.
+- **node-deviation rate-channel** — a node `rate.term` driver `{node:id}` reads the live deviation `D` (the
+  machinery for the future sen↔infl loop); inert (no model edge uses it yet).
+
+**Deliberately NOT done (per the guardrails):** the clearance-capacity state `c(t)` (§1 — needs its own state
+equation/driver design first); the forward `sen→infl` G→rate migration (the live G-edge is **preserved**, to be
+migrated atomically once a rate coefficient is independently calibrated); and any compound wiring — fisetin /
+quercetin / D+Q remain **stubs** (§5) until per-compound efficacy + schedule are agent-verified. No loop gains,
+no clearance kinetics, no compound efficacies are set.
+
+---
+
 ## 0. Why the existing intervention operator is insufficient
 
 The current model has ONE intervention operator — a continuous **freeze/slow** from `startAge`:

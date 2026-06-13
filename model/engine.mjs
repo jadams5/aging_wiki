@@ -130,7 +130,7 @@ export function edgesByKind(MODEL) {
   };
 }
 
-export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}, treatments = {}, offsets = {} } = {}) {
+export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}, treatments = {}, offsets = {}, operators = [] } = {}) {
   if (sex !== "male" && sex !== "female") {
     throw new Error(`simulate: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
   }
@@ -227,13 +227,44 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   const accumDev = new Array(NN).fill(0);
   const hasRateTerms = NODES.map((n) => !!(n.rate && n.rate.terms && n.rate.terms.length));
 
+  // GENERIC INTERVENTION OPERATORS (design-only machinery; all coefficients caller-supplied — synthetic
+  // in tests; NO baked-in compound efficacies). `operators` is a list of tagged objects; with `operators:[]`
+  // (the default) every structure below is inert ⇒ baseline byte-identical. Three operators implemented;
+  // `clearance-restoration` is deferred until the clearance-capacity state is designed.
+  //   • senolytic-pulse  {kind, target, killFraction, ages:[...]}  → at each dosing age, drop the target
+  //       node's burden by killFraction·B (a persistent NEGATIVE deviation in `pulseAcc`). Re-accumulation
+  //       is NOT modeled here (it needs the clearance state) — the drop persists. The operator the existing
+  //       freeze/slow cannot express (freeze prevents future accrual; it never removes existing burden).
+  //   • senomorphic      {kind, from, to, atten, startAge, endAge} → temporarily scale the coupling gain
+  //       G[to][from] by (1−atten) over the window (attenuate signalling without clearing the source).
+  //   • production-suppress {kind, target, atten, startAge, endAge} → over the window reduce the target's
+  //       accrual increment by atten (lower the RATE of new burden; distinct from clearing existing).
+  const pulseAcc = new Array(NN).fill(0);
+  const pulseOps = [], senomorphicOps = [], prodSuppressOps = [];
+  for (const op of operators || []) {
+    if (op.kind === "senolytic-pulse" && NODE_IDX[op.target] !== undefined)
+      pulseOps.push({ idx: NODE_IDX[op.target], frac: op.killFraction || 0, ages: new Set(op.ages || []) });
+    else if (op.kind === "senomorphic" && NODE_IDX[op.to] !== undefined && NODE_IDX[op.from] !== undefined)
+      senomorphicOps.push({ to: NODE_IDX[op.to], from: NODE_IDX[op.from], atten: op.atten || 0, startAge: op.startAge, endAge: op.endAge });
+    else if (op.kind === "production-suppress" && NODE_IDX[op.target] !== undefined)
+      prodSuppressOps.push({ idx: NODE_IDX[op.target], atten: op.atten || 0, startAge: op.startAge, endAge: op.endAge });
+  }
+
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
     // Primary deviation P = interventions (prim) + integrated exogenous drivers (accumDev).
     // Solving D = P + couple*(G·D) puts accumDev INSIDE the coupling solve, so an exposure-driven
     // node burden propagates downstream through G (correction: must not be added post-solve).
     const P = new Array(NN);
-    for (let i = 0; i < NN; i++) P[i] = prim[i] + accumDev[i];
+    for (let i = 0; i < NN; i++) P[i] = prim[i] + accumDev[i] + pulseAcc[i];
+    // senomorphic: temporarily scale active coupling gains for this age (restored after the solve below)
+    const semMods = [];
+    for (const op of senomorphicOps) {
+      if (age >= op.startAge && age <= op.endAge && G[op.to][op.from] !== 0) {
+        semMods.push([op.to, op.from, G[op.to][op.from]]);
+        G[op.to][op.from] *= (1 - op.atten);
+      }
+    }
     let D = P.slice();
     for (let it = 0; it < COUPLE_ITERS; it++) {
       const ND = new Array(NN);
@@ -246,16 +277,27 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
       D = ND;
     }
     for (let i = 0; i < NN; i++) Barr[i][k] = clamp01(Tarr[i][k] + D[i]);
+    for (const [to, from, orig] of semMods) G[to][from] = orig;  // restore senomorphic-scaled gains
 
-    // Accumulate for the NEXT step: interventions into prim, integrated exogenous drivers into
-    // accumDev (= ∫ rate-terms·dt, deviation-form ⇒ 0 at population-default inputs).
+    // Accumulate for the NEXT step: interventions into prim, integrated drivers into accumDev
+    // (= ∫ rate-terms·dt, deviation-form ⇒ 0 at population-default). The accumDev now also supports
+    // NODE-DEVIATION drivers ({node:id} reading D[k]) — the rate-channel machinery for a future
+    // sen↔infl loop; with no such term in the model it is inert (byte-identical to the exogenous path).
     if (k < N_AGE - 1) {
       for (let i = 0; i < NN; i++) {
         const iv = interventions[NODES[i].id];
         if (iv && age >= iv.startAge) {
           prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
         }
-        if (hasRateTerms[i]) accumDev[i] += termsSum(NODES[i].rate.terms, inMap, k) * DT;
+        if (hasRateTerms[i]) accumDev[i] += nodeRateTermsSum(NODES[i].rate.terms, inMap, D, NODE_IDX, k) * DT;
+      }
+      // production-suppress: reduce the target's accrual increment over its window (lower new-burden rate)
+      for (const op of prodSuppressOps) {
+        if (age >= op.startAge && age <= op.endAge) prim[op.idx] -= op.atten * (Tarr[op.idx][k + 1] - Tarr[op.idx][k]);
+      }
+      // senolytic pulse: at a dosing age, drop the target burden by frac·B (persistent negative deviation)
+      for (const op of pulseOps) {
+        if (op.ages.has(age)) pulseAcc[op.idx] -= op.frac * Barr[op.idx][k];
       }
     }
   }
@@ -931,6 +973,31 @@ function termsSum(terms, out, k) {
     } else { // "linear" (default)
       r += (t.coeff || 0) * driverValueAt(drivers[0], out, k);
     }
+  }
+  return r;
+}
+
+// Node-level rate-terms sum for the hallmark-node `accumDev` channel. Identical to termsSum for
+// EXOGENOUS drivers (a string id or {id,...} → driverValueAt against inMap), and adds NODE-DEVIATION
+// drivers `{node:id,...}` that read the just-computed per-age deviation D[NODE_IDX[id]] — the rate-channel
+// machinery for a future node↔node loop (e.g. inflammation's rate driven by the senescence deviation).
+// With no `{node}` driver present this is byte-identical to termsSum(terms, inMap, k).
+function nodeRateTermsSum(terms, inMap, D, NODE_IDX, k) {
+  const val = (d) => {
+    if (d && typeof d === "object" && d.node !== undefined) {
+      const idx = NODE_IDX[d.node]; let v = idx === undefined ? 0 : (D[idx] || 0);
+      if (d.minus !== undefined) v -= d.minus;
+      if (d.floor !== undefined) v = Math.max(d.floor, v);
+      if (d.cap !== undefined) v = Math.min(d.cap, v);
+      return v;
+    }
+    return driverValueAt(d, inMap, k);
+  };
+  let r = 0;
+  for (const t of terms || []) {
+    const drivers = t.drivers || [];
+    if (t.op === "product") { let p = t.coeff || 0; for (const d of drivers) p *= val(d); r += p; }
+    else { r += (t.coeff || 0) * val(drivers[0]); }
   }
   return r;
 }
