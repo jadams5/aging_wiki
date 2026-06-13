@@ -143,6 +143,40 @@ export function validateGraph(MODEL) {
     if (liveKey.has(`${ik}|${src}|${dst}`)) warnings.push(`edge[${i}] stub duplicates a LIVE ${ik} edge ${src}→${dst} — remove the stub (already populated)`);
   });
 
+  // Operator presets are user-facing intervention scenarios. Malformed values otherwise
+  // degrade silently to an inert or misleading operator at runtime.
+  const presetIds = new Set();
+  for (const [i, p] of (B.operatorPresets || []).entries()) {
+    const at = `operatorPreset[${i}] ${p.id || "?"}`;
+    if (!p.id) errors.push(`${at}: missing id`);
+    else if (presetIds.has(p.id)) errors.push(`${at}: duplicate id`);
+    else presetIds.add(p.id);
+    if (p.kind !== "senolytic-pulse") errors.push(`${at}: unsupported kind ${JSON.stringify(p.kind)}`);
+    if (!nodes.has(p.target)) errors.push(`${at}: target node unknown: ${p.target}`);
+
+    const kills = p.killFractionScenarios;
+    if (!kills || Object.keys(kills).length === 0) errors.push(`${at}: missing killFractionScenarios`);
+    else {
+      for (const [name, value] of Object.entries(kills)) {
+        if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1)
+          errors.push(`${at}: kill scenario ${name} must be finite in [0,1], got ${value}`);
+      }
+      if (!(p.defaultKillScenario in kills))
+        errors.push(`${at}: defaultKillScenario not found in killFractionScenarios`);
+    }
+
+    const rebound = p.reboundHalfLifeScenariosYears;
+    if (!rebound || Object.keys(rebound).length === 0) errors.push(`${at}: missing reboundHalfLifeScenariosYears`);
+    else {
+      for (const [name, value] of Object.entries(rebound)) {
+        if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
+          errors.push(`${at}: rebound scenario ${name} must be finite and >0, got ${value}`);
+      }
+      if (!(p.defaultReboundScenario in rebound))
+        errors.push(`${at}: defaultReboundScenario not found in reboundHalfLifeScenariosYears`);
+    }
+  }
+
   return { errors, warnings };
 }
 

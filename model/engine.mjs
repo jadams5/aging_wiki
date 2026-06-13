@@ -227,23 +227,32 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   const accumDev = new Array(NN).fill(0);
   const hasRateTerms = NODES.map((n) => !!(n.rate && n.rate.terms && n.rate.terms.length));
 
-  // GENERIC INTERVENTION OPERATORS (design-only machinery; all coefficients caller-supplied — synthetic
-  // in tests; NO baked-in compound efficacies). `operators` is a list of tagged objects; with `operators:[]`
-  // (the default) every structure below is inert ⇒ baseline byte-identical. Three operators implemented;
-  // `clearance-restoration` is deferred until the clearance-capacity state is designed.
-  //   • senolytic-pulse  {kind, target, killFraction, ages:[...]}  → at each dosing age, drop the target
-  //       node's burden by killFraction·B (a persistent NEGATIVE deviation in `pulseAcc`). Re-accumulation
-  //       is NOT modeled here (it needs the clearance state) — the drop persists. The operator the existing
-  //       freeze/slow cannot express (freeze prevents future accrual; it never removes existing burden).
+  // GENERIC INTERVENTION OPERATORS. `operators` is a list of tagged objects; with `operators:[]`
+  // (the default) every structure below is inert ⇒ baseline byte-identical.
+  //   • senolytic-pulse  {kind,target,killFraction,ages:[...],reboundHalfLifeYears?} → at each dosing
+  //       age, drop the target burden by killFraction·B. When a positive rebound half-life is supplied,
+  //       the pulse deviation returns toward the untreated trajectory by the exact map
+  //       x_next=x·exp(−ln(2)·dt/halfLife). This is an empirical post-treatment response-persistence
+  //       parameter, distinct from endogenous immune clearance (`clearance.c0/beta`). Omitting it keeps
+  //       the former persistent-offset behaviour for backward compatibility and synthetic machinery tests.
   //   • senomorphic      {kind, from, to, atten, startAge, endAge} → temporarily scale the coupling gain
   //       G[to][from] by (1−atten) over the window (attenuate signalling without clearing the source).
   //   • production-suppress {kind, target, atten, startAge, endAge} → over the window reduce the target's
   //       accrual increment by atten (lower the RATE of new burden; distinct from clearing existing).
-  const pulseAcc = new Array(NN).fill(0);
   const pulseOps = [], senomorphicOps = [], prodSuppressOps = [], clearanceRestoreOps = [];
   for (const op of operators || []) {
-    if (op.kind === "senolytic-pulse" && NODE_IDX[op.target] !== undefined)
-      pulseOps.push({ idx: NODE_IDX[op.target], frac: op.killFraction || 0, ages: new Set(op.ages || []) });
+    if (op.kind === "senolytic-pulse" && NODE_IDX[op.target] !== undefined) {
+      const halfLife = Number(op.reboundHalfLifeYears);
+      pulseOps.push({
+        idx: NODE_IDX[op.target],
+        frac: Math.max(0, Math.min(1, Number(op.killFraction) || 0)),
+        ages: new Set(op.ages || []),
+        dev: 0,
+        decay: Number.isFinite(halfLife) && halfLife > 0
+          ? Math.exp(-Math.LN2 * DT / halfLife)
+          : 1,
+      });
+    }
     else if (op.kind === "senomorphic" && NODE_IDX[op.to] !== undefined && NODE_IDX[op.from] !== undefined)
       senomorphicOps.push({ to: NODE_IDX[op.to], from: NODE_IDX[op.from], atten: op.atten || 0, startAge: op.startAge, endAge: op.endAge });
     else if (op.kind === "production-suppress" && NODE_IDX[op.target] !== undefined)
@@ -269,7 +278,8 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     // Solving D = P + couple*(G·D) puts accumDev INSIDE the coupling solve, so an exposure-driven
     // node burden propagates downstream through G (correction: must not be added post-solve).
     const P = new Array(NN);
-    for (let i = 0; i < NN; i++) P[i] = prim[i] + accumDev[i] + pulseAcc[i];
+    for (let i = 0; i < NN; i++) P[i] = prim[i] + accumDev[i];
+    for (const op of pulseOps) P[op.idx] += op.dev;
     // senomorphic: temporarily scale active coupling gains for this age (restored after the solve below)
     const semMods = [];
     for (const op of senomorphicOps) {
@@ -308,19 +318,32 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
       for (const op of prodSuppressOps) {
         if (age >= op.startAge && age <= op.endAge) prim[op.idx] -= op.atten * (Tarr[op.idx][k + 1] - Tarr[op.idx][k]);
       }
-      // senolytic pulse: at a dosing age, drop the target burden by frac·B (persistent negative deviation)
+      // Existing pulse deviations heal over this interval by an exact exponential map. A dose at `age`
+      // is then applied for the next grid point, preserving the operator's established timing semantics.
       for (const op of pulseOps) {
-        if (op.ages.has(age)) pulseAcc[op.idx] -= op.frac * Barr[op.idx][k];
+        op.dev *= op.decay;
+        if (op.ages.has(age)) op.dev -= op.frac * Barr[op.idx][k];
       }
       // clearance-capacity: fold the deviation-form contribution (−c0·x − Δc·S) into the node's accumDev.
-      // x = carried deviation (accumDev+pulseAcc); Δc = −beta·(driver deviation); + any clearance-restoration
+      // x = carried deviation (accumDev + pulse deviations); Δc = −beta·(driver deviation); + any restoration
       // boost active this age. With c0=beta=0 and no boost ⇒ 0 ⇒ inert (drop persists, baseline unchanged).
+      // MUTUAL-EXCLUSION GUARD: a pulse that carries its OWN rebound (decay<1) heals via that exact map; it is
+      // EXCLUDED from x so endogenous clearance does not ALSO heal it. Without the guard, c0 writes positive
+      // compensation into the PERSISTENT accumDev while the rebound decays op.dev away → net positive deviation
+      // (burden ends up ABOVE baseline — an overshoot). Only persistent (no-rebound, decay≥1) pulse drops are
+      // c0's responsibility (matches clearance-state-design.md invariance test #3: "without an operator
+      // response half-life, a pulse decays at ~c0"). Inert today (c0=beta=0); the guard bites once c0>0.
+      // NOTE (beta channel, Codex-flagged 2026-06-13): the SEPARATE −dc·Barr immunosenescence term below still reads the
+      // pulse-reduced ABSOLUTE burden, so once beta>0 a rebounding pulse can diverge slightly from the no-pulse case
+      // (small, late — verified ~age 89; never above the TRUE baseline). Distinct beta-channel item, resolve when the
+      // immunosenescence→clearance channel is calibrated — see clearance-state-design.md. Inert today (beta=0).
       for (const cl of clearanceNodes) {
         let c0 = cl.c0;
         for (const op of clearanceRestoreOps) { if (op.idx === cl.idx && age >= op.startAge && age <= op.endAge) c0 += op.boost; }
         const dc = cl.beta && cl.driverIdx !== undefined ? -cl.beta * D[cl.driverIdx] : 0;  // Δc = −beta·driverDev
         if (c0 !== 0 || dc !== 0) {
-          const x = accumDev[cl.idx] + pulseAcc[cl.idx];
+          let x = accumDev[cl.idx];
+          for (const op of pulseOps) { if (op.idx === cl.idx && op.decay >= 1) x += op.dev; }
           accumDev[cl.idx] += (-c0 * x - dc * Barr[cl.idx][k]) * DT;
         }
       }

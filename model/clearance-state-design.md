@@ -47,8 +47,9 @@ dS/dt = production(S)  +  paracrine_induction(D_infl)  −  clearanceCapacity c(
 - **−c(t)·S** = clearance: a **burden-dependent negative rate** (immune removal of a *fraction* of the stock).
 
 **Correction (user, applied):** re-accumulation does NOT need clearance — **production already re-grows the burden
-after a pulse** (the baseline trajectory keeps rising; in the current engine a pulse-drop is a persistent offset and
-`B` re-rises with `T`). What clearance controls is the **NET rate and loop stability** — specifically (i) whether a
+after a pulse** (the baseline trajectory keeps rising). A senolytic operator may now carry a separate empirical
+response-persistence half-life that heals only that treatment deviation; this does not replace endogenous clearance.
+What clearance controls is the **NET rate and loop stability** — specifically (i) whether a
 perturbation (a senolytic pulse, or a loop excursion) **decays back toward the baseline trajectory** (the drop
 "heals") versus persists, and (ii) whether the positive-feedback loop converges or runs away. So this note corrects the
 earlier senolytic-note framing ("re-accumulation needs clearance" → "drop-healing + stability need clearance").
@@ -123,12 +124,19 @@ decay/healing rate; wiki-thin, "days–weeks") and `β_imm` (immunosenescence se
 | operator | `senolytic-pulse` (already built) | `clearance-restoration` (the deferred 4th operator) |
 | acts on | `S` directly — drug kills cells (`S ← S·(1−ε_kill)`) | `c` — boosts the endogenous remover (`c ← c + ε_clear`) |
 | `c`-dependence | **independent of `c`** (drug-mediated death, not immune) | **IS the `c` lever** |
-| dynamics | instantaneous stock drop, then heals at rate ~`c` | raises the net decay rate ⇒ existing + future burden clears faster + loop more stable |
+| dynamics | stock drop (applied at the grid point AFTER the dosing age — annual k→k+1 lag), then heals back toward baseline at rate ~`c` | raises the net decay rate ⇒ existing + future burden clears faster + loop more stable |
 | maps to | fisetin / D+Q (cell-type-limited, hit-and-run) | immune/NK-restorative / SASP-clearance-boosting agents; "restore surveillance" |
 
-They are **orthogonal and interacting**: a senolytic pulse drops `S` now; restoring `c` makes that drop *heal more
-slowly* (clears the re-forming cells) and bounds the loop. Modeling both lets the simulator distinguish "kill the
-cells once" from "fix the remover." (The `clearance-restoration` operator is built only WITH the `c` state — deferred.)
+They are **distinct levers, not additive on the same quantity.** A senolytic pulse is a *transient* negative deviation in
+`S`; restoring `c` raises the net decay rate — which clears the standing senescence *excess* faster (a persistently lower
+trajectory — restoration's real benefit) and bounds the loop. (Higher `c` makes a senolytic's negative drop return to
+baseline *faster*, not slower — restoration does **not** "preserve" a one-off kill.) **A pulse that carries its own
+rebound half-life is EXCLUDED from the `c`/`-c0·x` term** (engine guard, 2026-06-13) — it heals via its own exact map, so
+`clearance-restoration` does NOT additionally act on it (avoiding the double-heal overshoot). So the "interacting" framing
+holds for persistent pulses; rebounding pulses are isolated from `c0`. (Separately, the immunosenescence `−dc·Barr` term
+still reads the pulse-reduced absolute burden — a small beta-channel divergence to resolve when `β` is calibrated.) Modeling
+both still lets the simulator distinguish "kill the cells once" from "fix the remover." (The `clearance-restoration`
+operator is built only WITH the `c` state — deferred.)
 
 ---
 
@@ -177,8 +185,13 @@ A uniform `c` + a single `S` cannot express that a drug clears *some* sub-pools 
    exponential ⇒ LE unchanged.
 2. **Clearance is immunosenescence-driven, not age:** age fixed, immunosenescence *deviated up* ⇒ `c` falls ⇒ a
    senolytic-pulse drop heals *slower* and steady-state `S` is *higher*; immunosenescence at baseline ⇒ unchanged.
-3. **Drop-healing (the corrected re-accumulation):** after a pulse, `D_sen` decays toward 0 at rate ~`c0` (returns to
-   the baseline trajectory) — distinct from the current persistent-offset behaviour.
+3. **Endogenous drop-healing:** without an operator-specific response half-life, a pulse deviation decays toward 0 at
+   rate ~`c0`. Operator response persistence and physiological immune clearance are separate parameters. **Mutual
+   exclusion (enforced in the engine 2026-06-13):** a pulse that carries its own rebound (`decay<1`) is **excluded from
+   the `−c0·x` term** — otherwise `c0` and the rebound both heal the same deviation, and because `c0`'s compensation
+   accumulates in the *persistent* `accumDev` while the rebound decays away, the burden **overshoots above baseline**
+   (verified: `c0=0.15` + 4-yr rebound crosses above baseline by age 70). So: rebounding pulses heal via their own map;
+   `c0` heals only persistent (no-rebound) drops and non-pulse deviations. Regression-tested.
 4. **Immune-restoration ≠ senolysis:** `clearance-restoration` raises `c` (faster healing, no instantaneous drop);
    `senolytic-pulse` drops `S` (no `c` change) — orthogonal signatures.
 5. **Stability:** §5 Jacobian (`Re(λ)<0`) + discrete-map (`|λ|<1`) hold for the chosen `c0`, `β_imm`, loop gains;

@@ -1,14 +1,14 @@
-# D+Q (dasatinib + quercetin) senolytic calibration — CALIBRATION/DESIGN (efficacy HELD)
+# D+Q (dasatinib + quercetin) senolytic calibration — EXPLORATORY SCENARIO LIVE
 
 **Status:** calibration pass per user 2026-06-12 (5-step plan). Wiki-grounded via a research sub-agent (wiki-first).
 Companion to `model/senolytic-intervention-design.md` (operator semantics) and `model/clearance-state-design.md`
 (the `−c·S` healing dynamics this calibration depends on). **Author:** claude · 2026-06-12.
 
-**Decision (up front):** a defensible **kill-fraction range** exists (`ε_kill ≈ 0.17 / 0.35 / 0.62`, two-tissue-anchored: adipose + skin), but the
-**modeled effect** does not yet — because the trajectory the operator feeds is incomplete (clearance/healing `−c·S` is frozen,
-and the rebound time-constant is wiki-absent). So **D+Q stays a stub** — *upgraded from placeholder to a calibrated, sourced
-stub with efficacy HELD* — not wired live. This is exactly the user's step 5 "otherwise retain the stubs," with the range now
-filled in. Live-wiring is gated behind two things named in §5.
+**Decision update (2026-06-13):** the human-anchored kill-fraction range is now live as an explicitly **exploratory
+target-engagement scenario**. The engine carries a separate exact post-pulse response-decay parameter, so a one-off course
+no longer leaves an effectively permanent benefit while endogenous immune clearance (`c0`, `β`) remains disabled. Because
+no longitudinal human rebound constant exists, the UI exposes 1/3/8-year half-life sensitivity scenarios rather than asserting
+a biological point estimate. This removes the trajectory HOLD without claiming clinical lifespan calibration.
 
 **Scope guards.**
 - **D+Q ONLY.** Quercetin-monotherapy is a *separate, weaker* entity (endothelial-only in-vitro, ~50% senescent-HUVEC kill
@@ -134,90 +134,36 @@ burden change on a ≪1-yr timescale, so at the annual grid the inflammatory con
 calibration. **And the one controlled trial is SASP-null:** Farr 2024 (n=60 RCT) measured **36 circulating SASP factors at
 2 weeks → no significant D+Q-vs-control change**, with **no adipose biopsy** and T-cell p16 **at baseline only** (so it
 confirms neither clearance nor a systemic SASP drop). The entire kill→SASP-drop coupling therefore rests on the
-**uncontrolled** Hickson data; the controlled evidence is null. This **tempers the magnitude** (reinforcing
-"direction/plausible-only" and the HOLD) while leaving the **timescale** intact (whatever SASP change Hickson saw resolved ≤2 wk).
+**uncontrolled** Hickson data; the controlled evidence is null. This **tempers the magnitude** (direction/plausible-range
+only) while leaving the **timescale** intact (whatever SASP change Hickson saw resolved ≤2 wk).
 
-**Runtime pulse-timing validation (the validation that is BLOCKED).** Whether a chosen dosing schedule produces the intended
-*intermittent steady-state* `S` (the lower time-averaged burden that is the whole point of repeat dosing) **cannot be validated
-until the clearance/healing `−c·S` dynamics are active** — with clearance frozen, a pulse leaves a permanent offset and there is
-no rebound to validate against (see §5). So step 4 is **half-complete by construction**: evidence-side timing ✔ checks out;
-runtime-timing validation ✗ is gated on the frozen clearance state. This is itself a reason to hold.
+**Runtime pulse-timing validation.** The pulse deviation now has an optional exact response-persistence map,
+`x_next=x·exp(−ln(2)·dt/reboundHalfLifeYears)`. Tests assert the specified half-life exactly, finite healing after one course,
+and bounded repeated-pulse behavior. This does not claim that endogenous clearance is calibrated: `c0`/`β` remain disabled.
+Maintenance dosing is still deferred because its annual-grid effective rate and empirical rebound constant remain unknown.
 
 ---
 
-## Step 5 — Wire-vs-stub decision: **HOLD (calibrated stub)**
+## Step 5 — Wire-vs-stub decision: **LIVE as an exploratory one-off scenario**
 
-A defensible range exists for the kill **magnitude**. A defensible range does **not** yet exist for the modeled **effect**,
-because the dynamics the operator feeds are incomplete:
+The original HOLD was correct for the old engine: an un-decayed pulse created an effectively permanent benefit. The new exact
+response-persistence parameter removes that structural error without assigning an unsourced endogenous clearance coefficient.
+The canonical preset therefore exposes two independent scenario axes:
 
-1. **Clearance/healing (`−c·S`) is frozen** (`c0 = β = 0`, per the active design freeze). With it disabled, a `senolytic-pulse`
-   leaves a **permanent downward offset** on `S` (the engine note states this explicitly: the drop "persists as an offset
-   because the clearance-deviation dynamics are not yet implemented"). Consequence: **a single 3-day D+Q course → a permanent
-   inflammation drop → a permanent life-expectancy gain.** That is biologically wrong — after cessation, senescent cells
-   re-accumulate and a one-off benefit should **decay**. Wiring ε now injects a defensible kill into an indefensible trajectory.
-2. **The rebound time-constant is wiki-absent.** The quantity that governs how fast `S` returns toward the untreated trajectory
-   (and hence the maintenance-schedule steady state) is only "days–weeks" qualitatively in the wiki — no kinetic-sampling
-   study. Without it the repeated-schedule payoff can be **signed but not calibrated**. `#gap/needs-rebound-time-constant`
+- **Kill fraction:** `0.17 / 0.35 / 0.62`, anchored to the verified human biopsy marker/tissue envelope.
+- **Rebound half-life:** `1 / 3 / 8 years`, explicitly illustrative sensitivity values, not empirical estimates.
 
-**∴ Decision: HOLD D+Q as a calibrated stub** (the ε envelope, schedule, tissue-lumping, and SASP-timing validation recorded
-and sourced; efficacy held at 0 / not added to `params.json operators`). **Live-wiring is gated behind BOTH:**
-- **(a) the clearance state activated** (the `−c·S` healing dynamic — currently frozen by design), so the one-off benefit decays
-  and the maintenance arm has a rate to elevate; and
-- **(b) a rebound-τ source** — seed a kinetic-sampling senolytic study into the wiki, or adopt an explicit modeling assumption
-  flagged `#gap`. Until then the maintenance steady-state is unconstrained.
+At the central setting (35% kill, 3-year half-life), one course at age 55 produces `ΔLE ≈ +0.019 yr` in the current male
+population model. Across the full scenario grid the result is approximately `+0.004` to `+0.071 yr`. These are model outputs,
+not predicted clinical effects. They arise through existing downstream chronic-senescence paths; no direct cancer-incidence
+benefit or cancer penalty is added.
 
-Plus the **Farr PDF is now read** (2026-06-12): the schedule is canonicalized (Step 1), but the trial is **open-label and
-dual-null** (primary CTx p=0.611; 36-factor SASP panel no-change; no biopsy) — which **sharpens, not softens, the HOLD**: the
-only controlled D+Q trial established neither an endpoint, nor a SASP effect, nor clearance itself, so even the *sign* of an
-organism-level benefit is not cleanly anchored.
-
-**Alternative the user may choose (named, not recommended):** wire only the **one-off campaign** with `ε=0.35` and an explicit
-*"near-permanent benefit (heals only ~7%/decade)"* limitation banner, accepting the implausible non-decay as a documented v0
-artifact. Recommend **against**: it makes the simulator overstate the durability of a single drug course — the single most
-misleading-to-a-reader artifact a senolytic could introduce — and it depends on the very clearance dynamic that is frozen.
-
-**HOLD — empirically verified (engine run, 2026-06-13).** Running the existing `senolytic-pulse` operator (`ε=0.35` on the
-lumped senescence node, male) quantifies the artifact and confirms both gates:
+The prior engine comparison remains useful as the reason the persistence parameter exists:
 
 | scenario | ΔLE (yr) | does senescence S heal back? |
 |---|---|---|
-| one-off pulse @55, **clearance FROZEN (current state)** | **+0.110** | **no** — S sits 33 % below baseline at age 56, still **7 % below at age 90** (heals only ~7 %/decade, via the rate's constant offset term) |
+| one-off pulse @55, **old persistent-offset engine** | **+0.110** | effectively no — still 7% below baseline at age 90 |
 | one-off pulse @55, **clearance synthetically ON** (`c0=0.12`) | **+0.027** | **yes** — back to 97.5 % of baseline by age 70, 99.9 % by 90 |
-| every-5-yr 55–80, FROZEN | +0.404 | stacks (no inter-dose saturation) |
-| annual 55–85, FROZEN | +0.631 | stacks (no inter-dose saturation) |
-
-So a **single 3-day D+Q course, wired into the current clearance-frozen engine, buys ≈ +0.11 yr that persists across
-essentially the whole remaining lifespan** — a **~4× overstatement** vs the same course with clearance active (+0.027 yr,
-healing in ~10–15 yr — the biologically-sensible transient). Repeated dosing **stacks without bound** when frozen (no
-re-accumulation to an intermittent steady state), so it overstates maintenance dosing too. The kill propagates downstream as
-designed (inflammation −1.6 % at age 56 via the `0.2` G-edge). And synthetic clearance is **baseline-invariant** (no-operator
-LE = 77.458855, byte-identical) — so the gated clearance state can be switched on later **without disturbing the baseline.**
-This confirms the two gates precisely: **(a) clearance activation is what makes a one-off benefit decay correctly; (b) it does
-so without breaking baseline.** *(Wording refined from the earlier "permanent offset": it is not literally permanent — it heals
-~7 %/decade through the rate's offset term — but it is effectively permanent on any realistic post-treatment timescale.)*
-
----
-
-## The HELD parameter block (drop-in-ready once §5 (a)+(b) clear)
-
-```jsonc
-// D+Q senolytic — HELD. Do NOT add to params.json `operators` until:
-//   (a) clearance state active (−c·S healing), and (b) a rebound-τ source exists.
-// One-off campaign → discrete pulse (below). Maintenance schedule → clearance-restoration +Δc over window (NOT a pulse train at Δt=1yr).
-{
-  "kind": "senolytic-pulse",
-  "label": "D+Q",
-  "target": "cellular-senescence",          // lumped S pool (v0 — single ε, not cell-type-disaggregated)
-  "killFraction": 0.35,                      // central: p16+ adipose −35% cells (Hickson 2019, n=9, single-arm, no control)
-  "killFraction_envelope": [0.17, 0.62],     // floor adipose p21+ −17% .. ceiling adipose SA-βgal+ −62%; marker×tissue spread, NOT a CI
-  "killFraction_note": "two-tissue-anchored (adipose+skin IHC cells cluster 0.17-0.35); central ~0.25-0.35; must be < 1 (no pan-senolytic)",
-  "ages": [],                                // one-off campaign age(s); e.g. [55] or a short [55, 56, 57] re-dose series
-  "_held": true,
-  "_gate": "clearance active (−c·S) AND rebound-τ sourced; see dq-calibration-design.md §5",
-  "_sources": "Hickson 2019 adipose+skin Day-14 biopsy, % positive cells (verified, PDF-read 2026-06-13). Farr 2024 schedule verified 2026-06-12 (open-label, dual-null; cadence shape only).",
-  "_gaps": "#gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/ihc-not-perfectly-senescence-specific"
-}
-```
 
 ---
 

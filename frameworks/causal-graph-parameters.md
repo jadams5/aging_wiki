@@ -3957,6 +3957,28 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "provenance": "Metformin/GLP-1 lowers HbA1c ~-0.8% (GLP-1 larger); modeled as additive downshift. amount %."
       }
     ],
+    "operatorPresets": [
+      {
+        "id": "dq-one-off",
+        "label": "D+Q one-off senolytic campaign",
+        "kind": "senolytic-pulse",
+        "target": "cellular-senescence",
+        "ageSource": "currentAge",
+        "killFractionScenarios": {
+          "conservative": 0.17,
+          "central": 0.35,
+          "optimistic": 0.62
+        },
+        "defaultKillScenario": "central",
+        "reboundHalfLifeScenariosYears": {
+          "short": 1,
+          "central": 3,
+          "long": 8
+        },
+        "defaultReboundScenario": "central",
+        "provenance": "EXPLORATORY HUMAN TARGET-ENGAGEMENT SCENARIO (2026-06-13), not a clinical outcome prediction. Kill envelope is anchored to Hickson 2019 Day-14 human biopsy changes after one 3-day D+Q course: adipose p21+ cells -17%, p16+ cells -35%, SA-beta-gal+ cells -62%; skin p16+ -20%, p21+ -31% (n=9, open-label, uncontrolled; marker x tissue spread, not a CI). The annual-grid operator applies one campaign at currentAge. Rebound half-lives 1/3/8 yr are explicit sensitivity scenarios because no longitudinal human senescent-burden recovery constant is available; they are not sourced estimates. Existing downstream edges propagate reduced chronic senescence/SASP through inflammation, arterial stiffness, and cause burdens. No DIRECT senescence-to-cancer term is added (and no speculative direct cancer penalty); an INDIRECT cancer benefit nonetheless flows through the live cellular-senescence->chronic-inflammation->cancer coupling, so the scenario does lower modeled cancer burden via the inflammation path. Endogenous immunosenescence-driven clearance c0/beta remains disabled and separate. #gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/ihc-not-perfectly-senescence-specific"
+      }
+    ],
     "constants": {
       "heightRefM": 1.7,
       "weightAsymptoteFraction": 0.55,

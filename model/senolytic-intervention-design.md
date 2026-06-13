@@ -8,17 +8,26 @@ suppression**, **endogenous immune clearance**, and **pulsed senolysis**.
 
 ---
 
-## Implementation status (2026-06-12) — generic machinery landed, INERT
+## Implementation status (2026-06-13) — generic machinery + exploratory D+Q scenario live
 
 Per the user's Option-1-refined directive, the **generic operator machinery + node-to-node rate-channel are
-implemented and tested with SYNTHETIC coefficients** (no biological efficacies); all are inert by default
-(`operators:[]` ⇒ baseline LE byte-identical; **171/171**). Implemented in `simulate()`:
-- **senolytic-pulse** `{kind,target,killFraction,ages:[...]}` — drops the target burden at dosing ages (the
+implemented and tested; all remain inert by default (`operators:[]` ⇒ baseline LE byte-identical). D+Q is available as an
+explicitly exploratory one-off scenario using a human-biopsy kill envelope plus a sensitivity-only rebound half-life.
+Implemented in `simulate()`:
+- **senolytic-pulse** `{kind,target,killFraction,ages:[...],reboundHalfLifeYears?}` — drops the target burden at dosing ages (the
   operator freeze/slow cannot express); **repeated schedules** supported. The absolute burden DOES re-accumulate
-  (production / the baseline trajectory keeps rising); what is not yet modeled is the **drop HEALING back toward the
-  baseline trajectory** — the pulse's deviation currently persists as an offset because the clearance-deviation
-  dynamics (`−c·S`) are not yet implemented. Clearance controls the NET rate (drop-healing) + loop stability, NOT
-  whether burden re-grows (corrected per user; see model/clearance-state-design.md).
+  (production / the baseline trajectory keeps rising). A positive rebound half-life heals the pulse deviation by the exact
+  exponential map `x_next=x·exp(−ln(2)·dt/halfLife)`. This empirical response-persistence parameter is deliberately separate
+  from endogenous clearance capacity (`c0`, `β`), which remains disabled pending calibration.
+  **Timing (k→k+1):** a dose listed at age `k` is applied *after* that year's coupling solve, so its effect first appears
+  at `k+1` — a one-grid-step lag inherent to the annual `Δt`; the §2 "instantaneous at dosing age" / the UI "at current
+  age" are exact only up to this 1-yr discretization (now stated in the UI note).
+  **Double-heal guard (2026-06-13, Codex-flagged):** a rebounding pulse (`decay<1`) is **excluded from the clearance
+  `−c0·x` term**, so when `c0` is later activated it does **not** also heal that deviation. Without the guard, `c0` writes
+  positive compensation into the *persistent* `accumDev` while the rebound decays `op.dev` away → net **positive**
+  deviation, i.e. the treated burden overshoots **above** baseline (verified: `c0=0.15` + 4-yr rebound crossed above
+  baseline by age 70). Persistent (no-rebound) pulses remain `c0`'s responsibility (invariance test #3). Inert today
+  (`c0=0`); the guard bites once `c0>0`.
 - **senomorphic** `{kind,from,to,atten,startAge,endAge}` — temporarily scales a coupling gain (no clearing).
 - **production-suppress** `{kind,target,atten,startAge,endAge}` — slows accrual over a window.
 - **node-deviation rate-channel** — a node `rate.term` driver `{node:id}` reads the live deviation `D` (the
@@ -73,7 +82,7 @@ visible in the graph. `#gap/needs-clearance-coefficients`.
 
 | Operator | Acts on | Math (design) | Distinct from |
 |---|---|---|---|
-| **Senolytic pulse** | the accumulated stock `S` | at each dosing age `t_d`: **`S ← S·(1 − ε_kill)`** (instantaneous fractional clearance of existing burden; optionally cell-type-limited ⇒ `ε_kill` applies to a *fraction* of `S`) | freeze/slow (which never removes existing `S`) |
+| **Senolytic pulse** | the accumulated stock `S` | at each dosing age `t_d`: **`S ← S·(1 − ε_kill)`** (fractional clearance of existing burden — applied after the `t_d` solve, so the drop first shows at `t_d+1` on the annual grid; optionally cell-type-limited ⇒ `ε_kill` applies to a *fraction* of `S`) | freeze/slow (which never removes existing `S`) |
 | **Senomorphic** | the SASP signalling gain | during `[t_on, t_off]`: **`g_sen→infl ← g_sen→infl·(1 − ε_morph)`** (attenuate senescence→inflammation rate WITHOUT clearing `S`) | senolytic (S unchanged) |
 | **Production suppression** | the new-senescence rate | during treatment: **`production ← production·(1 − ε_prod)`** (lower the *rate* of new senescence) | clearance (removes existing) and senomorphic (S still forms, just signals less) |
 | **Clearance restoration** | `c(t)` | during/after treatment: **`c ← c + ε_clear`** (raise immune clearance capacity — immune/vaccine/CAR-T-style) | senolytic pulse (drug kills directly; this boosts the endogenous remover) |
@@ -120,12 +129,11 @@ single freeze/slow operator conflates.
 The reviewer's cautious priors are **confirmed** by the wiki, with three refinements (production-suppression is
 wiki-silent for ALL three; senomorphic is secondary/indirect for these agents; efficacy is mechanism-direction-only).
 
-> **D+Q is now calibrated (efficacy HELD) — see `model/dq-calibration-design.md` (2026-06-12).** Kill-fraction envelope
+> **D+Q is live as an exploratory one-off scenario — see `model/dq-calibration-design.md`.** Kill-fraction envelope
 > `ε_kill ≈ 0.17 / 0.35 / 0.62` (adipose, Hickson 2019); one-off campaign → discrete pulse, maintenance schedule → a
-> clearance-rate boost (sub-annual at `Δt=1yr`). **Decision: HOLD as a calibrated stub** — the kill magnitude is defensible
-> but the post-pulse trajectory is not while clearance/healing (`−c·S`) is frozen (a single course would give a permanent,
-> non-decaying benefit) and the rebound time-constant is wiki-absent. Live-wiring gated on clearance activation + a
-> rebound-τ source. Fisetin and quercetin-monotherapy remain placeholder stubs pending their own calibration passes.
+> clearance-rate boost (sub-annual at `Δt=1yr`). The pulse now carries an exact response-decay half-life; 1/3/8-year values
+> are sensitivity scenarios because human rebound kinetics remain unmeasured. Endogenous clearance remains disabled.
+> Fisetin and quercetin-monotherapy remain placeholder stubs pending their own calibration passes.
 
 | agent | senolytic pulse `S←S·(1−ε)` | senomorphic (g attenuation) | production suppression | cell-type-selective | intermittent | human evidence |
 |---|---|---|---|---|---|---|
@@ -161,8 +169,9 @@ senolytic study page. Worth a future seeding pass before these trials anchor any
 
 1. **Baseline invariance:** with no intervention and immunosenescence at population-default, `c=c0` ⇒ `dS/dt` reproduces
    the migrated senescence exponential ⇒ LE M 77.458855 / F 82.117850 unchanged.
-2. **Senolytic ≠ freeze:** a senolytic pulse **drops `S` immediately** (and downstream inflammation falls with a lag via
-   the rate-loop), whereas freeze/slow leaves existing `S` untouched — assert the two operators produce *different* `S(t)`.
+2. **Senolytic ≠ freeze:** a senolytic pulse **drops `S`** (at the grid point after the dosing age — the 1-yr annual-grid
+   lag; downstream inflammation then falls via the rate-loop), whereas freeze/slow leaves existing `S` untouched — assert the
+   two operators produce *different* `S(t)`.
 3. **Re-accumulation:** after a pulse, `S` re-accrues via `production − c·S`; a *repeated* schedule yields a lower
    time-averaged `S` than a single pulse — the intermittent-dosing payoff.
 4. **Clearance is immunosenescence-driven, not age:** age fixed + immunosenescence frozen ⇒ `c` constant ⇒ `S` clears
@@ -177,7 +186,7 @@ senolytic study page. Worth a future seeding pass before these trials anchor any
 
 - `c0`, `f(immunosenescence)` (clearance baseline + its immunosenescence sensitivity).
 - `ε_kill`, `ε_morph`, `ε_prod`, `ε_clear` per compound (from the verified wiki evidence + senolysis trial data).
-  **D+Q `ε_kill` calibrated 2026-06-12** (`0.17/0.35/0.62`, HELD — `dq-calibration-design.md`); fisetin / quercetin-mono
+  **D+Q `ε_kill` scenario live** (`0.17/0.35/0.62`; `dq-calibration-design.md`); fisetin / quercetin-mono
   `ε_kill` and all `ε_morph`/`ε_prod`/`ε_clear` still deferred.
 - The loop gains `g_sen→infl`, `g_infl→sen` (from the loop note).
 - Cell-type-selectivity fractions (fisetin clears a *subset* of senescent-cell types — needs the wiki's specificity data).

@@ -51,6 +51,24 @@ num("Baseline LE female", simulate(MODEL, { sex: "female" }).LE, 82.118, 0.05); 
 num("Baseline max|B-T| male", maxAbsBT("male"), 0, 0);
 num("Baseline max|B-T| female", maxAbsBT("female"), 0, 0);
 
+const dqPreset = (MODEL.bLayer.operatorPresets || []).find((p) => p.id === "dq-one-off");
+str("D+Q preset: canonical exploratory scenario exists", String(!!dqPreset), "true");
+str("D+Q preset: human kill envelope pinned at 17/35/62%",
+  JSON.stringify(dqPreset && dqPreset.killFractionScenarios),
+  JSON.stringify({ conservative: 0.17, central: 0.35, optimistic: 0.62 }));
+str("D+Q preset: rebound values explicitly scenario-bounded",
+  JSON.stringify(dqPreset && dqPreset.reboundHalfLifeScenariosYears),
+  JSON.stringify({ short: 1, central: 3, long: 8 }));
+const dqCentral = dqPreset ? simulate(MODEL, { sex: "male", operators: [{
+  kind: dqPreset.kind,
+  target: dqPreset.target,
+  killFraction: dqPreset.killFractionScenarios.central,
+  reboundHalfLifeYears: dqPreset.reboundHalfLifeScenariosYears.central,
+  ages: [55],
+}] }) : simulate(MODEL, { sex: "male" });
+num("D+Q preset: central one-off @55 remains a small exploratory ΔLE",
+  dqCentral.LE - baseM, 0.01865, 0.001);
+
 // v0.4: upstream-node freeze ΔLEs ROSE vs v0.3 because old-age escalation is now
 // burden-driven, not age-keyed. In v0.3 the cause-node burden was clamped at 1
 // above age 90 and an age-keyed Gompertz factor carried the >90 hazard, so an
@@ -623,6 +641,10 @@ str("B3b: underweight penalty steep (< obese)", String(
   str("validator: catches duplicate live frailty target", String(inject({ kind: "frailty", from: "sarcopenia", to: "cardiovascular", beta: 0.5 }, { kind: "frailty", from: "clonal-hematopoiesis", to: "cardiovascular", beta: 0.3 }) > 0), "true");
   str("validator: catches malformed cause form (missing slope/threshold/cap)", String(inject({ kind: "cause", from: "HbA1c", to: "cancer", form: "mediatorThresholdRamp", med: "HbA1c", beta: 0 }) > 0), "true");
   str("validator: catches unknown endpoint", String(inject({ kind: "coupling", from: "NOPE", to: "cancer", strength: "weak" }) > 0), "true");
+  const badPreset = JSON.parse(JSON.stringify(MODEL));
+  badPreset.bLayer.operatorPresets[0].killFractionScenarios.central = 1.2;
+  str("validator: catches out-of-range operator-preset kill fraction",
+    String(validateGraph(badPreset).errors.some((e) => e.includes("kill scenario central"))), "true");
 }
 
 // ---- genomic-instability ∫rate·dt migration (Phase C3, 2026-06-12) ----
@@ -780,6 +802,50 @@ str("B3b: underweight penalty steep (< obese)", String(
   const pulse2 = simulate(MODEL, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60, 80] }] });
   str("operators: repeated pulses clear more (B_sen@90 with 2 pulses < with 1)",
     String(atAge(pulse2.B["cellular-senescence"], 90) < atAge(pulse.B["cellular-senescence"], 90)), "true");
+
+  // Explicit post-pulse response persistence uses an exact half-life map, independent of c0/beta.
+  const rebound = simulate(MODEL, { sex: "male", operators: [{
+    kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5,
+    ages: [60], reboundHalfLifeYears: 4,
+  }] });
+  const gapRebound = (age) => baseSen(age) - atAge(rebound.B["cellular-senescence"], age);
+  num("operators: rebound half-life exact (pulse gap halves over 4 yr)",
+    gapRebound(65) / gapRebound(61), 0.5, 1e-9);
+  str("operators: finite rebound prevents effectively permanent one-off benefit",
+    String(gapRebound(81) < gapRebound(61) / 20), "true");
+
+  const reboundSchedule = simulate(MODEL, { sex: "male", operators: [{
+    kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.35,
+    ages: [60, 65, 70, 75, 80], reboundHalfLifeYears: 3,
+  }] });
+  str("operators: rebound bounds repeated-pulse stacking above zero burden",
+    String(atAge(reboundSchedule.B["cellular-senescence"], 81) > 0
+      && atAge(reboundSchedule.B["cellular-senescence"], 90) > atAge(reboundSchedule.B["cellular-senescence"], 81)), "true");
+
+  // DOUBLE-HEAL GUARD: a pulse carrying its OWN rebound is excluded from endogenous clearance (c0), so the two do
+  // not both heal the same deviation. Without the guard, c0's persistent compensation outlives the decaying pulse
+  // deviation and the treated burden overshoots ABOVE baseline (verified: c0=0.15 + 4-yr rebound crossed above
+  // baseline by age 70). With the guard, a rebounding pulse + synthetic c0 never exceeds baseline; and a NO-rebound
+  // (persistent) pulse + c0 is STILL healed by c0 — preserving the original clearance-state behavior.
+  {
+    const MC = JSON.parse(JSON.stringify(MODEL));
+    const senN = MC.nodes.find((n) => n.id === "cellular-senescence");
+    senN.clearance = { ...(senN.clearance || {}), c0: 0.15, driver: (senN.clearance && senN.clearance.driver) || "immunosenescence", beta: 0 };
+    const POST = []; for (let a = 61; a <= 100; a++) POST.push(a);
+    const rbC0 = simulate(MC, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60], reboundHalfLifeYears: 4 }] });
+    const gR = (a) => baseSen(a) - atAge(rbC0.B["cellular-senescence"], a);
+    // scan EVERY post-dose grid point (not a sparse sample): a rebounding pulse + c0 must never exceed baseline.
+    str("operators: rebound + synthetic c0 never exceeds baseline at ANY post-dose age (double-heal guard)",
+      String(POST.some((a) => gR(a) < -1e-9)), "false");
+    // ...and it must still heal toward baseline (the one-off benefit decays): gap shrinks, stays nonnegative.
+    str("operators: rebound + synthetic c0 still heals toward baseline (gap@90 < gap@61, both ≥ 0)",
+      String(gR(90) >= -1e-9 && gR(61) >= -1e-9 && gR(90) < gR(61)), "true");
+    // no-rebound (persistent) pulse + c0: c0 SHOULD heal it, monotonically toward baseline, WITHOUT crossing it.
+    const persistC0 = simulate(MC, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60] }] });
+    const gP = (a) => baseSen(a) - atAge(persistC0.B["cellular-senescence"], a);
+    str("operators: no-rebound pulse + c0 heals toward baseline without overshoot (guard preserves original behavior)",
+      String(POST.every((a) => gP(a) >= -1e-9) && gP(90) < gP(61)), "true");
+  }
 
   // production-suppress slows accrual over a window WITHOUT dropping existing burden
   const prod = simulate(MODEL, { sex: "male", operators: [{ kind: "production-suppress", target: "cellular-senescence", atten: 0.5, startAge: 60, endAge: 90 }] });

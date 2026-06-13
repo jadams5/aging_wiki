@@ -151,8 +151,12 @@ LE             = 20 + Σ S,  S = exp(−Σ h)
   LDL→CVD β = ln(1/0.78)/38.7 mg/dL = 0.00643 (CTT); SBP→CVD β = ln(2)/20 mmHg,
   **age-modified** (halves per ~2 decades, Lewington).
 - **Personal offset** (lab anchoring) = `measured − emergent_prediction_at_currentAge`
-  (residual to current inputs), held forward. Output then = *conditional* LE from
-  current age.
+  (residual to current inputs), held forward. Output is **cohort LE from age 20** (the
+  survival integral runs from `AGE0=20`), with personalized inputs — it is **NOT**
+  conditioned on survival to current age. A current-age intervention's ΔLE is therefore
+  survivorship-discounted by ≈`S(currentAge)` relative to a conditional-from-current-age
+  framing (corrected 2026-06-13, Codex-flagged; the prior "*conditional* LE from current
+  age" label was wrong — engine `LE = AGE0 + ∫survival·dt` from 20).
 
 ---
 

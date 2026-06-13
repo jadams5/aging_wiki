@@ -190,6 +190,10 @@
   .bsub { font-size: 11px; color: var(--muted); margin: 10px 0 2px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
   .txtoggles { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 0; font-size: 12px; }
   .txtoggles label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+  .operator-preset { width:100%; border-top:1px solid #eef0f2; padding-top:6px; margin-top:2px; }
+  .operator-preset-controls { display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; margin:5px 0 0 20px; color:var(--muted); font-size:11px; }
+  .operator-preset-controls select { font-size:11px; border:1px solid var(--line); border-radius:4px; background:#fff; padding:2px 4px; }
+  .operator-note { width:100%; margin-left:20px; color:var(--muted); font-size:10px; line-height:1.35; }
   .labgrid { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; font-size: 12px; }
   .labgrid label { color: var(--muted); }
   .labnote { font-size: 11px; color: var(--muted); margin-top: 6px; font-style: italic; }
@@ -305,7 +309,7 @@
       <div class="sub" style="margin-top:2px;">
         Defaults are each input's population mean, so the all-default state reproduces the population baseline exactly.
         Lab fields anchor that risk factor's curve to a measured value at the chosen current age (held forward).
-        &Delta;LE is the change in life expectancy vs the all-default baseline.
+        &Delta;LE is the change in life expectancy vs the all-default baseline. (This is cohort life expectancy from age 20; an intervention started at your current age has its &Delta;LE survivorship-discounted by &approx;survival-to-current-age, so it slightly <em>understates</em> the benefit conditional on being alive now.)
       </div>
 
       <div class="bsub">Exogenous inputs</div>
@@ -325,13 +329,13 @@
       <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start;">
         <div class="labgrid" id="labGrid"><!-- populated --></div>
         <div class="brow" style="margin:0;">
-          <label class="bl" style="width:auto;" for="currentAge">Current age (anchor)</label>
+          <label class="bl" style="width:auto;" for="currentAge">Current age (lab anchor + one-off treatment age)</label>
           <input type="number" id="currentAge" min="20" max="100" step="1" value="40">
         </div>
       </div>
       <div class="labnote" id="labNote">
         Enter a measured value to pin that mediator's curve to it at the current age (offset = measured &minus; engine-predicted).
-        Clear a field to revert to the engine's computed value.
+        One-off operator treatments also occur at this age. Clear a lab field to revert to the engine's computed value.
       </div>
     </div>
 
@@ -621,23 +625,32 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   const accumDev = new Array(NN).fill(0);
   const hasRateTerms = NODES.map((n) => !!(n.rate && n.rate.terms && n.rate.terms.length));
 
-  // GENERIC INTERVENTION OPERATORS (design-only machinery; all coefficients caller-supplied — synthetic
-  // in tests; NO baked-in compound efficacies). `operators` is a list of tagged objects; with `operators:[]`
-  // (the default) every structure below is inert ⇒ baseline byte-identical. Three operators implemented;
-  // `clearance-restoration` is deferred until the clearance-capacity state is designed.
-  //   • senolytic-pulse  {kind, target, killFraction, ages:[...]}  → at each dosing age, drop the target
-  //       node's burden by killFraction·B (a persistent NEGATIVE deviation in `pulseAcc`). Re-accumulation
-  //       is NOT modeled here (it needs the clearance state) — the drop persists. The operator the existing
-  //       freeze/slow cannot express (freeze prevents future accrual; it never removes existing burden).
+  // GENERIC INTERVENTION OPERATORS. `operators` is a list of tagged objects; with `operators:[]`
+  // (the default) every structure below is inert ⇒ baseline byte-identical.
+  //   • senolytic-pulse  {kind,target,killFraction,ages:[...],reboundHalfLifeYears?} → at each dosing
+  //       age, drop the target burden by killFraction·B. When a positive rebound half-life is supplied,
+  //       the pulse deviation returns toward the untreated trajectory by the exact map
+  //       x_next=x·exp(−ln(2)·dt/halfLife). This is an empirical post-treatment response-persistence
+  //       parameter, distinct from endogenous immune clearance (`clearance.c0/beta`). Omitting it keeps
+  //       the former persistent-offset behaviour for backward compatibility and synthetic machinery tests.
   //   • senomorphic      {kind, from, to, atten, startAge, endAge} → temporarily scale the coupling gain
   //       G[to][from] by (1−atten) over the window (attenuate signalling without clearing the source).
   //   • production-suppress {kind, target, atten, startAge, endAge} → over the window reduce the target's
   //       accrual increment by atten (lower the RATE of new burden; distinct from clearing existing).
-  const pulseAcc = new Array(NN).fill(0);
   const pulseOps = [], senomorphicOps = [], prodSuppressOps = [], clearanceRestoreOps = [];
   for (const op of operators || []) {
-    if (op.kind === "senolytic-pulse" && NODE_IDX[op.target] !== undefined)
-      pulseOps.push({ idx: NODE_IDX[op.target], frac: op.killFraction || 0, ages: new Set(op.ages || []) });
+    if (op.kind === "senolytic-pulse" && NODE_IDX[op.target] !== undefined) {
+      const halfLife = Number(op.reboundHalfLifeYears);
+      pulseOps.push({
+        idx: NODE_IDX[op.target],
+        frac: Math.max(0, Math.min(1, Number(op.killFraction) || 0)),
+        ages: new Set(op.ages || []),
+        dev: 0,
+        decay: Number.isFinite(halfLife) && halfLife > 0
+          ? Math.exp(-Math.LN2 * DT / halfLife)
+          : 1,
+      });
+    }
     else if (op.kind === "senomorphic" && NODE_IDX[op.to] !== undefined && NODE_IDX[op.from] !== undefined)
       senomorphicOps.push({ to: NODE_IDX[op.to], from: NODE_IDX[op.from], atten: op.atten || 0, startAge: op.startAge, endAge: op.endAge });
     else if (op.kind === "production-suppress" && NODE_IDX[op.target] !== undefined)
@@ -663,7 +676,8 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
     // Solving D = P + couple*(G·D) puts accumDev INSIDE the coupling solve, so an exposure-driven
     // node burden propagates downstream through G (correction: must not be added post-solve).
     const P = new Array(NN);
-    for (let i = 0; i < NN; i++) P[i] = prim[i] + accumDev[i] + pulseAcc[i];
+    for (let i = 0; i < NN; i++) P[i] = prim[i] + accumDev[i];
+    for (const op of pulseOps) P[op.idx] += op.dev;
     // senomorphic: temporarily scale active coupling gains for this age (restored after the solve below)
     const semMods = [];
     for (const op of senomorphicOps) {
@@ -702,19 +716,32 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
       for (const op of prodSuppressOps) {
         if (age >= op.startAge && age <= op.endAge) prim[op.idx] -= op.atten * (Tarr[op.idx][k + 1] - Tarr[op.idx][k]);
       }
-      // senolytic pulse: at a dosing age, drop the target burden by frac·B (persistent negative deviation)
+      // Existing pulse deviations heal over this interval by an exact exponential map. A dose at `age`
+      // is then applied for the next grid point, preserving the operator's established timing semantics.
       for (const op of pulseOps) {
-        if (op.ages.has(age)) pulseAcc[op.idx] -= op.frac * Barr[op.idx][k];
+        op.dev *= op.decay;
+        if (op.ages.has(age)) op.dev -= op.frac * Barr[op.idx][k];
       }
       // clearance-capacity: fold the deviation-form contribution (−c0·x − Δc·S) into the node's accumDev.
-      // x = carried deviation (accumDev+pulseAcc); Δc = −beta·(driver deviation); + any clearance-restoration
+      // x = carried deviation (accumDev + pulse deviations); Δc = −beta·(driver deviation); + any restoration
       // boost active this age. With c0=beta=0 and no boost ⇒ 0 ⇒ inert (drop persists, baseline unchanged).
+      // MUTUAL-EXCLUSION GUARD: a pulse that carries its OWN rebound (decay<1) heals via that exact map; it is
+      // EXCLUDED from x so endogenous clearance does not ALSO heal it. Without the guard, c0 writes positive
+      // compensation into the PERSISTENT accumDev while the rebound decays op.dev away → net positive deviation
+      // (burden ends up ABOVE baseline — an overshoot). Only persistent (no-rebound, decay≥1) pulse drops are
+      // c0's responsibility (matches clearance-state-design.md invariance test #3: "without an operator
+      // response half-life, a pulse decays at ~c0"). Inert today (c0=beta=0); the guard bites once c0>0.
+      // NOTE (beta channel, Codex-flagged 2026-06-13): the SEPARATE −dc·Barr immunosenescence term below still reads the
+      // pulse-reduced ABSOLUTE burden, so once beta>0 a rebounding pulse can diverge slightly from the no-pulse case
+      // (small, late — verified ~age 89; never above the TRUE baseline). Distinct beta-channel item, resolve when the
+      // immunosenescence→clearance channel is calibrated — see clearance-state-design.md. Inert today (beta=0).
       for (const cl of clearanceNodes) {
         let c0 = cl.c0;
         for (const op of clearanceRestoreOps) { if (op.idx === cl.idx && age >= op.startAge && age <= op.endAge) c0 += op.boost; }
         const dc = cl.beta && cl.driverIdx !== undefined ? -cl.beta * D[cl.driverIdx] : 0;  // Δc = −beta·driverDev
         if (c0 !== 0 || dc !== 0) {
-          const x = accumDev[cl.idx] + pulseAcc[cl.idx];
+          let x = accumDev[cl.idx];
+          for (const op of pulseOps) { if (op.idx === cl.idx && op.decay >= 1) x += op.dev; }
           accumDev[cl.idx] += (-c0 * x - dc * Barr[cl.idx][k]) * DT;
         }
       }
@@ -2675,7 +2702,7 @@ const MODEL = {
         "c0": 0,
         "driver": "immunosenescence",
         "beta": 0,
-        "_design": "2026-06-12 Phase: senescent-cell-clearance-capacity (ALGEBRAIC; design model/clearance-state-design.md). Deviation-form clearance contribution (−c0·x − Δc·S) folded into accumDev each step; x=carried deviation, Δc=−beta·(immunosenescence deviation). Acts on the DEVIATION x (NOT absolute S) ⇒ baseline exactly preserved. c0=beta=0 ⇒ DISABLED (baseline AND perturbation behaviour unchanged; the drop of a senolytic pulse persists). NOT behaviorally inert once c0>0 — biological c0/beta DISABLED until calibrated; drop-healing validated with SYNTHETIC values in test.mjs. Stability when connected: continuous c0 > r=0.04/yr; discrete |e^0.04 − c0·dt| < 1 (0.0408 is the discrete annual increment, not the continuous eigenvalue). Operationalizes the immunosenescence→cellular-senescence stub via immunosenescence→lowers c→raises S. #gap/needs-clearance-coefficients #gap/immunosenescence-age-table"
+        "_design": "2026-06-12 Phase: senescent-cell-clearance-capacity (ALGEBRAIC; design model/clearance-state-design.md). Deviation-form clearance contribution (−c0·x − Δc·S) folded into accumDev each step; x=carried deviation, Δc=−beta·(immunosenescence deviation). Acts on the DEVIATION x (NOT absolute S) ⇒ baseline exactly preserved. c0=beta=0 ⇒ DISABLED (baseline AND perturbation behaviour unchanged; the drop of a senolytic pulse persists). NOT behaviorally inert once c0>0 — biological c0/beta DISABLED until calibrated; drop-healing validated with SYNTHETIC values in test.mjs. Stability when connected: continuous c0 > r=0.04/yr; discrete |e^0.04 − c0·dt| < 1 (0.0408 is the discrete annual increment, not the continuous eigenvalue). Operationalizes the immunosenescence→cellular-senescence stub via immunosenescence→lowers c→raises S. ⚠ LIMITATION: acting on the deviation x means clearance restores S only TOWARD baseline T, never below — immune-restoration is NOT absolute rejuvenation; lowering absolute baseline burden needs an identified production/clearance decomposition (wiki-silent). #gap/needs-clearance-coefficients #gap/immunosenescence-age-table #gap/needs-production-clearance-decomposition"
       }
     },
     {
@@ -4549,7 +4576,7 @@ const MODEL = {
       "from": "chronic-inflammation",
       "to": "cellular-senescence",
       "evidenceStrength": "moderate",
-      "note": "stub: chronic-inflammation→cellular-senescence. Paracrine / bystander senescence feed-forward loop: SASP cytokines (IL-6, IL-1β, TGF-β) secreted by existing senescent cells and by inflammaging tissue propagate senescence to neighboring non-senescent cells via NF-κB activation, ROS induction, and p38-MAPK→p16INK4a signaling. Explicitly listed in causal-graph-data.md bidirectional-edges table ('SASP drives inflammation; inflammaging promotes paracrine senescence'). Verified in hallmarks/cellular-senescence.md § 'Senescence-mediated paracrine spreading'. Key citation: Acosta JC et al. 2008 (Cell, doi:10.1016/j.cell.2008.03.038) — CXCR2-binding chemokines (IL-8/CXCL8, GRO-family) reinforce paracrine/bystander senescence via the CXCR2 receptor (verified on processes/sasp.md §96 + [^acosta2008]); IL-6 paracrine maintenance per Kuilman 2008 (doi:10.1016/j.cell.2008.03.039). Natural variable: β in normalized coupling gain (dimensionless; the hallmark-layer coupling framework). Mediation note: the reverse arm (cellular-senescence→chronic-inflammation, strong, live) is the primary direction; this stub is the FEEDBACK arm. Populate pass must not double-count with the existing strong live edge — the paracrine-spreading gain should be calibrated to the AMPLIFICATION fraction of senescent-cell burden attributable to inflammatory spread, not the total burden. #gap/needs-effect-size",
+      "note": "stub: chronic-inflammation→cellular-senescence. Paracrine / bystander senescence feed-forward loop: SASP cytokines (IL-6, IL-1β, TGF-β) secreted by existing senescent cells and by inflammaging tissue propagate senescence to neighboring non-senescent cells via NF-κB activation, ROS induction, and p38-MAPK→p16INK4a signaling. Explicitly listed in causal-graph-data.md bidirectional-edges table ('SASP drives inflammation; inflammaging promotes paracrine senescence'). Verified in hallmarks/cellular-senescence.md § 'Senescence-mediated paracrine spreading'. Key citation: Acosta JC et al. 2008 (Cell, doi:10.1016/j.cell.2008.03.038) — CXCR2-binding chemokines (IL-8/CXCL8, GRO-family) reinforce paracrine/bystander senescence via the CXCR2 receptor (verified on processes/sasp.md §96 + [^acosta2008]); IL-6 paracrine maintenance per Kuilman 2008 (doi:10.1016/j.cell.2008.03.039). Natural variable: β in normalized coupling gain (dimensionless; the hallmark-layer coupling framework). Mediation note: the reverse arm (cellular-senescence→chronic-inflammation, strong, live) is the primary direction; this stub is the FEEDBACK arm. Populate pass must not double-count with the existing strong live edge — the paracrine-spreading gain should be calibrated to the AMPLIFICATION fraction of senescent-cell burden attributable to inflammatory spread, not the total burden. ⚠ DOUBLE-COUNT (reviewer 2026-06-12): the SASP-driven paracrine/bystander senescence this edge describes is ALREADY represented by senescence's value-proportional SELF-AMPLIFICATION (the C3b self-dynamic = 'senescence's own paracrine feed-forward'). Populating this edge would double-count the SASP loop. KEEP STUBBED unless evidence is found for an INDEPENDENT chronic *systemic* inflammation→persistent-senescence channel (inflammation from NON-senescence sources — dysbiosis/LPS, mito DAMPs — beyond the SASP loop). If ever activated, calibrate against the FULL effective loop multiplier (≈0.2·g_reverse + self-amp + clearance c + all G-paths), not this edge alone. See model/senescence-inflammation-loop-design.md §8. #gap/needs-independent-systemic-inflammation-evidence #gap/needs-effect-size",
       "provenance": "stub"
     },
     {
@@ -5291,6 +5318,28 @@ const MODEL = {
         "provenance": "Metformin/GLP-1 lowers HbA1c ~-0.8% (GLP-1 larger); modeled as additive downshift. amount %."
       }
     ],
+    "operatorPresets": [
+      {
+        "id": "dq-one-off",
+        "label": "D+Q one-off senolytic campaign",
+        "kind": "senolytic-pulse",
+        "target": "cellular-senescence",
+        "ageSource": "currentAge",
+        "killFractionScenarios": {
+          "conservative": 0.17,
+          "central": 0.35,
+          "optimistic": 0.62
+        },
+        "defaultKillScenario": "central",
+        "reboundHalfLifeScenariosYears": {
+          "short": 1,
+          "central": 3,
+          "long": 8
+        },
+        "defaultReboundScenario": "central",
+        "provenance": "EXPLORATORY HUMAN TARGET-ENGAGEMENT SCENARIO (2026-06-13), not a clinical outcome prediction. Kill envelope is anchored to Hickson 2019 Day-14 human biopsy changes after one 3-day D+Q course: adipose p21+ cells -17%, p16+ cells -35%, SA-beta-gal+ cells -62%; skin p16+ -20%, p21+ -31% (n=9, open-label, uncontrolled; marker x tissue spread, not a CI). The annual-grid operator applies one campaign at currentAge. Rebound half-lives 1/3/8 yr are explicit sensitivity scenarios because no longitudinal human senescent-burden recovery constant is available; they are not sourced estimates. Existing downstream edges propagate reduced chronic senescence/SASP through inflammation, arterial stiffness, and cause burdens. No DIRECT senescence-to-cancer term is added (and no speculative direct cancer penalty); an INDIRECT cancer benefit nonetheless flows through the live cellular-senescence->chronic-inflammation->cancer coupling, so the scenario does lower modeled cancer burden via the inflammation path. Endogenous immunosenescence-driven clearance c0/beta remains disabled and separate. #gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/ihc-not-perfectly-senescence-specific"
+      }
+    ],
     "constants": {
       "heightRefM": 1.7,
       "weightAsymptoteFraction": 0.55,
@@ -5550,6 +5599,7 @@ const MEDIATORS = B.mediators;            // [{id,label,unit,...}]
 const MED_BY_ID = {};
 MEDIATORS.forEach(m => { MED_BY_ID[m.id] = m; });
 const TREATMENTS = B.treatments;          // [{id,label,to,...}]
+const OPERATOR_PRESETS = B.operatorPresets || [];
 const MED_COLOR = {
   LDL:        getCss("--med-LDL"),
   systolicBP: getCss("--med-systolicBP"),
@@ -5652,7 +5702,8 @@ function run(opts){
     interventions: opts.interventions || {},
     inputs: opts.inputs || {},
     treatments: opts.treatments || {},
-    offsets: opts.offsets || {}
+    offsets: opts.offsets || {},
+    operators: opts.operators || []
   });
 }
 
@@ -5666,6 +5717,7 @@ let state = {
   codMode: "share",         // "share" | "abs"
   inputs: {},               // exogenous-input id -> value (absent = populationMean)
   treatments: {},           // treatment id -> true
+  operatorPresets: {},      // preset id -> {killScenario,reboundScenario}
   labs: {},                 // mediator id -> measured value (raw, as typed)
   currentAge: 40            // anchor age for offsets + conditional readouts
 };
@@ -5712,6 +5764,25 @@ function clampAgeIdx(age){
   return a - AGE0;
 }
 
+function activeOperators(){
+  const ops = [];
+  for (const preset of OPERATOR_PRESETS){
+    const active = state.operatorPresets[preset.id];
+    if (!active) continue;
+    const killKey = active.killScenario || preset.defaultKillScenario;
+    const reboundKey = active.reboundScenario || preset.defaultReboundScenario;
+    ops.push({
+      kind: preset.kind,
+      target: preset.target,
+      killFraction: preset.killFractionScenarios[killKey],
+      reboundHalfLifeYears: preset.reboundHalfLifeScenariosYears[reboundKey],
+      ages: [state.currentAge],
+      presetId: preset.id
+    });
+  }
+  return ops;
+}
+
 // Assemble the engine opts from current state.
 function currentOpts(){
   return {
@@ -5721,7 +5792,8 @@ function currentOpts(){
     interventions: state.interventions,
     inputs: state.inputs,
     treatments: state.treatments,
-    offsets: computeOffsets()
+    offsets: computeOffsets(),
+    operators: activeOperators()
   };
 }
 // The all-default baseline opts for ΔLE: lifestyle 1, no interventions/inputs/
@@ -5734,7 +5806,8 @@ function baselineOpts(){
     interventions: {},
     inputs: {},
     treatments: {},
-    offsets: {}
+    offsets: {},
+    operators: []
   };
 }
 
@@ -6944,6 +7017,65 @@ function buildBlayerControls(){
     lab.appendChild(document.createTextNode(" " + t.label + " → " + (MED_BY_ID[t.to] ? MED_BY_ID[t.to].label : t.to)));
     tx.appendChild(lab);
   });
+  OPERATOR_PRESETS.forEach(preset => {
+    const wrap = document.createElement("div");
+    wrap.className = "operator-preset";
+    const lab = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.id = "op-" + preset.id;
+    cb.checked = !!state.operatorPresets[preset.id];
+    lab.appendChild(cb);
+    lab.appendChild(document.createTextNode(" " + preset.label + " at current age"));
+    wrap.appendChild(lab);
+
+    const controls = document.createElement("div");
+    controls.className = "operator-preset-controls";
+    const active = state.operatorPresets[preset.id] || {
+      killScenario: preset.defaultKillScenario,
+      reboundScenario: preset.defaultReboundScenario
+    };
+    const killSelect = document.createElement("select");
+    Object.entries(preset.killFractionScenarios).forEach(([key, value]) => {
+      const opt = document.createElement("option");
+      opt.value = key; opt.textContent = `${key} kill (${Math.round(value * 100)}%)`;
+      opt.selected = key === active.killScenario;
+      killSelect.appendChild(opt);
+    });
+    const reboundSelect = document.createElement("select");
+    Object.entries(preset.reboundHalfLifeScenariosYears).forEach(([key, value]) => {
+      const opt = document.createElement("option");
+      opt.value = key; opt.textContent = `${key} persistence (${value} yr half-life)`;
+      opt.selected = key === active.reboundScenario;
+      reboundSelect.appendChild(opt);
+    });
+    controls.append("Efficacy ", killSelect, " Rebound ", reboundSelect);
+    wrap.appendChild(controls);
+    const note = document.createElement("div");
+    note.className = "operator-note";
+    note.textContent = "Exploratory target-engagement scenario. Kill range is human-biopsy anchored; rebound half-life is sensitivity-only. No direct cancer term — but an indirect cancer benefit flows via the senescence→inflammation→cancer path. Effect appears from the year after the dosing age.";
+    wrap.appendChild(note);
+
+    const syncPreset = () => {
+      if (cb.checked) {
+        state.operatorPresets[preset.id] = {
+          killScenario: killSelect.value,
+          reboundScenario: reboundSelect.value
+        };
+      } else {
+        delete state.operatorPresets[preset.id];
+      }
+      controls.style.opacity = cb.checked ? "1" : "0.5";
+      killSelect.disabled = reboundSelect.disabled = !cb.checked;
+      renderAll();
+    };
+    cb.addEventListener("change", syncPreset);
+    killSelect.addEventListener("change", syncPreset);
+    reboundSelect.addEventListener("change", syncPreset);
+    controls.style.opacity = cb.checked ? "1" : "0.5";
+    killSelect.disabled = reboundSelect.disabled = !cb.checked;
+    tx.appendChild(wrap);
+  });
 
   /* ---- labs (offset anchoring) ---- */
   const lg = document.getElementById("labGrid");
@@ -7214,6 +7346,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
   state.selected = null;
   state.inputs = {};
   state.treatments = {};
+  state.operatorPresets = {};
   state.labs = {};
   state.currentAge = 40;
   PANEL_INPUT_IDS.forEach(id => {
