@@ -95,6 +95,15 @@ proliferating cells; p16 not universal across senescent types); (b) the per-adip
 ratio shift could confound. The −62 % SA-β-gal⁺ (a functional readout) is the strongest support for reading the IHC drops as a
 genuine kill. `#gap/hickson-cells-vs-mrna-labeling` **cleared**; residual `#gap/ihc-not-perfectly-senescence-specific`.
 
+**Refractory fraction — `ε_kill` ceiling < 1 (literature update 2026-06-13, preprint-grade; document-only per user).** Freizus
+et al. 2025 (Krizhanovsky-lab preprint, [[studies/freizus-2025-atp6v1b2-persistent-senescence]]) identify a **cell-surface
+ATP6V1B2 (csV1B2)** senescent subset that is **apoptosis-resistant and resists ABT-737** (the BH3-mimetic / BCL-xL class — i.e.
+quercetin's mechanistic arm). This is a *mechanistic* reason the per-pulse `ε_kill` has an **effective ceiling below 1 and leaves
+a persistent, non-clearable residual**: repeated dosing cannot drive `S` to zero because a refractory senotype evades
+BH3-mimetic senolysis. Direction-only (preprint; no quantitative resistant-fraction) → **documented, not wired.** If ever
+modeled: a fixed non-clearable floor `S_refractory` with `ε_kill` applied only to `(S − S_refractory)`.
+`#gap/needs-refractory-fraction #gap/preprint-not-peer-reviewed`
+
 ---
 
 ## Step 3 — Tissue handling: single lumped ε with explicit wide uncertainty (v0)
@@ -105,6 +114,14 @@ Neither is pan-senolytic; the *combination exists to cover complementary pools*.
 anchors** — adipose (p16 −35 %, plausibly the most-responsive: preadipocyte SCAP is dasatinib's strongest target) and skin
 epidermis (p16 −20 %, p21 −31 %) — and they are **tissue-variable** (skin p16 < adipose p16; skin p21 > adipose p21),
 confirming clearance is not uniform.
+
+**Published support for the lumped-node caveat (literature update 2026-06-13; document-only per user).** The senotype framework
+(Suryadevara et al. 2026 SenNet Perspective, [[studies/suryadevara-2026-senotypes]]) and Cherqui et al. 2025 (Krizhanovsky
+preprint, [[studies/cherqui-2025-senescence-burden-organs]] — senescence accumulation **coordinated within organs but
+uncorrelated across organs → tissue-specific aging progression**) corroborate that a single lumped `S` collapses genuinely
+tissue- and senotype-distinct dynamics. This **strengthens** the caveat below (organism-lumped `ε` ≤ adipose `ε`; the adipose
+anchor over-represents the responsive senotype) but does **not** change the v0 decision — disaggregating `S` into
+senotype/tissue sub-pools remains deferred (large change, not warranted at v0).
 
 → **v0 = a single lumped `ε_kill` on the lumped `S` node, carried with wide explicit uncertainty**, documenting that the true
 structure is multi-pool. Two consequences for the number:
