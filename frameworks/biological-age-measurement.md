@@ -42,6 +42,7 @@ Trained against mortality or morbidity endpoints rather than chronological age. 
 |---|---|---|---|---|
 | [[biomarkers/phenoage-2018]] | DNAm (9 clinical biomarkers → 513 CpGs) | 513 CpGs | Clinical PhenoAge (Cox penalized regression → Gompertz mortality score, NHANES III) | DNAm: Meta HR=1.045 [1.039–1.051]; Clinical: HR=1.09 (NHANES IV) |
 | [[biomarkers/grimage-2019]] | DNAm (7 protein surrogates + smoking) | Composite | Time-to-death (Framingham) | Highest among clocks |
+| [[biomarkers/omicmage]] | DNAm → 40 EBP surrogates (16 protein / 14 metabolite / 10 clinical) | 990 CpGs + 40 EBPs | EMRAge (Cox PH, EHR-anchored) → mortality + morbidity | Gen Scotland all-cause HR=11.31 (CVD 4.14, T2D 4.18); 5-yr mortality AUC 0.892. **TruDiagnostic-proprietary** (substitutes GrimAge in their bundle); positive signal in Corley 2026 semaglutide RCT (−2.2 yr, exploratory) |
 
 **What they answer:** "How much does this person's biology resemble someone who will die sooner?"  
 **Limitation:** Mortality-trained clocks may be sophisticated repackagings of known clinical risk factors. Their Mendelian randomization evidence is null for lifespan (Schooling 2025 — see [[hypotheses/information-theory-of-aging]] verified).
@@ -65,6 +66,7 @@ Trained to measure **how fast** someone is aging, not where they are on the agin
 | Leukocyte telomere length | Direct measurement | [[biomarkers/telomere-length-leukocyte]] |
 | Frailty Index | Composite clinical | [[biomarkers/frailty-index]] |
 | GlycanAge (IgG N-glycome) | Glycomic | [[biomarkers/glycanage-2017]] — most rapidly intervention-responsive clock characterized to date; 2026 Mijakovac/Lauc preprint (n=20,045 cross-study) reports independent all-cause-mortality association and reversal by HRT, TPE, caloric restriction. See [[studies/mijakovac-2026-igg-glycome-mortality]]. #gap/needs-peer-review |
+| SYMPHONY Age / Systems Age (organ-system DNAm) | DNAm, decomposed across 11 physiological systems | [[biomarkers/symphony-age]] — returns a separate DNAm age per organ system (Blood/Brain/Inflammation/Heart/Hormone/Immune/Kidney/Liver/Metabolic/Lung/Musculoskeletal); surfaces *intra-individual aging heterogeneity* rather than one number. Academic "Systems Age" (Sehgal 2025 *Nature Aging*, Yale/Levine); TruDiagnostic commercial implementation. Informational — **no validated organ-clock-targeted interventions as of 2026**. |
 
 ### Tissue-specific (skin/epidermis) clocks
 
