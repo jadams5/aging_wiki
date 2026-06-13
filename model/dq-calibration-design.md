@@ -26,16 +26,19 @@ All human D+Q trials use short intermittent ("hit-and-run") courses. The realist
 |---|---|---|---|---|---|---|---|
 | **Hickson 2019** [^h] | diabetic kidney disease, n=9 | 100 mg/d | 1000 mg/d | 3 d | — (single course) | one-off | true·PDF-read |
 | **Justice 2019** [^j] | IPF, n=14 | 100 mg/d | 1250 mg/d | 3 d/wk | weekly | 3 wk (9 dosing days) | true·PDF-read |
-| **Farr 2024** [^f] | postmenopausal bone, n=60 **RCT** | 100 mg | 1000 mg | 2 d *(disputed — see ⚠)* | every 4 wk *(disputed)* | ~20 wk | **abstract-only — PENDING verify** |
+| **Farr 2024** [^f] | postmenopausal bone, n=60 **RCT** *(open-label)* | 100 mg ×2 d | 1000 mg ×3 d | D 2 d / Q 3 d (staggered) | every 28 d × 5 cycles | 20 wk | **true · PDF-read 2026-06-12** |
 | **Gonzales 2023 (SToMP-AD Ph1)** [^g] | mild AD, n=5 | 100 mg | 1000 mg | 2 d | every 14 d | 12 wk | abstract-only |
 
 **Mouse hit-and-run (Zhu 2015 [^z], the only mouse schedule in the wiki):** aged C57BL/6 — single oral gavage
 D 5 mg/kg + Q 50 mg/kg; Ercc1⁻^/Δ^ progeroid — same dose **weekly**.
 
-**⚠ Cross-page schedule contradiction (flagged, verifier dispatched 2026-06-12):** the compound/hallmark pages say Farr =
-*"2 consecutive days every 4 weeks × 5 cycles"*; `senolytics.md` says *"3 consecutive days monthly × 6 cycles."* Both sit on
-`verified:true` pages but Farr is carved out of each page's `verified-scope` as abstract-only. **The maintenance-cadence number
-below is provisional until the Farr PDF is read.** `#gap/dq-cadence-farr-unverified`
+**Farr 2024 schedule — RESOLVED (verifier read the PDF end-to-end, 2026-06-12).** Canonical: **D 100 mg × 2 consecutive
+days + Q 1000 mg × 3 consecutive days (staggered within each cycle), every 28 days × 5 cycles = 20 weeks, open-label**
+(Methods p.11). This corrected two prior cross-page errors — the "monthly × 6 cycles" (6 cycles contradicts the 20-week
+duration) and the "double-blind" design label (the paper states over-encapsulation for blinding was cost-prohibitive).
+Propagated to `senolytics.md` / `dasatinib.md` / `quercetin.md` (verifier) and `osteoporosis.md` (main agent).
+`#gap/dq-cadence-farr-unverified` **cleared.** **But Farr is dual-null** (see Step 4): it anchors the schedule *shape*,
+**not** an efficacy magnitude.
 
 **Translation to the model's annual grid — this is a structural finding, not just a number.** The model timestep is `Δt = 1 yr`.
 Two clinical modalities map onto *two different operators*:
@@ -79,6 +82,13 @@ The 0.17–0.62 spread is **marker choice within one tissue**, *not* a confidenc
 uncontrolled, single-tissue, single-timepoint dataset. **These set sign and plausible range, never point anchors**
 (`#gap/needs-controlled-kill-fraction` — no controlled human kill fraction exists; the one RCT, Farr, was primary-negative).
 
+**Cells-vs-mRNA labeling caveat (surfaced 2026-06-12):** these reductions are reported as **% senescent cells** on the
+compound pages but as **mRNA** on `cellular-senescence.md` — an unreconciled cross-page inconsistency that bears directly on
+whether `ε_kill` is a true *cell-kill* fraction (cells) or a tissue-transcript change (mRNA — a weaker basis for a per-cell
+kill). I read it as **cells** (consistent with Hickson's +86 % progenitor-potential gain and the SA-β-gal⁺-*cell* framing),
+but it should be reconciled against the Hickson PDF before `ε_kill` is treated as a literal per-cell fraction.
+`#gap/hickson-cells-vs-mrna-labeling`
+
 ---
 
 ## Step 3 — Tissue handling: single lumped ε with explicit wide uncertainty (v0)
@@ -113,7 +123,11 @@ burden change on a ≪1-yr timescale, so at the annual grid the inflammatory con
 
 *Contrast (do not mis-wire):* Justice 2019 IPF circulating-SASP changes were **inconclusive** (correlational only); Gonzales
 2023 AD reported **CSF** IL-6/GFAP **↑** (a CNS-compartment anomaly, abstract-only) — neither belongs in the systemic-SASP
-calibration.
+calibration. **And the one controlled trial is SASP-null:** Farr 2024 (n=60 RCT) measured **36 circulating SASP factors at
+2 weeks → no significant D+Q-vs-control change**, with **no adipose biopsy** and T-cell p16 **at baseline only** (so it
+confirms neither clearance nor a systemic SASP drop). The entire kill→SASP-drop coupling therefore rests on the
+**uncontrolled** Hickson data; the controlled evidence is null. This **tempers the magnitude** (reinforcing
+"direction/plausible-only" and the HOLD) while leaving the **timescale** intact (whatever SASP change Hickson saw resolved ≤2 wk).
 
 **Runtime pulse-timing validation (the validation that is BLOCKED).** Whether a chosen dosing schedule produces the intended
 *intermittent steady-state* `S` (the lower time-averaged burden that is the whole point of repeat dosing) **cannot be validated
@@ -144,7 +158,10 @@ and sourced; efficacy held at 0 / not added to `params.json operators`). **Live-
 - **(b) a rebound-τ source** — seed a kinetic-sampling senolytic study into the wiki, or adopt an explicit modeling assumption
   flagged `#gap`. Until then the maintenance steady-state is unconstrained.
 
-Plus the **Farr PDF read** (verifier dispatched) before the maintenance-cadence number anchors anything.
+Plus the **Farr PDF is now read** (2026-06-12): the schedule is canonicalized (Step 1), but the trial is **open-label and
+dual-null** (primary CTx p=0.611; 36-factor SASP panel no-change; no biopsy) — which **sharpens, not softens, the HOLD**: the
+only controlled D+Q trial established neither an endpoint, nor a SASP effect, nor clearance itself, so even the *sign* of an
+organism-level benefit is not cleanly anchored.
 
 **Alternative the user may choose (named, not recommended):** wire only the **one-off campaign** with `ε=0.35` and an explicit
 *"permanent-offset, non-decaying benefit"* limitation banner, accepting the implausible non-decay as a documented v0 artifact.
@@ -169,8 +186,8 @@ misleading-to-a-reader artifact a senolytic could introduce — and it depends o
   "ages": [],                                // one-off campaign age(s); e.g. [55] or a short [55, 56, 57] re-dose series
   "_held": true,
   "_gate": "clearance active (−c·S) AND rebound-τ sourced; see dq-calibration-design.md §5",
-  "_sources": "Hickson 2019 adipose Day-14 biopsy (verified, PDF-read). Farr 2024 cadence PENDING verify.",
-  "_gaps": "#gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/dq-cadence-farr-unverified #gap/no-second-tissue-human-anchor"
+  "_sources": "Hickson 2019 adipose Day-14 biopsy (verified, PDF-read). Farr 2024 schedule verified 2026-06-12 (open-label, dual-null; cadence shape only).",
+  "_gaps": "#gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/hickson-cells-vs-mrna-labeling #gap/no-second-tissue-human-anchor"
 }
 ```
 
@@ -183,17 +200,18 @@ misleading-to-a-reader artifact a senolytic could introduce — and it depends o
 | `ε_kill` envelope (p16/p21/SA-βgal −35/−17/−62 %) | Hickson 2019 | dasatinib.md, quercetin.md, senolytics.md | **true · PDF-read** ✅ |
 | SASP drop + Day-14 timing | Hickson 2019 | same | **true · PDF-read** ✅ |
 | Cell-type SCAP specificity | Zhu 2015 | dasatinib.md | **true · PDF-read** ✅ |
-| Maintenance cadence | **Farr 2024** | dasatinib/quercetin/senolytics.md | **PAGE true, Farr claim abstract-only + schedule-contradictory** ⚠ verifier dispatched |
+| Maintenance cadence (shape only) | **Farr 2024** | dasatinib/quercetin/senolytics/osteoporosis.md | **true · PDF-read 2026-06-12** — schedule canonicalized; open-label; primary p=0.611 & 36-factor SASP panel both null; no biopsy |
 | Quercetin-monotherapy is weaker/separate | quercetin.md body | quercetin.md | **true · PDF-read** ✅ |
 
-Core decision rests entirely on **verified, PDF-read** Hickson + Zhu numbers. The only unverified dependency (Farr cadence)
-affects only the **maintenance arm**, which is held regardless.
+Core decision rests entirely on **verified, PDF-read** Hickson + Zhu numbers. The former lone unverified dependency (Farr
+cadence) was **resolved 2026-06-12** (PDF read end-to-end); it affects only the held maintenance arm and is now **dual-null**.
 
 **Gaps:** `#gap/needs-rebound-time-constant` (the wire-gating gap) · `#gap/needs-controlled-kill-fraction` ·
-`#gap/dq-cadence-farr-unverified` · `#gap/no-second-tissue-human-anchor`.
+`#gap/hickson-cells-vs-mrna-labeling` · `#gap/no-second-tissue-human-anchor`. (`#gap/dq-cadence-farr-unverified`
+**cleared** 2026-06-12 — Farr PDF read.)
 
 [^h]: Hickson 2019 · DKD · n=9 · open-label single-arm, no control · D 100 mg/d + Q 1000 mg/d × 3 d · adipose biopsy D0 vs D14 · doi:10.1016/j.ebiom.2019.08.069 · model: human · verified pages, PDF read
 [^j]: Justice 2019 · IPF · n=14 · open-label pilot, no control · D 100 mg/d + Q 1250 mg/d, 3 d/wk × 3 wk · doi:10.1016/j.ebiom.2018.12.052 · model: human · verified, PDF read
 [^z]: Zhu 2015 · in-vitro + in-vivo · HUVEC/preadipocyte/MEF + aged C57BL/6 (n=6–9) & Ercc1⁻^/Δ^ · D 5 mg/kg + Q 50 mg/kg gavage · doi:10.1111/acel.12344 · verified, PDF read
-[^f]: Farr 2024 · postmenopausal bone · n=60 · randomized double-blind placebo-controlled · intermittent D+Q ~20 wk · primary endpoint NS · doi:10.1038/s41591-024-03096-2 · model: human · **abstract-only on the wiki; schedule internally inconsistent — verification dispatched 2026-06-12**
+[^f]: Farr 2024 · postmenopausal bone (age 62–88) · n=60 · randomized **open-label** placebo-controlled · D 100 mg ×2 d + Q 1000 mg ×3 d (staggered) every 28 d × 5 cycles = 20 wk · primary CTx Δ p=0.611 (NS); 36-factor circulating-SASP panel @2 wk no D+Q-vs-control change; no biopsy, T-cell p16 baseline-only · doi:10.1038/s41591-024-03096-2 · PMID 38956196 · model: human · **PDF read end-to-end 2026-06-12**
 [^g]: Gonzales 2023 SToMP-AD Ph1 · mild AD · n=5 · open-label · D 100 mg + Q 1000 mg, 2 d every 14 d × 6 cycles · CSF IL-6/GFAP ↑ · doi:10.1038/s41591-023-02543-w · abstract-only

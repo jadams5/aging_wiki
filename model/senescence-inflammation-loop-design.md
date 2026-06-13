@@ -223,12 +223,17 @@ senolysis ⇒ `λ_infl` plausibly **tens per year**). At the model `Δt = 1 yr` 
 **The INFERRED plausible range (`λ_infl`, agent 2026-06-12, wiki-first — NOT a fitted constant):** **`τ ≈ 1–4 weeks ⇒
 λ_infl ≈ 12–52 /yr`** as an *upper-bound-derived plausible range* (the Day-14 etc. samples bound `τ` above; no study
 fits a relaxation time-constant). Anchors: **Hickson 2019** (D+Q, n=9) circulating SASP (IL-1α/IL-6/MMP-9/
-MMP-12) significantly reduced by **Day 14** after a single 3-day course; **Farr 2024** P1NP response at **2 weeks**;
+MMP-12) significantly reduced by **Day 14** after a single 3-day course;
 acute-IL-6 *state* recovery **1–4 weeks** (`il-6-biomarker.md`); CANTOS effect present by 3 mo but dosing-schedule-limited
 (no earlier wiki sample). Cytokine plasma half-lives (hours) are a **red herring** — the *state* relaxation, set by how
 fast the SOURCE changes, is the right quantity (the wiki cleanly supports this distinction). Confidence: moderate,
 **bounded-above only** (no fitted time-constant; single before/after pairs). `λ_infl` is the SASP *resolution* rate, NOT
 the (decades-slow) inflammaging *accumulation* rate. `#gap` — no kinetic-sampling study.
+**Farr 2024 corrected OUT (verifier, 2026-06-12):** the prior "Farr 2024 P1NP at 2 wk" anchor was a category error —
+P1NP is a bone-*formation* (osteoanabolic) marker, **not** a SASP/inflammatory one — and Farr's *actual* controlled
+circulating-SASP panel (36 factors, 2 wk) showed **no significant D+Q-vs-control change**. So Farr supports neither the
+SASP timescale nor a SASP magnitude; the range now rests on **Hickson (uncontrolled) + acute-IL-6 state recovery**, with
+the controlled SASP-null result tempering the *magnitude* (not the *timescale*) of the SASP arm.
 
 **VERDICT (conditional — the robust reading):** *IF* the inflammatory response is much faster than the annual timestep
 (which the bounded evidence supports — `λ_infl·Δt` is plausibly `≫ 1`, e.g. `≈ 25`, where forward-Euler would be
