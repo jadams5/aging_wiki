@@ -65,6 +65,7 @@ Functional consequences: reduced IL-2 production, impaired activation-induced pr
 - Naïve B cell pool contracts; repertoire diversity falls
 - Impaired class-switch recombination (CSR) and somatic hypermutation (SHM) — the processes that drive antibody affinity maturation and isotype selection
 - Reduced germinal centre reactions: smaller GC responses mean lower-avidity, lower-quantity antibody output to new antigens
+  - **Spatial atlas (SenNet, 2026):** a SenNet spatial multi-omics atlas of human lymph nodes reports **germinal-center B-cell alteration** with immunosenescence — spatially-resolved human data for the GC-decline mechanism above ([[studies/farzad-2026-immunosenescence-atlas]] — *title/press-level only; abstract not yet accessible* #gap/no-fulltext-access)
 - **Clinical implication**: vaccine responses to novel antigens (influenza strains, COVID-19, herpes zoster) are substantially blunted in elderly. Seroprotection rates for standard influenza vaccine drop from ~70–90% in young adults to ~40–60% in adults over 65 #gap/needs-replication (rates vary substantially by vaccine platform, year, and population) #gap/no-fulltext-access (Nikolich-Žugich 2018 source is not_oa; figures are consistent with the literature but unverified against primary source)
 
 ### NK cells — the "NK paradox"
