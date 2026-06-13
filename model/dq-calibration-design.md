@@ -4,7 +4,7 @@
 Companion to `model/senolytic-intervention-design.md` (operator semantics) and `model/clearance-state-design.md`
 (the `−c·S` healing dynamics this calibration depends on). **Author:** claude · 2026-06-12.
 
-**Decision (up front):** a defensible **kill-fraction range** exists (`ε_kill ≈ 0.17 / 0.35 / 0.62`, adipose-anchored), but the
+**Decision (up front):** a defensible **kill-fraction range** exists (`ε_kill ≈ 0.17 / 0.35 / 0.62`, two-tissue-anchored: adipose + skin), but the
 **modeled effect** does not yet — because the trajectory the operator feeds is incomplete (clearance/healing `−c·S` is frozen,
 and the rebound time-constant is wiki-absent). So **D+Q stays a stub** — *upgraded from placeholder to a calibrated, sourced
 stub with efficacy HELD* — not wired live. This is exactly the user's step 5 "otherwise retain the stubs," with the range now
@@ -56,38 +56,44 @@ Two clinical modalities map onto *two different operators*:
 
 ## Step 2 — Per-pulse kill fraction, bounded from biopsy biomarkers
 
-**Hickson 2019 [^h] — human abdominal subcutaneous adipose, Day 0 → Day 14, n=9, open-label, single-arm, no control:**
+**Hickson 2019 [^h] — human biopsy, Day 0 → Day 14, n=9, open-label, single-arm, no control. Markers are % positive
+*cells* (IHC counts per 100 adipocytes; SA-β-gal⁺ cells per 100 nuclei) — PDF-confirmed 2026-06-13, NOT mRNA:**
 
-| Marker | Reduction in senescent-cell fraction | p |
-|---|---|---|
-| p21^CIP1^+ cells | **−17 %** | 0.009 |
-| p16^INK4A^+ cells | **−35 %** | 0.001 |
-| SA-β-gal⁺ cells | **−62 %** | 0.005 |
+| Tissue | Marker | Reduction in % positive cells | p |
+|---|---|---|---|
+| **adipose** (abd. subcut.) | p21^CIP1^+ | **−17 %** | 0.009 |
+| **adipose** | p16^INK4A^+ | **−35 %** | 0.001 |
+| **adipose** | SA-β-gal⁺ | **−62 %** | 0.005 |
+| **skin** (epidermis) | p16^INK4A^+ | **−20 %** | 0.026 |
+| **skin** | p21^CIP1^+ | **−31 %** | 0.016 |
 
-(Adipocyte-progenitor replicative potential **+86 %**, p=0.027 — functional confirmation that the cleared cells were
-senescent.) Skin biopsy was directionally concordant but **no separate % was reported** → qualitative confirm only, not a
-second tissue anchor. Mouse fat/flow kill-% is **not recoverable** from the wiki (Xu 2018 is absent; Zhu 2015 reports
-"reduced burden" without a per-tissue fraction). The only mouse quantitative figure is in-vitro selective killing
-(quercetin ~50 % senescent-HUVEC viability @10 µM), which belongs to the quercetin-alone scope, not D+Q.
+(Adipocyte-progenitor replicative potential **+8 %** in passage-3 cultures, n=11, p=0.027, MTS assay — *modest* functional
+confirmation that the cleared cells were senescent; the **"+86 %" on the wiki was a digit-transposition**, corrected
+2026-06-13.) **Two tissues, not one:** skin gives a second human quantitative anchor (p16 −20 %, p21 −31 %, Fig. 4) — the
+wiki's earlier "directionally concordant but unquantified" was wrong. Mouse fat/flow kill-% is **not recoverable** from the
+wiki (Xu 2018 absent; Zhu 2015 reports "reduced burden" without a per-tissue fraction). The only mouse quantitative figure is
+in-vitro selective killing (quercetin ~50 % senescent-HUVEC viability @10 µM), which belongs to the quercetin-alone scope.
 
-**Defensible `ε_kill` envelope (fraction of the lumped senescent burden removed per pulse), anchored to human adipose:**
+**Defensible `ε_kill` envelope (fraction of the lumped senescent burden removed per pulse), across two human tissues:**
 
 | | value | marker | role |
 |---|---|---|---|
-| **floor** | **0.17** | p21⁺ cells | most conservative |
-| **central** | **0.35** | p16⁺ cells | canonical senescence-load marker |
-| **ceiling** | **0.62** | SA-β-gal⁺ cells | optimistic |
+| **floor** | **0.17** | adipose p21⁺ cells | most conservative |
+| **central** | **0.35** | adipose p16⁺ cells | canonical senescence-load marker |
+| **ceiling** | **0.62** | adipose SA-β-gal⁺ cells | optimistic |
 
-The 0.17–0.62 spread is **marker choice within one tissue**, *not* a confidence interval — all from the same n=9, single-arm,
-uncontrolled, single-tissue, single-timepoint dataset. **These set sign and plausible range, never point anchors**
+The IHC markers **cluster 0.17–0.35 across BOTH tissues** (adipose p21 0.17, skin p16 0.20, skin p21 0.31, adipose p16 0.35);
+the 0.62 SA-β-gal⁺ is adipose-only and the optimistic ceiling. The spread is **marker × tissue**, *not* a confidence interval —
+all n=9, single-arm, uncontrolled. **These set sign and plausible range, never point anchors**
 (`#gap/needs-controlled-kill-fraction` — no controlled human kill fraction exists; the one RCT, Farr, was primary-negative).
 
-**Cells-vs-mRNA labeling caveat (surfaced 2026-06-12):** these reductions are reported as **% senescent cells** on the
-compound pages but as **mRNA** on `cellular-senescence.md` — an unreconciled cross-page inconsistency that bears directly on
-whether `ε_kill` is a true *cell-kill* fraction (cells) or a tissue-transcript change (mRNA — a weaker basis for a per-cell
-kill). I read it as **cells** (consistent with Hickson's +86 % progenitor-potential gain and the SA-β-gal⁺-*cell* framing),
-but it should be reconciled against the Hickson PDF before `ε_kill` is treated as a literal per-cell fraction.
-`#gap/hickson-cells-vs-mrna-labeling`
+**Cells-vs-mRNA — RESOLVED (verifier read the Hickson PDF, 2026-06-13).** The reductions are **% positive cells** (IHC counts
+per 100 adipocytes; SA-β-gal⁺ cells per 100 nuclei) — **not mRNA**. `cellular-senescence.md` (which said "mRNA") was wrong and
+is corrected; the compound pages were right. So **`ε_kill` is a legitimate per-tissue senescent-cell kill fraction** — with two
+residual caveats the verifier flagged: (a) p16^INK4A^/p21^CIP1^ IHC are not perfectly senescence-specific (transient p21 in
+proliferating cells; p16 not universal across senescent types); (b) the per-adipocyte denominator means a stromal:adipocyte
+ratio shift could confound. The −62 % SA-β-gal⁺ (a functional readout) is the strongest support for reading the IHC drops as a
+genuine kill. `#gap/hickson-cells-vs-mrna-labeling` **cleared**; residual `#gap/ihc-not-perfectly-senescence-specific`.
 
 ---
 
@@ -95,17 +101,19 @@ but it should be reconciled against the Hickson PDF before `ε_kill` is treated 
 
 The biology is **explicitly cell-type-specific** (SCAP framework, Zhu 2015): **dasatinib** clears ephrin/SRC-dependent
 preadipocyte / hematopoietic-mesenchymal senescent cells; **quercetin** clears BCL-xL/EFNB1-dependent endothelial cells.
-Neither is pan-senolytic; the *combination exists to cover complementary pools*. But the **only quantitative human anchor is
-adipose** — and adipose is plausibly D+Q's **most**-responsive tissue (preadipocyte SCAP is dasatinib's strongest target).
+Neither is pan-senolytic; the *combination exists to cover complementary pools*. There are now **two human quantitative
+anchors** — adipose (p16 −35 %, plausibly the most-responsive: preadipocyte SCAP is dasatinib's strongest target) and skin
+epidermis (p16 −20 %, p21 −31 %) — and they are **tissue-variable** (skin p16 < adipose p16; skin p21 > adipose p21),
+confirming clearance is not uniform.
 
 → **v0 = a single lumped `ε_kill` on the lumped `S` node, carried with wide explicit uncertainty**, documenting that the true
 structure is multi-pool. Two consequences for the number:
-1. The organism-lumped `ε` is plausibly **≤** the adipose `ε` (adipose over-represents the responsive pool) → treat **0.35 as a
-   central-to-high estimate**, not a floor; the organism-level floor could sit below 0.17.
+1. The organism-lumped `ε` is now **bracketed by two measured tissues** (adipose most-responsive ≈0.35; skin 0.20–0.31) → a
+   central **~0.25–0.35** is defensible; treat 0.35 as central-to-high (adipose-weighted) and ~0.20 as a conservative floor.
 2. `ε_kill` **must be < 1** regardless (no senolytic is pan-clearing — incomplete SCAP coverage).
 
 Disaggregate into sub-pools (endothelial vs preadipocyte/mesenchymal, macrophage-spared) **only if `S` is later split by cell
-type** — not warranted at v0. `#gap/no-second-tissue-human-anchor`
+type** — not warranted at v0. (`#gap/no-second-tissue-human-anchor` **cleared** 2026-06-13 — skin is the second anchor.)
 
 ---
 
@@ -200,14 +208,14 @@ so without breaking baseline.** *(Wording refined from the earlier "permanent of
   "kind": "senolytic-pulse",
   "label": "D+Q",
   "target": "cellular-senescence",          // lumped S pool (v0 — single ε, not cell-type-disaggregated)
-  "killFraction": 0.35,                      // central: p16+ adipose −35% (Hickson 2019, n=9, single-arm, no control)
-  "killFraction_envelope": [0.17, 0.62],     // floor p21+ −17% .. ceiling SA-βgal+ −62%; marker-spread, NOT a CI
-  "killFraction_note": "adipose-anchored; organism-lumped ε plausibly <= adipose; must be < 1 (no pan-senolytic)",
+  "killFraction": 0.35,                      // central: p16+ adipose −35% cells (Hickson 2019, n=9, single-arm, no control)
+  "killFraction_envelope": [0.17, 0.62],     // floor adipose p21+ −17% .. ceiling adipose SA-βgal+ −62%; marker×tissue spread, NOT a CI
+  "killFraction_note": "two-tissue-anchored (adipose+skin IHC cells cluster 0.17-0.35); central ~0.25-0.35; must be < 1 (no pan-senolytic)",
   "ages": [],                                // one-off campaign age(s); e.g. [55] or a short [55, 56, 57] re-dose series
   "_held": true,
   "_gate": "clearance active (−c·S) AND rebound-τ sourced; see dq-calibration-design.md §5",
-  "_sources": "Hickson 2019 adipose Day-14 biopsy (verified, PDF-read). Farr 2024 schedule verified 2026-06-12 (open-label, dual-null; cadence shape only).",
-  "_gaps": "#gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/hickson-cells-vs-mrna-labeling #gap/no-second-tissue-human-anchor"
+  "_sources": "Hickson 2019 adipose+skin Day-14 biopsy, % positive cells (verified, PDF-read 2026-06-13). Farr 2024 schedule verified 2026-06-12 (open-label, dual-null; cadence shape only).",
+  "_gaps": "#gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/ihc-not-perfectly-senescence-specific"
 }
 ```
 
@@ -217,7 +225,7 @@ so without breaking baseline.** *(Wording refined from the earlier "permanent of
 
 | Claim | Source | Page(s) | verified |
 |---|---|---|---|
-| `ε_kill` envelope (p16/p21/SA-βgal −35/−17/−62 %) | Hickson 2019 | dasatinib.md, quercetin.md, senolytics.md | **true · PDF-read** ✅ |
+| `ε_kill` envelope (adipose p16/p21/SA-βgal −35/−17/−62%; skin p16 −20%/p21 −31%; % positive *cells*, IHC) | Hickson 2019 | cellular-senescence.md (mRNA→cells fix), dasatinib.md (+86%→+8% fix), quercetin.md, senolytics.md | **true · PDF-read 2026-06-13** ✅ |
 | SASP drop + Day-14 timing | Hickson 2019 | same | **true · PDF-read** ✅ |
 | Cell-type SCAP specificity | Zhu 2015 | dasatinib.md | **true · PDF-read** ✅ |
 | Maintenance cadence (shape only) | **Farr 2024** | dasatinib/quercetin/senolytics/osteoporosis.md | **true · PDF-read 2026-06-12** — schedule canonicalized; open-label; primary p=0.611 & 36-factor SASP panel both null; no biopsy |
@@ -227,10 +235,10 @@ Core decision rests entirely on **verified, PDF-read** Hickson + Zhu numbers. Th
 cadence) was **resolved 2026-06-12** (PDF read end-to-end); it affects only the held maintenance arm and is now **dual-null**.
 
 **Gaps:** `#gap/needs-rebound-time-constant` (the wire-gating gap) · `#gap/needs-controlled-kill-fraction` ·
-`#gap/hickson-cells-vs-mrna-labeling` · `#gap/no-second-tissue-human-anchor`. (`#gap/dq-cadence-farr-unverified`
-**cleared** 2026-06-12 — Farr PDF read.)
+`#gap/ihc-not-perfectly-senescence-specific`. (Cleared 2026-06-13: `#gap/dq-cadence-farr-unverified` (Farr PDF read),
+`#gap/hickson-cells-vs-mrna-labeling` (cells, not mRNA), `#gap/no-second-tissue-human-anchor` (skin is the 2nd anchor).)
 
-[^h]: Hickson 2019 · DKD · n=9 · open-label single-arm, no control · D 100 mg/d + Q 1000 mg/d × 3 d · adipose biopsy D0 vs D14 · doi:10.1016/j.ebiom.2019.08.069 · model: human · verified pages, PDF read
+[^h]: Hickson 2019 · DKD · n=9 · open-label single-arm, no control · D 100 mg/d + Q 1000 mg/d × 3 d · adipose + skin biopsy D0 vs D14, markers = % positive cells (IHC) · adipose p16 −35%/p21 −17%/SA-βgal −62%; skin p16 −20%/p21 −31%; adipocyte-progenitor proliferation +8% (n=11, p=0.027; NOT +86% — wiki digit-transposition corrected 2026-06-13) · doi:10.1016/j.ebiom.2019.08.069 · model: human · PDF read end-to-end 2026-06-13
 [^j]: Justice 2019 · IPF · n=14 · open-label pilot, no control · D 100 mg/d + Q 1250 mg/d, 3 d/wk × 3 wk · doi:10.1016/j.ebiom.2018.12.052 · model: human · verified, PDF read
 [^z]: Zhu 2015 · in-vitro + in-vivo · HUVEC/preadipocyte/MEF + aged C57BL/6 (n=6–9) & Ercc1⁻^/Δ^ · D 5 mg/kg + Q 50 mg/kg gavage · doi:10.1111/acel.12344 · verified, PDF read
 [^f]: Farr 2024 · postmenopausal bone (age 62–88) · n=60 · randomized **open-label** placebo-controlled · D 100 mg ×2 d + Q 1000 mg ×3 d (staggered) every 28 d × 5 cycles = 20 wk · primary CTx Δ p=0.611 (NS); 36-factor circulating-SASP panel @2 wk no D+Q-vs-control change; no biopsy, T-cell p16 baseline-only · doi:10.1038/s41591-024-03096-2 · PMID 38956196 · model: human · **PDF read end-to-end 2026-06-12**
