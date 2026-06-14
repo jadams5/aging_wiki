@@ -138,7 +138,7 @@ Shared mechanistic underpinnings include:
 - **[[osteopontin]]** — secreted by osteocytes; inhibits hydroxyapatite nucleation in soft tissues; altered in aging.
 - **Bone-derived extracellular vesicles** — aged bone matrix releases EVs that carry crystalline mineral and calcification-promoting cargo; a 2022 Nature Communications study showed these EVs function as systemic messengers for the calcification paradox, promoting vascular calcification while reflecting ongoing bone demineralization. #gap/needs-replication — single study; mechanistic chain not fully characterized.
 
-For full discussion of the vascular side, see [[processes/vascular-calcification]].
+For full discussion of the vascular side, see [[processes/vascular-calcification]]. The proposal that combined [[vitamin-d]] + [[vitamin-k2]] supplementation could favorably resolve this paradox (directing calcium to bone, away from arteries) is synthesized — with its largely null hard-endpoint evidence — in [[hypotheses/d3-k2-calcium-partitioning]].
 
 ---
 

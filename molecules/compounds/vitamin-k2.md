@@ -52,13 +52,13 @@ Key Gla proteins and their roles:
 | [[gas6]] (Growth Arrest-Specific 6) | Ubiquitous | Ligand for TAM receptors (TYRO3/AXL/MERTK); modulates cell survival, phagocytosis, inflammation |
 | Coagulation factors II/VII/IX/X, protein C/S | Liver | Clot formation and anticoagulation — the classic vitamin K pathway; K1-dominant in liver |
 
-**dp-ucMGP as the upstream biomarker:** Dephosphorylated-uncarboxylated MGP (dp-ucMGP) is the circulating form of inactive, non-carboxylated MGP. Elevated dp-ucMGP = insufficient vitamin K2 at the arterial wall. Vitamin K2 supplementation reliably lowers dp-ucMGP within weeks across dose ranges (90–720 µg/d), indicating restored carboxylation capacity [^vermeer2020] [^knapen2015]. However, dp-ucMGP normalization does not reliably translate to reduced CAC progression or hard CV event reduction in RCTs — this is the central translation gap.
+**dp-ucMGP as the upstream biomarker:** Dephosphorylated-uncarboxylated MGP (dp-ucMGP) is the circulating form of inactive, non-carboxylated MGP. Elevated dp-ucMGP = insufficient vitamin K2 at the arterial wall. Vitamin K2 supplementation reliably lowers dp-ucMGP within weeks across dose ranges (90–720 µg/d), indicating restored carboxylation capacity [^vlasschaert2020] [^knapen2015]. However, dp-ucMGP normalization does not reliably translate to reduced CAC progression or hard CV event reduction in RCTs — this is the central translation gap.
 
 ## Cardiovascular evidence
 
 ### dp-ucMGP normalization (robust, replicated)
 
-Vitamin K2 supplementation consistently and dose-dependently reduces dp-ucMGP across healthy adults, CKD patients, and diabetic populations. This is the most robustly reproduced finding in the K2 literature and has been confirmed at doses from 90 µg/d upward [^vermeer2020]. dp-ucMGP is a reliable *mechanistic* biomarker for vitamin K status at the arterial wall; it is not itself validated as a surrogate endpoint predictive of hard cardiovascular outcomes.
+Vitamin K2 supplementation consistently and dose-dependently reduces dp-ucMGP across healthy adults, CKD patients, and diabetic populations. This is the most robustly reproduced finding in the K2 literature and has been confirmed at doses from 90 µg/d upward [^vlasschaert2020]. dp-ucMGP is a reliable *mechanistic* biomarker for vitamin K status at the arterial wall; it is not itself validated as a surrogate endpoint predictive of hard cardiovascular outcomes.
 
 ### Arterial stiffness — one positive RCT, mixed replication
 
@@ -83,13 +83,17 @@ A follow-up JACC Advances paper from the AVADEC group in 2023 [^hasific2023] (n=
 
 No large completed RCT has tested MK-7 or any K2 form against CAC score progression as primary endpoint in a primary-prevention population. **VitaK-CAC** (Vossen et al., design doi:10.3390/nu7115443) is a registered 24-month placebo-controlled trial (n=~200, 360 µg/d MK-7, patients with existing CAD + CAC). Published results not located in PubMed as of 2026-05-08 — possible publication pending or trial terminated #gap/needs-replication.
 
+The largest *completed* CAC RCT used **vitamin K1, not K2**: [[studies/shea-2009-vitamin-k-cac|Shea 2009]] (n=388, 500 µg/d phylloquinone × 3 years) was **intention-to-treat null** for CAC progression (27±6 vs 37±7 Agatston units, p=0.26), with a positive signal only in the ≥85%-adherent per-protocol subgroup (17 vs 37, p=0.03) and in those with pre-existing CAC (25 vs 59, p=0.03) [^shea2009]. It nonetheless carries ~94% of the weight in the Li 2023 CAC meta-analysis (see [[vascular-calcification]]) — a caution about how much that pooled "benefit" rests on a single K1 trial's adherence subgroup rather than a clean K2 primary endpoint.
+
 ### Cohort/observational evidence — favorable but confounded
 
 **Rotterdam Study** [^geleijnse2004] (Geleijnse et al., J Nutr 2004): the original epidemiological anchor. In 4807 Dutch adults followed for mean 7.2 years, higher dietary menaquinone intake (K2, largely from cheese and fermented foods) was associated with reduced coronary heart disease mortality — comparing the upper tertile to the lower tertile of K2 intake: RR 0.43 (95% CI 0.24–0.77) after multivariate adjustment. The middle tertile also showed a reduction (RR 0.73, 95% CI 0.45–1.17, not significant). Phylloquinone (K1) intake showed no significant association. Important caveats: K2 sources in Dutch diet are primarily dairy; residual confounding by dairy-pattern diet is plausible; effect sizes are large compared to RCT data, suggesting some confounding [^geleijnse2004].
 
 A 2019 meta-analysis [^chen2019] (n=9 studies, doi:10.1007/s00394-019-01998-3) found that dietary vitamin K2 intake was associated with lower cardiovascular mortality (HR ~0.83, 95% CI 0.72–0.96) and all-cause mortality, while K1 showed weaker associations. Effect sizes are consistent with the Rotterdam cohort but the same confounding caveats apply across observational studies.
 
-**Adjustment caveat flagged in synthesis analyses:** When K1 associations are fully adjusted for overall diet quality (fruit/vegetable pattern), the K1-cardiovascular association largely disappears. K2 associations are more robust to adjustment, but K2 sources (fermented dairy, natto) are also dietary-quality markers [^vermeer2020].
+**Bellinge 2021** [^bellinge2021] (Danish Diet, Cancer and Health Study, n=53,372, 21-year follow-up, 8,726 ASCVD hospitalizations): highest vs lowest intake of **both** K1 (HR 0.79, 95% CI 0.74–0.84) **and** K2 (HR 0.86, 95% CI 0.81–0.91) was associated with fewer atherosclerotic-CVD hospitalizations. Notably, the protective association is *similar for K1 and K2 despite their very different dietary sources* (K1 from leafy greens, K2 from dairy/meat) — itself a signal that dietary vitamin K is partly a **marker of overall diet quality** rather than a clean causal exposure, reinforcing the adjustment caveat below.
+
+**Adjustment caveat flagged in synthesis analyses:** When K1 associations are fully adjusted for overall diet quality (fruit/vegetable pattern), the K1-cardiovascular association largely disappears. K2 associations are more robust to adjustment, but K2 sources (fermented dairy, natto) are also dietary-quality markers [^vlasschaert2020].
 
 ### CKD/dialysis subgroup — more positive signal
 
@@ -103,6 +107,10 @@ Several K2 RCTs show benefit specifically in CKD/hemodialysis populations, where
 ### Diabetes subgroup — negative
 
 The MK-7 + type 2 diabetes trial [^dalmeijer2019] (doi:10.1093/ajcn/nqz147, n=100 T2DM patients, 360 µg/d MK-7 × 6 months, vascular calcification primary endpoint): no significant effect on vascular calcification score despite significant dp-ucMGP reduction. A 6-month K supplementation post-hoc in T2DM patients (doi:10.1016/j.atherosclerosis.2023.117307, Atherosclerosis 2024) also null for calcification propensity time.
+
+### Combined with vitamin D3 — the calcium-partitioning hypothesis
+
+Vitamin K2 is frequently co-supplemented with [[vitamin-d]] (D3) on the rationale that calcitriol upregulates synthesis of the Gla proteins MGP and osteocalcin while K2 supplies the cofactor to γ-carboxylate (activate) them — together partitioning calcium into bone and away from arteries (the "calcium paradox"). The mechanism is plausible and the biomarker engagement (dp-ucMGP, ucOC) is real, but the only RCT to test the **combination on a hard structural endpoint — AVADEC (K2 720 µg + D3) — was null** for aortic-valve calcification progression, and the large D3 monotherapy trials are null on mortality/CVD. See [[hypotheses/d3-k2-calcium-partitioning]] for the full, evidence-graded synthesis.
 
 ## Bone evidence
 
@@ -158,7 +166,7 @@ The most honest current framing:
 
 ## Aging context
 
-Arterial medial calcification accelerates with aging; dp-ucMGP levels rise with age in community-dwelling adults, suggesting K2 functional insufficiency is prevalent in older adults even with adequate dietary intake [^vermeer2020]. This makes vascular K2 carboxylation a plausible age-related deficit mechanism connecting to [[chronic-inflammation]] through Gas6/TAM receptor signalling (Gas6 carboxylation modulates macrophage clearance of apoptotic cells; impaired efferocytosis → unresolved inflammation). The Gas6 aging angle is understudied relative to MGP.
+Arterial medial calcification accelerates with aging; dp-ucMGP levels rise with age in community-dwelling adults, suggesting K2 functional insufficiency is prevalent in older adults even with adequate dietary intake [^vlasschaert2020]. This makes vascular K2 carboxylation a plausible age-related deficit mechanism connecting to [[chronic-inflammation]] through Gas6/TAM receptor signalling (Gas6 carboxylation modulates macrophage clearance of apoptotic cells; impaired efferocytosis → unresolved inflammation). The Gas6 aging angle is understudied relative to MGP.
 
 Vitamin K2 represents a low-risk, low-cost hedging intervention for arterial aging with mechanistic plausibility, weak positive observational data, a single replicated arterial stiffness RCT, and null hard-endpoint data. It is not a validated anti-calcification therapy at current evidence standards.
 
@@ -173,7 +181,7 @@ Vitamin K2 represents a low-risk, low-cost hedging intervention for arterial agi
 
 [^schurgers2007]: doi:10.1182/blood-2006-08-040709 · Schurgers LJ et al. · Blood 2007 · pharmacokinetic comparison; MK-7 half-life ~68 hours (~2.8 days) vs K1 ~1.5 hours; MK-7 accumulates 7–8-fold over prolonged intake vs K1; osteocalcin carboxylation more complete with MK-7 · observational PK study · model: healthy adults
 
-[^vermeer2020]: [[studies/vermeer-2020-vitK-cv-systematic-review]] · doi:10.3390/nu12102909 · Vermeer C, van Ballegooijen AJ · Nutrients 2020 · n=31 controlled trials included · systematic-review · qualitative synthesis of controlled trial evidence; RCT evidence for CV benefit rated insufficient across all endpoints except dp-ucMGP normalization
+[^vlasschaert2020]: [[studies/vlasschaert-2020-vitK-cv-systematic-review]] · doi:10.3390/nu12102909 · Vlasschaert C, Goss CJ, Pilkey NG, McKeown S, Holden RM · *Nutrients* 2020;12(10):2909 · systematic-review · "Vitamin K Supplementation for the Prevention of Cardiovascular Disease: Where Is the Evidence?" — qualitative synthesis of controlled trials; RCT evidence for CV benefit rated insufficient across all endpoints except dp-ucMGP normalization · (citation key/slug corrected from a prior "vermeer2020" misattribution 2026-06-14; first author is Vlasschaert, not Vermeer — the linked studies/ page is not yet seeded)
 
 [^knapen2015]: [[studies/knapen-2015-mk7-arterial-stiffness]] · doi:10.1160/TH14-08-0675 · Knapen MHJ, Braam LAJLM, Drummen NE, Bekers O, Hoeks APG, Vermeer C · Thrombosis and Haemostasis 2015 · n=244 postmenopausal women · rct · primary endpoint cf-PWV improved significantly in MK-7 arm (p<0.05); effect larger in women with highest baseline stiffness; dp-ucMGP normalized · model: healthy postmenopausal women · PDF not available (not_oa)
 
@@ -186,6 +194,10 @@ Vitamin K2 represents a low-risk, low-cost hedging intervention for arterial agi
 [^geleijnse2004]: [[studies/geleijnse-2004-rotterdam-menaquinone-chd]] · doi:10.1093/jn/134.11.3100 · Geleijnse JM, Vermeer C, Grobbee DE et al. · J Nutr 2004 · n=4807 · observational (prospective cohort) · Rotterdam Study; dietary K2 intake upper tertile vs lower tertile: CHD mortality RR 0.43 (95% CI 0.24–0.77); K1 not significantly associated; follow-up through Jan 2000 (mean ~7.2 yr) · model: Dutch adults age 55+ (enrolled 1990–1993)
 
 [^chen2019]: [[studies/chen-2019-vitK-cv-meta-analysis]] · doi:10.1007/s00394-019-01998-3 · J Nutr 2019 cohort meta-analysis · systematic-review + meta-analysis · n=9 studies · dietary K2 associated with lower CV mortality HR ~0.83 (0.72–0.96); K1 weaker association
+
+[^shea2009]: [[studies/shea-2009-vitamin-k-cac]] · doi:10.3945/ajcn.2008.27338 · PMID 19386744 · Shea MK, O'Donnell CJ, Hoffmann U et al. · *Am J Clin Nutr* 2009;89(6):1799–1807 · rct · n=388 healthy older adults, 3 years; 500 µg/d phylloquinone (K1) + multivitamin (n=200) vs multivitamin alone (n=188) · **ITT null** for CAC progression (27±6 vs 37±7 Agatston, p=0.26); per-protocol ≥85%-adherent positive (17 vs 37, p=0.03); pre-existing-CAC subgroup positive (25 vs 59, p=0.03) · K1 trial that carries ~94% of the Li 2023 CAC meta weight despite a null primary endpoint · model: homo-sapiens (community-dwelling older adults)
+
+[^bellinge2021]: doi:10.1161/JAHA.120.020551 · PMID 34369182 · Bellinge JW, Dalgaard F, Murray K et al. · *J Am Heart Assoc* 2021;10(16):e020551 · observational (prospective cohort) · Danish Diet, Cancer and Health Study; n=53,372, median 21-yr follow-up, 8,726 ASCVD hospitalizations · highest vs lowest intake: K1 HR 0.79 (95% CI 0.74–0.84), K2 HR 0.86 (95% CI 0.81–0.91) for ASCVD hospitalization, multivariable-adjusted · similar K1 and K2 associations despite very different dietary sources — consistent with vitamin K as a partial diet-quality marker · model: Danish adults (median age 56, no prior ASCVD)
 
 [^kurnatowska2015]: [[studies/kurnatowska-2015-k2-ckd-calcification]] · doi:10.20452/pamw.3041 · Kurnatowska I et al. · Pol Arch Med Wewn 2015 · n=38 CKD stages 3–5 · rct · 270 days MK-7 90 µg/d + D3; significantly slower CAC and cIMT progression in treatment arm · model: CKD nondialyzed patients
 

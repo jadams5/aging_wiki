@@ -1126,6 +1126,36 @@ WHERE contains(mechanisms, "growth-hormone-secretagogue")
 
 ---
 
+### nuclear-receptor-agonism / VDR-agonism
+
+**Added:** 2026-06-14 — first compound page: [[molecules/compounds/vitamin-d]]
+
+**Definition:** Ligand-dependent activation of nuclear receptors in the NR1 superfamily by small lipophilic molecules that diffuse into cells and bind the receptor's ligand-binding domain (LBD), stabilising the active AF-2 helix conformation. Upon ligand binding, the receptor dimerizes (as a homodimer or RXR heterodimer), translocates to (or acts at) chromatin, and drives transcription of genes containing cognate response elements in their promoters. The founding sub-class in this wiki is:
+
+- **`VDR-agonism`** — activation of the vitamin D receptor (VDR / NR1I1) by calcitriol (1,25(OH)₂D₃) or its precursors/analogues. VDR operates as an RXR heterodimer that binds vitamin D response elements (VDREs — typically DR3 hexamer repeats). Canonical VDR target genes include CAMP (cathelicidin LL-37), osteocalcin/BGLAP, RANKL (TNFSF11), CYP24A1 (the 24-hydroxylase that inactivates calcitriol — a negative feedback target), CYP27B1 (the activating 1α-hydroxylase), CDKN1A (p21), and TRPV5/6 (intestinal calcium channels). Aging relevance: circulating 25(OH)D and calcitriol decline with age due to reduced skin synthesis, declining renal CYP27B1 activity, and fat-sequestration of fat-soluble D3; VDR expression also declines with age in some tissues (intestine, parathyroid), blunting genomic VDR signalling.
+
+**Note on class scope:** `VDR-agonism` is distinct from `ppara-agonism` (PPARα, NR1C1) and from sex-hormone receptor agonism (NR3 subfamily — estradiol, testosterone pages use sex-hormone-specific classes). Each NR subtype has distinct response-element half-site spacing and dimerization partners that confer unique gene-target specificities. Do NOT use `VDR-agonism` generically for other NR1 subfamily members (PXR, CAR, etc.). When a compound's primary aging-context mechanism is VDR agonism (as for cholecalciferol), use `VDR-agonism` as the primary class value. When VDR agonism is secondary or downstream of the primary mechanism, list `VDR-agonism` alongside the primary class.
+
+**Note on hierarchy:** `ppara-agonism` predates this class entry and was established as a standalone class (R2026-05-14) before the broader NR taxonomy was formalised. PPARα pages continue to use `ppara-agonism` as their canonical value; they are NOT retroactively assigned to `nuclear-receptor-agonism`. Future NR1 subfamily members (PXR, FXR, LXR) will use `nuclear-receptor-agonism` as a secondary cross-query value alongside their specific class values (to be added when compound pages are seeded). The Dataview block below queries the VDR-agonism-specific class.
+
+**Canonical values in use:** `VDR-agonism`, `nuclear-receptor-agonism`
+
+**Note on co-listings:** List `calcium-homeostasis` as an additional mechanism tag on cholecalciferol and calcitriol pages where calcium absorption / PTH-suppression is documented endpoint data. List `immunomodulation` alongside `VDR-agonism` when VDR-driven cathelicidin or Treg-induction evidence is the primary clinical claim. The three values enable independent Dataview queries across distinct biological framing (endocrine, immune, mineral).
+
+**Hallmarks primarily targeted:** [[chronic-inflammation]] (VDR-driven cathelicidin induction, Treg promotion, Th17 suppression; immune modulation in aging context), [[disabled-adaptive-immunity]] (impaired VDR-dependent innate/adaptive coordination in aging)
+
+**Translation-gap note:** Despite mechanistically compelling VDR biology, large RCTs of vitamin D3 supplementation in replete populations are null on primary CVD, cancer-incidence, and fracture endpoints (VITAL, D-Health, ViDA). VDR-mediated biology is well-established; the translation gap is one of bioavailability and the deficiency-correction vs supplementation-in-replete distinction, not mechanism validity. `translation-gap: phase-3-rct-needed` does not apply; the trials have been done. Use `human-evidence-level: limited-negative` per the null-trial pattern.
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "VDR-agonism")
+  OR contains(mechanisms, "nuclear-receptor-agonism")
+```
+
+---
+
 ### antimicrobial-peptide / membrane-permeabilization
 
 **Added:** R36 (2026-05-09) — first compound page: [[molecules/compounds/ll-37]]

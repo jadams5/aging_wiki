@@ -139,6 +139,8 @@ These two axes constitute the two major pharmacological targets in the MK-7 / kl
 - [[arterial-stiffening]] — downstream phenotype of calcification
 - [[atherosclerosis]] — partially overlapping phenotype; plaque calcification involves MGP insufficiency
 - [[heart]], [[myocardium]] — target tissues for valvular and coronary calcification
+- [[vitamin-d]] — calcitriol upregulates MGP/osteocalcin transcription (the substrate K2 then carboxylates)
+- [[hypotheses/d3-k2-calcium-partitioning]] — combined D3+K2 calcium-partitioning hypothesis where MGP carboxylation is the central node
 - [[vitamin-k]] — substrate page
 
 ## Limitations and gaps
