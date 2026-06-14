@@ -116,6 +116,8 @@ The iron in neurodegeneration is not random — it co-localizes with amyloid-β 
 
 **Post-menopausal convergence:** After menopause, women's serum ferritin rises toward male-equivalent levels over ~5 years. Female cardiovascular disease risk also rises toward male rates in the post-menopausal window, consistent with the iron hypothesis. However, the convergence is incomplete and is also consistent with estrogen withdrawal (see [[hypotheses/female-longevity-advantage]] § estrogen-protection section).
 
+**The other side of the ledger — iron deficiency is a women's-health harm, not just a longevity benefit.** The same menstrual iron loss that *may* lower lifetime Fenton-reaction burden also makes iron deficiency the world's most common nutritional deficiency, overwhelmingly affecting premenopausal women. Iron deficiency *without* anemia (low [[ferritin]], normal hemoglobin) is a large, underrecognized entity that imposes real healthspan costs — fatigue, impaired attention/processing speed, and restless-legs syndrome — that respond to iron repletion independent of hemoglobin. So a low-iron state is genuinely double-edged: plausibly cardio-protective at the population level, yet a frequent cause of symptomatic morbidity in individual menstruating women. The serum-ferritin biomarker, its disputed iron-deficiency thresholds (modern argument for <25–30 ng/mL vs the legacy <12–15), and the dual reading of the post-menopausal ferritin rise are covered in depth on **[[ferritin]]**.
+
 ### Caveats and contested status
 
 The iron hypothesis is **plausible but not established**. The critical evidence against it as a primary longevity driver:

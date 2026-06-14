@@ -82,6 +82,7 @@ Estrogen provides cardioprotection through multiple mechanisms: favorable effect
 - Blood pressure tends to rise; arterial stiffness increases.
 - Body composition shifts toward central adiposity (see Metabolic section).
 - Women's CVD risk, which lags men's by ~10 years during reproductive life, converges toward male rates in the post-menopausal decade — see [[cardiovascular-aging]] and [[atherosclerosis]] [^khoudary2020-cvd-menopause] [^nappi2022-cardiometabolic].
+- In parallel, serum [[ferritin]] rises toward male-equivalent levels over the first ~5–10 postmenopausal years as menstrual iron loss ceases. Whether this contributes to the CVD convergence (the "iron hypothesis" — see [[molecules/metabolites/iron]] and [[hypotheses/female-longevity-advantage]]) or merely relieves chronic premenopausal iron deficiency depends on the individual's premenopausal baseline; the dual reading is detailed on [[ferritin]]. The rise is also easily confounded by metabolic-syndrome-driven (acute-phase) hyperferritinemia.
 - The Menopause Society / AHA now identify midlife as a critical prevention window for reducing downstream CVD risk [^uddenberg2024-cvd-menopause].
 
 ### Vasomotor symptoms (hot flashes and night sweats)

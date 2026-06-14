@@ -49,7 +49,7 @@ Labile (redox-active, non-protein-bound) ferrous iron (Fe²⁺) drives ferroptos
 Fe²⁺ + H₂O₂ → Fe³⁺ + OH• + OH⁻  (Fenton reaction)
 ```
 
-Hydroxyl radicals (OH•) and related reactive oxygen species (ROS) abstract hydrogen atoms from PUFA side chains of phospholipids — most critically arachidonic acid (C20:4) and adrenic acid (C22:4) — generating lipid peroxyl radicals that propagate a chain reaction across the membrane. Intracellular iron is trafficked by transferrin receptor ([[tfr1]]) and stored as ferritin; when ferritin is degraded (ferritinophagy via NCOA4), labile iron increases and ferroptotic susceptibility rises.
+Hydroxyl radicals (OH•) and related reactive oxygen species (ROS) abstract hydrogen atoms from PUFA side chains of phospholipids — most critically arachidonic acid (C20:4) and adrenic acid (C22:4) — generating lipid peroxyl radicals that propagate a chain reaction across the membrane. Intracellular iron is trafficked by transferrin receptor ([[tfr1]]) and stored as [[ferritin]]; when ferritin is degraded (ferritinophagy via NCOA4), labile iron increases and ferroptotic susceptibility rises.
 
 ### The oxidizable substrate — PUFA-phospholipids
 

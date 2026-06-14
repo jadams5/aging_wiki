@@ -48,7 +48,7 @@ ACI is driven by the IL-6 → hepcidin axis [^nemeth2004]:
 
 Chronic kidney disease (CKD) adds a second mechanism: reduced renal EPO production compounding iron restriction. CKD-related anemia is categorized separately but mechanistically overlaps with ACI.
 
-Diagnostic fingerprint of ACI: low serum iron, low TIBC, elevated ferritin (acute-phase reactant), elevated CRP/ESR, elevated hepcidin.
+Diagnostic fingerprint of ACI: low serum iron, low TIBC, elevated [[ferritin]] (acute-phase reactant), elevated CRP/ESR, elevated hepcidin.
 
 ### Unexplained anemia of aging (UAA)
 

@@ -104,11 +104,11 @@ More recent second-generation clocks (GrimAge, DunedinPACE) trained on mortality
 
 ### 4. Iron / ferroptosis hypothesis
 
-**Core idea:** Premenopausal women lose iron through menstruation, maintaining lower body iron stores. Excess iron drives oxidative damage and, at extremes, ferroptotic cell death. The post-menopausal convergence of female and male iron stores roughly correlates with the narrowing of the sex gap in cardiovascular disease risk.
+**Core idea:** Premenopausal women lose iron through menstruation, maintaining lower body iron stores (lower serum [[ferritin]], roughly half male levels). Excess iron drives oxidative damage and, at extremes, ferroptotic cell death. The post-menopausal convergence of female and male iron stores roughly correlates with the narrowing of the sex gap in cardiovascular disease risk.
 
 **Status of evidence:** This is a plausible mechanistic pathway with indirect supporting evidence (lower iron stores → lower oxidative load → lower lipid peroxidation → lower cardiovascular and cancer risk) but **lacks strong direct causal evidence in humans**. The iron hypothesis was proposed as a partial explanation for the sex-mortality gap by Sullivan and others. A reply to Zarulli et al. 2018 by Delanghe et al. argued that iron status does not explain the extreme-mortality data [^zarulli2018reply]; the Zarulli team concurred that iron is unlikely to be a primary driver under those conditions.
 
-This mechanism may contribute at the margin — particularly to cardiovascular risk convergence post-menopause — but is probably not a major contributor to the full longevity gap. See [[hallmarks/genomic-instability]] for oxidative-damage mechanisms; stub pages needed for [[processes/ferroptosis]] and [[molecules/metabolites/iron]]. #gap/no-mechanism (direct RCT or MR evidence on iron-depletion-as-longevity-intervention is lacking) #gap/needs-human-replication
+This mechanism may contribute at the margin — particularly to cardiovascular risk convergence post-menopause — but is probably not a major contributor to the full longevity gap. See [[hallmarks/genomic-instability]] for oxidative-damage mechanisms, [[molecules/metabolites/iron]] § iron hypothesis for the full evidence appraisal (incl. the Zarulli infancy-survival counterargument and the hemochromatosis paradox), [[processes/ferroptosis]] for the cell-death mechanism, and [[ferritin]] for the dual reading of the post-menopausal ferritin rise (loss-of-protection vs relief-of-chronic-deficiency). #gap/no-mechanism (direct RCT or MR evidence on iron-depletion-as-longevity-intervention is lacking) #gap/needs-human-replication
 
 ---
 
@@ -210,7 +210,7 @@ This page will require structural revision if:
 - #gap/unsourced — no verified atomic wiki page yet exists for most behavioral-adjustment analyses; the residual-biological-gap claim after behavioral control should be sourced when those study pages are seeded.
 - #gap/stub — [[studies/zarulli-2018-female-survival-extreme-mortality]] and [[studies/lemaitre-2020-sex-differences-mammal-lifespan]] need seeding as study pages.
 - #gap/stub — [[hypotheses/mothers-curse]] should be seeded as a dedicated hypothesis page.
-- #gap/stub — [[processes/ferroptosis]] and [[molecules/metabolites/iron]] do not yet exist; the iron hypothesis section is underlinked.
+- ✅ Resolved (2026-06-14) — [[processes/ferroptosis]], [[molecules/metabolites/iron]], and [[ferritin]] now exist and are linked from the iron-hypothesis section.
 - #gap/needs-human-replication — XCI mosaicism → longevity causal path not established in humans.
 - #gap/needs-human-replication — Mother's curse mtDNA mechanism not tested in human MR studies.
 - #gap/needs-replication — LTL sex difference → longevity causal MR evidence not published.

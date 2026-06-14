@@ -39,7 +39,7 @@ Three developments justified elevation to a standalone hallmark [^lopezOtin2023]
 **Inflammaging** is not an acute inflammatory episode. Key distinguishing features:
 
 - **Sterile** — no pathogen trigger; driven by endogenous DAMPs and cell-derived secretomes
-- **Chronic and low-grade** — elevated hsCRP (~2–10 mg/L), IL-6, and TNF-α at levels well below those seen in acute infection
+- **Chronic and low-grade** — elevated hsCRP (~2–10 mg/L), IL-6, and TNF-α at levels well below those seen in acute infection. Serum [[ferritin]] also rises as an IL-6-driven acute-phase reactant, making elevated ferritin a partial inflammaging proxy in older adults — but one easily mistaken for true iron overload (the two require transferrin-saturation/CRP co-interpretation to distinguish)
 - **Systemic** — circulating markers rise with age in multiple tissue compartments
 - **Poorly resolved** — the normal inflammation-resolution machinery (specialized pro-resolving mediators: resolvins, protectins, maresins) is impaired in aged tissues #gap/no-mechanism
 
