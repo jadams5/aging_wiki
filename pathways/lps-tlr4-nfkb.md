@@ -108,6 +108,8 @@ The downstream consequence of chronic LPS/TLR4 engagement is **elevated basal NF
 
 TLR4/NFκB activation provides **Signal 1** (NFκB-driven transcription of pro-IL-1β and NLRP3 mRNA) for [[nlrp3-inflammasome]] activation. A second signal (danger signal: ATP, crystals, ROS) then activates the assembled inflammasome, which cleaves pro-IL-1β → mature IL-1β. The two pathways thus cooperate to produce the full IL-1β inflammatory response [^li2005]. Chronic LPS exposure in aging may maintain tonic Signal 1 priming of the inflammasome, lowering the threshold for full activation.
 
+A convergent **negative** regulator operates on the same macrophages: the [[pathways/cholinergic-anti-inflammatory-pathway]] (vagal acetylcholine → [[molecules/proteins/chrna7|α7nAChR]]) suppresses NFκB nuclear translocation downstream of TLR4 engagement, dampening the TNFα/IL-6/IL-1β output of this axis. Age-related decline in vagal tone removes part of this brake, which may compound endotoxemia-driven inflammaging (mechanistic/associational, not a proven causal driver).
+
 ## Pharmacological inhibitors and probes
 
 | Compound | Target | Stage | Notes |

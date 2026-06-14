@@ -27,7 +27,7 @@ verified-scope: "Hertweck 2004 lifespan claims verified against local PDF — al
 
 SGK1 is an AGC-family serine/threonine kinase activated downstream of PI3K and PDK1/mTORC2. It is closely related to AKT in domain architecture and substrate consensus, and for years was treated as an AKT redundant. The critical reframing: in *C. elegans*, **SGK-1 — not AKT-1 or AKT-2 — is the dominant longevity kinase** in the insulin/IGF-1 signaling (IIS) pathway. Loss of *sgk-1* alone extends mean adult lifespan ~63%, while loss of *akt-1* or *akt-2* alone is not statistically significant [^hertweck2004]. This finding corrects a long-standing narrative that attributed IIS-longevity effects in worms primarily to the AKT orthologs.
 
-In mammals, SGK1 is best characterized as a mineralocorticoid/glucocorticoid target that regulates epithelial sodium transport (via NEDD4-2/ENaC) and is implicated in hypertension, diabetic nephropathy, and metabolic disease — conditions tightly linked to aging.
+In mammals, SGK1 is best characterized as a mineralocorticoid/glucocorticoid target (a direct transcriptional target of the glucocorticoid receptor downstream of the [[pathways/hpa-axis]]) that regulates epithelial sodium transport (via NEDD4-2/ENaC) and is implicated in hypertension, diabetic nephropathy, and metabolic disease — conditions tightly linked to aging.
 
 ## Identity
 
@@ -111,8 +111,8 @@ SGK1 phosphorylates serine/threonine residues in the motif **R-X-R-X-X-S/T-Φ** 
 
 SGK1 is unusual among AGC kinases in being **transcriptionally regulated** on a short timescale. Key inducers include:
 
-- **Glucocorticoids** — via glucocorticoid response element in the SGK1 promoter (the original discovery context) [^webster1993]
-- **Mineralocorticoids** (aldosterone) — via mineralocorticoid receptor; major driver of renal ENaC trafficking
+- **Glucocorticoids** — via glucocorticoid response element in the SGK1 promoter (the original discovery context), through the [[molecules/proteins/nr3c1|glucocorticoid receptor]] [^webster1993]
+- **Mineralocorticoids** (aldosterone) — via the [[molecules/proteins/nr3c2|mineralocorticoid receptor]]; major driver of renal ENaC trafficking
 - **Serum / growth factors** — via IIS/PI3K; transcription upregulated in addition to post-translational activation
 - **Oxidative stress, hypoxia, DNA damage** — stress-response induction
 - **Hypertonicity / osmotic stress** — osmosensing program

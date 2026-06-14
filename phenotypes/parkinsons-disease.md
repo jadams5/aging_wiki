@@ -40,7 +40,7 @@ Two concurrent processes define PD neuropathology:
 
 ### Braak staging
 
-PD pathology spreads in a largely stereotyped caudal-to-rostral pattern. Braak et al. proposed a six-stage scheme (Braak 2003, not yet cited on this page) in which Lewy pathology initiates in the olfactory bulb and dorsal motor nucleus of the vagus (stage 1–2), ascends to the SNc (stages 3–4), and eventually reaches neocortex (stages 5–6). This staging supports a prion-like propagation hypothesis for α-synuclein but remains mechanistically debated. #gap/contradictory-evidence
+PD pathology spreads in a largely stereotyped caudal-to-rostral pattern. Braak et al. proposed a six-stage scheme (Braak 2003, not yet cited on this page) in which Lewy pathology initiates in the olfactory bulb and dorsal motor nucleus of the [[tissues/vagus-nerve|vagus nerve]] (stage 1–2), ascends to the SNc (stages 3–4), and eventually reaches neocortex (stages 5–6). This staging supports a prion-like propagation hypothesis for α-synuclein (and motivates the "gut-first" route, with α-synuclein ascending via vagal afferents from the enteric nervous system) but remains mechanistically debated — autopsy series find ~17% of cases deviate from the strict caudo-rostral sequence. #gap/contradictory-evidence
 
 ### Non-motor features (prodromal and established)
 
@@ -130,10 +130,10 @@ PD treatment is symptomatic — no disease-modifying therapy has demonstrated sl
 
 | Agent | Class | Notes |
 |---|---|---|
-| Levodopa + carbidopa | Dopamine precursor + DDC inhibitor | Gold standard; most effective motor therapy; motor fluctuations ("wearing off") and dyskinesias emerge after years of use |
+| Levodopa + carbidopa | Dopamine precursor + DDC inhibitor (bypasses rate-limiting [[molecules/proteins/tyrosine-hydroxylase\|tyrosine hydroxylase]]) | Gold standard; most effective motor therapy; motor fluctuations ("wearing off") and dyskinesias emerge after years of use |
 | Pramipexole, ropinirole, rotigotine | Dopamine agonists | Used early or as adjuncts; impulse control disorders are a class-specific risk |
-| Selegiline, rasagiline, safinamide | MAO-B inhibitors | Modest motor benefit; well-tolerated as monotherapy or adjunct |
-| Entacapone, opicapone | COMT inhibitors | Extend levodopa half-life; adjunct for wearing off |
+| Selegiline, rasagiline, safinamide | [[molecules/proteins/monoamine-oxidase\|MAO-B]] inhibitors | Modest motor benefit; well-tolerated as monotherapy or adjunct |
+| Entacapone, opicapone | [[molecules/proteins/comt\|COMT]] inhibitors | Extend levodopa half-life; adjunct for wearing off |
 
 ### Device-based therapy
 

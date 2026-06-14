@@ -115,7 +115,7 @@ Zhang et al. (2020) demonstrated that acute psychological and physiological stre
 **Central mechanism:**
 
 1. Stress activates sympathetic neurons that innervate the hair follicle niche.
-2. Burst release of **norepinephrine (NE)** from sympathetic terminals signals through **ADRB2** (β2-adrenergic receptor) expressed on McSCs.
+2. Burst release of **norepinephrine (NE)** (see [[molecules/metabolites/catecholamines]]) from sympathetic terminals signals through **ADRB2** (β2-adrenergic receptor) expressed on McSCs.
 3. NE/ADRB2 drives McSCs into rapid hyper-proliferation: ~50% of McSCs entered M phase within 24 hours of resiniferatoxin (RTX) nociceptive stress — a far faster proliferative rate than seen during normal anagen activation.
 4. This excessive proliferation forces premature differentiation and migration out of the niche, permanently exhausting the McSC pool. RTX-treated mice showed near-complete McSC loss within ~5 days and emergence of depigmented hairs in the subsequent anagen.
 

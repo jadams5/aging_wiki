@@ -50,7 +50,7 @@ Muscle contraction raises cytosolic Ca²⁺, which activates **CaMKIV** (calcium
 
 ### β-Adrenergic / cAMP arm
 
-β-adrenergic signaling (catecholamines → β-AR → adenylyl cyclase → cAMP) was the original upstream of PGC-1α identified in brown adipose tissue: Puigserver 1998 demonstrates that isoproterenol (a β-agonist) and cAMP sharply induce *PGC-1* mRNA in brown fat cells, and that the PGC-1 protein contains three consensus PKA phosphorylation sites [^puigserver1998]. The downstream transcriptional link via PKA → CREB → *PGC-1α* promoter is a well-accepted mechanistic inference from these observations and from CREB binding sites in the *PPARGC1A* promoter, but is not directly demonstrated in Puigserver 1998 — the cAMP → PGC-1 induction is shown phenomenologically. This arm is important for cold-adaptive thermogenesis and pharmacologically relevant (β-agonists can stimulate biogenesis in muscle).
+β-adrenergic signaling ([[molecules/metabolites/catecholamines]] → β-AR → adenylyl cyclase → cAMP) was the original upstream of PGC-1α identified in brown adipose tissue: Puigserver 1998 demonstrates that isoproterenol (a β-agonist) and cAMP sharply induce *PGC-1* mRNA in brown fat cells, and that the PGC-1 protein contains three consensus PKA phosphorylation sites [^puigserver1998]. The downstream transcriptional link via PKA → CREB → *PGC-1α* promoter is a well-accepted mechanistic inference from these observations and from CREB binding sites in the *PPARGC1A* promoter, but is not directly demonstrated in Puigserver 1998 — the cAMP → PGC-1 induction is shown phenomenologically. This arm is important for cold-adaptive thermogenesis and pharmacologically relevant (β-agonists can stimulate biogenesis in muscle).
 
 ### p38 MAPK
 

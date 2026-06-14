@@ -51,7 +51,7 @@ Adult cardiomyocytes are predominantly post-mitotic, with a renewal rate of only
 Hemodynamic stress from reduced cardiac output triggers maladaptive compensatory cascades:
 
 - **RAAS (renin-angiotensin-aldosterone system)** — angiotensin II drives vasoconstriction, sodium retention, aldosterone release, and cardiac fibrosis
-- **Sympathetic nervous system** — catecholamine release increases heart rate and contractility acutely but causes cardiotoxicity chronically (receptor downregulation, arrhythmia, apoptosis)
+- **Sympathetic nervous system** — [[molecules/metabolites/catecholamines|catecholamine]] release increases heart rate and contractility acutely but causes cardiotoxicity chronically (β-adrenergic receptor downregulation via [[molecules/proteins/grk2|GRK2]], arrhythmia, apoptosis)
 - **ADH/AVP** — arginine vasopressin causes water retention and hyponatremia in advanced HF
 - **Natriuretic peptides (BNP, NT-proBNP)** — released by stressed ventricular myocytes as a counter-regulatory response; they are the primary serum biomarkers used for HF diagnosis and monitoring
 
@@ -126,7 +126,7 @@ All four pillars have demonstrated mortality benefit in RCTs. Maximally tolerate
 |---|---|---|---|
 | RAAS blockade | ACEi or ARB, or ARNi (preferred) | Enalapril; sacubitril/valsartan | Block Ang-II vasoconstriction/fibrosis; ARNi adds neprilysin inhibition → enhanced BNP/ANP vasodilation |
 | Beta-blocker | Carvedilol, metoprolol succinate, bisoprolol | Three proven agents only | Block catecholamine cardiotoxicity; reduce HR; reverse remodeling |
-| MRA | Spironolactone, eplerenone | Aldosterone receptor antagonist | Block aldosterone-driven fibrosis and sodium retention; anti-remodeling |
+| MRA | Spironolactone, eplerenone, finerenone | [[molecules/proteins/nr3c2|Mineralocorticoid receptor]] antagonist | Block aldosterone-driven fibrosis and sodium retention; anti-remodeling (finerenone extended benefit to HFpEF/HFmrEF in FINEARTS-HF) |
 | SGLT2i | Empagliflozin, dapagliflozin | SGLT2 cotransporter inhibitor | Osmotic diuresis; metabolic benefits; direct cardiac effects (independent of glycemic control) |
 
 **ARNi (sacubitril/valsartan) vs enalapril — PARADIGM-HF (n=8,442):** Sacubitril/valsartan reduced the composite of cardiovascular death or HF hospitalization by 20% (HR 0.80, 95% CI 0.73–0.87, p<0.001) vs enalapril in HFrEF. Cardiovascular death reduced by 20%; all-cause mortality reduced by 16%. The trial was stopped early at a median 27 months due to overwhelming benefit. ARNi is now the preferred RAAS blocker in HFrEF when tolerated [^mcmurray2014].

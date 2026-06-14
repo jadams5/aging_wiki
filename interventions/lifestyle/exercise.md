@@ -202,6 +202,7 @@ Pharmacological exercise mimetics (AICAR for AMPK activation; GW501516 for fatty
 - [[sarcopenia]] — primary phenotypic target of resistance training
 - [[satellite-cells]] — activated by resistance exercise
 - [[chronic-inflammation]] — reduced by regular exercise via myokine signaling
+- [[biomarkers/heart-rate-variability-biomarker]] — chronic aerobic training raises resting vagal tone and HRV (and lowers [[biomarkers/resting-heart-rate-biomarker|resting heart rate]]); HRV is a non-invasive readout of this autonomic adaptation
 - [[mitochondrial-dysfunction]] — reversed in aged human muscle by HIIT (Robinson 2017)
 - [[caloric-restriction]] — mechanistically overlapping lifestyle intervention; both activate AMPK + autophagy
 - [[protein-intake]] — the muscle-accrual lever of body recomposition; pairs with the resistance stimulus

@@ -84,7 +84,7 @@ Systemic [[chronic-inflammation|inflammaging]] contributes fibrogenic cytokines 
 
 ### Renin-angiotensin-aldosterone system (RAAS) activation
 
-Age-related increases in RAAS activity drive angiotensin II and aldosterone levels upward, both potent independent pro-fibrotic stimuli. Aldosterone acts directly on cardiac fibroblast mineralocorticoid receptors to upregulate collagen synthesis [^frangogiannis2020]. This provides the mechanistic basis for mineralocorticoid receptor antagonist (MRA) anti-fibrotic efficacy in heart failure.
+Age-related increases in RAAS activity drive angiotensin II and aldosterone levels upward, both potent independent pro-fibrotic stimuli. Aldosterone acts directly on cardiac fibroblast [[molecules/proteins/nr3c2|mineralocorticoid receptors]] to upregulate collagen synthesis [^frangogiannis2020]. This provides the mechanistic basis for mineralocorticoid receptor antagonist (MRA) anti-fibrotic efficacy in heart failure.
 
 ### AGE crosslinking
 

@@ -27,7 +27,7 @@ verified-scope: "All DOIs corrected against PubMed (7 wrong DOIs fixed); primary
 
 Resting heart rate (RHR) is a single-parameter physiological vital sign that integrates autonomic nervous system tone, cardiorespiratory fitness, and hemodynamic status into one non-invasive measurement. It is **not a multi-feature composite clock** — the clock-oriented frontmatter fields (`n-cpgs-or-features`, `model-architecture`, `training-cohort`) do not apply to a simple vital sign and are set to null. RHR predicts all-cause and cardiovascular mortality in dose-response fashion across multiple large prospective cohorts: each 10 beats/minute (bpm) increase in RHR is associated with roughly 9–17% higher all-cause mortality risk [^zhang2016] [^aune2017]. Beyond its prognostic value, RHR is the simulator's cyclic-count driver for arterial elastin pulsatile fatigue — a higher resting rate means more cardiac cycles per unit time, contributing mechanistically to the cumulative pulsatile wall-stress burden on the aorta and large arteries. The sibling fitness biomarker is [[biomarkers/vo2max-biomarker]], which reflects the same integrated autonomic/cardiorespiratory axis from the exercise-capacity direction.
 
-**Note on `modality: vital-sign`**: RHR is classified under the `vital-sign` modality (added in schema R55) — single-parameter resting physiological measures that index aging/mortality risk but are neither multi-feature molecular clocks nor performance tests. The clock-feature fields (`n-cpgs-or-features`, `model-architecture`, `training-cohort`, `test-retest-icc`) are structurally not applicable here and are left null. The same modality applies to resting blood pressure, heart-rate variability, respiratory rate, and body temperature.
+**Note on `modality: vital-sign`**: RHR is classified under the `vital-sign` modality (added in schema R55) — single-parameter resting physiological measures that index aging/mortality risk but are neither multi-feature molecular clocks nor performance tests. The clock-feature fields (`n-cpgs-or-features`, `model-architecture`, `training-cohort`, `test-retest-icc`) are structurally not applicable here and are left null. The same modality applies to resting blood pressure, [[biomarkers/heart-rate-variability-biomarker|heart-rate variability]], respiratory rate, and body temperature.
 
 ## Identity and Measurement
 
@@ -39,7 +39,7 @@ Resting heart rate (RHR) is a single-parameter physiological vital sign that int
 
 ## Aging Trajectory
 
-RHR does not show a simple monotone decline with age. The intrinsic sinoatrial node firing rate decreases with age (reduced beta-adrenergic responsiveness, pacemaker cell loss), which would tend to lower RHR intrinsically. However, progressive reduction in parasympathetic (vagal) tone with aging — reflected in declining heart rate variability (HRV) — partially offsets this, resulting in:
+RHR does not show a simple monotone decline with age. The intrinsic sinoatrial node firing rate decreases with age (reduced beta-adrenergic responsiveness, pacemaker cell loss), which would tend to lower RHR intrinsically. However, progressive reduction in parasympathetic (vagal) tone with aging — reflected in declining [[biomarkers/heart-rate-variability-biomarker|heart rate variability (HRV)]] — partially offsets this, resulting in:
 
 - Modest RHR **increase** in sedentary individuals across middle age as vagal tone declines [^tadic2018]
 - Blunting of the athlete's bradycardia in older trained adults due to intrinsic SA-node aging
@@ -211,6 +211,7 @@ RHR is one of the most accessible continuous biomarkers available via consumer w
 
 ## Cross-References
 
+- [[biomarkers/heart-rate-variability-biomarker]] — sibling `vital-sign` biomarker; the beat-to-beat counterpart that indexes vagal/parasympathetic modulation directly, whereas RHR is the mean-rate readout; both decline in autonomic terms with age and are bidirectionally tied to inflammatory tone
 - [[biomarkers/vo2max-biomarker]] — fitness sibling; VO₂max and RHR are both cardiovascular/autonomic fitness markers; inverse correlation within individuals; VO₂max has stronger and better-characterized mortality dose-response
 - [[phenotypes/arterial-stiffening]] — downstream phenotype driven partly by cumulative pulsatile load
 - [[atherosclerosis]] — co-occurring cardiovascular phenotype; RHR associated with CV mortality via overlapping mechanisms

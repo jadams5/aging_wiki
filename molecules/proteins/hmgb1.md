@@ -83,6 +83,7 @@ HMGB1 nuclear retention vs. cytoplasmic release is regulated by lysine acetylati
 - **Recombinant thrombomodulin (ART-123, recomodulin)** — sequesters and inactivates HMGB1 via Lys-cleavage in its lectin-like domain. Approved in Japan for sepsis-associated DIC.
 - **Soluble RAGE (sRAGE)** decoys — preclinical only.
 - **RAGE antagonists** (azeliragon, FPS-ZM1) — small-molecule receptor blockers; azeliragon failed Phase 3 in Alzheimer's disease (TTP488); FPS-ZM1 is a research-grade probe.
+- **Upstream cholinergic restraint** — activation of the [[pathways/cholinergic-anti-inflammatory-pathway]] via macrophage [[molecules/proteins/chrna7|α7nAChR]] suppresses active HMGB1 secretion; the α7 agonist GTS-21 reduces HMGB1 release from activated macrophages, positioning the vagal cholinergic circuit as an endogenous brake on the HMGB1 DAMP loop rather than a direct HMGB1-binding agent [^sitapara2020].
 
 The Shin 2025 result revives interest in repurposing these agents for aging indications; the question is whether redox-form-selective interventions (i.e., targeting only ReHMGB1) can preserve any beneficial roles of HMGB1 in development, wound healing, or regeneration. #gap/dose-response-unclear.
 
@@ -105,3 +106,5 @@ The Shin 2025 result revives interest in repurposing these agents for aging indi
 ## Footnotes
 
 [^coppe2008]: doi:10.1371/journal.pbio.0060301 · in-vitro + in-vivo · HMGB1 is listed among the SASP factors characterized in the foundational SASP paper · see [[sasp]] for verified content
+
+[^sitapara2020]: doi:10.1186/s10020-020-00224-9 · in-vivo (mouse) + in-vitro · the α7nAChR agonist GTS-21 attenuates HMGB1 accumulation/release and reduces injury in an acute-inflammation (hyperoxic acute lung injury) model · cross-referenced from [[molecules/proteins/chrna7]] (cholinergic anti-inflammatory pathway); not independently verified against full PDF on this page #gap/needs-replication

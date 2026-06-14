@@ -109,7 +109,7 @@ The two phenomena overlap and reinforce one another: senescent T cells and macro
 | **Inflammaging feedback** | IL-6 and other inflammatory cytokines accelerate T cell differentiation toward effector/senescent states → [[chronic-inflammation]] |
 | **Thymic involution** | Irreversible architecture loss; no new naive T cells to replace terminally differentiated pool |
 | **Malnutrition / micronutrient deficiency** | Zinc, selenium, vitamin D deficiency impairs innate and adaptive immune function |
-| **Chronic stress / cortisol** | HPA axis activation suppresses naive T cell maintenance; accelerates senescence phenotype |
+| **Chronic stress / cortisol** | [[pathways/hpa-axis|HPA axis]] activation (elevated cortisol, falling cortisol:DHEA ratio) — via the [[molecules/proteins/nr3c1|glucocorticoid receptor]] — suppresses naive T cell maintenance; accelerates senescence phenotype |
 | **Sedentary lifestyle** | Physical exercise has demonstrated anti-immunosenescence effects in observational data |
 
 ## Hallmark mapping

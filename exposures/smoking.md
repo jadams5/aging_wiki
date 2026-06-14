@@ -64,7 +64,7 @@ Risk scales with pack-years: risk is monotonically increasing with cumulative do
 
 Smoking is among the best-instrumented behavioral exposures in MR. Key instruments:
 
-- **CHRNA5-CHRNA3-CHRNB4 locus** (rs16969968 / rs1051730): the most-replicated smoking-intensity instrument in the nicotinic acetylcholine receptor gene cluster on 15q25.1. Used across multiple MR studies to instrument cigarette consumption among smokers.
+- **CHRNA5-CHRNA3-CHRNB4 locus** (rs16969968 / rs1051730): the most-replicated smoking-intensity instrument in the nicotinic acetylcholine receptor gene cluster on 15q25.1. Used across multiple MR studies to instrument cigarette consumption among smokers. (Distinct from [[molecules/proteins/chrna7|CHRNA7/α7nAChR]] on 15q13.3 — a different nicotinic-receptor gene at a different locus, mediating the anti-inflammatory cholinergic reflex rather than nicotine-dependence intensity.)
 - **GSCAN consortium** (Liu et al. 2019, *Nature Genetics*; n up to 1.2 million): identified 566 genome-wide significant variants across 406 loci for smoking initiation, cessation, heaviness, and alcohol use; these instruments are widely used for smoking-exposure MR in subsequent work [^liu2019gscan].
 
 **Selected MR-supported causal inferences:**
@@ -105,6 +105,8 @@ Smoke-induced autophagy impairment is a proximal mechanism: reactive species dam
 ### 4. Chronic inflammation — NF-κB activation
 
 Tobacco smoke activates [[nf-kb]] via multiple arms: (i) direct oxidant activation of IκB kinase, (ii) toll-like receptor stimulation by lipopolysaccharide contaminants in tobacco, (iii) NLRP3 inflammasome activation by particulate matter. The resulting cytokine cascade — elevated IL-6, IL-8, TNF-α, CRP — is measurable as a population-level inflammaging signal in smokers compared with never-smokers. The SASP from senescent airway cells amplifies this signal. On cessation, systemic inflammatory markers decline within months, though some degree of elevation may persist for years. #gap/long-term-unknown (degree of residual NF-κB activation after >10 years cessation not quantified in humans).
+
+Note a countervailing nuance: nicotine non-selectively also activates [[molecules/proteins/chrna7|α7nAChR]], engaging the [[pathways/cholinergic-anti-inflammatory-pathway]], which can produce *acute* anti-inflammatory/immunomodulatory effects in experimental systems. This does not offset smoking's harms — chronic tobacco exposure is strongly net pro-inflammatory (and receptor desensitization blunts any cholinergic brake) — but it is why isolated α7 agonism is pursued as an anti-inflammatory strategy independent of smoking.
 
 ### 5. Mitochondrial dysfunction
 

@@ -109,7 +109,7 @@ Downstream consequences of arcuate POMC neuron decline in aged animals:
 
 ### HPA axis dysregulation with age
 
-Basal cortisol levels rise with age and the cortisol awakening response becomes blunted, reflecting altered pituitary ACTH dynamics. Whether this is driven by changes in POMC expression, altered PC1/3 activity, or upstream CRH/AVP signalling changes is not fully resolved. #gap/no-mechanism
+Basal cortisol levels rise with age and the cortisol awakening response becomes blunted, reflecting altered pituitary ACTH dynamics. Whether this is driven by changes in POMC expression, altered PC1/3 activity, or upstream [[molecules/proteins/crh|CRH]]/AVP signalling changes is not fully resolved. #gap/no-mechanism
 
 ### Melanocortin pathway and metabolic aging
 

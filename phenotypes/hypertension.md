@@ -72,7 +72,7 @@ Age-associated endothelial dysfunction reduces nitric oxide (NO) bioavailability
 
 ### Renin-angiotensin-sympathetic axis
 
-Aging is associated with enhanced sympathetic nervous system activity and parasympathetic decline, increasing peripheral resistance. The renin-angiotensin system (RAS) shifts toward a pro-hypertensive angiotensin-II dominant state relative to the cardioprotective angiotensin-(1–7) counter-regulatory axis [^miller2022]. Angiotensin II drives vasoconstriction, aldosterone-mediated sodium retention, and vascular inflammation/fibrosis. Central nervous system changes (hypothalamic overactivation, microglial neuroinflammation in circumventricular organs) also contribute to sympathetic overdrive [^wang2022].
+Aging is associated with enhanced sympathetic nervous system activity and parasympathetic decline, increasing peripheral resistance. The renin-angiotensin system (RAS) shifts toward a pro-hypertensive angiotensin-II dominant state relative to the cardioprotective angiotensin-(1–7) counter-regulatory axis [^miller2022]. Angiotensin II drives vasoconstriction, aldosterone-mediated ([[molecules/proteins/nr3c2|mineralocorticoid receptor]]) sodium retention, and vascular inflammation/fibrosis. Central nervous system changes (hypothalamic overactivation, microglial neuroinflammation in circumventricular organs) also contribute to sympathetic overdrive [^wang2022].
 
 ### Mitochondrial dysfunction and oxidative stress
 

@@ -123,10 +123,10 @@ Somatic aneuploidy (particularly trisomy 21 mosaicism) is elevated in AD neurons
 |---|---|---|
 | Donepezil | Acetylcholinesterase inhibitor | Mild–severe AD |
 | Rivastigmine | Acetylcholinesterase inhibitor | Mild–moderate AD |
-| Galantamine | Acetylcholinesterase inhibitor + nAChR modulator | Mild–moderate AD |
+| Galantamine | Acetylcholinesterase inhibitor + allosteric [[molecules/proteins/chrna7|α7nAChR]] potentiator | Mild–moderate AD |
 | Memantine | NMDA receptor antagonist | Moderate–severe AD |
 
-These agents provide modest cognitive benefit (~1–3 point ADAS-Cog improvement) without altering disease course.
+These agents provide modest cognitive benefit (~1–3 point ADAS-Cog improvement) without altering disease course; they act by raising synaptic [[molecules/metabolites/acetylcholine]] to partially compensate for basal-forebrain cholinergic neuron loss (the "cholinergic hypothesis").
 
 ### Anti-amyloid immunotherapy — disease-modifying
 

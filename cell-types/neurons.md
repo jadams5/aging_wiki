@@ -37,7 +37,7 @@ Neurons are the principal signal-processing cells of the nervous system — term
 | Inhibitory interneurons | Cortex, hippocampus | GABA | Disproportionate loss in cognitive aging; E/I balance |
 | Granule cells | DG, cerebellum | Glutamate | Hippocampal DG — adult neurogenesis zone; cerebellar loss in ataxias |
 | Purkinje cells | Cerebellum | GABA | Very large; high metabolic demand; vulnerable to DNA damage + senescence |
-| Dopaminergic neurons | Substantia nigra, VTA | Dopamine | Selective SNc loss in Parkinson's disease |
+| Dopaminergic neurons | Substantia nigra, VTA | Dopamine ([[molecules/proteins/tyrosine-hydroxylase\|TH]]-synthesized) | Selective SNc loss in Parkinson's disease |
 | Cholinergic neurons | Basal forebrain, brainstem | Acetylcholine | Basal forebrain degeneration in Alzheimer's disease |
 | Serotonergic neurons | Raphe nuclei | Serotonin | Mood, sleep, appetite regulation; modest aging changes |
 | Motor neurons | Spinal cord, motor cortex | Glutamate | ALS; age-dependent loss in spinal cord |
@@ -196,6 +196,7 @@ Dopaminergic neuron replacement for Parkinson's disease via iPSC-derived DA neur
 - [[neural-stem-cells]] — adult neurogenesis; neuron precursors in DG and SVZ
 - [[astrocytes]] — glial support cells; metabolic coupling, waste clearance, BBB
 - [[oligodendrocytes]] — myelin maintenance; axon insulation; CNS-specific aging changes
+- [[cell-types/schwann-cells]] — peripheral-nervous-system myelinating glia + NMJ-maintaining perisynaptic Schwann cells (the PNS counterpart)
 - [[microglia]] — CNS-resident immune cells; neuroinflammation, synaptic pruning
 - [[loss-of-proteostasis]] — hallmark page; canonical neuronal aging hallmark
 - [[mitochondrial-dysfunction]] — hallmark page; high relevance in neurons

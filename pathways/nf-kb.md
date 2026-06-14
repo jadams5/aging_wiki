@@ -151,6 +151,7 @@ Partial NF-κB inhibition has been tested in several organisms with longevity-re
 - **[[ampk]]** — AMPK inhibits NF-κB at multiple levels: directly via IKKβ phosphorylation (inhibitory), indirectly via reducing mTORC1-mediated amplification of SASP output. AMPK activators (metformin, exercise) reduce some NF-κB-target inflammatory markers. #gap/unsourced (specific NF-κB inhibitory sites for AMPK need primary citations)
 - **[[chronic-inflammation]]** — this hallmark is largely operationalized as systemic NF-κB activity in aging tissues; NF-κB is its primary mechanistic driver.
 - **[[immunosenescence]]** — age-associated remodeling of the immune system (reduced adaptive, dysregulated innate) involves NF-κB dysregulation in both lymphocytes and myeloid cells; the SASP-driven cytokine milieu further drives immunosenescence.
+- **[[cholinergic-anti-inflammatory-pathway]]** — an *endogenous negative* regulator: acetylcholine acting on macrophage [[molecules/proteins/chrna7|α7nAChR]] suppresses NF-κB nuclear translocation (and engages a JAK2–STAT3 arm), restraining TNF-α/IL-6 output. This vagal "inflammatory reflex" is the principal neural brake on NF-κB-driven inflammaging; its age-related decline is permissive (not proven causal) for chronic NF-κB activity.
 
 ## Limitations and gaps
 

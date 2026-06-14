@@ -99,7 +99,7 @@ Alpha-MSH and its derivatives suppress inflammatory cytokines (IL-1beta, TNF-alp
 
 ### 4. HPA axis intersection
 
-ACTH, the pituitary POMC cleavage product, drives adrenal cortisol via MC2R. Age-related HPA axis dysregulation (elevated basal cortisol, blunted stress response) reflects upstream changes in hypothalamic CRH/AVP neurons rather than MC2R failure per se — the MC2R/ACTH/cortisol sub-axis is relatively preserved in healthy aging. See [[hpa-axis]] (stub) for context.
+ACTH, the pituitary POMC cleavage product, drives adrenal cortisol via MC2R. Age-related HPA axis dysregulation (elevated basal cortisol, blunted stress response) reflects upstream changes in hypothalamic CRH/AVP neurons rather than MC2R failure per se — the MC2R/ACTH/cortisol sub-axis is relatively preserved in healthy aging. See [[hpa-axis]] for context.
 
 ## Therapeutic landscape
 

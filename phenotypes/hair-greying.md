@@ -194,7 +194,7 @@ Hair greying is a phenotypic readout of two core hallmarks intersecting in the h
 - [[stem-cell-exhaustion]] — the underlying hallmark
 - [[androgenetic-alopecia]] — sibling follicle-aging phenotype (miniaturization, not depigmentation)
 - [[skin-aging]] — umbrella phenotype encompassing hair greying and other integumentary changes
-- [[norepinephrine]] — the sympathetic mediator of stress-induced McSC depletion per Zhang 2020
+- [[molecules/metabolites/catecholamines]] — norepinephrine, the sympathetic mediator of stress-induced McSC depletion per Zhang 2020 (NE → ADRB2 → McSC niche exhaustion)
 
 ---
 

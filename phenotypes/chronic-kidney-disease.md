@@ -126,7 +126,7 @@ CKD is a Framingham-equivalent cardiovascular risk state [^sarnak2019]. Key mech
 
 **RAAS blockade** (ACE inhibitors/ARBs) reduce intraglomerular pressure, attenuate proteinuria, and slow progression — first-line in CKD with albuminuria.
 
-**Finerenone** (non-steroidal mineralocorticoid receptor antagonist) reduces kidney failure and cardiovascular events in diabetic CKD.
+**Finerenone** (non-steroidal [[molecules/proteins/nr3c2|mineralocorticoid receptor]] antagonist) reduces kidney failure and cardiovascular events in diabetic CKD.
 
 **Blood pressure control** — target <130/80 mmHg in most CKD patients (KDIGO 2024).
 

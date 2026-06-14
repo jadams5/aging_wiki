@@ -8,7 +8,7 @@ caused-by: ["[[cellular-senescence]]", "[[genomic-instability]]", "[[mitochondri
 causes: ["[[stem-cell-exhaustion]]", "[[atherosclerosis]]"]
 introduced: 2023
 sens-correspondence: []
-key-pathways: ["[[nf-kb]]", "[[nlrp3-inflammasome]]", "[[sasp]]", "[[cgas-sting]]", "[[jak-stat-pathway]]"]
+key-pathways: ["[[nf-kb]]", "[[nlrp3-inflammasome]]", "[[sasp]]", "[[cgas-sting]]", "[[jak-stat-pathway]]", "[[cholinergic-anti-inflammatory-pathway]]"]
 key-phenotypes: ["[[atherosclerosis]]", "[[type-2-diabetes]]", "[[sarcopenia]]", "[[neurodegeneration]]", "[[alzheimers-disease]]", "[[frailty]]"]
 verified: true
 verified-date: 2026-05-04
@@ -89,6 +89,8 @@ With age, gut barrier integrity declines (reduced tight-junction protein express
 ### 6. Immunosenescence-driven failure of resolution
 
 Aged NK cells and macrophages show impaired phagocytic clearance of senescent cells, allowing the SASP-producing population to accumulate. T regulatory cell (Treg) function declines with age, reducing anti-inflammatory suppression. Th17 skewing increases pro-inflammatory IL-17 output. See [[immunosenescence]] (implicit stub — needs seeding from `hallmarks/immunosenescence.md`). #gap/unsourced on Th17 skewing quantitative data.
+
+**Loss of neural anti-inflammatory tone.** A distinct, often-overlooked resolution failure is decline of the [[pathways/cholinergic-anti-inflammatory-pathway]] — the vagus → splenic [[molecules/proteins/chrna7|α7nAChR]] → NF-κB-suppression reflex that endogenously caps cytokine output. Vagal tone (and its readout [[biomarkers/heart-rate-variability-biomarker|heart-rate variability]]) declines with age, plausibly removing a brake on inflammaging. Note the evidence here is mechanistic/associational, not a demonstrated causal driver of human aging — the strong "autonomic imbalance is *the* upstream cause of aging" framing is not established. #gap/needs-human-replication
 
 ---
 

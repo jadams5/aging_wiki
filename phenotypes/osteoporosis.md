@@ -31,7 +31,7 @@ The canonical aging-fragility phenotype: a skeletal disorder defined by low bone
 
 T-scores are derived from lumbar spine (L1–L4) or femoral neck (or total hip) DXA and expressed as SD units relative to a young-adult reference mean. Note: **DXA captures density, not quality** — bone quality (microarchitecture, collagen cross-link integrity, lacunocanalicular network) contributes to fracture risk independently of BMD and is not captured by T-score. This dissociation is clinically relevant for interpreting drug effects (see § Bone quality below).
 
-**Risk stratification — FRAX:** The Fracture Risk Assessment Tool integrates BMD with clinical risk factors (age, sex, prior fracture, glucocorticoid use, secondary causes) to estimate 10-year probability of hip fracture and major osteoporotic fracture. Used to guide treatment thresholds beyond DXA alone.
+**Risk stratification — FRAX:** The Fracture Risk Assessment Tool integrates BMD with clinical risk factors (age, sex, prior fracture, glucocorticoid use, secondary causes) to estimate 10-year probability of hip fracture and major osteoporotic fracture. Used to guide treatment thresholds beyond DXA alone. Chronic glucocorticoid excess — whether iatrogenic or from [[pathways/hpa-axis]] dysregulation — is the most common cause of secondary osteoporosis (glucocorticoid-induced osteoporosis, mediated by osteoblast/osteocyte [[molecules/proteins/nr3c1|glucocorticoid receptor]] signaling), with ~30–50% fracture incidence in long-term corticosteroid users.
 
 **Adjunct tools (research/specialist):**
 - Trabecular bone score (TBS) — texture-based DXA analysis that approximates trabecular microarchitecture without additional radiation

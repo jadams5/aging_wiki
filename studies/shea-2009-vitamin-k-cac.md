@@ -28,7 +28,6 @@ verified-scope: "Full PDF verified against PMC2682995 (9 pp). All ITT and per-pr
 literature-checked-through: 2026-06-14
 ---
 
-
 # Vitamin K supplementation and progression of coronary artery calcium in older men and women
 
 **Shea MK, O'Donnell CJ, Hoffmann U, Dallal GE, Dawson-Hughes B, Ordovas JM, Price PA, Williamson MK, Booth SL · *American Journal of Clinical Nutrition* 89(6):1799–1807 · 2009 · DOI: 10.3945/ajcn.2008.27338**

@@ -26,6 +26,7 @@ Navigational overlay for the hormone-secreting glands and their systemic signali
 
 - **Nutrient sensing:** [[insulin-igf1]], [[mtor]], [[ampk]] — see [[deregulated-nutrient-sensing]]
 - **Bone-mineral endocrine axis:** [[fgf23]] (osteocyte → kidney), [[klotho]] (co-receptor; declines with age), [[hyperphosphatemia]], [[matrix-gla-protein]], [[vitamin-k]] — connects endocrine ↔ [[musculoskeletal-system]] ↔ [[cardiovascular-system]]
+- **Stress / adrenal axis:** [[pathways/hpa-axis]] (hypothalamic CRH → pituitary ACTH → adrenal cortisol; diurnal-slope flattening and glucocorticoid catabolism with age) and the fast sympatho-adrenal-medullary arm via [[molecules/metabolites/catecholamines]]
 
 ## Auto-aggregated tissue members
 
@@ -40,7 +41,7 @@ SORT file.name
 - [[pancreas]] — now seeded as a **stub** (endocrine islets; shared with [[digestive-system]])
 - `[[adrenal-gland]]`, `[[pituitary]]`, `[[hypothalamus]]`, `[[pineal-gland]]`, `[[gonads]]` — glands not yet seeded #stub
 - `[[hypothyroidism]]`, `[[secondary-hyperparathyroidism]]`, `[[menopause]]`, `[[andropause]]` — endocrine aging phenotypes not yet seeded #stub
-- `[[growth-hormone]]`, `[[cortisol]]`, `[[thyroid-follicular-cells]]` — not yet seeded #stub
+- `[[growth-hormone]]`, `[[thyroid-follicular-cells]]` — not yet seeded #stub (cortisol biology is now covered on the [[pathways/hpa-axis]] pathway page; a standalone cortisol compound page may follow)
 
 ## See also
 
