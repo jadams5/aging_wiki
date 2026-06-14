@@ -32,7 +32,7 @@ verified-scope: "All eight primary sources verified against full-text PDFs. Kray
 
 Ferritin is the cell's principal iron-storage protein: a 24-subunit hollow protein nanocage that sequesters up to ~4,500 ferric iron atoms in a safe, soluble, biologically retrievable mineral form. It is equally important as a **clinical serum biomarker** — although the circulating form differs markedly from the intracellular storage form. The two roles create a single entity with two analytical identities that must be distinguished to interpret any ferritin measurement correctly.
 
-This page covers the 24-subunit holoprotein and serum ferritin biomarker as a unified entity. Neuronal-FTL1 cognitive aging (hippocampal age-rise → impaired ATP synthesis → synaptic loss) is the canonical focus of [[ftl1]]; the FTH1 ferroxidase-subunit biology is covered on the planned [[fth1]] page. Cross-references to both are maintained here.
+This page covers the 24-subunit holoprotein and serum ferritin biomarker as a unified entity. Neuronal-FTL1 cognitive aging (hippocampal age-rise → impaired ATP synthesis → synaptic loss) is the canonical focus of [[ftl1]]; the FTH1 ferroxidase-subunit biology (ferroxidase mechanism + H-subunit-specific aging roles in HSCs, Tregs, senescent-cell ferroptosis resistance, and oocyte aging) is covered on [[fth1]]. Cross-references to both are maintained here.
 
 ---
 
@@ -271,7 +271,7 @@ The FTL1-driven neuronal aging phenotype (see [[ftl1]]) operates via ↑Fe³⁺/
 
 ## Footnotes
 
-[^theil2011review]: doi:10.1042/BJ20102021 · Theil EC · "Ferritin protein nanocages use ion channels, catalytic sites, and nucleation channels to manage iron/oxygen chemistry" · *Biochem J* 438(3):399–408 · 2011 · review · canonical structural/mechanistic review of ferritin nanocage architecture; confirmed architecture (24-subunit, 4-3-2 symmetry, ~4500 Fe atoms, pore dimensions)
+[^theil2011review]: doi:10.1016/j.cbpa.2011.01.004 · Theil EC · "Ferritin protein nanocages use ion channels, catalytic sites, and nucleation channels to manage iron/oxygen chemistry" · *Curr Opin Chem Biol* 15(2):304–311 · 2011 · PMID:21296609 · PMC:PMC3074017 · review · canonical structural/mechanistic review of ferritin nanocage architecture; confirmed architecture (24-subunit, 4-3-2 symmetry, ~4500 Fe atoms, pore dimensions). **DOI corrected 2026-06-14: was incorrectly cited as 10.1042/BJ20102021 (Biochem J); correct DOI is Curr Opin Chem Biol per PubMed.**
 
 [^galymuckenthaler2023]: doi:10.1038/s41580-023-00648-1 · Galy B, Conrad M, Muckenthaler M · "Mechanisms controlling cellular and systemic iron homeostasis" · *Nat Rev Mol Cell Biol* 24:287–308 · 2023 · review · 564 citations; FWCI 220.0 · covers IRE/IRP post-transcriptional regulation, ferritinophagy via NCOA4, mitochondrial iron, and aging context; closed OA; #gap/no-fulltext-access
 

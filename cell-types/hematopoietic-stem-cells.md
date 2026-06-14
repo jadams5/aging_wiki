@@ -198,6 +198,7 @@ Ex vivo lentiviral or CRISPR modification of autologous HSCs (e.g., correction o
 - [[stem-cell-exhaustion]] — hallmark page; HSCs are the canonical cellular substrate
 - [[immunosenescence]] — functional downstream consequence of HSC myeloid bias
 - [[anemia-of-aging]] — downstream consequence of reduced erythroid output
+- [[fth1]] — ferritin heavy chain; conditional Fth1 knockout reported to compromise HSC survival/iron homeostasis (Yi 2024, abstract-level only) — links HSC maintenance to iron-detox capacity
 - [[clonal-hematopoiesis]] — dedicated CHIP page (implicit stub)
 - [[bone-marrow]] — niche tissue page (implicit stub)
 - [[mus-musculus]] — primary model organism for HSC aging studies

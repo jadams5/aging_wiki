@@ -41,8 +41,8 @@ Large community cohort data (NHANES III and subsequent analyses) establish the f
 ACI is driven by the IL-6 → hepcidin axis [^nemeth2004]:
 
 1. Chronic inflammation (infection, cancer, autoimmunity, cardiopulmonary disease, obesity) drives sustained IL-6 elevation.
-2. IL-6 acts on hepatocytes via JAK1/STAT3 signaling to upregulate synthesis of **hepcidin**, a 25-amino-acid peptide hormone.
-3. Hepcidin binds ferroportin (FPN1/SLC40A1) on duodenal enterocytes and macrophages, triggering ferroportin internalization and degradation.
+2. IL-6 acts on hepatocytes via JAK1/STAT3 signaling to upregulate synthesis of **[[hepcidin]]**, a 25-amino-acid peptide hormone.
+3. Hepcidin binds [[ferroportin]] (FPN1/SLC40A1) on duodenal enterocytes and macrophages, triggering ferroportin internalization and degradation.
 4. Ferroportin degradation blocks iron efflux from intracellular stores: iron becomes sequestered in reticuloendothelial macrophages, unable to reach erythroid precursors.
 5. The result is functional iron deficiency (iron stores present but unavailable) and suppressed erythropoiesis.
 

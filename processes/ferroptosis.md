@@ -8,6 +8,7 @@ key-proteins:
   - "[[fsp1]]"
   - "[[lpcat3]]"
   - "[[tfr1]]"
+  - "[[fth1]]"
   - "[[nrf2]]"
 pathways:
   - "[[iron-metabolism]]"

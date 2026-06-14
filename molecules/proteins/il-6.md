@@ -15,7 +15,7 @@ druggability-tier: 1
 gtex-aging-correlation: "IL-6 is predominantly secreted under inflammatory conditions; basal mRNA is low in GTEx tissues and does not show a monotonic aging signature in bulk RNA-seq. Protein-level aging data (plasma proteomics) is more informative — see [[../../biomarkers/il-6-biomarker]]. #gap/needs-gtex-aging-correlation"
 mr-causal-evidence: yes
 caused-by: ["[[cellular-senescence]]", "[[nf-kb]]"]
-causes: ["[[chronic-inflammation]]", "[[altered-intercellular-communication]]"]
+causes: ["[[chronic-inflammation]]", "[[altered-intercellular-communication]]", "[[hepcidin]]"]
 verified: true
 verified-date: 2026-05-09
 verified-by: claude
@@ -61,7 +61,7 @@ IL-6 can engage cells via three structurally and functionally distinct signaling
 3. JAK1/JAK2 (associated with gp130) trans-phosphorylate → STAT3 activation
 4. Downstream: STAT3 → acute-phase proteins; PI3K→AKT; MAPK/ERK
 
-**Biological character:** Predominantly **tissue-protective, regenerative, anti-inflammatory.** Mediates acute-phase response in liver (fibrinogen, CRP, hepcidin, serum amyloid A); supports hepatocyte proliferation after partial hepatectomy; promotes differentiation of B cells into antibody-secreting plasma cells; protective neurotropic effects in neural tissue.
+**Biological character:** Predominantly **tissue-protective, regenerative, anti-inflammatory.** Mediates acute-phase response in liver (fibrinogen, CRP, [[hepcidin]], serum amyloid A) — the IL-6→STAT3→hepcidin arm is the central driver of the anemia of inflammation in aging (see [[hepcidin]], [[anemia-of-aging]]); supports hepatocyte proliferation after partial hepatectomy; promotes differentiation of B cells into antibody-secreting plasma cells; protective neurotropic effects in neural tissue.
 
 ### 2. Trans-signaling (soluble IL-6R)
 

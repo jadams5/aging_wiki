@@ -190,7 +190,7 @@ No KEGG pathway dedicated to ferritin per se; FTL participates in:
 
 - [[remesal-2025-ftl1-brain-cognitive-aging]] — the foundational paper (verified)
 - [[ferritin]] — the holoprotein page (verified); covers the 24-subunit nanocage and **serum ferritin as a clinical biomarker** (the iron-stores/inflammaging/women's-health content deferred from this subunit page)
-- [[fth1]] — ferritin heavy chain partner (planned)
+- [[fth1]] — ferritin heavy chain partner (verified); the ferroxidase-active subunit
 - [[mitochondrial-dysfunction]] — primary hallmark connection (drafted; FTL1 should be propagated into this page)
 - [[brain]] — tissue page (verified; FTL1 should be propagated into the brain-iron section)
 - [[neurons]] — cell type (planned)
