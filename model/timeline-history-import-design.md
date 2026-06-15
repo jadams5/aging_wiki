@@ -298,9 +298,14 @@ overlay as *measured-only* first; wire the simulated comparator when the proxy e
   Playwright drag-edit check.
 - **M4 — importer.** Bundle loader + analyte mapping + private transform (separate, in the personal repo).
 - **M5 — clock overlay** (measured-only; simulated comparator deferred to the clock-output sub-project).
+- **M6 — full "direct graph change"** (post-M3 add; see §13). Freeze/override **all** nodes (mediators + ∫rate
+  state nodes need new mechanisms) **+ EDGES** (scale/zero a coupling weight over a window). The real engine work.
+- **M7 — consolidate UI into the timeline** (see §13). Retire the Causal-graph freeze UI + the Lifestyle &
+  environment tab in favor of the History & plan timeline as the single editing surface. Sequenced after M6.
 
 M1–M3 deliver the user's "apply interventions/biomarkers over time on an editable timeline." M4–M5 deliver
-"upload my history and the sim aligns."
+"upload my history and the sim aligns." M6–M7 generalize the editing surface (all nodes/edges) and make the
+timeline the sole UI.
 
 ---
 
@@ -560,3 +565,68 @@ offsets** (a high-gain HbA1c anchor settled into a 2-cycle), plus anchor-validat
   `kc` made DT-general. Verified: **243/243 tests** (11 new robustness tests: real multi-draw HbA1c feedback,
   honest non-convergence, out-of-grid/fractional/duplicate/invalid anchors, pre-first boundaries) +
   headless-Chrome render smoke.
+
+---
+
+## 13. M3 follow-up — UI-testing fixes + add-bar taxonomy (2026-06-15)
+
+User-driven fixes from live UI testing of the History & plan panel. **All app-side (`viz/aging-simulator.html`),
+zero engine change; 251/251 tests stay green.**
+
+- **"Now" cursor bug — FIXED.** The `effAge()` source-of-truth read only `state.currentAge` (hard-default 40),
+  so the timeline "now" cursor sat at age 40 → calendar `birthYear+40` (e.g. 2020 for a 1980 birthdate),
+  ignoring today's date. Added `ageFromBirthDate()` (parses the ISO `YYYY-MM-DD` parts directly — dodges the
+  `new Date()` UTC-vs-local boundary off-by-one) + `syncCurrentAgeFromBirthDate()` (writes the real age into
+  `state.currentAge` + the visible field). Wired into the birthDate `change` handler (+ boot apply). One sync
+  fixes the cursor, the lab-anchor age, and the conditional-LE readout together. Tested across birthday-boundary
+  cases with a fixed `now`.
+- **Add-bar type taxonomy relabelled** (user's headings): `Exposure`→**"Exposure / lifestyle"**,
+  `Treatment`→**"Pharmacotherapy"**, `Intervention`→**"Node freeze / slow"**, `Lab measurement` kept.
+- **Senolytic operator folded into Pharmacotherapy.** The standalone "Senolytic op" type is gone; the
+  Pharmacotherapy channel dropdown now lists continuous treatments (statin/metformin…) **and** the operator
+  presets (D+Q senolytic). Engine routing is unchanged — the `treatment:`/`operator:` channel-prefix still
+  resolves each correctly; this is purely presentational.
+- **Operator preset/schedule/scenario now editable — was the reported "no options" bug.** The only preset
+  (`dq-one-off`) *was* offered, and dosing ages were editable, but there was **no UI to pick the scenario** and
+  the schedule field was non-obvious. The operator editor now exposes **dosing ages + kill-fraction selector**
+  (conservative 17% / central 35% / optimistic 62%) **+ rebound ½-life selector** (1/3/8 y), committing to
+  `ev.scenario = {killScenario, reboundScenario}`. Verified the scenario threads through `compileTimeline` →
+  `resolveTimelineOperators` (optimistic+long ⇒ killFraction 0.62, 8-yr rebound).
+- **"Node freeze / slow" widened to ALL freeze-editable nodes** (per user: minimize engine work by reusing
+  what the engine already does). The dropdown filter went from `layer.startsWith("tier")` (12 hallmark-burden
+  nodes) to `provenance !== "stub"` (all **23** non-stub nodes = 12 tier hallmarks + 11 phenotype driver/cause
+  nodes). **Zero engine work** — the engine already applies the freeze accrual (`prim[i] -= efficacy·ΔT`,
+  `engine.mjs:373`) to any non-stub node; this is the exact set the causal-graph tab's freeze controls already
+  accept. Sanity-checked: a 50% freeze on the `cancer` phenotype node from age 50 moves male LE +1.13 yr
+  through the existing path. (0 stub nodes, so no no-op entries.)
+
+**Deferred to later milestones (user-requested roadmap):**
+
+- **M6 — full "direct graph change."** Expand the node-freeze channel beyond the currently-freezable set to
+  **all nodes** (incl. algebraic mediators + emergent ∫rate state nodes, which need *new* mechanisms — a
+  mediator isn't accrued and a state node is emergent-by-design, so a direct clamp cuts against the
+  no-age-pegging principle and must be designed deliberately) **and EDGES** (scale/zero a coupling weight, e.g.
+  `senescence→inflammation`, over an age window — a new engine mechanism with invariant/clamp care). This is the
+  genuine engine work that the M3-follow-up scoping deliberately avoided; the "direct graph change" label is
+  reserved for it.
+- **M7 — consolidate UI into the timeline.** Remove the current **Causal-graph freeze-control UI** and the
+  **Lifestyle & environment tab/UI** in favor of the **History & plan timeline** as the single editing surface
+  (the timeline already augments/overrides those channels; M7 makes it the sole entry point). Sequenced after
+  M6 so the timeline can drive every node/edge the graph UI currently can before the graph UI is retired.
+
+**Codex review (gpt-5.5/xhigh, 2026-06-15) of the M3-follow-up diff — folded.** Verdict: changes correct except
+two findings (most of the diff explicitly confirmed: ISO-part age math + birthday boundary; manual currentAge
+still editable + resyncs on birthDate change; operator routing/ownership/cues intact after the Pharmacotherapy
+merge; scenario commit preserves the other key + falls back to preset defaults; phenotype ids resolve + render).
+- **LOW — FIXED.** Out-of-`[AGE0,AGE1]` birth-date ages were written to the field/state while `effAge()`
+  silently clamped them (age-15 birthdate showed "15" but the cursor/anchors used 20). `syncCurrentAgeFromBirthDate()`
+  now clamps the written value to `[AGE0,AGE1]` so the field == what the engine uses. (Future dates already
+  return `null` from `ageFromBirthDate()` and don't write.)
+- **MEDIUM — DEFERRED to M6 (known, pre-existing, negligible).** The `liver` phenotype baseline is non-monotonic
+  (declines past ~60), so the generic freeze (`prim[i] -= efficacy·ΔT`) *adds* burden when ΔT<0 — a "slow"
+  intervention that slightly hurts. Empirically the ONLY foot-gun among the 23 nodes, magnitude **−0.004 yr
+  (~1.5 days)** at freeze@60/ε0.5. It is **pre-existing** — the causal-graph tab already exposes `liver` for
+  freezing via the same engine path; the M3-follow-up only mirrors that set (the user's explicit low-scope
+  choice). The principled fix is **engine-side** (clamp each per-step freeze contribution to ≥0 so a freeze can
+  never add burden) — a shared-path change needing re-baselining, hence M6 (freeze-semantics) work, not a
+  dropdown-exclusion hack. #gap/freeze-nonmonotonic-liver
