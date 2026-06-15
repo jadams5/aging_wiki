@@ -42,7 +42,7 @@ The primary regenerative unit of adult skeletal muscle. In aging, satellite cell
 
 Full mechanistic detail is on [[satellite-cells]] (verified-partial). Quantitative claims here are cross-referenced, not restated.
 
-### [[myofibers]] (planned)
+### [[myofibers]] (drafted)
 
 Multinucleated post-mitotic cells that cannot divide. Age-related atrophy occurs via two converging proteolytic axes:
 
@@ -182,12 +182,14 @@ Ranked by strength of evidence:
 - [[mtor]] (verified-partial) — mTORC1 blunted anabolic response; rapamycin muscle effects
 - [[ampk]] (verified, full) — AMPK activation mediates exercise-induced GLUT4 translocation; parallel to IIS
 - [[insulin-igf1]] (verified-partial) — IIS pathway and its decline in muscle
-- [[myofibers]] (planned) — multinucleated post-mitotic contractile cells
+- [[myofibers]] (drafted) — multinucleated post-mitotic contractile cells
 - [[fibroadipogenic-progenitors]] (planned) — FAPs; myosteatosis and fibrosis in aging
 - [[notch-pathway]] (implicit stub) — quiescence-activation switch in satellite cells
 - [[wnt-pathway]] (implicit stub) — fibrogenic conversion in aged satellite cells
 - [[myostatin]] (implicit stub) — inhibitory paracrine signal suppressing satellite cell activation
 - [[bone]] (implicit stub) — musculoskeletal coupling; sarcopenia-osteoporosis interaction
+- [[biomarkers/mskage-2025]] — multi-tissue musculoskeletal DNA-methylation age clock (muscle/cartilage/bone/tendon/MSC); the tissue-level counterpart to the blood-based SYMPHONY MSK sub-clock
+- [[biomarkers/dnam-muscle-function-markers]] — blood FGF2/CXCL12/FGF21 methylation loci correlated with grip strength + gait speed; candidate non-invasive sarcopenia markers
 - [[15-pgdh]] — prostaglandin-degrading gerozyme; elevated in aged muscle (myofibers + macrophages) and post-denervation
 - [[sw033291]] — canonical 15-PGDH small-molecule inhibitor (research tool); IP held by Epirium Bio; no registered PGDHi clinical trial as of 2026-05-23
 - [[studies/palla-2021-15pgdh-muscle-rejuvenation]] — 15-PGDH inhibition rejuvenates aged muscle mass + strength
@@ -197,14 +199,12 @@ Ranked by strength of evidence:
 
 ## Footnotes
 
-[^conboy2005]: [[studies/conboy-2005-parabiosis-satellite-cells]] · doi:10.1038/nature03260 · Conboy IM et al. · in-vivo heterochronic parabiosis · Nature 2005;433:760-764 · young C57Bl/Ka (2–3 mo) paired with aged C57Bl/6 (19–26 mo); n=3–6 pairs per condition; P<0.005; <0.1% GFP+ engraftment confirms resident-cell mechanism; Notch signaling restored in aged satellite cells by young systemic environment · local PDF available (archive confirmed)
+[^conboy2005]: [[studies/conboy-2005-parabiosis-satellite-cells]] · doi:10.1038/nature03260 · Conboy IM et al. · in-vivo heterochronic parabiosis · Nature 2005;433:760-764 · young C57Bl/Ka (2–3 mo) paired with aged C57Bl/6 (19–26 mo); n=3–6 pairs per condition; P<0.005; <0.1% GFP+ engraftment confirms resident-cell mechanism; Notch signaling restored in aged satellite cells by young systemic environment
+[^sousa-victor2014]: [[studies/sousa-victor-2014-geriatric-musc-senescence]] · doi:10.1038/nature13013 · Sousa-Victor P et al. · in-vivo + in-vitro · Nature 2014;506:316-321 · geriatric satellite cells (28–32 mo C57BL/6 mice) upregulate p16^Ink4a^; switch from reversible quiescence to irreversible senescence; p16 silencing partially restored activation kinetics · not_oa · #gap/no-fulltext-access
 
-[^sousa-victor2014]: [[studies/sousa-victor-2014-geriatric-musc-senescence]] · doi:10.1038/nature13013 · Sousa-Victor P et al. · in-vivo + in-vitro · Nature 2014;506:316-321 · geriatric satellite cells (28–32 mo C57BL/6 mice) upregulate p16^Ink4a^; switch from reversible quiescence to irreversible senescence; p16 silencing partially restored activation kinetics · archive: not_oa, no local PDF · #gap/no-fulltext-access
-
-[^ewgsop2-2019]: [[studies/cruz-jentoft-2019-ewgsop2-sarcopenia]] · doi:10.1093/ageing/afy169 · Cruz-Jentoft AJ et al. · consensus statement · Age and Ageing 2019;48(1):16-31 · strength-led hierarchical diagnostic algorithm; 1–2% mass loss/yr and 1.5–5% strength loss/yr after age 50 reported (citing ref [129]) · local PDF available (archive confirmed)
-
-[^fiatarone1990]: doi:10.1001/jama.1990.03440220053029 · Fiatarone MA et al. · JAMA 1990;263(22):3029-3034 · n=10 frail nursing-home residents aged ~90 (up to 96) · 8 weeks high-intensity resistance training · strength gains averaged 174% ± 31%; increased muscle cross-sectional area · archive: not_oa, closed-access · #gap/no-fulltext-access
+[^ewgsop2-2019]: [[studies/cruz-jentoft-2019-ewgsop2-sarcopenia]] · doi:10.1093/ageing/afy169 · Cruz-Jentoft AJ et al. · consensus statement · Age and Ageing 2019;48(1):16-31 · strength-led hierarchical diagnostic algorithm; 1–2% mass loss/yr and 1.5–5% strength loss/yr after age 50 reported (citing ref [129])
+[^fiatarone1990]: doi:10.1001/jama.1990.03440220053029 · Fiatarone MA et al. · JAMA 1990;263(22):3029-3034 · n=10 frail nursing-home residents aged ~90 (up to 96) · 8 weeks high-intensity resistance training · strength gains averaged 174% ± 31%; increased muscle cross-sectional area · closed-access · #gap/no-fulltext-access
 
 [^palla2021]: [[studies/palla-2021-15pgdh-muscle-rejuvenation]] · doi:10.1126/science.abc8059 · PMID 33303683 · PMC7938328 · Palla AR,..., Blau HM · *Science* 371(6528):eabc8059 (2021) · in-vivo aged C57BL/6 mice; 15-PGDH overexpression in young muscle → atrophy; pharmacological inhibition (SW033291) or genetic Hpgd depletion in aged muscle → restored mass, grip strength, exercise capacity via PGE2-EP4 → ↑mitochondria, ↑autophagy, ↓TGF-β, ↓UPS · AI-extracted from PubMed abstract; PMC PDF not yet end-to-end verified
 
-[^bakooshli2023]: [[studies/bakooshli-2023-15pgdh-nmj-regeneration]] · doi:10.1126/scitranslmed.adg1485 · PMID 37820010 · PMC10763629 · Bakooshli MA,..., Blau HM · *Sci Transl Med* 15(717):eadg1485 (2023) · in-vivo (sciatic nerve crush + chronic denervation + aged mouse) + observational human IHC; 15-PGDH inhibitor → motor-axon regeneration, NMJ restoration, force recovery; 15-PGDH aggregates define "target fibers" in human neurogenic myopathies · local PDF available in a local paper archive
+[^bakooshli2023]: [[studies/bakooshli-2023-15pgdh-nmj-regeneration]] · doi:10.1126/scitranslmed.adg1485 · PMID 37820010 · PMC10763629 · Bakooshli MA,..., Blau HM · *Sci Transl Med* 15(717):eadg1485 (2023) · in-vivo (sciatic nerve crush + chronic denervation + aged mouse) + observational human IHC; 15-PGDH inhibitor → motor-axon regeneration, NMJ restoration, force recovery; 15-PGDH aggregates define "target fibers" in human neurogenic myopathies

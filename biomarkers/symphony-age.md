@@ -52,6 +52,38 @@ The clock partitions biological aging into 11 system-specific scores, each train
 
 **Note on biomarker lists:** The academic paper describes the mapping conceptually; full per-system biomarker lists with counts are in the Methods section of Sehgal 2025. The TruDiagnostic product report states 133 total biomarkers across all 11 systems but does not break this down per system publicly. Exact system-specific biomarker assignments may differ between the published model and the November 2025 retrain. #gap/needs-replication
 
+## Deep-dive: the Musculoskeletal sub-clock — what it measures, and how to move it
+
+The Musculoskeletal score is the sub-clock most users ask about, and the one most often misread. Two separate things are routinely conflated:
+
+**1. What the assay physically measures from blood = nothing but CpG methylation.** The only data a dried-blood-spot yields is methylation beta-values at the array's CpG sites; the Musculoskeletal score is a sparse elastic-net **blood-methylation surrogate** of those values [^sehgal2025]. TruDiagnostic does not publicly disclose which CpGs load on the Musculoskeletal system, and — as for every clock — those CpGs were selected for *predictive power*, not because they sit in muscle-causal genes. There is therefore **no published "muscle gene panel" to read off this score**; mapping its CpGs to mechanism is interpretively fraught.
+
+**2. What the score was *trained to predict* = a composite of musculoskeletal clinical + functional biomarkers** measured in the *training cohorts* (primarily the Health and Retirement Study, HRS), **not in the customer's blood draw**. This is the "blood markers used for muscle" most people are actually asking about. The academic paper does not publish the exact per-system list, but combining (a) the TruDiagnostic SYMPHONY report's stated Musculoskeletal inputs, (b) the paper's HRS clinical-chemistry + functional-measure basis [^sehgal2025], and (c) TruDiagnostic's related "Fitness Age" panel (VO2max, FEV1, grip strength, gait speed), the Musculoskeletal training target reconstructs to:
+
+| Input | Type | Why it indexes musculoskeletal aging |
+|---|---|---|
+| Grip strength (hand dynamometer) | physical-function | Direct strength readout; best-validated muscle-aging functional biomarker; defines sarcopenia (EWGSOP2, [[phenotypes/sarcopenia]]) |
+| Gait / walking speed | physical-function | Whole-body function + lower-limb power; strong independent mortality predictor |
+| Balance / standing balance | physical-function | Neuromuscular integration; falls risk |
+| Mobility-difficulty (self-report) | self-report | Functional limitation |
+| BMI / body weight | anthropometric | Body composition; high adiposity → myosteatosis + anabolic resistance |
+| **IGF-1** (insulin-like growth factor 1) | **serum analyte** | GH→IGF-1 anabolic axis; declines with age, lower in sarcopenia ([[biomarkers/igf-1-biomarker]]) |
+| **DHEA-S** (dehydroepiandrosterone sulfate) | **serum analyte** | Adrenal androgen precursor; "adrenopause" decline; supports muscle anabolism |
+| **25-OH vitamin D** | **serum analyte** | Vitamin D receptor in muscle; neuromuscular function; deficiency → weakness + falls |
+
+So the **blood/serum markers** behind the muscle score are the **endocrine-anabolic trio IGF-1, DHEA-S, and 25-OH vitamin D**, riding alongside the physical-function tests (grip/gait/balance) and body composition (BMI). All are established skeletal-muscle-aging biomarkers in the Aging Biomarker Consortium 2024 consensus framework [^agingbiomarker2024]. **Provenance caveat:** the exact per-system assignment is not peer-reviewed-published and may differ in the Nov-2025 retrain; treat this table as a best-reconstruction, not a disclosed spec. #gap/needs-replication
+
+**The interpretive consequence (important).** A customer's own IGF-1, grip, gait, and vitamin D are *not* plugged into their score — only their methylation is. A high Musculoskeletal age means **the blood methylation pattern resembles that of people who have lower grip/gait/IGF-1/etc.** It is a methylation *estimate* of musculoskeletal status, not a measurement of it. This is also why it can disagree with actual function — so ground-truthing a "bad" Musculoskeletal score against a real **grip-strength + gait-speed test** ([[biomarkers/grip-strength-biomarker]]) is the correct first response.
+
+**How to move it (and the honest caveat).** The levers that improve every reconstructed input converge on one program — full ranked table on [[tissues/skeletal-muscle]]:
+- **Resistance + power training** — raises grip/gait/balance, drives local IGF-1 and the mTORC1 anabolic response, preserves Type II fibers ([[cell-types/myofibers]]).
+- **Protein 1.6–2.0 g/kg/day, ≥2.5–3 g leucine/meal** — overcomes anabolic resistance.
+- **Vitamin D repletion if insufficient** — restores the receptor-dependent neuromuscular component.
+- **Fat loss / body-composition** — improves the BMI/adiposity input and anabolic sensitivity.
+- **Sleep** — supports the nocturnal growth-hormone / IGF-1 pulse.
+
+**Caveat:** these reliably move the *functional* markers and true musculoskeletal age — but whether they move the *DNAm Musculoskeletal sub-score* specifically is unproven (no RCT has used an organ sub-clock as an endpoint; see § What Organ-Score Asymmetry Means Clinically). Treat a high score as a **screening flag to verify with a grip/gait test**, then act on the function. For the muscle-*tissue* methylation clock (different modality, needs a biopsy) see [[biomarkers/mskage-2025]]; for the individual blood methylation loci correlated with grip/gait see [[biomarkers/dnam-muscle-function-markers]].
+
 ## Training Architecture
 
 The published Systems Age framework uses a six-step supervised + unsupervised pipeline [^sehgal2025]:
@@ -129,6 +161,8 @@ A central uncertainty on this page is the relationship between the academic **Sy
 
 - [[biomarkers/omicmage]] — TruDiagnostic's composite DNAm clock (OMICmAge); different architecture (EBPs), global not organ-specific
 - [[biomarkers/dunedinpace-2022]] — pace clock; currently the only DNAm clock to show RCT responsiveness to caloric restriction
+- [[biomarkers/mskage-2025]] — muscle/cartilage/bone/tendon-tissue MSK methylation clock; the tissue-level counterpart to this clock's **blood-trained** Musculoskeletal sub-score
+- [[biomarkers/dnam-muscle-function-markers]] — blood FGF2/CXCL12/FGF21 methylation loci correlated with grip strength + gait speed (the functional measures the MSK sub-clock proxies)
 - [[biomarkers/grimage-2019]] — gold standard for mortality prediction; single composite score
 - [[biomarkers/phenoage-2018]] — second-generation mortality-trained clock; partly feeds the biomarker logic underlying organ-clock approaches
 - [[biomarkers/telomere-length-leukocyte]] — blood-based aging biomarker; different modality
@@ -144,5 +178,7 @@ A central uncertainty on this page is the relationship between the academic **Sy
 [^oh2023]: doi:10.1038/s41586-023-06802-1 · Oh HS et al. (Tony Wyss-Coray corresponding author) · *Nature* 2023 · n>5,600 individuals · observational (SomaScan plasma proteomics) · 11 organ-specific aging signatures from plasma proteins; ~20% show single-organ accelerated aging; plasma organ scores predict organ-specific disease and mortality · model: human adults; plasma proteomics (distinct modality from DNAm) · conceptual background only — not a DNAm clock
 
 [^harvanek2024preprint]: doi:10.1101/2024.10.28.24316295 · Harvanek ZM, Sehgal R, Borrus D, Kasamoto J et al. (Higgins-Chen corresponding author) · medRxiv preprint 2024 · n=1,891 schizophrenia patients + 1,881 controls (7 cross-sectional datasets) · observational meta-analysis (fixed-effect models) · Systems Age sub-clocks in schizophrenia: 10 of 11 system clocks showed accelerated aging; largest effects in **Heart and Lung** (not Metabolic/Musculoskeletal as previously stated), followed by Metabolic and Brain; clozapine associated with Heart and Inflammation aging · model: human adults with schizophrenia-spectrum disorders vs controls, whole blood · preprint — not peer-reviewed as of 2026-06-12 · competing interests: A.H.C. and R. Sehgal listed as scientific advisors to TruDiagnostic Inc. · #gap/needs-replication
+
+[^agingbiomarker2024]: doi:10.1093/lifemedi/lnaf001 · Aging Biomarker Consortium · *Life Medicine* 2024;3(6):lnaf001 · PMC11851484 · consensus statement / review · consensus framework of biomarkers for skeletal-muscle aging spanning functional (grip strength, gait speed, chair-stand), imaging/body-composition (DXA, CT myosteatosis), and circulating/serum domains (including IGF-1, the GH/IGF-1 anabolic axis, and other endocrine-anabolic markers) · model: human · supports the identification of grip/gait + IGF-1 / endocrine-anabolic analytes as the canonical musculoskeletal-aging biomarker set the SYMPHONY MSK sub-clock is trained to predict · #gap/no-fulltext-access (consensus framework cited at abstract/section level for the biomarker-domain taxonomy)
 
 [^mavrommatis2025]: doi:10.1038/s41467-025-66106-y · Mavrommatis E, Belsky DW et al. · *Nature Communications* 2025 · n=18,859 (Generation Scotland) · observational, cross-clock comparison · 14 epigenetic clocks (Hannum, Horvath, Lin, Zhang10, PhenoAge, Horvath Skin+Blood, GrimAge v1, DNAmTL, Dunedin PoAm38, Dunedin PACE, GrimAge v2, YingCausAge, YingDamAge, YingAdaptAge) evaluated against 174 incident disease outcomes over 10-year follow-up; second- and third-generation clocks significantly outperform first-generation; strongest performance for respiratory and liver-based conditions; GrimAge v2 had the most Bonferroni-significant associations (37 of 174 diseases) · model: human adults, whole blood (EPIC850K array), Scotland · **Note: Systems Age is NOT one of the 14 clocks in this paper** — it is cited here as contextual evidence that second/third-generation clocks outperform first-generation, which motivates the systems-based approach of Systems Age

@@ -67,6 +67,8 @@ Trained to measure **how fast** someone is aging, not where they are on the agin
 | Frailty Index | Composite clinical | [[biomarkers/frailty-index]] |
 | GlycanAge (IgG N-glycome) | Glycomic | [[biomarkers/glycanage-2017]] — most rapidly intervention-responsive clock characterized to date; 2026 Mijakovac/Lauc preprint (n=20,045 cross-study) reports independent all-cause-mortality association and reversal by HRT, TPE, caloric restriction. See [[studies/mijakovac-2026-igg-glycome-mortality]]. #gap/needs-peer-review |
 | SYMPHONY Age / Systems Age (organ-system DNAm) | DNAm, decomposed across 11 physiological systems | [[biomarkers/symphony-age]] — returns a separate DNAm age per organ system (Blood/Brain/Inflammation/Heart/Hormone/Immune/Kidney/Liver/Metabolic/Lung/Musculoskeletal); surfaces *intra-individual aging heterogeneity* rather than one number. Academic "Systems Age" (Sehgal 2025 *Nature Aging*, Yale/Levine); TruDiagnostic commercial implementation. Informational — **no validated organ-clock-targeted interventions as of 2026**. |
+| MskAge (musculoskeletal-tissue DNAm) | DNAm, multi-tissue MSK (muscle/cartilage/bone/tendon/MSC) | [[biomarkers/mskage-2025]] — first clock trained *jointly* across musculoskeletal tissues via a genetic-algorithm islands model (3,365 CpGs; Green 2025 *Aging Cell*); the tissue-level counterpart to the **blood-based** SYMPHONY MSK sub-clock. Note: its own exercise-intervention dataset showed **no significant MskAge change** (null; power unknown). |
+| Blood DNAm muscle-function markers (FGF2/CXCL12/FGF21) | DNAm, blood; candidate sarcopenia biomarker | [[biomarkers/dnam-muscle-function-markers]] — single-locus methylation (FGF2 promoter *hypo*methylation) correlated with grip strength + gait speed; predicts sarcopenia case-status (Li 2024 *JCSM*). Correlational loci, not a trained clock. |
 
 ### Tissue-specific (skin/epidermis) clocks
 
@@ -193,6 +195,9 @@ The DO-HEALTH trial (omega-3, vitamin D, exercise, 3 years, n=2,157 elderly adul
 - [[biomarkers/lehallier-proteomic-clock-2019]]
 - [[biomarkers/telomere-length-leukocyte]]
 - [[biomarkers/frailty-index]]
+- [[biomarkers/symphony-age]]
+- [[biomarkers/mskage-2025]]
+- [[biomarkers/dnam-muscle-function-markers]]
 
 ---
 

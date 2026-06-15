@@ -156,6 +156,13 @@ Sarcopenia is a **convergent integrative phenotype** — multiple [[hallmarks-of
 - [[cellular-senescence]] — local senescent cell accumulation
 - [[loss-of-proteostasis]] — UPS / autophagy imbalance affecting muscle protein turnover
 
+## Related measurement & cell-biology pages
+
+- [[cell-types/myofibers]] — the post-mitotic contractile cells whose Type II atrophy drives the strength/power loss that defines sarcopenia (FOXO → atrogin-1/MuRF1 axis)
+- [[biomarkers/dnam-muscle-function-markers]] — blood FGF2/CXCL12/FGF21 methylation loci correlated with grip strength + gait speed; candidate non-invasive sarcopenia biomarker (FGF2 promoter hypomethylation predicts case-status)
+- [[biomarkers/mskage-2025]] — multi-tissue musculoskeletal DNA-methylation age clock
+- [[biomarkers/symphony-age]] — the blood-DNAm Musculoskeletal organ sub-clock is a surrogate of the grip/gait physical-function decline sarcopenia represents
+
 ## Limitations and gaps
 
 - **Strength vs mass discordance** — many older adults lose strength faster than mass (dynapenia); the optimal definition is not fully settled.
