@@ -69,7 +69,7 @@ CXCL12–CXCR4 activates the Ras–Raf–MEK–ERK1/2 mitogen-activated protein 
 
 ### β-arrestin pathway and receptor internalization
 
-After GRK2/GRK3-mediated phosphorylation of the C-terminal tail, β-arrestins (ARRB1 and ARRB2) bind CXCR4, sterically blocking G-protein coupling (desensitization) and initiating clathrin-mediated receptor internalization. β-arrestin–CXCR4 complexes can signal independently from endosomes. The WHIM syndrome truncation mutations (see § WHIM syndrome) remove C-terminal GRK phosphorylation sites, impairing receptor desensitization and prolonging Gαi and calcium signaling upon CXCL12 stimulation [^hernandez2003].
+After GRK2/GRK3-mediated phosphorylation of the C-terminal tail, β-arrestins (ARRB1 and [[beta-arrestin2|ARRB2]]) bind CXCR4, sterically blocking G-protein coupling (desensitization) and initiating clathrin-mediated receptor internalization. β-arrestin–CXCR4 complexes can signal independently from endosomes. The WHIM syndrome truncation mutations (see § WHIM syndrome) remove C-terminal GRK phosphorylation sites, impairing receptor desensitization and prolonging Gαi and calcium signaling upon CXCL12 stimulation [^hernandez2003].
 
 ### Atypical receptor crosstalk: ACKR3
 
