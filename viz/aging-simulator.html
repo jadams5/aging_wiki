@@ -350,6 +350,20 @@
         <input type="date" id="birthDate">
         <span id="historyAddBar" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;"></span>
       </div>
+      <details id="historyImport" style="margin:0 0 8px;">
+        <summary style="cursor:pointer; font-size:11px; color:var(--muted);">Import a history bundle (JSON) &mdash; <b>replaces</b> the timeline · stays in your browser, nothing is uploaded</summary>
+        <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; margin-top:6px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <input type="file" id="historyFile" accept=".json,application/json" style="font-size:11px;">
+            <button id="historyLoadFile" style="cursor:pointer;">Load file</button>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:260px;">
+            <textarea id="historyPaste" rows="4" spellcheck="false" placeholder='{ "bundleVersion": 1, "birthDate": "1980-04-12", "measurements": [ … ] }' style="width:100%; font-family:monospace; font-size:11px;"></textarea>
+            <button id="historyLoadPaste" style="cursor:pointer; align-self:flex-start;">Load pasted JSON</button>
+          </div>
+        </div>
+        <div id="historyImportReport" style="margin-top:6px; font-size:11px; line-height:1.45;"></div>
+      </details>
       <svg id="historySvg" viewBox="0 0 1080 240" preserveAspectRatio="xMidYMin meet" style="width:100%; background:#fcfcfd; border:1px solid #eef0f2; border-radius:6px;"></svg>
       <div id="historyEditor" class="readout" style="margin-top:6px;"></div>
     </div>
@@ -8048,6 +8062,93 @@ function buildHistoryAddBar(){
   bar.append(typeSel, idSel, addBtn);
 }
 
+/* ===================== M4.2 — history-bundle importer UI ===================== */
+// Render the parse report with textContent ONLY (never innerHTML): analyte/source/error strings are
+// UNTRUSTED bundle data — textContent renders them inert, closing the self-XSS vector.
+function renderImportReport(report){
+  const box = document.getElementById("historyImportReport");
+  if (!box) return;
+  box.replaceChildren();
+  const line = (text, color) => { const d = document.createElement("div"); if (color) d.style.color = color; d.textContent = text; box.appendChild(d); };
+  if (!report){ return; }
+  if (report.aborted){
+    line("Import aborted — timeline unchanged:", "#c0392b");
+    (report.errors || []).forEach(e => line("  ✗ " + e, "#c0392b"));
+    return;
+  }
+  const L = report.loaded || {};
+  line(`Loaded: ${L.measurements||0} measurements · ${L.treatments||0} treatments · ${L.exposures||0} exposures · ${L.nodeInterventions||0} node-freezes · ${L.operators||0} operators`, report.ok ? "#1e8449" : "#b9770e");
+  if ((report.errors||[]).length){ line(`${report.errors.length} entr${report.errors.length===1?"y":"ies"} skipped (errors):`, "#c0392b"); report.errors.forEach(e => line("  ✗ " + e, "#c0392b")); }
+  if ((report.warnings||[]).length){ line(`${report.warnings.length} warning(s):`, "#b9770e"); report.warnings.forEach(w => line("  ⚠ " + w, "#b9770e")); }
+  if ((report.unmapped||[]).length){ line("Unmapped analytes (kept as annotation, not drivers): " + report.unmapped.join(", "), "#7f8c8d"); }
+}
+// Reflect a bundle's sex onto the model + the segmented control (mirrors the #sexSeg click handler).
+function setSexFromBundle(sex){
+  if (sex !== "male" && sex !== "female" || state.sex === sex) return;
+  state.sex = sex;
+  document.querySelectorAll("#sexSeg button").forEach(b => b.classList.toggle("active", b.dataset.sex === sex));
+  if (typeof invalidateBaseMedCache === "function") invalidateBaseMedCache();
+}
+let _historyImportGen = 0;   // bumped per load + on Reset; an in-flight FileReader whose gen is stale is ignored
+function _appendReportLine(text, color){
+  const box = document.getElementById("historyImportReport");
+  if (!box) return; const d = document.createElement("div"); if (color) d.style.color = color; d.textContent = text; box.appendChild(d);
+}
+// Parse → report → (if not aborted) REPLACE the timeline with the imported events. Returns true on a commit.
+function importHistoryBundle(text){
+  let res;
+  try { res = parseHistoryBundle(text, buildBundleContext(MODEL)); }
+  catch (e){ renderImportReport({ aborted: true, errors: ["internal import error: " + (e && e.message ? e.message : String(e))] }); return false; }
+  renderImportReport(res.report);
+  if (res.report.aborted) return false;                     // root/version/DOB failure ⇒ existing timeline untouched
+  const loaded = res.events.length, skipped = res.report.errors.length;
+  if (loaded === 0 && skipped > 0){ _appendReportLine("0 events imported — timeline unchanged.", "#c0392b"); return false; }   // all entries failed: do NOT erase
+  // informed confirm (counts in the prompt, since confirm() blocks before the report can paint); cancel ⇒ unchanged
+  if (state.timeline.events.length && !window.confirm(`Replace the current timeline (${state.timeline.events.length} event(s)) with the imported history (${loaded} loaded${skipped ? `, ${skipped} skipped` : ""})?`)){
+    _appendReportLine("Import cancelled — timeline unchanged.", "#7f8c8d"); return false;
+  }
+  // transactional commit: snapshot → mutate + render → roll back on any throw (the old timeline is already discarded otherwise)
+  const snap = { events: state.timeline.events, birthDate: state.timeline.birthDate, currentAge: state.currentAge, sex: state.sex, selected: historySelectedId };
+  try {
+    res.events.forEach(ev => { ev.id = nextHistId(); });    // parser is id-less (pure); allocate at commit
+    state.timeline.events = res.events;
+    historySelectedId = null;
+    if (res.birthDate){                                     // DOB Option A: RAM-only calendar axis (no persistence)
+      state.timeline.birthDate = res.birthDate;
+      const bdEl = document.getElementById("birthDate"); if (bdEl) bdEl.value = res.birthDate;
+      if (!syncCurrentAgeFromBirthDate()) _appendReportLine("⚠ birth date did not yield a valid current age (future-dated?) — 'now' cursor unchanged.", "#b9770e");
+    }
+    setSexFromBundle(res.sex);
+    renderAll();
+    syncHistoryEditor();
+    return true;
+  } catch (e){
+    state.timeline.events = snap.events; state.timeline.birthDate = snap.birthDate;
+    state.currentAge = snap.currentAge; state.sex = snap.sex; historySelectedId = snap.selected;
+    const bdEl = document.getElementById("birthDate"); if (bdEl) bdEl.value = snap.birthDate || "";
+    document.querySelectorAll("#sexSeg button").forEach(b => b.classList.toggle("active", b.dataset.sex === snap.sex));
+    try { renderAll(); syncHistoryEditor(); } catch (_) { /* keep prior paint */ }
+    renderImportReport({ aborted: true, errors: ["import failed during commit — rolled back: " + (e && e.message ? e.message : String(e))] });
+    return false;
+  }
+}
+function buildHistoryImporter(){
+  const fileInput = document.getElementById("historyFile");
+  const fileBtn = document.getElementById("historyLoadFile");
+  const pasteEl = document.getElementById("historyPaste");
+  const pasteBtn = document.getElementById("historyLoadPaste");
+  if (fileBtn && fileInput) fileBtn.addEventListener("click", () => {
+    const f = fileInput.files && fileInput.files[0];
+    if (!f){ renderImportReport({ aborted: true, errors: ["choose a .json file first"] }); return; }
+    const gen = ++_historyImportGen;                        // a later load / Reset supersedes this read
+    const reader = new FileReader();
+    reader.onload = () => { if (gen !== _historyImportGen) return; importHistoryBundle(String(reader.result)); fileInput.value = ""; };   // ignore a stale callback; clear handle after read
+    reader.onerror = () => { if (gen !== _historyImportGen) return; renderImportReport({ aborted: true, errors: ["could not read the file"] }); };
+    reader.readAsText(f);
+  });
+  if (pasteBtn && pasteEl) pasteBtn.addEventListener("click", () => { ++_historyImportGen; if (importHistoryBundle(pasteEl.value)) pasteEl.value = ""; });  // supersede any in-flight read; clear paste on a successful commit
+}
+
 function renderAll(){
   const opts = currentOpts();
   const sim = run(opts);
@@ -8302,6 +8403,11 @@ document.getElementById("resetAll").addEventListener("click", () => {
   lifestyleSlider.value = state.lifestyle;
   syncLifestyleVal();
   const bdEl = document.getElementById("birthDate"); if (bdEl) bdEl.value = "";
+  // M4.2: clear the importer UI + report (don't leave bundle data sitting in the DOM); invalidate any in-flight read
+  _historyImportGen++;
+  const fEl = document.getElementById("historyFile"); if (fEl) fEl.value = "";
+  const pEl = document.getElementById("historyPaste"); if (pEl) pEl.value = "";
+  const rEl = document.getElementById("historyImportReport"); if (rEl) rEl.replaceChildren();
   buildBlayerControls();
   syncIntervControls();
   syncHistoryEditor();
@@ -8350,6 +8456,7 @@ buildTimelineLegend();
 buildBlayerControls();
 syncIntervControls();
 buildHistoryAddBar();      // M3: the timeline "+ Add" toolbar (wired once)
+buildHistoryImporter();    // M4.2: the history-bundle import strip (wired once)
 wireGraphZoomPan();
 renderAll();
 syncHistoryEditor();       // M3: initial editor placeholder
