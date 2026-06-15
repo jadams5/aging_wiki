@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { simulate, lifeExpectancy, mediators, edgesByKind } from "./engine.mjs";
+import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp } from "./engine.mjs";
 import { validateGraph } from "./validate-graph.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -917,6 +917,148 @@ str("B3b: underweight penalty steep (< obese)", String(
   const restore = simulate(Mb, { sex: "male", interventions: immUp, operators: [{ kind: "clearance-restoration", target: "cellular-senescence", boost: 0.3, startAge: 20, endAge: 130 }] });
   str("clearance: clearance-restoration operator lowers the senescence excess",
     String(atAge(restore.B["cellular-senescence"], 80) < atAge(senHi.B["cellular-senescence"], 80)), "true");
+}
+
+/* ====================== M1: time-profiles (2026-06-14) ======================
+   Every input channel is now a typed per-age profile (scalar | {byAge,mode}). See
+   model/timeline-history-import-design.md §3/§5. Invariant: scalar/flat profiles are
+   byte-identical to the pre-M1 scalar path (the two baseline-LE + max|B-T| tests above
+   already pin LE; these add full-array + channel-level pins). */
+const M1_AGES = [];
+for (let a = AGE0; a <= MODEL.meta.ageRange[1]; a += MODEL.meta.dt) M1_AGES.push(a);
+const m1idx = (age) => age - AGE0;
+
+// (1) scalar == flat profile — full-array deep-equality across ALL mediators, per channel.
+function maxMedDiff(o1, o2) {
+  const a = mediators(MODEL, { sex: "male", ...o1 });
+  const b = mediators(MODEL, { sex: "male", ...o2 });
+  let m = 0;
+  for (const med of MODEL.bLayer.mediators)
+    for (let k = 0; k < a[med.id].length; k++) m = Math.max(m, Math.abs(a[med.id][k] - b[med.id][k]));
+  return m;
+}
+num("M1: input scalar == flat step-profile (alcohol, full array)",
+  maxMedDiff({ inputs: { alcohol: 6 } }, { inputs: { alcohol: { byAge: [[AGE0, 6], [130, 6]], mode: "step" } } }), 0, 1e-12);
+num("M1: treatment true == flat step-profile (statin, full array)",
+  maxMedDiff({ treatments: { statin: true } }, { treatments: { statin: { byAge: [[AGE0, 1], [130, 1]], mode: "step" } } }), 0, 1e-12);
+num("M1: offset scalar == flat linear-profile (LDL, full array)",
+  maxMedDiff({ offsets: { LDL: 30 } }, { offsets: { LDL: { byAge: [[AGE0, 30], [130, 30]], mode: "linear" } } }), 0, 1e-12);
+num("M1: LE scalar==flat profile (alcohol)",
+  simulate(MODEL, { sex: "male", inputs: { alcohol: 6 } }).LE
+  - simulate(MODEL, { sex: "male", inputs: { alcohol: { byAge: [[AGE0, 6], [130, 6]], mode: "step" } } }).LE, 0, 1e-12);
+
+// (2) ZOH step: value held until the NEXT entry; hard cut takes effect AT its age (half-open); before the
+// first entry → popDefault.
+const stepLane = resolveProfile({ byAge: [[20, 3], [38, 0]], mode: "step" }, M1_AGES, 99);
+num("M1: ZOH holds prior value (37 == 3)", stepLane[m1idx(37)], 3, 0);
+num("M1: ZOH hard cut AT entry age (38 == 0)", stepLane[m1idx(38)], 0, 0);
+num("M1: ZOH stays cut after (39 == 0)", stepLane[m1idx(39)], 0, 0);
+const lateStep = resolveProfile({ byAge: [[50, 7]], mode: "step" }, M1_AGES, 2);
+num("M1: ZOH before first entry == popDefault", lateStep[m1idx(40)], 2, 0);
+num("M1: ZOH at the entry == value", lateStep[m1idx(50)], 7, 0);
+
+// (3) linear residual: through anchors, interpolates, flat-extrapolates both ends.
+const linLane = resolveProfile({ byAge: [[40, -20], [60, 10]], mode: "linear" }, M1_AGES, 0);
+num("M1: linear through first anchor", linLane[m1idx(40)], -20, 1e-12);
+num("M1: linear through last anchor", linLane[m1idx(60)], 10, 1e-12);
+num("M1: linear interpolates midpoint", linLane[m1idx(50)], -5, 1e-12);
+num("M1: linear flat-extrapolates low", linLane[m1idx(30)], -20, 0);
+num("M1: linear flat-extrapolates high", linLane[m1idx(80)], 10, 0);
+// untagged byAge keeps LEGACY PCHIP — compare a NON-flat interior point against interp() directly.
+{
+  const knots = [[20, 0], [60, 40], [130, 5]];
+  const lane = resolveProfile({ byAge: knots }, M1_AGES, 0);
+  num("M1: untagged byAge == legacy PCHIP at interior point (45)", lane[m1idx(45)], interp(knots, 45), 1e-12);
+  num("M1: untagged byAge == legacy PCHIP at interior point (90)", lane[m1idx(90)], interp(knots, 90), 1e-12);
+}
+// resolveProfile validation (§3A hardening): empty ⇒ popDefault; unsorted knots are sorted; bad modes throw.
+num("M1: empty byAge ⇒ popDefault", resolveProfile({ byAge: [], mode: "linear" }, M1_AGES, 42)[m1idx(50)], 42, 0);
+num("M1: unsorted linear knots are sorted (50→0,40→-20 ⇒ midpoint −10@45)",
+  resolveProfile({ byAge: [[50, 0], [40, -20]], mode: "linear" }, M1_AGES, 0)[m1idx(45)], -10, 1e-12);
+str("M1: unknown mode throws", (() => { try { resolveProfile({ byAge: [[20, 1]], mode: "stair" }, M1_AGES, 0); return "no-throw"; } catch { return "threw"; } })(), "threw");
+str("M1: categorical + non-step throws", (() => { try { resolveProfile({ byAge: [[20, "current"]], mode: "linear" }, M1_AGES, undefined); return "no-throw"; } catch { return "threw"; } })(), "threw");
+
+// (4) treatment window on/off: statin started at 45 — untreated at 44, ~−40% from 45.
+const txWin = { treatments: { statin: { byAge: [[45, 1]], mode: "step" } } };
+num("M1: treatment window OFF before start (ΔLDL@44 ≈ 0)", dMed("LDL", 44, txWin), 0, 1e-9);
+str("M1: treatment window ON after start (ΔLDL@50 ~ −40%)",
+  String(dMed("LDL", 50, txWin) < -42 && dMed("LDL", 50, txWin) > -50), "true");
+
+// (5) freeze endAge: capped freeze accrues SOME but LESS benefit than open-ended, and HOLDS it after release
+// (burden stays below baseline). cellular-senescence is self-amplifying → exercises the nonlinear boundary.
+const FNODE = "cellular-senescence";
+const dLE_open = lifeExpectancy(MODEL, { sex: "male", interventions: { [FNODE]: { startAge: 40, efficacy: 1 } } }) - baseM;
+const dLE_cap = lifeExpectancy(MODEL, { sex: "male", interventions: { [FNODE]: { startAge: 40, endAge: 60, efficacy: 1 } } }) - baseM;
+str("M1: freeze endAge accrues SOME but LESS than open-ended", String(dLE_cap > 0 && dLE_cap < dLE_open), "true");
+{
+  const rBase = simulate(MODEL, { sex: "male" });
+  const rOpen = simulate(MODEL, { sex: "male", interventions: { [FNODE]: { startAge: 40, efficacy: 1 } } });
+  const rCap = simulate(MODEL, { sex: "male", interventions: { [FNODE]: { startAge: 40, endAge: 60, efficacy: 1 } } });
+  const k80 = m1idx(80);
+  str("M1: freeze endAge holds benefit (B@80: open < capped < baseline)",
+    String(rOpen.B[FNODE][k80] < rCap.B[FNODE][k80] && rCap.B[FNODE][k80] < rBase.B[FNODE][k80]), "true");
+}
+
+// (6) ACCEPTANCE (§3C): a multi-point biomarker history reproduces each measured value EXACTLY — under an
+// active statin (the pre-treatment-offset scheme failed this) and through simulate()'s stiffness→SBP augment.
+{
+  const inp = { inputs: { dietSatFat: 18 }, treatments: { statin: true } };
+  const realized = mediators(MODEL, { sex: "male", ...inp });               // residual = measured − realized
+  const meas50 = realized.LDL[m1idx(50)] + 17, meas70 = realized.LDL[m1idx(70)] - 8;
+  const corrected = mediators(MODEL, { sex: "male", ...inp, offsets: { LDL: { byAge: [[50, 17], [70, -8]], mode: "linear" } } });
+  num("M1: anchored LDL reproduces measured@50 under statin", corrected.LDL[m1idx(50)], meas50, 1e-9);
+  num("M1: anchored LDL reproduces measured@70 under statin", corrected.LDL[m1idx(70)], meas70, 1e-9);
+
+  const sinp = { sex: "male", inputs: { dietSodium: 170 } };
+  const measSBP = simulate(MODEL, sinp).medValues.systolicBP[m1idx(72)] + 12;
+  const r1 = simulate(MODEL, { ...sinp, offsets: { systolicBP: { byAge: [[72, 12]], mode: "linear" } } });
+  num("M1: anchored SBP reproduces measured@72 (incl. stiffness→SBP augment)", r1.medValues.systolicBP[m1idx(72)], measSBP, 1e-9);
+
+  // b1 SCOPE (§3C): exact reproduction holds for a single NON-feedback anchor (LDL / single SBP above). The
+  // offset DELIBERATELY propagates through coupling + the state-march feedback (so a measured HbA1c drives the
+  // glucotoxic spiral — the "diabetic ⇒ stiffer via crosslink" mechanism). Consequence: a FEEDBACK mediator
+  // (HbA1c) anchored with a ONE-SHOT residual is amplified by the loop ⇒ APPROXIMATE, not exact. Exact
+  // HbA1c / simultaneous-coupled anchoring is the M2 app-side ordered+iterated offset solve (b2-lite).
+  const measHb = mediators(MODEL, { sex: "male" }).HbA1c[m1idx(72)] + 1.5;
+  const corrHb = mediators(MODEL, { sex: "male", offsets: { HbA1c: { byAge: [[72, 1.5]], mode: "linear" } } }).HbA1c[m1idx(72)];
+  str("M1: HbA1c anchor APPROXIMATE under feedback (NOT exact — exact is M2 b2-lite)", String(Math.abs(corrHb - measHb) > 1e-6), "true");
+}
+// all-cause consumer reads the lane per-age: a flat activity step-profile == the scalar (de-hoist correctness).
+num("M1: activity all-cause consumer — scalar==flat profile (LE)",
+  simulate(MODEL, { sex: "male", inputs: { physicalActivity: 300 } }).LE
+  - simulate(MODEL, { sex: "male", inputs: { physicalActivity: { byAge: [[AGE0, 300], [130, 300]], mode: "step" } } }).LE, 0, 1e-12);
+
+// (7) conditional-from-today LE: only with currentAge; conditioning on survival to 40 raises expected
+// age-at-death above the cohort-from-20 number (prunes already-dead branches; prior damage still counts).
+{
+  const r = simulate(MODEL, { sex: "male", currentAge: 40 });
+  const r20 = simulate(MODEL, { sex: "male", currentAge: AGE0 });
+  str("M1: LE_cond null without currentAge", String(simulate(MODEL, { sex: "male" }).LE_cond === null), "true");
+  str("M1: LE_cond null for non-finite currentAge", String(simulate(MODEL, { sex: "male", currentAge: NaN }).LE_cond === null), "true");
+  // off-by-one fix: conditioning AT AGE0 must equal the cohort LE exactly (no guaranteed extra interval).
+  num("M1: LE_cond(AGE0) == cohort LE (no off-by-one)", r20.LE_cond, r20.LE, 1e-9);
+  str("M1: LE_cond(40) in (cohort LE, 130) — survivorship raises it", String(r.LE_cond > r.LE && r.LE_cond < 130), "true");
+}
+
+// (8) categorical smokingStatus: a step profile resolves to the category active at each age.
+{
+  const stepSmoke = { inputs: { smokingStatus: { byAge: [[20, "current"], [50, "former"]], mode: "step" } } };
+  num("M1: categorical step == 'current' before switch (CVD mult @45)",
+    causeMultAt("cardiovascular", 45, stepSmoke), causeMultAt("cardiovascular", 45, { inputs: { smokingStatus: "current" } }), 1e-12);
+  num("M1: categorical step == 'former' after switch (CVD mult @55)",
+    causeMultAt("cardiovascular", 55, stepSmoke), causeMultAt("cardiovascular", 55, { inputs: { smokingStatus: "former" } }), 1e-12);
+}
+
+// (9) fractional dosing age snaps to the DT=1 grid (an imported 60.4 still fires, identical to 60).
+{
+  const opB = (age) => simulate(MODEL, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.3, ages: [age] }] }).B["cellular-senescence"][m1idx(62)];
+  num("M1: fractional dosing age 60.4 snaps to 60 (identical burden)", opB(60.4), opB(60), 1e-12);
+  str("M1: snapped pulse actually fired (burden < baseline)",
+    String(opB(60.4) < simulate(MODEL, { sex: "male" }).B["cellular-senescence"][m1idx(62)]), "true");
+  // POLICY (§8.6, decided for M1): two campaigns within ONE grid-year COLLAPSE to a single dose (annual-grid
+  // limitation; sub-annual DT deferred to M2 binning decision). Documented, not silent.
+  const twoSameYear = simulate(MODEL, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.3, ages: [60.1, 60.4] }] }).B["cellular-senescence"][m1idx(62)];
+  num("M1: same grid-year pulses COLLAPSE to one dose (annual-grid policy)", twoSameYear, opB(60), 1e-12);
 }
 
 export function runTests() {

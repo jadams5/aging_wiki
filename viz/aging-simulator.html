@@ -447,6 +447,71 @@ function interp(arr, age) {
        + (t3 - t2) * h[i] * m[i + 1];
 }
 
+/* --------------------------- time-profiles ----------------------------- */
+// M1 (2026-06-14): every input channel is a typed TIME-PROFILE resolved to a per-age lane.
+//   scalar (number|string)        → constant fill (back-compat: byte-identical to the old scalar path)
+//   undefined | null              → popDefault fill (the invariant: default == population average)
+//   {byAge:[[age,value],…], mode} → step (ZOH) | linear (flat-extrapolate ends) | pchip (LEGACY, untagged)
+// `step` is for behavioural/exposure inputs + treatment windows (a value set at an age holds until the next
+// entry; cessation is a hard cut; before the first entry → popDefault). `linear` is for personal-offset
+// residuals (interpolate between draws, flat outside). UNTAGGED {byAge} keeps the legacy PCHIP reading so the
+// pre-M1 former-smoker test is byte-identical; new histories MUST set mode explicitly. See
+// model/timeline-history-import-design.md §2-3.
+function resolveProfile(p, AGES, popDefault, defaultMode = "pchip") {
+  if (p === undefined || p === null) return AGES.map(() => popDefault);
+  if (typeof p === "number" || typeof p === "string") return AGES.map(() => p);
+  if (p && Array.isArray(p.byAge)) {
+    if (p.byAge.length === 0) return AGES.map(() => popDefault);   // empty ⇒ no profile (not a throw / not 0)
+    const mode = p.mode || defaultMode;
+    if (mode !== "step" && mode !== "linear" && mode !== "pchip")
+      throw new Error(`resolveProfile: unknown mode ${JSON.stringify(p.mode)} (expected step|linear|pchip)`);
+    // Categorical (string-valued) profiles are STEP-ONLY — you cannot interpolate enum states.
+    const categorical = typeof p.byAge[0][1] === "string";
+    if (categorical && mode !== "step")
+      throw new Error(`resolveProfile: categorical (string) profile requires mode:"step"`);
+    // Defensive: COPY + sort ascending by age (don't mutate caller/MODEL arrays); collapse duplicate ages
+    // (last wins) so numeric interpolation can't divide by a zero age-gap (PCHIP NaN / linear ∞).
+    const sorted = [...p.byAge].sort((a, c) => a[0] - c[0]);
+    if (mode === "step") return AGES.map((a) => stepLookup(sorted, a, popDefault));
+    const dd = [];
+    for (const kv of sorted) { if (dd.length && dd[dd.length - 1][0] === kv[0]) dd[dd.length - 1] = kv; else dd.push(kv); }
+    if (mode === "linear") return AGES.map((a) => linearProfile(dd, a));
+    return AGES.map((a) => interp(dd, a)); // legacy PCHIP (untagged byAge — back-compat)
+  }
+  return AGES.map(() => popDefault);
+}
+// Zero-order hold: carry the last entry whose age ≤ `age`; before the first entry → `before`. arr ascending.
+function stepLookup(arr, age, before) {
+  let v = before;
+  for (let i = 0; i < arr.length; i++) { if (age >= arr[i][0]) v = arr[i][1]; else break; }
+  return v;
+}
+// Piecewise-LINEAR with flat (constant) extrapolation past both ends — NOT PCHIP (no overshoot, no smoothing).
+function linearProfile(arr, age) {
+  const n = arr.length;
+  if (n === 0) return 0;
+  if (age <= arr[0][0]) return arr[0][1];
+  if (age >= arr[n - 1][0]) return arr[n - 1][1];
+  let i = 0; while (i < n - 1 && age > arr[i + 1][0]) i++;
+  const f = (age - arr[i][0]) / (arr[i + 1][0] - arr[i][0]);
+  return arr[i][1] + f * (arr[i + 1][1] - arr[i][1]);
+}
+// ONE canonical resolved-input map (id → per-age lane), shared by simulate()'s rate-terms + cause/all-cause
+// edges AND mediators()'s mediator edges, so resolution/defaults can't diverge between the two. popDefault is
+// the input's populationMean (numeric inputs → deviation 0 at default; the categorical smokingStatus sentinel
+// → its neutral "population mix" status ⇒ mult 1). Untagged byAge stays legacy PCHIP (back-compat).
+function buildInputLanes(exogenousInputs, inputs, AGES) {
+  const lanes = {};
+  for (const x of exogenousInputs || []) lanes[x.id] = resolveProfile((inputs || {})[x.id], AGES, x.populationMean);
+  return lanes;
+}
+// Per-age deviation of a direct exogenous input from its population mean, read from the resolved lane.
+function inputDevLane(inputLanes, popMean, id, k) {
+  const lane = inputLanes[id];
+  const x = lane ? lane[k] : undefined;
+  return (x === undefined ? popMean[id] : x) - popMean[id];
+}
+
 // Pick parametric params for a node given sex: female override if present.
 function paramsFor(node, sex) {
   if (sex === "female" && node.curve.female) return node.curve.female;
@@ -528,7 +593,7 @@ function edgesByKind(MODEL) {
   };
 }
 
-function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}, treatments = {}, offsets = {}, operators = [] } = {}) {
+function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}, treatments = {}, offsets = {}, operators = [], currentAge = null } = {}) {
   if (sex !== "male" && sex !== "female") {
     throw new Error(`simulate: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
   }
@@ -614,14 +679,11 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   // HISTORY — e.g. a former smoker (intensity until a quit age, then 0) accrues GI burden while
   // smoking and PLATEAUS after quitting (the realism a constant input cannot express). A profile
   // only changes a rate-term integral; scalar inputs are byte-identical to the previous behaviour.
-  const inMap = {};
-  for (const x of (MODEL.bLayer && MODEL.bLayer.exogenousInputs) || []) {
-    const iv = inputs[x.id];
-    const pm = (typeof x.populationMean === "number") ? x.populationMean : 0;
-    inMap[x.id] = (typeof iv === "number") ? new Array(N_AGE).fill(iv)
-      : (iv && Array.isArray(iv.byAge)) ? AGES.map((a) => interp(iv.byAge, a))
-      : new Array(N_AGE).fill(pm);
-  }
+  // ONE canonical resolved-input map (§3A) shared by the rate-term channel here AND mediators()/cause/
+  // all-cause edges below — built once, passed down, so per-age input resolution can't diverge. Untagged
+  // {byAge} keeps legacy PCHIP (former-smoker test byte-identical); new step/linear profiles set mode.
+  const inputLanes = buildInputLanes((MODEL.bLayer && MODEL.bLayer.exogenousInputs) || [], inputs, AGES);
+  const inMap = inputLanes;
   const accumDev = new Array(NN).fill(0);
   const hasRateTerms = NODES.map((n) => !!(n.rate && n.rate.terms && n.rate.terms.length));
 
@@ -644,8 +706,8 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
       pulseOps.push({
         idx: NODE_IDX[op.target],
         frac: Math.max(0, Math.min(1, Number(op.killFraction) || 0)),
-        ages: new Set(op.ages || []),
-        dev: 0,
+        ages: new Set((op.ages || []).map((a) => Math.round(a))),  // snap to the DT=1 grid (§3E): a fractional
+        dev: 0,                                                     // imported dosing age must still fire
         decay: Number.isFinite(halfLife) && halfLife > 0
           ? Math.exp(-Math.LN2 * DT / halfLife)
           : 1,
@@ -707,7 +769,10 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
     if (k < N_AGE - 1) {
       for (let i = 0; i < NN; i++) {
         const iv = interventions[NODES[i].id];
-        if (iv && age >= iv.startAge) {
+        // §3D: freeze accrues only within the HALF-OPEN window [startAge, endAge). After endAge the accrued
+        // `prim` is HELD (benefit persists; node resumes aging in parallel). endAge omitted (null) ⇒ open-ended
+        // ⇒ byte-identical to the pre-M1 behaviour. NOTE this is a scenario assumption for self-amplifying nodes.
+        if (iv && age >= iv.startAge && (iv.endAge == null || age < iv.endAge)) {
           prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
         }
         if (hasRateTerms[i]) accumDev[i] += nodeRateTermsSum(NODES[i].rate.terms, inMap, D, NODE_IDX, k) * DT;
@@ -768,7 +833,7 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   // `Base` is the no-intervention reference (== Tarr) for the mediator-baseline pass.
   const nodeBurdensLive = {}, nodeBurdensBase = {};
   for (let i = 0; i < NN; i++) { nodeBurdensLive[NODES[i].id] = Barr[i]; nodeBurdensBase[NODES[i].id] = Tarr[i]; }
-  const medValues = hasB ? mediators(MODEL, { sex, inputs, treatments, offsets, nodeBurdens: nodeBurdensLive }) : {};
+  const medValues = hasB ? mediators(MODEL, { sex, inputs, treatments, offsets, nodeBurdens: nodeBurdensLive, inputLanes }) : {};
   // Baseline mediator trajectories (default inputs/treatments/offsets) — the
   // reference against which Stage-2 continuous mediator→cause edges take their
   // deviation. At default inputs medValues === medBaseline ⇒ deviation 0.
@@ -821,7 +886,7 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
       if (e.form === "nodeLogLinear") {
         m *= Math.exp(e.beta * (nodeBurdensLive[e.from][k] - nodeBurdensBase[e.from][k]));
       } else {
-        m *= causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean);
+        m *= causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputLanes, popMean);
       }
     }
     return m;
@@ -837,10 +902,12 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   // age-DEPENDENT all-cause edges (e.g. bmiJcurve, whose factor varies with the
   // per-age BMI value/baseline) are computed inside the per-age loop below.
   const allcauseEdges = causeEdgesByTarget["allcause"] || [];
-  const ageInvariantAllcause = allcauseEdges.filter((e) => e.form !== "bmiJcurve");
+  // §3A: activityFitness + sleep uShape were HOISTED here (age-invariant under scalar inputs). With
+  // time-varying input lanes they are no longer constant in age, so they move INTO the per-age loop below
+  // (alongside the already-per-age bmiJcurve). For a flat lane the per-age value is identical at every age ⇒
+  // byte-identical to the former hoist.
+  const nonBmiAllcause = allcauseEdges.filter((e) => e.form !== "bmiJcurve");
   const bmiJcurveEdges = allcauseEdges.filter((e) => e.form === "bmiJcurve");
-  let allcauseMult = 1;
-  for (const e of ageInvariantAllcause) allcauseMult *= allcauseEdgeMult(e, inputs, popMean);
 
   const hazard = new Array(N_AGE);
   const decomposition = new Array(N_AGE);
@@ -871,12 +938,14 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
       Math.exp((frBeta[cn] !== undefined ? frBeta[cn] : frDefault) * frailtyDev);
     const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
 
-    // Stage-3b: BMI J-curve whole-bracket multiplier (target "allcause"), per-age.
+    // Stage-3a all-cause (activityFitness, sleep uShape) + Stage-3b BMI J-curve whole-bracket multipliers,
+    // all computed PER-AGE now (§3A): read each input lane at k. Flat lanes ⇒ identical every age.
+    let allcauseMult = 1;
+    for (const e of nonBmiAllcause) allcauseMult *= allcauseEdgeMult(e, inputLanes, popMean, k);
     let bmiJMult = 1;
     for (const e of bmiJcurveEdges) bmiJMult *= bmiJcurveMult(e, k, medValues, medBaseline);
 
-    // Stage-3a activityFitness + Stage-3b BMI J-curve scale the whole intrinsic
-    // bracket. Frailty is now applied PER CAUSE (above), not in this shared mult.
+    // Stage-3a + Stage-3b scale the whole intrinsic bracket. Frailty is applied PER CAUSE (above).
     const bracketMult = allcauseMult * bmiJMult;
 
     const parts = { extrinsic };
@@ -906,11 +975,30 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   }
   const LE = AGE0 + leSum;
 
+  // §3F: conditional-from-today LE. The cohort `LE` (from AGE0) averages in branches where you'd ALREADY be
+  // dead; for a LIVING person who supplied `currentAge`, renormalize future survival by S(currentAge) (treat
+  // reaching today as given). This does NOT discount prior damage — accrued state still raises forward hazard;
+  // it only prunes the already-dead branches. null when currentAge is not provided. Same DT convention as LE.
+  let LE_cond = null;
+  if (currentAge != null && Number.isFinite(currentAge)) {
+    let kc = Math.round(currentAge) - AGE0;
+    if (kc < 0) kc = 0; else if (kc > N_AGE - 1) kc = N_AGE - 1;
+    // Sc = survival to the START of the current-age interval (BEFORE hazard[kc] is applied). survival[k]
+    // already includes hazard[k] (cohort convention), so dividing by survival[kc] would grant a guaranteed
+    // extra interval; use survival[kc-1] (1 at kc=0). This makes LE_cond(AGE0) == cohort LE exactly.
+    const Sc = kc === 0 ? 1 : survival[kc - 1];
+    if (Sc > 0) {
+      let condSum = 0;
+      for (let k = kc; k < N_AGE; k++) condSum += (survival[k] / Sc) * DT;
+      LE_cond = AGES[kc] + condSum;
+    }
+  }
+
   // Repack T / B as { nodeId: [...] } maps for the public API.
   const T = {}, B = {};
   NODES.forEach((n, i) => { T[n.id] = Tarr[i]; B[n.id] = Barr[i]; });
 
-  return { ages: AGES, T, B, hazard, decomposition, survival, LE, medValues };
+  return { ages: AGES, T, B, hazard, decomposition, survival, LE, LE_cond, medValues };
 }
 
 /** lifeExpectancy(MODEL, opts) — convenience returning just LE. */
@@ -986,7 +1074,7 @@ function weightDynamicKg(calBalancePerDay, asymptoteFraction) {
 // `medCtx` (optional) carries already-computed UPSTREAM mediator deviations at
 // this age for mediator→mediator edges (e.g. BMI→SBP): medCtx[srcMedId] = value −
 // baseline of the source mediator. At baseline inputs every such deviation is 0.
-function applyMediatorEdge(edge, inputs, popMean, baselineVal, K, medCtx) {
+function applyMediatorEdge(edge, inputLanes, popMean, baselineVal, K, medCtx, k) {
   // mediator→mediator edge: `from` is a mediator id, not an exogenous input.
   if (edge.form === "mediatorLinear") {
     // coeff · (sourceMediator value − its baseline) at this age. =0 at baseline
@@ -994,7 +1082,8 @@ function applyMediatorEdge(edge, inputs, popMean, baselineVal, K, medCtx) {
     const srcDev = (medCtx && medCtx[edge.from] !== undefined) ? medCtx[edge.from] : 0;
     return edge.coeff * srcDev;
   }
-  const x = inputs[edge.from];
+  const lane = inputLanes[edge.from];          // §3A: per-age input value from the canonical lane
+  const x = lane ? lane[k] : undefined;
   const dx = (x === undefined ? popMean : x) - popMean; // deviation from pop mean
   switch (edge.form) {
     case "linear":
@@ -1051,15 +1140,10 @@ function applyMediatorEdge(edge, inputs, popMean, baselineVal, K, medCtx) {
 // Population smoking-status mix (US adults) used to normalize categorical RRs.
 const SMOKE_MIX = { never: 0.61, former: 0.25, current: 0.14 };
 
-// Resolve a continuous direct-exogenous input deviation from population mean.
-// Undefined input ⇒ deviation 0 (the invariant: default == population average).
-function inputDev(inputs, popMean, id) {
-  const x = inputs[id];
-  return (x === undefined ? popMean[id] : x) - popMean[id];
-}
+// (M1: the scalar `inputDev` helper was superseded by `inputDevLane` — per-age lane read — near the top.)
 
 // Compute one Stage-2 cause-edge multiplier at age-index k / age `age`.
-function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean) {
+function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputLanes, popMean) {
   switch (e.form) {
     // -------- continuous mediator → cause: exp(β · (value − baseline)) --------
     case "mediatorLogLinear": {
@@ -1102,12 +1186,12 @@ function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean) 
     }
     // ------------------ direct exogenous → cause (continuous) ------------------
     case "directLogLinear":
-      return Math.exp(e.beta * inputDev(inputs, popMean, e.input));
+      return Math.exp(e.beta * inputDevLane(inputLanes, popMean, e.input, k));
     case "directHinge": {
       // exp(slope · max(0, input − knee)); =1 below the knee. Population mean is
       // below the knee ⇒ default mult 1.
-      const x = inputs[e.input];
-      const xv = x === undefined ? popMean[e.input] : x;
+      const lane = inputLanes[e.input];
+      const xv = (lane && lane[k] !== undefined) ? lane[k] : popMean[e.input];
       return Math.exp(e.slope * Math.max(0, xv - e.knee));
     }
     // -------------------- categorical smoking (normalized) --------------------
@@ -1118,7 +1202,8 @@ function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputs, popMean) 
       const meanRR = SMOKE_MIX.never * e.rr.never
         + SMOKE_MIX.former * e.rr.former
         + SMOKE_MIX.current * e.rr.current;
-      const status = inputs[e.input]; // "never" | "former" | "current" | undefined
+      const slane = inputLanes[e.input]; // categorical step lane: "never" | "former" | "current" | undefined
+      const status = slane ? slane[k] : undefined;
       if (status === undefined) return 1; // population mix → normalized mult 1
       const raw = e.rr[status];
       if (raw === undefined) return 1; // unknown status → neutral
@@ -1155,11 +1240,11 @@ function metsFromActivity(metMap, value) {
 }
 
 // Compute one Stage-3a all-cause (whole-bracket) edge multiplier. Age-invariant.
-function allcauseEdgeMult(e, inputs, popMean) {
+function allcauseEdgeMult(e, inputLanes, popMean, k) {
   switch (e.form) {
     case "activityFitness": {
-      const x = inputs[e.input];
-      const xv = x === undefined ? popMean[e.input] : x; // default ⇒ popMean ⇒ ΔMETs 0
+      const lane = inputLanes[e.input];
+      const xv = (lane && lane[k] !== undefined) ? lane[k] : popMean[e.input]; // default ⇒ popMean ⇒ ΔMETs 0
       const dMets = metsFromActivity(e.metMap, xv);
       return Math.exp(e.betaPerMet * dMets);
     }
@@ -1171,8 +1256,8 @@ function allcauseEdgeMult(e, inputs, popMean) {
       // 2010). dist = how far OUTSIDE the band (0 inside). The input's populationMean must lie
       // in the band so mult==1 at default ⇒ baseline preserved EXACTLY. Reusable for any
       // U-shaped exposure (sleep now; IGF-1/nutrient-sensing later).
-      const x = inputs[e.input];
-      const xv = x === undefined ? popMean[e.input] : x;
+      const lane = inputLanes[e.input];
+      const xv = (lane && lane[k] !== undefined) ? lane[k] : popMean[e.input];
       const lo = Array.isArray(e.nadir) ? e.nadir[0] : e.nadir;
       const hi = Array.isArray(e.nadir) ? e.nadir[1] : e.nadir;
       const bLo = typeof e.beta === "object" ? e.beta.low : e.beta;
@@ -1248,7 +1333,7 @@ function applyTreatment(tx, value, dose) {
  * Invariant: inputs={} (or every input == populationMean), treatments={},
  * offsets={} ⇒ each mediator value == its baseline curve at that age.
  */
-function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nodeBurdens = null } = {}) {
+function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nodeBurdens = null, inputLanes = null } = {}) {
   if (sex !== "male" && sex !== "female") {
     throw new Error(`mediators: sex must be "male" or "female", got ${JSON.stringify(sex)}`);
   }
@@ -1267,6 +1352,21 @@ function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nod
   // populationMean lookup by input id.
   const popMean = {};
   for (const inp of b.exogenousInputs) popMean[inp.id] = inp.populationMean;
+
+  // §3A/B/C — resolve every input channel to a per-age lane. `lanes` reuses simulate()'s canonical map when
+  // passed (no divergent resolution); standalone calls build it here. `offsetLane` = personal-residual
+  // trajectory per mediator (LINEAR between draws, flat outside; absent ⇒ 0). `txDoseLane` = per-age treatment
+  // dose (STEP; 0 ⇒ untreated at that age ⇒ start/stop windows). A scalar/true treatment ⇒ flat full lane ⇒
+  // byte-identical to the pre-M1 lifetime-constant behaviour.
+  const lanes = inputLanes || buildInputLanes(b.exogenousInputs, inputs, AGES);
+  const offsetLane = {};
+  for (const m of b.mediators) offsetLane[m.id] = resolveProfile(offsets[m.id], AGES, 0, "linear");
+  const txDoseLane = {};
+  for (const tx of b.treatments) {
+    const t = treatments[tx.id];
+    if (t === undefined || t === false) continue;
+    txDoseLane[tx.id] = resolveProfile(t === true ? 1.0 : t, AGES, 0, "step");
+  }
 
   // Edges grouped by target mediator.
   const edgesByMed = {};
@@ -1301,7 +1401,6 @@ function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nod
   const devByMed = {};
   for (const med of order) {
     const curve = med.baseline[sex];
-    const offset = offsets[med.id] ?? 0;
     const edges = edgesByMed[med.id] || [];
     const txs = txByMed[med.id] || [];
     out[med.id] = AGES.map((age, k) => {
@@ -1314,13 +1413,15 @@ function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nod
       }
       let v = baselineVal;
       for (const e of edges) {
-        v += applyMediatorEdge(e, inputs, popMean[e.from], baselineVal, K, medCtx);
+        v += applyMediatorEdge(e, lanes, popMean[e.from], baselineVal, K, medCtx, k);
       }
-      v += offset;
       for (const tx of txs) {
-        const dose = treatments[tx.id] === true ? 1.0 : treatments[tx.id];
-        v = applyTreatment(tx, v, dose);
+        v = applyTreatment(tx, v, txDoseLane[tx.id][k]);
       }
+      // §3C: the personal-offset residual is applied LAST — AFTER treatments — as a final additive correction
+      // on the realized value (was added pre-treatment at the old `:921`, which let a treatment SCALE the
+      // offset so the anchored measurement was not reproduced). resid + realized == measured at each draw.
+      v += offsetLane[med.id][k];
       return v;
     });
     // Record this mediator's per-age deviation for downstream mediator→mediator edges.
