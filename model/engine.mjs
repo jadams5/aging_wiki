@@ -736,6 +736,277 @@ export function compileTimeline(events = []) {
   return { inputs, treatments, interventions, operators: Object.values(opByPreset), anchors };
 }
 
+/* ===================== M4 — history-bundle importer ========================
+ * Pure (no app globals, no `new Date()`/Date.now()/Math.random()), so it is
+ * unit-tested in test.mjs and injected into the app. parseHistoryBundle() turns a
+ * generic, person-agnostic history bundle (a personal transform emits it locally;
+ * never committed) into timeline events with NUMERIC ages (the M3 raw-state code
+ * reads numeric `age`/`startAge`/`endAge`/`ages` — NOT calendar dates). The app
+ * builds `ctx` via buildBundleContext(MODEL), then assigns event ids + commits.
+ * See model/timeline-history-import-design.md §14. ======================== */
+
+// analyte key (snake-case-with-units, matching the personal lab-panel convention) → engine med id.
+// apoB-* is DELIBERATELY ABSENT (apoB ≠ LDL-C; no silent numeric remap) — an apoB analyte is reported
+// unmapped until a dedicated apoB mediator exists (#gap/apob-mediator).
+// null-prototype map: lookups with untrusted keys (`obj["__proto__"]`, `"constructor"`) can't reach inherited
+// props — so a bundle id of "__proto__"/"constructor" resolves to undefined (rejected) instead of an object.
+const _np = (o) => Object.assign(Object.create(null), o);
+const ANALYTE_MED_MAP = _np({
+  "ldl-c-mg-dl": "LDL", "ldl-mg-dl": "LDL", "ldl-c": "LDL", "ldl": "LDL",
+  "hba1c-pct": "HbA1c", "hba1c-percent": "HbA1c", "hba1c": "HbA1c",
+  "bp-systolic-mmhg": "systolicBP", "sbp-mmhg": "systolicBP", "systolic-bp-mmhg": "systolicBP", "systolic-bp": "systolicBP",
+  "bmi": "BMI", "bmi-kg-m2": "BMI",
+  "resting-hr-bpm": "restingHR", "rhr-bpm": "restingHR", "resting-hr": "restingHR"
+});
+// Per-med accepted units → multiplier-to-canonical (number) or converter fn(value)→canonical. Unknown unit ⇒ reject.
+const UNIT_CONV = _np({
+  LDL:        _np({ "mg/dl": 1, "mmol/l": 38.67 }),
+  systolicBP: _np({ "mmhg": 1 }),
+  BMI:        _np({ "kg/m^2": 1, "kg/m2": 1 }),
+  HbA1c:      _np({ "%": 1, "pct": 1, "percent": 1, "mmol/mol": (v) => (v / 10.929) + 2.15 }), // IFCC mmol/mol → NGSP %
+  restingHR:  _np({ "bpm": 1, "/min": 1 })
+});
+const BUNDLE_MAX_EVENTS = 5000;   // guard against a pathological bundle hanging the UI (counts NESTED changes/dates too)
+
+function _bundleArr(x) { return Array.isArray(x) ? x : []; }
+// Non-throwing stringify for messages built from UNTRUSTED values (BigInt / cyclic / exotic objects throw JSON.stringify).
+function _q(v) { try { return JSON.stringify(v); } catch { try { return String(v); } catch { return "[unprintable]"; } } }
+function _normUnit(u) { return typeof u === "string" ? u.trim().toLowerCase().replace(/\s+/g, "") : null; }
+// Parse a strict ISO "YYYY-MM-DD" into {y,m,d} (real-calendar-validated); null on any deviation.
+function _parseISODate(s) {
+  const m = typeof s === "string" && s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  if (Date.UTC(y, mo - 1, d) !== Date.UTC(y, mo - 1, d)) return null; // NaN guard (Date.UTC never NaN for ints, defensive)
+  // reject impossible days (e.g. Feb 30) by round-trip
+  const t = Date.UTC(y, mo - 1, d), back = new Date(t);
+  if (back.getUTCFullYear() !== y || back.getUTCMonth() !== mo - 1 || back.getUTCDate() !== d) return null;
+  return { y, m: mo, d };
+}
+function _ageYears(birth, date) { // fractional years between two parsed ISO dates (both supplied — no "now")
+  return (Date.UTC(date.y, date.m - 1, date.d) - Date.UTC(birth.y, birth.m - 1, birth.d)) / (365.2425 * 86400000);
+}
+// Resolve a measurement's unit to a canonical converter; returns {f} or null (unknown/unconvertible).
+function _resolveUnitConv(med, unit) {
+  const table = UNIT_CONV[med]; if (!table) return null;
+  const nu = _normUnit(unit); if (nu == null) return null;
+  const conv = table[nu]; if (conv == null) return null;
+  return { apply: (v) => (typeof conv === "function" ? conv(v) : v * conv) };
+}
+
+/** buildBundleContext(MODEL) — derive the importer's validation context from params.json (no app globals). */
+export function buildBundleContext(MODEL) {
+  const B = MODEL.bLayer || {};
+  const meds = Object.create(null);                              // null-proto: safe lookup with untrusted bundle keys
+  for (const m of B.mediators || []) meds[m.id] = { unit: m.unit };
+  const inputs = Object.create(null);
+  for (const inp of B.exogenousInputs || []) {
+    if (inp.unwired) continue;                                   // deferred placeholder (e.g. raw cig/day) — not a wired channel
+    if (inp.id === "smokingStatus") inputs[inp.id] = { categorical: true, enum: ["never", "former", "current"] };
+    else inputs[inp.id] = { range: Array.isArray(inp.range) ? inp.range : null };
+  }
+  const operators = Object.create(null);
+  for (const op of B.operatorPresets || []) operators[op.id] = {
+    kill: new Set(Object.keys(op.killFractionScenarios || {})),
+    rebound: new Set(Object.keys(op.reboundHalfLifeScenariosYears || {}))
+  };
+  return {
+    AGE0: MODEL.meta.ageRange[0], AGE1: MODEL.meta.ageRange[1], DT: MODEL.meta.dt || 1,
+    meds, inputs, operators,
+    nodes: new Set((MODEL.nodes || []).filter((n) => n.provenance !== "stub").map((n) => n.id)),
+    treatments: new Set((B.treatments || []).map((t) => t.id)),
+    analyteMap: ANALYTE_MED_MAP
+  };
+}
+
+/** canonicalizeHistoryEvents(events, ctx, report?) — snap ages to the integer grid + clamp to [AGE0,AGE1];
+ * merge same-channel/same-grid-age step+biomarker collisions keeping the LATEST by original `_date`
+ * (pure date-sort — NOT the app's edit-wins mergeHistCollision); dedup operator pulse ages; fix degenerate
+ * windows. Pushes collision/clamp notes to report.warnings when a report is supplied. */
+export function canonicalizeHistoryEvents(events, ctx, report = null) {
+  const { AGE0, AGE1, DT } = ctx;
+  const warn = (s) => { if (report && Array.isArray(report.warnings)) report.warnings.push(s); };
+  const snap = (a) => {
+    const g = Math.round((a - AGE0) / DT) * DT + AGE0;
+    const c = Math.max(AGE0, Math.min(AGE1, g));
+    if (c !== g) warn(`age ${a.toFixed(1)} clamped to ${c} (model grid is [${AGE0},${AGE1}])`);
+    return c;
+  };
+  const out = [];
+  const stepByKey = new Map();   // `${channel}@${gridAge}` → latest step/biomarker event
+  const interByCh = new Map();   // channel → single freeze window (last wins, GLOBALLY — compileTimeline would silently overwrite)
+  const operByCh = new Map();    // channel → merged operator schedule (combined ages, last scenario)
+  for (const ev of events || []) {
+    if (!ev || typeof ev.channel !== "string") continue;                  // defensive: the exported helper may be handed junk
+    const kind = ev.channel.slice(0, ev.channel.indexOf(":"));
+    if (kind === "input" || kind === "treatment" || kind === "biomarker") {
+      if (!Number.isFinite(ev.age)) continue;
+      const g = snap(ev.age), key = ev.channel + "@" + g, cur = stepByKey.get(key);
+      if (cur) warn(`${ev.channel}: multiple entries at age ${g}; kept the later draw (value ${_q((ev._date || "") >= (cur._date || "") ? ev.value : cur.value)})`);
+      if (!cur || (ev._date || "") >= (cur._date || "")) stepByKey.set(key, { ...ev, age: g });
+    } else if (kind === "intervention") {
+      if (!Number.isFinite(ev.startAge)) continue;
+      let s = snap(ev.startAge), e = (ev.endAge == null || !Number.isFinite(ev.endAge)) ? null : snap(ev.endAge);
+      if (e != null && e <= s) { e = s < AGE1 ? Math.min(AGE1, s + DT) : null; warn(`${ev.channel}: window collapsed after grid-snap; widened to [${s},${e}]`); }
+      if (interByCh.has(ev.channel)) warn(`${ev.channel}: multiple freeze windows; kept the last`);
+      interByCh.set(ev.channel, { ...ev, startAge: s, endAge: e });
+    } else if (kind === "operator") {
+      const ages = (ev.ages || []).filter(Number.isFinite).map(snap);
+      const cur = operByCh.get(ev.channel);
+      if (cur) {
+        cur.ages = Array.from(new Set([...cur.ages, ...ages])).sort((a, b) => a - b);
+        if (ev.scenario != null) { if (cur.scenario != null && _q(cur.scenario) !== _q(ev.scenario)) warn(`${ev.channel}: conflicting scenarios; kept the last`); cur.scenario = ev.scenario; }
+      } else {
+        operByCh.set(ev.channel, { ...ev, ages: Array.from(new Set(ages)).sort((a, b) => a - b) });
+      }
+    }
+  }
+  for (const ev of stepByKey.values()) out.push(ev);
+  for (const ev of interByCh.values()) out.push(ev);
+  for (const ev of operByCh.values()) out.push(ev);
+  return out;
+}
+
+/** parseHistoryBundle(input, ctx) → { events, sex, birthDate, report }. Validates an untrusted bundle
+ * (string JSON or object), maps analytes→meds, converts units, converts dates→ages via the bundle's
+ * birthDate, and emits canonicalized numeric events WITHOUT ids (the app assigns ids at commit — keeps this
+ * pure). Root/version/DOB/sex problems ABORT (report.aborted, empty events, existing state untouched);
+ * per-entry problems skip that entry and are reported (partial import). */
+export function parseHistoryBundle(input, ctx) {
+  const report = {
+    ok: false, aborted: false,
+    loaded: { measurements: 0, treatments: 0, exposures: 0, nodeInterventions: 0, operators: 0 },
+    warnings: [], errors: [], unmapped: []
+  };
+  const abort = (msg) => { report.errors.push(msg); report.aborted = true; return { events: [], sex: null, birthDate: null, report }; };
+
+  let b = input;
+  if (typeof input === "string") { try { b = JSON.parse(input); } catch (e) { return abort("invalid JSON: " + e.message); } }
+  if (!b || typeof b !== "object" || Array.isArray(b)) return abort("bundle must be a JSON object");
+  if (b.bundleVersion !== 1) return abort(`unsupported bundleVersion ${_q(b.bundleVersion)} (expected 1)`);
+  const birth = _parseISODate(b.birthDate);
+  if (!birth) return abort(`birthDate missing/invalid — need a real "YYYY-MM-DD"`);
+  let sex = null;
+  if (b.sex != null) { if (b.sex === "male" || b.sex === "female") sex = b.sex; else return abort(`sex must be "male" | "female" if present`); }
+  // count NESTED entries (one exposure/operator can carry many changes/dates) + the 0–2 events emitted per treatment
+  const total = _bundleArr(b.measurements).length
+    + _bundleArr(b.treatments).length * 2
+    + _bundleArr(b.exposures).reduce((n, e) => n + _bundleArr(e && e.changes).length, 0)
+    + _bundleArr(b.nodeInterventions).length
+    + _bundleArr(b.operators).reduce((n, o) => n + _bundleArr(o && o.dates).length, 0);
+  if (total > BUNDLE_MAX_EVENTS) return abort(`too many entries (${total} > ${BUNDLE_MAX_EVENTS})`);
+
+ try {   // defensive backstop: any unexpected throw on exotic untrusted input ⇒ a clean abort, never an uncaught crash
+  const err = (w, m) => report.errors.push(`${w}: ${m}`);
+  const toAge = (ds, w) => { const d = _parseISODate(ds); if (!d) { err(w, `invalid date ${_q(ds)}`); return null; } const a = _ageYears(birth, d); if (a < 0) { err(w, `date ${_q(ds)} precedes birthDate`); return null; } return a; };
+  const events = [];
+
+  // measurements → biomarker:<med>
+  _bundleArr(b.measurements).forEach((mz, i) => {
+    const w = `measurements[${i}]`;
+    const hasA = mz && mz.analyte != null, hasM = mz && mz.med != null;
+    let med = null;
+    if (hasA && hasM) {
+      const fromA = ctx.analyteMap[String(mz.analyte).toLowerCase()];
+      if (!fromA) return err(w, `analyte ${_q(mz.analyte)} is unmapped but med is also given (ambiguous — refusing to coerce)`);
+      if (fromA !== mz.med || !ctx.meds[mz.med]) return err(w, `analyte/med conflict (${_q(mz.analyte)}→${fromA} ≠ ${_q(mz.med)})`);
+      med = fromA;
+    } else if (hasA) {
+      med = ctx.analyteMap[String(mz.analyte).toLowerCase()];
+      if (!med) { report.unmapped.push(String(mz.analyte)); report.warnings.push(`${w}: analyte ${_q(mz.analyte)} unmapped — skipped (not used as a driver)`); return; }
+    } else if (hasM) {
+      if (!ctx.meds[mz.med]) return err(w, `unknown med ${_q(mz.med)}`);
+      med = mz.med;
+    } else return err(w, `needs an analyte or med`);
+    const conv = _resolveUnitConv(med, mz.unit);
+    if (!conv) return err(w, `missing/unconvertible unit ${_q(mz.unit)} for ${med} (canonical: ${ctx.meds[med].unit})`);
+    if (!Number.isFinite(mz.value)) return err(w, `value is not a finite number`);
+    const age = toAge(mz.date, w); if (age == null) return;
+    const cval = conv.apply(mz.value);
+    if (!Number.isFinite(cval)) return err(w, `converted value is not finite (unit-conversion overflow?)`);
+    if (age > ctx.AGE1 || age < ctx.AGE0) report.warnings.push(`${w}: age ${age.toFixed(1)} outside [${ctx.AGE0},${ctx.AGE1}] — will clamp`);
+    events.push({ channel: "biomarker:" + med, age, value: cval, _date: mz.date });
+    report.loaded.measurements++;
+  });
+
+  // treatments → treatment:<id> (start dose; explicit 0 at end)
+  _bundleArr(b.treatments).forEach((t, i) => {
+    const w = `treatments[${i}]`;
+    if (!t || !ctx.treatments.has(t.id)) return err(w, `unknown treatment ${_q(t && t.id)}`);
+    const dose = t.dose == null ? 1 : t.dose;
+    if (!Number.isFinite(dose) || dose < 0 || dose > 1) return err(w, `dose must be a number in [0,1]`);
+    const sAge = toAge(t.start, w); if (sAge == null) return;
+    let eAge = null;
+    if (t.end != null) { eAge = toAge(t.end, w + ".end"); if (eAge == null) return; if (eAge <= sAge) return err(w, `end must be after start`); }
+    events.push({ channel: "treatment:" + t.id, age: sAge, value: dose, _date: t.start });
+    if (eAge != null) events.push({ channel: "treatment:" + t.id, age: eAge, value: 0, _date: t.end });
+    report.loaded.treatments++;
+  });
+
+  // exposures → input:<id> step changes
+  _bundleArr(b.exposures).forEach((e, i) => {
+    const w = `exposures[${i}]`;
+    const spec = e && ctx.inputs[e.id];
+    if (!spec) return err(w, `unknown/unwired exposure ${_q(e && e.id)}`);
+    const changes = _bundleArr(e.changes);
+    if (!changes.length) return err(w, `empty changes[]`);
+    let n = 0;
+    changes.forEach((c, j) => {
+      const w2 = `${w}.changes[${j}]`;
+      const age = toAge(c && c.date, w2); if (age == null) return;
+      if (spec.categorical) { if (!spec.enum.includes(c.value)) return err(w2, `${_q(c.value)} not in {${spec.enum.join("|")}}`); }
+      else { if (!Number.isFinite(c.value)) return err(w2, `value is not a finite number`); if (spec.range && (c.value < spec.range[0] || c.value > spec.range[1])) report.warnings.push(`${w2}: ${c.value} outside model range [${spec.range}]`); }
+      events.push({ channel: "input:" + e.id, age, value: c.value, _date: c.date }); n++;
+    });
+    if (n) report.loaded.exposures++;
+  });
+
+  // nodeInterventions → intervention:<node> freeze windows
+  _bundleArr(b.nodeInterventions).forEach((nv, i) => {
+    const w = `nodeInterventions[${i}]`;
+    if (!nv || !ctx.nodes.has(nv.node)) return err(w, `unknown node ${_q(nv && nv.node)}`);
+    const eff = nv.efficacy == null ? 0.3 : nv.efficacy;
+    if (!Number.isFinite(eff) || eff < 0 || eff > 1) return err(w, `efficacy must be a number in [0,1]`);
+    const sAge = toAge(nv.start, w); if (sAge == null) return;
+    let eAge = null;
+    if (nv.end != null) { eAge = toAge(nv.end, w + ".end"); if (eAge == null) return; if (eAge <= sAge) return err(w, `end must be after start`); }
+    events.push({ channel: "intervention:" + nv.node, startAge: sAge, endAge: eAge, efficacy: eff, _date: nv.start });
+    report.loaded.nodeInterventions++;
+  });
+
+  // operators → operator:<presetId> pulses
+  _bundleArr(b.operators).forEach((o, i) => {
+    const w = `operators[${i}]`;
+    const spec = o && ctx.operators[o.id];
+    if (!spec) return err(w, `unknown operator ${_q(o && o.id)}`);
+    const dates = _bundleArr(o.dates);
+    if (!dates.length) return err(w, `empty dates[]`);
+    const ages = [];
+    dates.forEach((ds, j) => { const a = toAge(ds, `${w}.dates[${j}]`); if (a != null) ages.push(a); });
+    if (!ages.length) return;
+    let scenario = null;
+    if (o.scenario != null) {
+      const sc = o.scenario; scenario = {};
+      if (sc.killScenario != null) { if (!spec.kill.has(sc.killScenario)) return err(w, `bad killScenario ${_q(sc.killScenario)}`); scenario.killScenario = sc.killScenario; }
+      if (sc.reboundScenario != null) { if (!spec.rebound.has(sc.reboundScenario)) return err(w, `bad reboundScenario ${_q(sc.reboundScenario)}`); scenario.reboundScenario = sc.reboundScenario; }
+    }
+    const ev = { channel: "operator:" + o.id, ages, _dates: dates };
+    if (scenario) ev.scenario = scenario;
+    events.push(ev);
+    report.loaded.operators++;
+  });
+
+  const canon = canonicalizeHistoryEvents(events, ctx, report);
+  report.ok = report.errors.length === 0;
+  return { events: canon, sex, birthDate: b.birthDate, report };
+ } catch (e) {   // backstop for the exported object-input path (cyclic/exotic values) — report, never crash
+  report.errors.push("internal parse error: " + (e && e.message ? e.message : String(e)));
+  report.aborted = true;
+  return { events: [], sex: null, birthDate: null, report };
+ }
+}
+
 /* ============================ B-layer (Stage 1) ============================ */
 //
 // Endogenous-mediator tier. Exogenous behavioral/environmental inputs drive

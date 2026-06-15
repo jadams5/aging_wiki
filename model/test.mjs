@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp, solveOffsets, compileTimeline } from "./engine.mjs";
+import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp, solveOffsets, compileTimeline, parseHistoryBundle, buildBundleContext, canonicalizeHistoryEvents } from "./engine.mjs";
 import { validateGraph } from "./validate-graph.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -1172,6 +1172,137 @@ str("M2: biomarker events ⇒ anchors",
   const sim = simulate(MODEL, { sex: "male", offsets: solveOffsets(MODEL, { sex: "male" }, d.anchors) });
   str("M2: compiled biomarker anchors reproduce via solver",
     String(Math.abs(sim.medValues.LDL[40 - AGE0] - 150) < 1e-6 && Math.abs(sim.medValues.LDL[60 - AGE0] - 110) < 1e-6), "true");
+}
+
+/* ===================== M4: history-bundle importer ===================== */
+{
+  const CTX = buildBundleContext(MODEL);
+  const BD = "1980-01-01";
+  const P = (extra) => parseHistoryBundle({ bundleVersion: 1, birthDate: BD, ...extra }, CTX);
+
+  str("M4: empty bundle ⇒ 0 events + ok + not aborted",
+    String(P({}).events.length === 0 && P({}).report.ok && !P({}).report.aborted), "true");
+
+  str("M4: LDL measurement ⇒ biomarker event @ age40",
+    JSON.stringify(P({ measurements: [{ analyte: "ldl-c-mg-dl", date: "2020-01-01", value: 150, unit: "mg/dL" }] })
+      .events.map((e) => ({ c: e.channel, age: e.age, v: e.value }))),
+    JSON.stringify([{ c: "biomarker:LDL", age: 40, v: 150 }]));
+
+  num("M4: LDL mmol/L → mg/dL conversion (×38.67)",
+    P({ measurements: [{ analyte: "ldl-c", date: "2020-01-01", value: 3.9, unit: "mmol/L" }] }).events[0].value, 3.9 * 38.67, 1e-9);
+
+  str("M4: unknown unit rejected (no silent coercion)",
+    String((() => { const r = P({ measurements: [{ med: "LDL", date: "2020-01-01", value: 150, unit: "furlongs" }] }); return r.events.length === 0 && r.report.errors.length === 1; })()), "true");
+
+  str("M4: apoB analyte unmapped (NOT remapped to LDL)",
+    String((() => { const r = P({ measurements: [{ analyte: "apoB-mg-dl", date: "2020-01-01", value: 90, unit: "mg/dL" }] }); return r.report.unmapped.includes("apoB-mg-dl") && r.report.loaded.measurements === 0; })()), "true");
+
+  str("M4: apoB analyte + med:LDL ambiguous ⇒ rejected",
+    String((() => { const r = P({ measurements: [{ analyte: "apoB-mg-dl", med: "LDL", date: "2020-01-01", value: 90, unit: "mg/dL" }] }); return r.events.length === 0 && r.report.errors.length === 1; })()), "true");
+
+  str("M4: bundle multi-draw LDL reproduces via solver",
+    String((() => {
+      const r = P({ measurements: [
+        { analyte: "ldl-c-mg-dl", date: "2020-01-01", value: 150, unit: "mg/dL" },
+        { analyte: "ldl-c-mg-dl", date: "2040-01-01", value: 110, unit: "mg/dL" }] });
+      const sim = simulate(MODEL, { sex: "male", offsets: solveOffsets(MODEL, { sex: "male" }, compileTimeline(r.events).anchors) });
+      return Math.abs(sim.medValues.LDL[40 - AGE0] - 150) < 1e-6 && Math.abs(sim.medValues.LDL[60 - AGE0] - 110) < 1e-6;
+    })()), "true");
+
+  str("M4: same-grid-age collision keeps later draw + warns",
+    JSON.stringify((() => { const r = P({ measurements: [
+      { analyte: "ldl-c-mg-dl", date: "2020-01-01", value: 150, unit: "mg/dL" },
+      { analyte: "ldl-c-mg-dl", date: "2020-06-01", value: 140, unit: "mg/dL" }] });
+      return { n: r.events.length, v: r.events[0] && r.events[0].value, warned: r.report.warnings.length > 0 }; })()),
+    JSON.stringify({ n: 1, v: 140, warned: true }));
+
+  str("M4: treatment window ⇒ on@35 off@45",
+    JSON.stringify(P({ treatments: [{ id: "statin", start: "2015-01-01", end: "2025-01-01", dose: 1 }] })
+      .events.map((e) => ({ c: e.channel, age: e.age, v: e.value })).sort((a, b) => a.age - b.age)),
+    JSON.stringify([{ c: "treatment:statin", age: 35, v: 1 }, { c: "treatment:statin", age: 45, v: 0 }]));
+
+  str("M4: treatment dose>1 rejected",
+    String(P({ treatments: [{ id: "statin", start: "2015-01-01", dose: 1.5 }] }).report.errors.length === 1), "true");
+
+  str("M4: node-freeze date → window",
+    JSON.stringify(P({ nodeInterventions: [{ node: "cellular-senescence", start: "2040-01-01", end: null, efficacy: 0.3 }] })
+      .events.map((e) => ({ c: e.channel, s: e.startAge, e: e.endAge, eff: e.efficacy }))),
+    JSON.stringify([{ c: "intervention:cellular-senescence", s: 60, e: null, eff: 0.3 }]));
+
+  str("M4: operator dates → ages + scenario",
+    JSON.stringify(P({ operators: [{ id: "dq-one-off", dates: ["2040-01-01"], scenario: { killScenario: "optimistic" } }] })
+      .events.map((e) => ({ c: e.channel, ages: e.ages, sc: e.scenario }))),
+    JSON.stringify([{ c: "operator:dq-one-off", ages: [60], sc: { killScenario: "optimistic" } }]));
+
+  str("M4: smokingStatus categorical step import",
+    JSON.stringify(P({ exposures: [{ id: "smokingStatus", changes: [{ date: "2010-01-01", value: "current" }, { date: "2020-01-01", value: "former" }] }] })
+      .events.map((e) => ({ c: e.channel, age: e.age, v: e.value })).sort((a, b) => a.age - b.age)),
+    JSON.stringify([{ c: "input:smokingStatus", age: 30, v: "current" }, { c: "input:smokingStatus", age: 40, v: "former" }]));
+
+  str("M4: bad smokingStatus enum rejected",
+    String(P({ exposures: [{ id: "smokingStatus", changes: [{ date: "2010-01-01", value: "sometimes" }] }] }).report.errors.length === 1), "true");
+
+  str("M4: bad bundleVersion aborts (state untouched)",
+    String(parseHistoryBundle({ bundleVersion: 2, birthDate: BD }, CTX).report.aborted), "true");
+
+  str("M4: invalid JSON aborts", String(parseHistoryBundle("{not valid", CTX).report.aborted), "true");
+
+  str("M4: pre-birth date rejected",
+    String(P({ measurements: [{ med: "LDL", date: "1975-01-01", value: 150, unit: "mg/dL" }] }).report.errors.length === 1), "true");
+
+  str("M4: impossible calendar date (Feb 30) rejected",
+    String(P({ measurements: [{ med: "LDL", date: "2020-02-30", value: 150, unit: "mg/dL" }] }).report.errors.length === 1), "true");
+
+  str("M4: deterministic re-parse (idempotent replace)",
+    String((() => { const b = { bundleVersion: 1, birthDate: BD, measurements: [{ analyte: "ldl-c-mg-dl", date: "2020-01-01", value: 150, unit: "mg/dL" }] };
+      return JSON.stringify(parseHistoryBundle(b, CTX).events) === JSON.stringify(parseHistoryBundle(b, CTX).events); })()), "true");
+
+  /* --- M4.1 code-review (Codex gpt-5.5/xhigh) hardening --- */
+  str("M4: abort leaves 0 events + null sex/birthDate (state untouched)",
+    String((() => { const r = parseHistoryBundle({ bundleVersion: 2, birthDate: BD }, CTX); return r.events.length === 0 && r.sex === null && r.birthDate === null && r.report.aborted; })()), "true");
+
+  str("M4: prototype-key channels rejected, no throw (BLOCKER)",
+    JSON.stringify((() => { const r = P({
+      measurements: [{ med: "constructor", date: "2020-01-01", value: 1, unit: "mg/dL" }],
+      operators: [{ id: "__proto__", dates: ["2040-01-01"] }],
+      exposures: [{ id: "__proto__", changes: [{ date: "2020-01-01", value: 1 }] }] });
+      return { events: r.events.length, errors: r.report.errors.length, aborted: r.report.aborted }; })()),
+    JSON.stringify({ events: 0, errors: 3, aborted: false }));
+
+  str("M4: nested-entry cap counted (abort on 5001 changes)",
+    String((() => { const changes = []; for (let k = 0; k < 5001; k++) changes.push({ date: "2020-01-01", value: 1 });
+      return parseHistoryBundle({ bundleVersion: 1, birthDate: BD, exposures: [{ id: "alcohol", changes }] }, CTX).report.aborted; })()), "true");
+
+  num("M4: HbA1c mmol/mol → % conversion (IFCC→NGSP)",
+    P({ measurements: [{ analyte: "hba1c", date: "2020-01-01", value: 53, unit: "mmol/mol" }] }).events[0].value, (53 / 10.929) + 2.15, 1e-9);
+
+  str("M4: mapped analyte/med conflict rejected",
+    String(P({ measurements: [{ analyte: "ldl-c", med: "HbA1c", date: "2020-01-01", value: 150, unit: "mg/dL" }] }).report.errors.length === 1), "true");
+
+  str("M4: node-freeze end<start rejected",
+    String(P({ nodeInterventions: [{ node: "cellular-senescence", start: "2040-01-01", end: "2030-01-01", efficacy: 0.3 }] }).report.errors.length === 1), "true");
+
+  str("M4: same-bin treatment collapses to off + warns",
+    JSON.stringify((() => { const r = P({ treatments: [{ id: "statin", start: "2015-01-01", end: "2015-06-01", dose: 1 }] });
+      return { n: r.events.length, v: r.events[0] && r.events[0].value, warned: r.report.warnings.length > 0 }; })()),
+    JSON.stringify({ n: 1, v: 0, warned: true }));
+
+  str("M4: equal-valued same-bin collision still warns (report contract)",
+    JSON.stringify((() => { const r = P({ measurements: [
+      { analyte: "ldl-c-mg-dl", date: "2020-01-01", value: 150, unit: "mg/dL" },
+      { analyte: "ldl-c-mg-dl", date: "2020-06-01", value: 150, unit: "mg/dL" }] });
+      return { n: r.events.length, warned: r.report.warnings.length > 0 }; })()),
+    JSON.stringify({ n: 1, warned: true }));
+
+  str("M4: duplicate operator entries merge to one schedule",
+    JSON.stringify((() => { const r = P({ operators: [
+      { id: "dq-one-off", dates: ["2040-01-01"], scenario: { killScenario: "central" } },
+      { id: "dq-one-off", dates: ["2041-01-01"], scenario: { killScenario: "optimistic" } }] });
+      return { n: r.events.length, ages: r.events[0] && r.events[0].ages, kill: r.events[0] && r.events[0].scenario.killScenario }; })()),
+    JSON.stringify({ n: 1, ages: [60, 61], kill: "optimistic" }));
+
+  str("M4: converted-value overflow → Infinity rejected",
+    String(P({ measurements: [{ med: "LDL", date: "2020-01-01", value: Number.MAX_VALUE, unit: "mmol/L" }] }).report.errors.length === 1), "true");
 }
 
 export function runTests() {

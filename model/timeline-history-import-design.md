@@ -630,3 +630,140 @@ merge; scenario commit preserves the other key + falls back to preset defaults; 
   choice). The principled fix is **engine-side** (clamp each per-step freeze contribution to ≥0 so a freeze can
   never add burden) — a shared-path change needing re-baselining, hence M6 (freeze-semantics) work, not a
   dropdown-exclusion hack. #gap/freeze-nonmonotonic-liver
+
+---
+
+## 14. M4 — history-bundle importer (PLAN, 2026-06-15) — for Codex review before build
+
+**Goal.** Load a generic, person-agnostic **history-bundle JSON** into `state.timeline.events` so a real
+longitudinal history drives the sim. Refines §6 + §10/#13 + §8.6 against the now-built M2/M3 code.
+
+**Key architectural insight (keeps M4 a PURE app-side change — zero engine work).** `state.timeline.events`
+already accepts a calendar `date` per event, and `timelineEvents()` (`viz:6109`) already converts `date`→age
+via `state.timeline.birthDate`, and `currentOpts()`→`compileTimeline()` already turns events into engine opts.
+**So M4 = {validate bundle} → {map analytes→meds} → {emit timeline events with `date`/`age`} → push to
+`state.timeline.events`.** No new engine path; the M2 compile/solve + M3 render handle the rest.
+
+### 14.1 Bundle schema (v1) — reconciled with the real engine channels
+
+```json
+{
+  "bundleVersion": 1,
+  "birthDate": "1980-02-15",          // ISO; required to convert any dated entry → age
+  "sex": "male",                      // optional; "male" | "female"; sets state.sex if present
+  "measurements": [                   // → biomarker:<med> events
+    {"analyte":"ldl-c-mg-dl", "date":"2013-05-01", "value":150, "unit":"mg/dL", "assay":"...", "source":"..."}
+  ],
+  "treatments": [                     // → treatment:<id> step events (engine B.treatments ids)
+    {"id":"statin", "start":"2015-01-01", "end":null, "dose":1}
+  ],
+  "exposures": [                      // → input:<id> step events (PANEL_INPUT_IDS)
+    {"id":"alcohol", "changes":[{"date":"2005-01-01","value":3},{"date":"2018-06-01","value":0}]}
+  ],
+  "nodeInterventions": [              // → intervention:<node> freeze windows (rare in real history; optional)
+    {"node":"cellular-senescence", "start":"2026-01-01", "end":null, "efficacy":0.3}
+  ],
+  "operators": [                      // → operator:<presetId> campaigns
+    {"id":"dq-one-off", "dates":["2026-03-01"], "scenario":{"killScenario":"central","reboundScenario":"central"}}
+  ]
+}
+```
+Notes: arrays are **explicit per channel** (unlike §6's conflated "interventions") so each maps to one timeline
+channel unambiguously. Every array is optional; an empty/absent array contributes no events (⇒ the empty-bundle
+invariant: importing `{bundleVersion:1,birthDate}` changes nothing).
+
+### 14.2 Analyte → mediator mapping (public, generic)
+
+```
+ANALYTE_MED_MAP = {
+  ldl-c-mg-dl|ldl-mg-dl            → LDL
+  hba1c-pct                        → HbA1c
+  bp-systolic-mmhg|sbp-mmhg        → systolicBP
+  bmi|bmi-kg-m2                    → BMI
+  resting-hr-bpm|rhr-bpm           → restingHR
+}
+```
+- Keys follow the personal lab-panel `snake-case-with-units` convention so the (private) transform can emit them
+  directly from `analytes:` frontmatter.
+- **`apoB-*` is DELIBERATELY ABSENT** (§10 #13 — apoB ≠ LDL-C; no silent numeric remap). An apoB analyte →
+  **unmapped** (annotation only) until a dedicated apoB mediator exists. `#gap/apob-mediator`.
+- A `measurements[].med` may also be given **directly** (already an engine med id like `LDL`) — accept either
+  `analyte` (mapped) or `med` (direct, validated against `LAB_FIELDS`).
+- **Unmapped analytes** are dropped from drivers and listed in the import report (never silently mapped).
+
+### 14.3 Pipeline (pure functions, headless-testable)
+
+`parseHistoryBundle(json) → { events, sex, birthDate, report }`:
+1. **Validate** (collect, don't throw-on-first): `bundleVersion===1`; `birthDate` valid ISO; `sex∈{male,female}`
+   or absent; each entry's `date`/`start` valid ISO; `value`/`dose`/`efficacy` finite; `id`/`node` resolves
+   (treatment∈B.treatments, input∈PANEL_INPUT_IDS, node∈NODES non-stub, operator∈OPERATOR_PRESETS); scenario
+   keys ∈ preset's scenario sets. Unknown/garbage → **report.errors / report.warnings**, entry skipped.
+2. **Map** analytes→meds (drop+report unmapped).
+3. **Emit** timeline events carrying `date` (preferred — the engine converts via birthDate) with stable ids via
+   `nextHistId()`: measurement→`{channel:"biomarker:MED", date, value}`; treatment→`{channel:"treatment:id",
+   date:start, value:dose}` (+ an explicit `dose:0` step at `end` when present); exposure.changes→one
+   `input:id` step per change; nodeIntervention→`{channel:"intervention:node", startAge?/start, endAge?/end,
+   efficacy}` (convert start/end via birthDate at compile, or pre-convert — see §14.5); operator→
+   `{channel:"operator:id", ages:[…from dates], scenario}`.
+4. Return events + parsed `sex`/`birthDate` + a structured **report** (loaded counts per channel, warnings,
+   unmapped analytes, errors).
+
+### 14.4 Same-year / annual-grid binning (§8.6 decision — settle here)
+
+Dates → fractional ages → **snap to nearest integer grid age** (round). Per-channel collision policy reuses the
+M3 rules: step/biomarker → one event per grid age (later date wins on a tie, via the existing
+`mergeHistCollision`); operator → same-grid-year pulses collapse to one (the M1 annual-grid policy). The report
+notes any collisions dropped, so the user sees that two same-year draws merged. **Recommended: round** (simpler +
+matches the existing snap); interval-weighting / sub-annual DT stay out (would force an engine re-pin).
+
+### 14.5 birthDate / privacy posture (§10 #13) — the one real decision
+
+The strict §10 #13 line is "discard birthDate immediately after age conversion." But the M3 calendar axis + the
+now-cursor BOTH read `state.timeline.birthDate`, and the user already enters DOB **manually** in the field today.
+**Recommendation (Option A — RAM-only, no-persist):** the importer converts every dated entry → age, stores
+events with **`age`** (pre-converted, so `birthDate` is not needed downstream), and sets `state.timeline.birthDate`
+**in RAM only** (identical to manual entry — enables the calendar axis) while **guaranteeing no persistence**:
+no `localStorage`, no network, no logging of bundle contents. This is no more identifying than the existing
+manual DOB field. **Option B (strict-discard):** pre-convert to ages, then **null out** `birthDate` → age-only
+axis (no calendar). *Decision for the user.* Either way: **memory-only, no localStorage default, no network.**
+
+### 14.6 UI (History & plan panel)
+
+A collapsible **"Import history"** strip in the panel: a `<input type="file" accept=".json,application/json">`
+picker **and** a paste-JSON `<textarea>` + **Load** button, plus a read-only **import-report** area (per-channel
+loaded counts, warnings, unmapped analytes, errors). Load semantics: **replace** the timeline by default (a
+bundle is a full history; re-import is then idempotent) with a confirm if the timeline is non-empty; an
+**Append** toggle for additive loads. Then `renderAll()`. No auto-load, no persisted file handle.
+
+### 14.7 The private half (NOT built in this public repo)
+
+The transform that reads the personal lab-panel frontmatter + plan start dates + tracking CSVs and **emits the
+bundle JSON locally** lives in the **private** personal-tracking repo. It is out of public scope and is only
+referenced here in prose — **no handle, no `protocols/` wikilink, no absolute path** enters `model/` or `viz/`.
+Leak-gate every commit.
+
+### 14.8 Staging + tests
+
+- **M4.1** — schema + `parseHistoryBundle()` + `ANALYTE_MED_MAP` + binning, as pure functions. Headless tests:
+  empty-bundle invariant (no events ⇒ baseline LE byte-identical); a multi-draw LDL bundle reproduces each value
+  at its age; apoB → unmapped+reported; bad version/date/enum → reported-not-thrown; same-year collision merge;
+  treatment start/stop window; operator dates→ages+scenario.
+- **M4.2** — the importer UI + report wired into the panel (file picker + paste + Load + replace/append).
+- **M4.3** — privacy hardening (assert no `localStorage`/network writes; the birthDate Option-A/B decision) +
+  the §8.6 binning report. Leak-gate.
+- **M4.4** — **bundle template + generation SOP** (user-requested 2026-06-15). A PUBLIC, person-agnostic
+  artifact pair so the bundle is reproducibly generatable: (a) `model/history-bundle.example.json` — a valid,
+  fully-populated example covering every channel (fake DOB/values), loadable as a demo + usable as a
+  parser-validated test fixture; (b) `sops/generating-history-bundle.md` — the process SOP (schema field-by-
+  field, the analyte→mediator table, the unit requirement + conversions, same-year binning behavior, what the
+  validator rejects vs warns, the memory-only/client-side privacy posture, and a GENERIC description of how a
+  private transform emits the bundle from personal records). Indexed in CLAUDE.md's SOP list. **Leak discipline:**
+  both files are generic — no person handle, no `protocols/` wikilink, no absolute path; the private transform's
+  real mechanics stay in the private repo (§14.7), described here only in prose.
+- Out of M4: the private transform itself (§14.7); the clock overlay (M5).
+
+### 14.9 Open decisions for the user
+1. **birthDate**: Option A (RAM-only calendar axis, recommended) vs Option B (strict-discard, age-only).
+2. **Load semantics**: replace-default (recommended) vs append-default vs always-merge.
+3. **apoB**: skip-as-unmapped for M4 (recommended; `#gap/apob-mediator`) vs add a dedicated apoB mediator now
+   (bigger — new mediator + coeff, engine work).

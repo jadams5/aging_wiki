@@ -1,0 +1,30 @@
+{
+  "bundleVersion": 1,
+  "birthDate": "1980-04-12",
+  "sex": "male",
+  "measurements": [
+    { "analyte": "ldl-c-mg-dl", "date": "2015-03-02", "value": 150, "unit": "mg/dL", "assay": "direct", "source": "annual physical" },
+    { "analyte": "ldl-c-mg-dl", "date": "2020-03-09", "value": 120, "unit": "mg/dL", "source": "annual physical (on statin)" },
+    { "analyte": "hba1c-pct", "date": "2020-03-09", "value": 5.4, "unit": "%", "source": "annual physical" },
+    { "analyte": "bp-systolic-mmhg", "date": "2020-03-09", "value": 128, "unit": "mmHg", "source": "home cuff, seated, arm at heart level" },
+    { "analyte": "bmi-kg-m2", "date": "2020-03-09", "value": 26.4, "unit": "kg/m^2" },
+    { "analyte": "resting-hr-bpm", "date": "2020-03-09", "value": 58, "unit": "bpm", "source": "wearable, 30-day average" }
+  ],
+  "treatments": [
+    { "id": "statin", "start": "2018-06-01", "end": null, "dose": 1 }
+  ],
+  "exposures": [
+    { "id": "smokingStatus", "changes": [
+      { "date": "2000-09-01", "value": "current" },
+      { "date": "2011-01-15", "value": "former" }
+    ] },
+    { "id": "alcohol", "changes": [
+      { "date": "2005-01-01", "value": 4 },
+      { "date": "2019-01-01", "value": 1 }
+    ] }
+  ],
+  "nodeInterventions": [],
+  "operators": [
+    { "id": "dq-one-off", "dates": ["2026-05-01"], "scenario": { "killScenario": "central", "reboundScenario": "central" } }
+  ]
+}
