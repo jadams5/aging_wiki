@@ -529,8 +529,21 @@ P0/P1 rules adopted before implementation:
   Verified headless (uniq/categorical/clamp/garbage-reject/merge/window-order/cue all pass); 251/251 tests;
   default app pristine. *(Follow-up: input/intervention scalar controls override-not-exclude so they aren't
   silent no-ops; their visual disable is deferred.)*
-- **Next:** **M3.3** drag polish (optional; pointer-capture, preview-on-move, commit-on-`pointerup`) — now
-  sound to build on.
+- **Final Codex pass (gpt-5.5/high) — folded.** It found ownership was still by raw event-existence (an inert
+  event could suppress a working scalar) and a few validation gaps. All closed: **effective ownership**
+  (`isEffectiveHistEvent` — an empty operator schedule / NaN-age biomarker / startAge-less intervention /
+  unknown channel no longer owns its scalar); **channel-ID validation** (`histChannelMeta` checks the id, so
+  `input:typo` → "other" → no phantom lane, no ownership); **transactional operator-ages** (any invalid token
+  rejects the edit, keeps the prior schedule); **window revalidation** on `startAge` edit (`fixHistWindow`,
+  with the `AGE1` edge → open-ended); viewBox set only at the atomic swap. Verified headless (inert event
+  doesn't disable the scalar lab + scalar still anchors; transactional ages; window fix; phantom-lane skip);
+  251/251 tests; default pristine.
+- **M3.3 drag — DEFERRED (Codex-concurred).** Pointer-drag is the one interaction that can't be verified with
+  `--dump-dom` (no Playwright here), so it should land when it can be tested interactively. Vetted recipe is in
+  §12 (pointerdown→setPointerCapture→preview-on-move→clamp/validate/merge + commit-on-`pointerup`; 4–6px
+  threshold; suppress post-drag click; order: exposure/treatment age-drag → biomarker age+value → intervention
+  handles → operator ticks). **M3 (editable timeline) is otherwise COMPLETE.** Next milestone: **M4 importer**
+  (private history bundle → events) — out of M3 scope, for a future session.
 
 **M2 solver review (Codex gpt-5.5/xhigh, 2026-06-14) — folded.** Codex confirmed the invariant holds and
 `LE_cond` is correct, but found the solver was **not guaranteed to converge and could silently return wrong

@@ -6010,12 +6010,22 @@ PANEL_INPUT_IDS.forEach(id => {
    `base` is the current scenario WITHOUT offsets. Convergence is recorded in `_anchorStatus` and surfaced. */
 let _anchorStatus = { converged: true, maxMiss: 0, dropped: [] };
 // Anchors from the scalar lab fields (each measured at the current age). Timeline biomarker events add more.
-// M3 channel ownership: the set of "kind:id" channels that have timeline events. A channel owned by the
-// timeline EXCLUDES its scalar counterpart from currentOpts() (and the scalar control is disabled) so the two
-// UIs can't double-feed — a scalar lab + a timeline biomarker for the same med, or a preset firing from both.
+// M3 channel ownership: a channel owned by the timeline EXCLUDES its scalar counterpart from currentOpts()
+// (and the scalar control is disabled). Ownership requires an EFFECTIVE event — one that compiles to a real
+// action — so an inert event (empty operator schedule, NaN biomarker age, missing intervention startAge,
+// unknown channel) does NOT silently suppress a working scalar.
+function isEffectiveHistEvent(ev){
+  const meta = histChannelMeta(ev.channel);
+  if (meta.group === "other") return false;
+  if (meta.kind === "operator")     return Array.isArray(ev.ages) && ev.ages.some(a => Number.isFinite(a));
+  if (meta.kind === "intervention") return Number.isFinite(ev.startAge);
+  if (!Number.isFinite(ev.age)) return false;                                  // input / treatment / biomarker need a real age
+  if (meta.id === "smokingStatus") return ev.value === "never" || ev.value === "former" || ev.value === "current";
+  return Number.isFinite(+ev.value);
+}
 function timelineChannelSet(){
   const s = new Set();
-  for (const ev of (state.timeline && state.timeline.events) || []) if (ev && ev.channel) s.add(ev.channel);
+  for (const ev of (state.timeline && state.timeline.events) || []) if (ev && ev.channel && isEffectiveHistEvent(ev)) s.add(ev.channel);
   return s;
 }
 function scalarLabAnchors(){
@@ -7468,11 +7478,13 @@ function ensureHistIds(){
 // Channel "kind:id" → display meta.
 function histChannelMeta(ch){
   const i = ch.indexOf(":"); const kind = i < 0 ? ch : ch.slice(0, i), id = i < 0 ? "" : ch.slice(i + 1);
-  if (kind === "input")        { const inp = EXO_BY_ID[id]; return { group:"exposure", kind, id, label: inp?inp.label:id, color:"#5a6b7b" }; }
-  if (kind === "treatment")    return { group:"treatment", kind, id, label: id, color:"#2e86c1" };
-  if (kind === "intervention") { const n = NODE_BY_ID[id]; return { group:"intervention", kind, id, label: n?n.label:id, color:"#7d3c98" }; }
-  if (kind === "operator")     { const p = OPERATOR_PRESETS.find(x=>x.id===id); return { group:"intervention", kind, id, label: p?p.label:id, color:"#af7ac5" }; }
-  if (kind === "biomarker")    return { group:"biomarker", kind, id, label: LAB_LABEL_BY_MED[id]||id, color: MED_COLOR[id]||"#888", range: MED_SCALE[id]||{lo:0,hi:1} };
+  // Validate the ID against the known catalog too (not just the kind) — an unknown id (input:typo, biomarker:typo)
+  // is "other", so it's skipped in the render AND can't own a scalar.
+  if (kind === "input" && EXO_BY_ID[id])                                   return { group:"exposure", kind, id, label: EXO_BY_ID[id].label, color:"#5a6b7b" };
+  if (kind === "treatment" && ((typeof B !== "undefined" && B.treatments) || []).some(t => t.id === id)) return { group:"treatment", kind, id, label: id, color:"#2e86c1" };
+  if (kind === "intervention" && NODE_BY_ID[id])                           return { group:"intervention", kind, id, label: NODE_BY_ID[id].label, color:"#7d3c98" };
+  if (kind === "operator" && OPERATOR_PRESETS.some(p => p.id === id))       { const p = OPERATOR_PRESETS.find(x => x.id === id); return { group:"intervention", kind, id, label: p.label, color:"#af7ac5" }; }
+  if (kind === "biomarker" && LAB_FIELDS.some(f => f.med === id))           return { group:"biomarker", kind, id, label: LAB_LABEL_BY_MED[id] || id, color: MED_COLOR[id] || "#888", range: MED_SCALE[id] || { lo: 0, hi: 1 } };
   return { group:"other", kind, id, label: ch, color:"#888" };
 }
 function histEventAge(ev){
@@ -7512,7 +7524,7 @@ function renderHistoryTimeline(sim){
     });
     const nLanes = Math.max(1, channels.length);
     const H = HIST.t + nLanes * (HIST.laneH + HIST.laneGap) + HIST.b;
-    svg.setAttribute("viewBox", `0 0 ${HIST.W} ${H}`);
+    const setViewBox = () => svg.setAttribute("viewBox", `0 0 ${HIST.W} ${H}`);   // set only at the atomic swap (below)
     const bd = state.timeline && state.timeline.birthDate ? new Date(state.timeline.birthDate) : null;
     const birthYear = bd && !isNaN(bd.getTime()) ? bd.getFullYear() : null;
     for (let a = Math.ceil(AGE0 / 10) * 10; a <= xMax + 1e-6; a += 10) {
@@ -7528,7 +7540,7 @@ function renderHistoryTimeline(sim){
     if (!channels.length) {
       el("text", { x: HIST.l + plotW / 2, y: HIST.t + 44, "text-anchor": "middle", "font-size": "13", fill: "#999" }, frag).textContent =
         "No events yet — use the buttons above to add exposures, treatments, interventions, or lab measurements over time.";
-      svg.replaceChildren(frag);
+      setViewBox(); svg.replaceChildren(frag);
       return;
     }
     channels.forEach((ch, li) => {
@@ -7587,7 +7599,7 @@ function renderHistoryTimeline(sim){
         evs.forEach(ev => { const x = xOf(ev.age), y = yOfV(+ev.value); glyph("circle", { cx: x, cy: y, r: "3.9", fill: meta.color, stroke: "#fff", "stroke-width": "1.4", "data-id": ev.id }); el("text", { x: x + 5, y: y - 4, "font-size": "9.5", fill: meta.color }, frag).textContent = histVal(ev.value); });
       }
     });
-    svg.replaceChildren(frag);
+    setViewBox(); svg.replaceChildren(frag);
   } catch (err) {
     // We build into a detached fragment, so the live SVG still shows the PRIOR chart — leave it (don't clear).
     console.warn("renderHistoryTimeline failed (keeping prior chart):", err);
@@ -7680,20 +7692,30 @@ function commitEditorField(id, inp){
   const ev = findHistEvent(id); if (!ev) return;
   const k = inp.dataset.k, raw = inp.value, meta = histChannelMeta(ev.channel);
   if (k === "ages") {
-    ev.ages = Array.from(new Set(raw.split(",").map(s => +s.trim()).filter(Number.isFinite).map(clampAge))).sort((a, b) => a - b);
+    // Transactional: ANY invalid (or empty) token rejects the whole edit and keeps the prior schedule.
+    const tokens = raw.split(",").map(s => s.trim()).filter(s => s !== "");
+    const nums = tokens.map(s => +s);
+    if (tokens.length && nums.every(Number.isFinite)) ev.ages = Array.from(new Set(nums.map(clampAge))).sort((a, b) => a - b);
   } else if (k === "endAge") {
     if (raw.trim() === "") ev.endAge = null;
-    else { const n = +raw; if (Number.isFinite(n)) { let e = clampAge(n); if (ev.startAge != null && e <= ev.startAge) e = Math.min(AGE1, clampAge(ev.startAge) + 1); ev.endAge = e; } }   // enforce end > start
+    else { const n = +raw; if (Number.isFinite(n)) { ev.endAge = clampAge(n); fixHistWindow(ev); } }
   } else if (k === "efficacy") {
     const n = +raw; if (Number.isFinite(n)) ev.efficacy = Math.max(0, Math.min(1, n));
   } else if (k === "value") {
     if (meta.id === "smokingStatus") ev.value = raw;
     else { const n = +raw; if (Number.isFinite(n)) ev.value = (meta.group === "treatment") ? Math.max(0, n) : n; }   // dose ≥ 0; keep prior on garbage
   } else if (k === "age" || k === "startAge") {
-    const n = +raw; if (Number.isFinite(n)) { ev[k] = clampAge(n); if (k === "age") mergeHistCollision(ev); }
+    const n = +raw; if (Number.isFinite(n)) { ev[k] = clampAge(n); if (k === "age") mergeHistCollision(ev); if (k === "startAge") fixHistWindow(ev); }
   }
   syncHistoryEditor();   // reflect normalized values back into the fields
   renderAll();
+}
+// Keep an intervention window valid after a start/end edit: end must exceed start; at AGE1 a finite window is
+// impossible, so fall back to an open-ended window (endAge = null) rather than a degenerate AGE1–AGE1.
+function fixHistWindow(ev){
+  if (ev.startAge == null || ev.endAge == null) return;
+  const sa = clampAge(ev.startAge);
+  if (ev.endAge <= sa) ev.endAge = sa < AGE1 ? Math.min(AGE1, sa + 1) : null;
 }
 // "+ Add" toolbar (type → channel → add at now). Built once at boot.
 function buildHistoryAddBar(){
