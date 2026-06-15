@@ -350,20 +350,17 @@
         <input type="date" id="birthDate">
         <span id="historyAddBar" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;"></span>
       </div>
-      <details id="historyImport" style="margin:0 0 8px;">
-        <summary style="cursor:pointer; font-size:11px; color:var(--muted);">Import a history bundle (JSON) &mdash; <b>replaces</b> the timeline · stays in your browser, nothing is uploaded</summary>
-        <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; margin-top:6px;">
-          <div style="display:flex; flex-direction:column; gap:4px;">
+      <div id="historyImport" style="margin:0 0 8px;">
+        <button id="historyImportToggle" type="button" style="cursor:pointer;">Import history bundle (JSON)&hellip;</button>
+        <div id="historyImportPanel" style="display:none; margin-top:6px;">
+          <div style="font-size:11px; color:var(--muted); margin-bottom:5px;"><b>Replaces</b> the timeline &middot; stays in your browser, nothing is uploaded.</div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <input type="file" id="historyFile" accept=".json,application/json" style="font-size:11px;">
             <button id="historyLoadFile" style="cursor:pointer;">Load file</button>
           </div>
-          <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:260px;">
-            <textarea id="historyPaste" rows="4" spellcheck="false" placeholder='{ "bundleVersion": 1, "birthDate": "1980-04-12", "measurements": [ … ] }' style="width:100%; font-family:monospace; font-size:11px;"></textarea>
-            <button id="historyLoadPaste" style="cursor:pointer; align-self:flex-start;">Load pasted JSON</button>
-          </div>
+          <div id="historyImportReport" style="margin-top:6px; font-size:11px; line-height:1.45;"></div>
         </div>
-        <div id="historyImportReport" style="margin-top:6px; font-size:11px; line-height:1.45;"></div>
-      </details>
+      </div>
       <svg id="historySvg" viewBox="0 0 1080 240" preserveAspectRatio="xMidYMin meet" style="width:100%; background:#fcfcfd; border:1px solid #eef0f2; border-radius:6px;"></svg>
       <div id="historyEditor" class="readout" style="margin-top:6px;"></div>
     </div>
@@ -8133,10 +8130,11 @@ function importHistoryBundle(text){
   }
 }
 function buildHistoryImporter(){
+  const toggle = document.getElementById("historyImportToggle");
+  const panel = document.getElementById("historyImportPanel");
   const fileInput = document.getElementById("historyFile");
   const fileBtn = document.getElementById("historyLoadFile");
-  const pasteEl = document.getElementById("historyPaste");
-  const pasteBtn = document.getElementById("historyLoadPaste");
+  if (toggle && panel) toggle.addEventListener("click", () => { panel.style.display = (panel.style.display === "none") ? "block" : "none"; });
   if (fileBtn && fileInput) fileBtn.addEventListener("click", () => {
     const f = fileInput.files && fileInput.files[0];
     if (!f){ renderImportReport({ aborted: true, errors: ["choose a .json file first"] }); return; }
@@ -8146,7 +8144,6 @@ function buildHistoryImporter(){
     reader.onerror = () => { if (gen !== _historyImportGen) return; renderImportReport({ aborted: true, errors: ["could not read the file"] }); };
     reader.readAsText(f);
   });
-  if (pasteBtn && pasteEl) pasteBtn.addEventListener("click", () => { ++_historyImportGen; if (importHistoryBundle(pasteEl.value)) pasteEl.value = ""; });  // supersede any in-flight read; clear paste on a successful commit
 }
 
 function renderAll(){
@@ -8406,7 +8403,6 @@ document.getElementById("resetAll").addEventListener("click", () => {
   // M4.2: clear the importer UI + report (don't leave bundle data sitting in the DOM); invalidate any in-flight read
   _historyImportGen++;
   const fEl = document.getElementById("historyFile"); if (fEl) fEl.value = "";
-  const pEl = document.getElementById("historyPaste"); if (pEl) pEl.value = "";
   const rEl = document.getElementById("historyImportReport"); if (rEl) rEl.replaceChildren();
   buildBlayerControls();
   syncIntervControls();
