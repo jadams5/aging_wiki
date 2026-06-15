@@ -767,3 +767,35 @@ Leak-gate every commit.
 2. **Load semantics**: replace-default (recommended) vs append-default vs always-merge.
 3. **apoB**: skip-as-unmapped for M4 (recommended; `#gap/apob-mediator`) vs add a dedicated apoB mediator now
    (bigger — new mediator + coeff, engine work).
+
+**Decisions locked (user, 2026-06-15):** DOB = **Option A** (RAM-only calendar axis; no persistence — the app is
+fully client-side, nothing is uploaded). Load = **replace-only** (informed confirm; append deferred). apoB =
+**skip-as-unmapped**.
+
+### M4 build status (2026-06-15) — COMPLETE
+
+All app-side; engine math/invariant untouched (the parser is a pure sibling of `compileTimeline`). **280/280
+tests** (251 baseline + 29 M4). Three commits.
+
+- **M4.1 — parser (engine)** ✅ committed `7a12744`. `parseHistoryBundle()`/`buildBundleContext()`/
+  `canonicalizeHistoryEvents()` in `engine.mjs`; validates an untrusted bundle, maps analytes→meds, converts
+  units, converts dates→**ages**, emits id-less numeric timeline events; root errors abort, per-entry errors
+  skip+report. **Codex gpt-5.5/xhigh** review folded: BLOCKER prototype-pollution → null-proto lookup maps;
+  HIGH nested-cap + global intervention/operator dedup; MEDIUM converted-value finiteness + non-throwing `_q()`
+  + try/catch backstop; LOW canonicalize defensiveness + warn-all-collisions.
+- **M4.4 — template + SOP** ✅ committed `7a12744`. `model/history-bundle.example.json` (parser-validated) +
+  `sops/generating-history-bundle.md` (format spec + generation recipe). *(CLAUDE.md SOP-index line deferred —
+  CLAUDE.md had an unrelated pending edit; add it when that settles.)*
+- **M4.2 — importer UI** ✅ committed `a7bb76b`. "Import a history bundle (JSON)" strip (file picker + paste +
+  Load) in the History & plan panel; `textContent`-only report; **replace-with-informed-confirm**; DOB Option-A
+  sync (birthDate + currentAge + sex); FileReader local-only. **Codex gpt-5.5/xhigh** review folded (no
+  blocker/high): informed-confirm + 0-events-with-errors guard + cancel-reports-unchanged; FileReader
+  generation-guard; future-DOB warning; transactional snapshot/rollback. **Verified in real headless Chrome**:
+  example imports 12 events/9 channels, LE 77.5→77.2, currentAge→46, sex syncs; `<img onerror>` analyte stays
+  inert (no XSS); malformed bundles report without erasing.
+- **M4.3 — privacy/report hardening** ✅ folded INTO M4.2 (textContent report, no persistence/network, gen-guard,
+  rollback, input clearing). No separate step needed.
+
+**M4 COMPLETE.** Out of scope / next: the **private transform** that emits a real bundle stays in the private
+repo (§14.7 — never public); **M5** clock overlay (measured-only); **M6/M7** (direct-graph-change + UI
+consolidation, §13).
