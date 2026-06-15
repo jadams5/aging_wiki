@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp } from "./engine.mjs";
+import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp, solveOffsets } from "./engine.mjs";
 import { validateGraph } from "./validate-graph.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -1059,6 +1059,37 @@ num("M1: activity all-cause consumer — scalar==flat profile (LE)",
   // limitation; sub-annual DT deferred to M2 binning decision). Documented, not silent.
   const twoSameYear = simulate(MODEL, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.3, ages: [60.1, 60.4] }] }).B["cellular-senescence"][m1idx(62)];
   num("M1: same grid-year pulses COLLAPSE to one dose (annual-grid policy)", twoSameYear, opB(60), 1e-12);
+}
+
+/* ================= M2: b2-lite offset solver (2026-06-14) =================
+   solveOffsets() finds personal-offset profiles that make simulate() reproduce measured biomarker anchors
+   EXACTLY — even for a feedback mediator (HbA1c) or simultaneous coupled anchors (BMI→SBP) that the M1
+   one-shot residual only approximated. Residuals are computed against the FULL simulate() pipeline (post
+   stiffness→SBP augment, node burdens, operators). See model/timeline-history-import-design.md §11. */
+function anchorMiss(opts, anchors, iterations = 20) {
+  const offsets = solveOffsets(MODEL, opts, anchors, { iterations });
+  const sim = simulate(MODEL, { ...opts, offsets });
+  let m = 0;
+  for (const a of anchors) m = Math.max(m, Math.abs(a.measured - sim.medValues[a.med][Math.round(a.age - AGE0)]));
+  return m;
+}
+num("M2: solver — LDL single anchor reproduces under statin (≤1e-9)",
+  anchorMiss({ sex: "male", treatments: { statin: true } }, [{ med: "LDL", age: 55, measured: 95 }]), 0, 1e-9);
+num("M2: solver — HbA1c FEEDBACK anchor reproduces (M1 was approximate; ≤1e-6)",
+  anchorMiss({ sex: "male" }, [{ med: "HbA1c", age: 72, measured: 8.5 }]), 0, 1e-6);
+num("M2: solver — simultaneous BMI+SBP both reproduce despite BMI→SBP (≤1e-6)",
+  anchorMiss({ sex: "male" }, [{ med: "BMI", age: 60, measured: 32 }, { med: "systolicBP", age: 60, measured: 145 }]), 0, 1e-6);
+num("M2: solver — SBP reproduces under a senescence freeze (full-pipeline residual; ≤1e-6)",
+  anchorMiss({ sex: "male", interventions: { "cellular-senescence": { startAge: 40, efficacy: 0.5 } } },
+    [{ med: "systolicBP", age: 70, measured: 150 }]), 0, 1e-6);
+num("M2: solver — multi-draw LDL trajectory reproduces every draw (≤1e-9)",
+  anchorMiss({ sex: "male" }, [{ med: "LDL", age: 40, measured: 150 }, { med: "LDL", age: 55, measured: 120 }, { med: "LDL", age: 65, measured: 100 }]), 0, 1e-9);
+str("M2: solver — no anchors ⇒ empty offsets", String(Object.keys(solveOffsets(MODEL, { sex: "male" }, [])).length === 0), "true");
+// pre-first-draw (R1 §8.2): residual is ~0 before the first draw, not flat-held backward.
+{
+  const off = solveOffsets(MODEL, { sex: "male" }, [{ med: "LDL", age: 60, measured: 200 }]);
+  const lane = resolveProfile(off.LDL, [...Array(111)].map((_, i) => 20 + i), 0);
+  str("M2: solver — residual ~0 before the first draw (R1 pre-first-zero)", String(Math.abs(lane[30 - 20]) < 1e-9), "true");
 }
 
 export function runTests() {

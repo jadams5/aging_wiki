@@ -408,7 +408,12 @@ fixed** (offset no longer multiplied by the treatment). Reproduction scope under
 | 6 | Same-grid-year pulses collapse | **Policy decided for M1:** collapse to one dose (annual-grid limitation; sub-annual DT deferred). Pinned by an explicit test. |
 | 7 | App not M2-ready (`run()` omits `currentAge`; `computeOffsets` standalone) | M2 work — folded into the M2 task list (forward `currentAge`; rebuild `computeOffsets` on the full pipeline + ordered+iterated solve). |
 
-**M2 task list (carried forward):** (a) `computeOffsets()` → full-`simulate()` pipeline, topological order,
-2–3 iteration fixed point (exact anchoring incl. HbA1c/coupled); (b) `run()`/`currentOpts()` forward
-`currentAge` so `LE_cond` surfaces; (c) pre-first-draw zero/shrink residual via app-side knot construction;
-(d) timeline `state` model + compile (§4); (e) date↔age + same-year binning UI decision (§8.6).
+**M2 task list:** (a) ✅ **DONE** — `solveOffsets()` engine helper: b2-lite fixed-point that anchors against the
+FULL `simulate()` pipeline (post stiffness→SBP augment, node burdens, operators). Exact reproduction now for
+HbA1c-feedback + simultaneous coupled anchors + multi-draw + under node-freeze (tests `M2:` in `test.mjs`).
+App `computeOffsets()` rewired onto it. (b) ✅ **DONE** — `run()`/`currentOpts()` forward `currentAge`;
+`LE_cond` surfaced in the readout ("≈ N yrs expected age at death, given you've reached X"). (c) ✅ **DONE** —
+`solveOffsets` prepends a zero knot one grid-step before the first draw (R1 pre-first-zero; `preFirst:"hold"`
+opts out). **Remaining:** (d) timeline `state.timeline` events model + `compileTimeline()` (§4) — the data-model
+foundation for the M3 panel; (e) date↔age + same-year binning UI decision (§8.6). Verified: 232/232 tests +
+headless-Chrome render smoke (cohort 77.5 / conditional 79.1 @ age 40, panels render).

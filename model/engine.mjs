@@ -608,6 +608,73 @@ export function lifeExpectancy(MODEL, opts) {
   return simulate(MODEL, opts).LE;
 }
 
+/**
+ * solveOffsets(MODEL, opts, anchors, {iterations, returnMaxMiss}) — M2 b2-lite personal-offset solver.
+ *
+ * Given measured biomarker anchors `[{med, age, measured}]`, find per-mediator personal-offset profiles
+ * (linear, knotted at the anchor ages) such that `simulate(MODEL, {...opts, offsets})` reproduces every
+ * measured value at its age — EXACTLY, even when the mediator sits in a feedback loop (HbA1c glucotoxic
+ * spiral) or several coupled mediators are anchored together (BMI→SBP). The one-shot residual
+ * `measured − realized` is only approximate there because the offset PROPAGATES through coupling + the
+ * state-march feedback (by design — a measured HbA1c must drive the real damage). This does the consistent
+ * thing: a fixed-point iteration that adds each anchor's remaining miss to that knot. With loop gain g<2 the
+ * miss contracts geometrically (|1−g| per pass); non-feedback anchors converge in ONE pass, coupled anchors
+ * in ~2–3, HbA1c in ~a handful. Residuals are computed against the FULL `simulate()` pipeline (post stiffness
+ * →SBP augment, node burdens, operators) — NOT standalone `mediators()` — so node-freeze / operator scenarios
+ * anchor correctly too. Returns `{med: {byAge:[[age,resid],…], mode:"linear"}}` (+ `{offsets, maxMiss}` when
+ * returnMaxMiss). This is the engine half of the app's lab-anchoring (computeOffsets) — see § timeline.
+ */
+export function solveOffsets(MODEL, opts = {}, anchors = [], { iterations = 12, returnMaxMiss = false, preFirst = "zero" } = {}) {
+  const AGE0 = MODEL.meta.ageRange[0];
+  const DT = MODEL.meta.dt;
+  const idxOf = (age) => {
+    let k = Math.round((age - AGE0) / DT);
+    if (k < 0) k = 0;
+    return k;
+  };
+  // Group anchors by mediator, ascending by age, carrying a running residual per knot.
+  const byMed = {};
+  for (const a of anchors) {
+    if (a == null || a.med == null || !Number.isFinite(a.measured)) continue;
+    (byMed[a.med] ||= []).push({ k: idxOf(a.age), age: a.age, measured: a.measured, resid: 0 });
+  }
+  for (const med in byMed) byMed[med].sort((x, y) => x.age - y.age);
+  const buildOffsets = () => {
+    const off = {};
+    for (const med in byMed) {
+      const knots = byMed[med].map((kn) => [kn.age, kn.resid]);
+      // §8.2 (R1): the residual is ZERO before the first draw. Prepend a 0 knot one grid-step before the first
+      // anchor so the offset ramps in AT the draw rather than flat-extrapolating backward — which would
+      // retroactively rewrite cumulative state (crosslink/β-cell) and let a feedback mediator (HbA1c) amplify
+      // over decades (also destabilizing this solve). `preFirst:"hold"` opts back into flat-hold-backward.
+      if (preFirst === "zero" && knots.length && knots[0][0] - DT > AGE0) knots.unshift([knots[0][0] - DT, 0]);
+      off[med] = { byAge: knots, mode: "linear" };
+    }
+    return off;
+  };
+  let maxMiss = Infinity;
+  if (Object.keys(byMed).length) {
+    for (let it = 0; it < iterations; it++) {
+      const sim = simulate(MODEL, { ...opts, offsets: buildOffsets() });
+      maxMiss = 0;
+      for (const med in byMed) {
+        const lane = sim.medValues[med];
+        if (!lane) continue;
+        for (const kn of byMed[med]) {
+          const miss = kn.measured - lane[kn.k];
+          kn.resid += miss;                 // add the remaining miss to this knot
+          if (Math.abs(miss) > maxMiss) maxMiss = Math.abs(miss);
+        }
+      }
+      if (maxMiss < 1e-12) break;           // converged early (non-feedback anchors)
+    }
+  } else {
+    maxMiss = 0;
+  }
+  const offsets = buildOffsets();
+  return returnMaxMiss ? { offsets, maxMiss } : offsets;
+}
+
 /* ============================ B-layer (Stage 1) ============================ */
 //
 // Endogenous-mediator tier. Exogenous behavioral/environmental inputs drive
