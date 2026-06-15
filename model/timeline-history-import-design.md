@@ -427,6 +427,81 @@ decision (§8.6).
 calendar axis, "today" cursor) that lets a user populate `state.timeline.events`; then **M4** importer, **M5**
 clock overlay.
 
+---
+
+## 12. M3 — editable timeline panel (plan, 2026-06-14/15)
+
+**Goal:** a visible **"History & plan"** panel that lets a user populate/edit `state.timeline.events` (the M2
+augment layer) directly, so a real history applied over time drives the sim. No new nodes/edges needed — the
+timeline edits EXISTING channels (mediators = biomarkers, exogenous inputs, treatments, intervenable graph
+nodes, operator presets).
+
+**Placement.** A 3rd tab in `#modTabSeg` → `data-tab="timeline"` → panel `#modtab-timeline` holding an SVG
+`#historySvg` + a thin inline-editor strip. (Sits alongside "Causal graph" + "Lifestyle · Labs".) Rendered by a
+new `renderHistoryTimeline(sim)` called from `renderAll()` (built with the existing `el()` SVG helper; reuses
+`X_MAX`/`computeXMax`).
+
+**Panel layout (SVG).** Width ~1080 (match other panels), height grows with lane count.
+- **X-axis:** age `AGE0→X_MAX`, decade gridlines. Optional **calendar-year** secondary axis when
+  `state.timeline.birthDate` is set (`year = birthYear + age`). A **"today" cursor** = vertical line at
+  `effAge()` labelled "now (age N)".
+- **Lanes** (stacked ~34px rows), grouped + only for channels that have events (+ a picker to add channels):
+  - *Exposures* (`input:*`) — **ZOH step-line**, a dot per event, segment value labels; cessation = hard step.
+  - *Treatments* (`treatment:*`) — on/off (dose) bars between step events.
+  - *Interventions/operators* — intervention windows = bars `[startAge,endAge)`; operator campaigns = pulse ticks.
+  - *Biomarkers* (`biomarker:<med>`) — measured dots on the row's OWN mini-y-scale (mediator units), with the
+    faint model-reproduced trajectory behind (from `sim.medValues`) so anchor vs model is visible.
+
+**Interaction.**
+- **Select:** click an event → highlight + an inline editor (age + value/dose/efficacy fields + delete).
+- **Add:** a per-group "+ Add" / click-empty-lane → new event at that age (default value) → selected for edit.
+- **Channel picker:** add a new lane from `LAB_FIELDS` (biomarkers) / `PANEL_INPUT_IDS` (exposures) /
+  treatments / intervenable nodes / `OPERATOR_PRESETS`.
+- **Birth-date** field → enables the calendar axis + date display.
+- Every edit mutates `state.timeline.events` → `renderAll()` (recompile + redraw; cheap, already per-interaction).
+- **Drag** (move age / biomarker value) is polish — after click-edit works.
+
+**Scalar-UI relationship.** Augment-first is already wired (events override scalars per channel). For M3 keep
+them independent + clearly labelled ("timeline events override the sliders for that channel"); slider↔event
+auto-sync is deferred.
+
+**Staging:** M3.1 read-only render (axes, today cursor, lanes from existing events) → M3.2 add/edit/delete +
+channel picker + birth-date → M3.3 drag polish + the biomarker model-vs-measured overlay. Verify each with the
+headless-Chrome smoke + (where possible) a seeded-event render check; engine tests stay green; commit per step.
+
+**Out of M3 scope:** the importer (M4), the clock overlay (M5).
+
+### M3 plan — Codex review (gpt-5.5/high, 2026-06-15) folded
+
+P0/P1 rules adopted before implementation:
+- **Channel ownership.** Once a channel has timeline events, EXCLUDE the matching scalar from `currentOpts()`
+  (biomarker events → drop that med from `scalarLabAnchors()`; operator events → drop that preset from
+  `activeOperators()`; input/treatment/intervention already override via spread) and **disable the scalar
+  control** ("Controlled by History & plan"). Prevents the scalar-lab + timeline-point double-anchor and a
+  preset firing from both UIs.
+- **Stable event IDs.** Every event gets a UI `id` (`te-<n>`); select/edit/delete BY ID, never array index.
+- **Separate `historyXMax`** = `min(AGE1, max(X_MAX, effAge(), latestEventAge()))` — do NOT mutate the
+  survival-derived global `X_MAX` (the output charts need it), but don't let a future planned event fall off.
+- **Editor is HTML, commit-on-change/blur.** `renderAll()` rebuilds SVGs + reruns anchoring synchronously, so
+  a live SVG-embedded editor would lose focus/caret per keystroke. Keep an HTML `#historyEditor` with a draft,
+  commit on `change`/Enter/blur. Selection-only re-renders the panel (+ syncs the editor), NOT `renderAll()`.
+- **Render safety.** Build the panel into a `DocumentFragment` → atomic `svg.replaceChildren(frag)`; wrap in
+  try/catch; call `renderHistoryTimeline()` LAST in `renderAll()` so a defect can't blank the headline readouts
+  or established panels. No window/document listeners inside the render; static toolbar/editor listeners wired
+  once at boot (avoid the `#currentAge` duplicate-listener pattern).
+- **Duplicate policy.** One intervention window per node; a same-channel/same-grid-age input/treatment/
+  biomarker add UPDATES the existing event rather than duplicating.
+- **Reset.** `Reset all` clears `state.timeline`, the selected event, and the editor draft. Hide `#graphFit`
+  off the graph tab.
+- **Interaction.** Direct DOM listeners on glyphs (dots/bars/ticks) + one transparent per-lane rect for
+  click-to-add. Do NOT reuse `wireGraphZoomPan` (coupled to graph state). Click-select + HTML form first; the
+  pointer-drag (`setPointerCapture`, preview-on-move, commit-on-`pointerup`) is M3.3.
+- **Biomarker lanes.** Start from `MED_SCALE[med]`, expand to fit measured points + the visible
+  `sim.medValues[med]` trajectory, +~5% pad. Draw: row bg + mini-scale → faint `sim.medValues` path (row-
+  clipped; it already reflects solved offsets = reproduced history, not unanchored prediction) → dots+labels.
+- **Defaults (M3.2 add).** input → preceding effective value; biomarker → `sim.medValues` at that age;
+  treatment → dose 1; intervention → efficacy 0.3; operator → one pulse.
+
 **M2 solver review (Codex gpt-5.5/xhigh, 2026-06-14) — folded.** Codex confirmed the invariant holds and
 `LE_cond` is correct, but found the solver was **not guaranteed to converge and could silently return wrong
 offsets** (a high-gain HbA1c anchor settled into a 2-cycle), plus anchor-validation gaps. Fixes landed:

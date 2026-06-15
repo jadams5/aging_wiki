@@ -254,6 +254,7 @@
       <span class="seg" id="modTabSeg">
         <button data-tab="graph" class="active">Causal graph &amp; intervention</button>
         <button data-tab="blayer">Lifestyle &amp; environment &middot; Labs</button>
+        <button data-tab="timeline">History &amp; plan timeline</button>
       </span>
       <span style="display:flex; gap:8px;">
         <button id="graphFit" style="border:1px solid var(--line); background:#fff; border-radius:5px; padding:5px 12px; cursor:pointer;">⤢ Fit view</button>
@@ -338,6 +339,19 @@
         Enter a measured value to pin that mediator's curve to it at the current age (offset = measured &minus; engine-predicted).
         One-off operator treatments also occur at this age. Clear a lab field to revert to the engine's computed value.
       </div>
+    </div>
+
+    <!-- TAB 3: editable history & plan timeline (M3) — applies interventions/biomarkers OVER time -->
+    <div class="modtab-panel" id="modtab-timeline" style="display:none;">
+      <h2>History &amp; plan timeline <span style="font-weight:400;color:var(--muted);font-size:11px;">(apply exposures, treatments, interventions &amp; lab measurements over age &mdash; these override the sliders for that channel)</span></h2>
+      <div class="sub" id="historyHint">Add events to build a history over time. Behaviours/treatments step (hold until the next entry); lab measurements anchor the model at each draw. The vertical mark is "now".</div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:6px 0;">
+        <label class="bl" style="width:auto;" for="birthDate">Birth date (optional &mdash; enables a calendar axis)</label>
+        <input type="date" id="birthDate">
+        <span id="historyAddBar" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;"></span>
+      </div>
+      <svg id="historySvg" viewBox="0 0 1080 240" preserveAspectRatio="xMidYMin meet" style="width:100%; background:#fcfcfd; border:1px solid #eef0f2; border-radius:6px;"></svg>
+      <div id="historyEditor" class="readout" style="margin-top:6px;"></div>
     </div>
 
   </div><!-- /.left-modifiers -->
@@ -7402,6 +7416,128 @@ function buildBlayerControls(){
 }
 
 /* ============================ Master render ============================== */
+/* ===================== M3: History & plan timeline (editable) =====================
+   Renders state.timeline.events (the M2 augment layer). Read-only in M3.1; click-edit in M3.2. Defensive:
+   builds into a DocumentFragment and atomically swaps it in; never throws out of renderAll (a new-panel
+   defect must not blank the headline readouts — FIXED-MISTAKE #4). Called LAST in renderAll(). */
+const HIST = { l: 96, r: 16, t: 30, b: 26, laneH: 30, laneGap: 7, W: 1080 };
+const HIST_GROUP_ORDER = { exposure: 0, treatment: 1, intervention: 2, biomarker: 3, other: 4 };
+let _histEventSeq = 0;
+function nextHistId(){ return "te-" + (++_histEventSeq); }
+function ensureHistIds(){ for (const ev of (state.timeline && state.timeline.events) || []) if (ev && !ev.id) ev.id = nextHistId(); }
+// Channel "kind:id" → display meta.
+function histChannelMeta(ch){
+  const i = ch.indexOf(":"); const kind = i < 0 ? ch : ch.slice(0, i), id = i < 0 ? "" : ch.slice(i + 1);
+  if (kind === "input")        { const inp = EXO_BY_ID[id]; return { group:"exposure", kind, id, label: inp?inp.label:id, color:"#5a6b7b" }; }
+  if (kind === "treatment")    return { group:"treatment", kind, id, label: id, color:"#2e86c1" };
+  if (kind === "intervention") { const n = NODE_BY_ID[id]; return { group:"intervention", kind, id, label: n?n.label:id, color:"#7d3c98" }; }
+  if (kind === "operator")     { const p = OPERATOR_PRESETS.find(x=>x.id===id); return { group:"intervention", kind, id, label: p?p.label:id, color:"#af7ac5" }; }
+  if (kind === "biomarker")    return { group:"biomarker", kind, id, label: LAB_LABEL_BY_MED[id]||id, color: MED_COLOR[id]||"#888", range: MED_SCALE[id]||{lo:0,hi:1} };
+  return { group:"other", kind, id, label: ch, color:"#888" };
+}
+function histEventAge(ev){
+  if (ev.age != null) return ev.age;
+  if (ev.startAge != null) return ev.startAge;
+  if (Array.isArray(ev.ages) && ev.ages.length) return Math.min(...ev.ages);
+  return AGE0;
+}
+function latestHistEventAge(){
+  let m = AGE0;
+  for (const ev of (state.timeline && state.timeline.events) || []) m = Math.max(m, histEventAge(ev), ev.endAge ?? AGE0, ...(Array.isArray(ev.ages) ? ev.ages : []));
+  return m;
+}
+function histVal(v){ return (typeof v === "number" && !Number.isInteger(v)) ? (+v).toFixed(1) : String(v); }
+function histClampLabel(s){ return s.length > 16 ? s.slice(0, 15) + "…" : s; }
+function renderHistoryTimeline(sim){
+  const svg = document.getElementById("historySvg");
+  if (!svg) return;
+  try {
+    ensureHistIds();
+    const frag = document.createDocumentFragment();
+    const events = (state.timeline && state.timeline.events) || [];
+    // SEPARATE horizon: never mutate the survival-derived X_MAX; just don't let a future planned event fall off.
+    const xMax = Math.min(AGE1, Math.max((typeof X_MAX === "number" ? X_MAX : 105), effAge(), latestHistEventAge() + 2));
+    const plotW = HIST.W - HIST.l - HIST.r;
+    const xOf = (age) => HIST.l + Math.max(0, Math.min(1, (age - AGE0) / (xMax - AGE0))) * plotW;
+    const byCh = {};
+    for (const ev of events) if (ev && ev.channel) (byCh[ev.channel] ||= []).push(ev);
+    const channels = Object.keys(byCh).sort((a, b) => {
+      const ma = histChannelMeta(a), mb = histChannelMeta(b);
+      return (HIST_GROUP_ORDER[ma.group] - HIST_GROUP_ORDER[mb.group]) || a.localeCompare(b);
+    });
+    const nLanes = Math.max(1, channels.length);
+    const H = HIST.t + nLanes * (HIST.laneH + HIST.laneGap) + HIST.b;
+    svg.setAttribute("viewBox", `0 0 ${HIST.W} ${H}`);
+    const bd = state.timeline && state.timeline.birthDate ? new Date(state.timeline.birthDate) : null;
+    const birthYear = bd && !isNaN(bd.getTime()) ? bd.getFullYear() : null;
+    for (let a = Math.ceil(AGE0 / 10) * 10; a <= xMax + 1e-6; a += 10) {
+      const x = xOf(a);
+      el("line", { x1: x, y1: HIST.t, x2: x, y2: H - HIST.b, stroke: "#f0f0f2" }, frag);
+      el("text", { x, y: H - HIST.b + 15, "text-anchor": "middle", "font-size": "11", fill: "#888" }, frag).textContent = a;
+      if (birthYear != null) el("text", { x, y: HIST.t - 16, "text-anchor": "middle", "font-size": "10", fill: "#bbb" }, frag).textContent = birthYear + a;
+    }
+    el("text", { x: HIST.l + plotW / 2, y: H - 5, "text-anchor": "middle", "font-size": "11", fill: "#888" }, frag).textContent = birthYear != null ? "age  ·  calendar year above" : "age";
+    const ca = effAge(), cx = xOf(ca);
+    el("line", { x1: cx, y1: HIST.t - 4, x2: cx, y2: H - HIST.b, stroke: "#e67e22", "stroke-width": "1.6", "stroke-dasharray": "3,2" }, frag);
+    el("text", { x: cx, y: HIST.t - 6, "text-anchor": "middle", "font-size": "10", fill: "#e67e22" }, frag).textContent = "now (" + ca + ")";
+    if (!channels.length) {
+      el("text", { x: HIST.l + plotW / 2, y: HIST.t + 44, "text-anchor": "middle", "font-size": "13", fill: "#999" }, frag).textContent =
+        "No events yet — use the buttons above to add exposures, treatments, interventions, or lab measurements over time.";
+      svg.replaceChildren(frag);
+      return;
+    }
+    channels.forEach((ch, li) => {
+      const meta = histChannelMeta(ch);
+      const y0 = HIST.t + li * (HIST.laneH + HIST.laneGap), yMid = y0 + HIST.laneH / 2;
+      el("rect", { x: HIST.l, y: y0, width: plotW, height: HIST.laneH, fill: li % 2 ? "#fafbfc" : "#fff", stroke: "#f0f0f2" }, frag);
+      el("text", { x: HIST.l - 6, y: yMid + 3, "text-anchor": "end", "font-size": "11", fill: meta.color }, frag).textContent = histClampLabel(meta.label);
+      const evs = byCh[ch].slice().sort((a, b) => histEventAge(a) - histEventAge(b));
+      const glyph = (tag, attrs) => el(tag, { ...attrs, class: "histGlyph" }, frag);
+      if (meta.group === "exposure" || meta.group === "treatment") {
+        const vals = evs.map(e => +e.value).filter(Number.isFinite);
+        const vlo = Math.min(0, ...vals), vhi = Math.max(meta.group === "treatment" ? 1 : 1, ...vals);
+        const yOfV = v => y0 + HIST.laneH - 3 - ((v - vlo) / ((vhi - vlo) || 1)) * (HIST.laneH - 6);
+        let py = null;
+        evs.forEach((ev, i) => {
+          const x = xOf(histEventAge(ev)), y = yOfV(+ev.value);
+          const xEnd = i + 1 < evs.length ? xOf(histEventAge(evs[i + 1])) : Math.max(cx, x);
+          if (py != null) el("line", { x1: x, y1: py, x2: x, y2: y, stroke: meta.color, "stroke-width": "1.5" }, frag);
+          el("line", { x1: x, y1: y, x2: Math.max(xEnd, x), y2: y, stroke: meta.color, "stroke-width": "1.9" }, frag);
+          glyph("circle", { cx: x, cy: y, r: "3.6", fill: "#fff", stroke: meta.color, "stroke-width": "1.8", "data-id": ev.id });
+          el("text", { x: x + 5, y: y - 4, "font-size": "9.5", fill: meta.color }, frag).textContent = histVal(ev.value);
+          py = y;
+        });
+      } else if (meta.group === "intervention") {
+        evs.forEach(ev => {
+          if (meta.kind === "operator") {
+            const ages = Array.isArray(ev.ages) ? ev.ages : (ev.age != null ? [ev.age] : []);
+            ages.forEach(a => glyph("line", { x1: xOf(a), y1: y0 + 4, x2: xOf(a), y2: y0 + HIST.laneH - 4, stroke: meta.color, "stroke-width": "2.4", "data-id": ev.id }));
+          } else {
+            const sa = ev.startAge ?? ev.age ?? AGE0, ea = ev.endAge ?? xMax;
+            glyph("rect", { x: xOf(sa), y: y0 + 5, width: Math.max(3, xOf(ea) - xOf(sa)), height: HIST.laneH - 10, fill: meta.color, "fill-opacity": "0.32", stroke: meta.color, "data-id": ev.id });
+            el("text", { x: xOf(sa) + 4, y: yMid + 3, "font-size": "9.5", fill: meta.color }, frag).textContent = Math.round((ev.efficacy ?? 1) * 100) + "%";
+          }
+        });
+      } else if (meta.group === "biomarker") {
+        let lo = meta.range.lo, hi = meta.range.hi;
+        const lane = sim && sim.medValues && sim.medValues[meta.id];
+        for (const v of evs.map(e => +e.value).filter(Number.isFinite)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+        if (lane) for (let a = AGE0; a <= xMax; a += 4) { const v = lane[Math.round(a - AGE0)]; if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } }
+        const pad = (hi - lo) * 0.05 || 1; lo -= pad; hi += pad;
+        const yOfV = v => y0 + HIST.laneH - 3 - ((v - lo) / ((hi - lo) || 1)) * (HIST.laneH - 6);
+        if (lane) { let d = ""; for (let a = AGE0; a <= xMax; a += 2) { const v = lane[Math.round(a - AGE0)]; if (v == null) continue; d += (d ? "L" : "M") + xOf(a).toFixed(1) + "," + yOfV(v).toFixed(1); } if (d) el("path", { d, fill: "none", stroke: meta.color, "stroke-width": "1", "stroke-opacity": "0.4" }, frag); }
+        el("text", { x: HIST.l + 2, y: y0 + 9, "font-size": "8.5", fill: "#bbb" }, frag).textContent = hi.toFixed(hi < 20 ? 1 : 0);
+        el("text", { x: HIST.l + 2, y: y0 + HIST.laneH - 2, "font-size": "8.5", fill: "#bbb" }, frag).textContent = lo.toFixed(lo < 20 ? 1 : 0);
+        evs.forEach(ev => { const x = xOf(ev.age), y = yOfV(+ev.value); glyph("circle", { cx: x, cy: y, r: "3.9", fill: meta.color, stroke: "#fff", "stroke-width": "1.4", "data-id": ev.id }); el("text", { x: x + 5, y: y - 4, "font-size": "9.5", fill: meta.color }, frag).textContent = histVal(ev.value); });
+      }
+    });
+    svg.replaceChildren(frag);
+  } catch (err) {
+    console.warn("renderHistoryTimeline failed:", err);
+    try { svg.replaceChildren(); } catch (_) {}
+  }
+}
+
 function renderAll(){
   const opts = currentOpts();
   const sim = run(opts);
@@ -7441,6 +7577,8 @@ function renderAll(){
     else if (_anchorStatus.dropped && _anchorStatus.dropped.length) t += `  ⚠ ${_anchorStatus.dropped.length} lab anchor(s) ignored (not anchorable)`;
     condEl.textContent = t;
   }
+  // M3: the History & plan timeline renders LAST so any defect there can't blank the headline readouts above.
+  renderHistoryTimeline(sim);
 }
 
 /* ============================ Legend ===================================== */
@@ -7581,10 +7719,19 @@ document.querySelectorAll("#modTabSeg button").forEach(btn => {
     document.querySelectorAll("#modTabSeg button").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     const tab = btn.dataset.tab;
-    document.getElementById("modtab-graph").style.display  = (tab === "graph")  ? "" : "none";
-    document.getElementById("modtab-blayer").style.display = (tab === "blayer") ? "" : "none";
+    document.querySelectorAll(".modtab-panel").forEach(p => { p.style.display = (p.id === "modtab-" + tab) ? "" : "none"; });
+    const gf = document.getElementById("graphFit"); if (gf) gf.style.display = (tab === "graph") ? "" : "none";  // Fit view is graph-only
+    if (tab === "timeline") renderHistoryTimeline(window._lastSim);   // ensure it draws when first revealed
   });
 });
+// Birth date → calendar axis + date↔age conversion for timeline events (wired once at boot).
+{
+  const bdInput = document.getElementById("birthDate");
+  if (bdInput) bdInput.addEventListener("change", () => {
+    state.timeline.birthDate = bdInput.value || null;
+    renderAll();
+  });
+}
 
 const coupleSlider = document.getElementById("coupleSlider");
 coupleSlider.value = state.couple;
