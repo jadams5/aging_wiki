@@ -5907,15 +5907,20 @@ function anchoredMediators(){
 // timeline events are added/removed).
 function updateTimelineOwnershipCues(){
   const owned = timelineChannelSet();
+  const TIP = "Controlled by the History & plan timeline (an event for this channel exists there).";
+  // lab fields (excluded from anchoring when owned)
   LAB_FIELDS.forEach(f => {
     const input = document.getElementById("lab-" + f.med);
     if (!input) return;
     const own = owned.has("biomarker:" + f.med);
-    input.disabled = own;
-    input.title = own ? "Controlled by the History & plan timeline (a lab measurement for this marker exists there)." : "";
+    input.disabled = own; input.title = own ? TIP : "";
     const lab = document.querySelector('label[for="lab-' + f.med + '"]');
     if (lab) lab.style.opacity = own ? "0.5" : "";
   });
+  // treatment toggles (overridden) + operator toggles (excluded) — disable the checkbox + dim its label.
+  const cue = (elId, own) => { const e = document.getElementById(elId); if (!e) return; e.disabled = own; e.title = own ? TIP : ""; const lab = e.closest("label"); if (lab) lab.style.opacity = own ? "0.5" : ""; };
+  ((typeof B !== "undefined" && B.treatments) || []).forEach(t => cue("tx-" + t.id, owned.has("treatment:" + t.id)));
+  OPERATOR_PRESETS.forEach(p => cue("op-" + p.id, owned.has("operator:" + p.id)));
 }
 function updateInputDisabledStates(){
   const anchored = anchoredMediators();
@@ -6070,8 +6075,12 @@ function activeOperators(){
 function timelineEvents(){
   const evs = (state.timeline && state.timeline.events) || [];
   const bd = state.timeline && state.timeline.birthDate ? new Date(state.timeline.birthDate) : null;
-  if (!bd) return evs;
-  return evs.map(ev => (ev.age == null && ev.date) ? { ...ev, age: (new Date(ev.date) - bd) / (365.2425 * 864e5) } : ev);
+  if (!bd || isNaN(bd.getTime())) return evs;   // an invalid Date is truthy — guard it
+  return evs.map(ev => {
+    if (ev.age != null || !ev.date) return ev;
+    const d = new Date(ev.date); if (isNaN(d.getTime())) return ev;
+    return { ...ev, age: (d - bd) / (365.2425 * 864e5) };
+  });
 }
 // Map compiled operator stubs {presetId, ages, scenario} → full engine operator entries via OPERATOR_PRESETS.
 function resolveTimelineOperators(stubs){
@@ -7451,7 +7460,11 @@ const HIST = { l: 96, r: 16, t: 30, b: 26, laneH: 30, laneGap: 7, W: 1080 };
 const HIST_GROUP_ORDER = { exposure: 0, treatment: 1, intervention: 2, biomarker: 3, other: 4 };
 let _histEventSeq = 0;
 function nextHistId(){ return "te-" + (++_histEventSeq); }
-function ensureHistIds(){ for (const ev of (state.timeline && state.timeline.events) || []) if (ev && !ev.id) ev.id = nextHistId(); }
+function ensureHistIds(){
+  const evs = (state.timeline && state.timeline.events) || [];
+  for (const ev of evs) { if (ev && ev.id) { const m = /^te-(\d+)$/.exec(ev.id); if (m) _histEventSeq = Math.max(_histEventSeq, +m[1]); } }  // don't reissue an existing id
+  for (const ev of evs) if (ev && !ev.id) ev.id = nextHistId();
+}
 // Channel "kind:id" → display meta.
 function histChannelMeta(ch){
   const i = ch.indexOf(":"); const kind = i < 0 ? ch : ch.slice(0, i), id = i < 0 ? "" : ch.slice(i + 1);
@@ -7475,6 +7488,11 @@ function latestHistEventAge(){
 }
 function histVal(v){ return (typeof v === "number" && !Number.isInteger(v)) ? (+v).toFixed(1) : String(v); }
 function histClampLabel(s){ return s.length > 16 ? s.slice(0, 15) + "…" : s; }
+// Numeric value for PLOTTING a step event — a categorical exposure (smokingStatus: never/former/current) maps
+// to an ordinal level so it draws (the raw category is still shown as the text label). Without this a string
+// value yields NaN coordinates and the glyph renders invisibly.
+const HIST_SMOKE_LEVEL = { never: 0, former: 1, current: 2 };
+function histPlotValue(ev){ const n = +ev.value; return Number.isFinite(n) ? n : (HIST_SMOKE_LEVEL[ev.value] ?? 0); }
 function renderHistoryTimeline(sim){
   const svg = document.getElementById("historySvg");
   if (!svg) return;
@@ -7488,7 +7506,7 @@ function renderHistoryTimeline(sim){
     const xOf = (age) => HIST.l + Math.max(0, Math.min(1, (age - AGE0) / (xMax - AGE0))) * plotW;
     const byCh = {};
     for (const ev of events) if (ev && ev.channel) (byCh[ev.channel] ||= []).push(ev);
-    const channels = Object.keys(byCh).sort((a, b) => {
+    const channels = Object.keys(byCh).filter(ch => histChannelMeta(ch).group !== "other").sort((a, b) => {  // skip unknown channels
       const ma = histChannelMeta(a), mb = histChannelMeta(b);
       return (HIST_GROUP_ORDER[ma.group] - HIST_GROUP_ORDER[mb.group]) || a.localeCompare(b);
     });
@@ -7532,12 +7550,12 @@ function renderHistoryTimeline(sim){
         return e;
       };
       if (meta.group === "exposure" || meta.group === "treatment") {
-        const vals = evs.map(e => +e.value).filter(Number.isFinite);
-        const vlo = Math.min(0, ...vals), vhi = Math.max(meta.group === "treatment" ? 1 : 1, ...vals);
+        const vals = evs.map(histPlotValue).filter(Number.isFinite);   // categorical → ordinal level (smoking)
+        const vlo = Math.min(0, ...vals), vhi = Math.max(1, ...vals);
         const yOfV = v => y0 + HIST.laneH - 3 - ((v - vlo) / ((vhi - vlo) || 1)) * (HIST.laneH - 6);
         let py = null;
         evs.forEach((ev, i) => {
-          const x = xOf(histEventAge(ev)), y = yOfV(+ev.value);
+          const x = xOf(histEventAge(ev)), y = yOfV(histPlotValue(ev));
           const xEnd = i + 1 < evs.length ? xOf(histEventAge(evs[i + 1])) : Math.max(cx, x);
           if (py != null) el("line", { x1: x, y1: py, x2: x, y2: y, stroke: meta.color, "stroke-width": "1.5" }, frag);
           el("line", { x1: x, y1: y, x2: Math.max(xEnd, x), y2: y, stroke: meta.color, "stroke-width": "1.9" }, frag);
@@ -7571,8 +7589,8 @@ function renderHistoryTimeline(sim){
     });
     svg.replaceChildren(frag);
   } catch (err) {
-    console.warn("renderHistoryTimeline failed:", err);
-    try { svg.replaceChildren(); } catch (_) {}
+    // We build into a detached fragment, so the live SVG still shows the PRIOR chart — leave it (don't clear).
+    console.warn("renderHistoryTimeline failed (keeping prior chart):", err);
   }
 }
 
@@ -7603,7 +7621,7 @@ function addHistEventToChannel(channel, age){
   } else if (meta.kind === "operator"){
     let ev = evs.find(e => e.channel === channel);
     if (!ev){ ev = { id: nextHistId(), channel, ages: [age] }; evs.push(ev); }
-    else if (!ev.ages.map(Math.round).includes(age)) ev.ages.push(age);
+    else { if (!Array.isArray(ev.ages)) ev.ages = ev.age != null ? [clampAge(ev.age)] : []; if (!ev.ages.map(Math.round).includes(age)) ev.ages.push(age); }   // tolerate the {age} form
     historySelectedId = ev.id;
   } else {                                            // input / treatment / biomarker: one per grid age
     let ev = evs.find(e => e.channel === channel && Math.round(e.age) === age);
@@ -7649,14 +7667,32 @@ function syncHistoryEditor(){
   });
   const del = box.querySelector('[data-act=del]'); if (del) del.addEventListener("click", () => deleteHistEvent(ev.id));
 }
+// If `ev`'s grid age now coincides with another event on the same channel (step/biomarker), the EDIT wins:
+// drop the colliding event so we never hold ambiguous same-slot duplicates.
+function mergeHistCollision(ev){
+  if (ev.age == null) return;
+  const k = Math.round(ev.age), evs = state.timeline.events;
+  for (let i = evs.length - 1; i >= 0; i--) { const o = evs[i]; if (o !== ev && o.channel === ev.channel && o.age != null && Math.round(o.age) === k) evs.splice(i, 1); }
+}
+// Transactional commit: parse → validate/normalize → store (keep prior value on a bad parse) → resync the
+// editor so the user sees the normalized value (clamped age, ordered window, deduped ages) → renderAll.
 function commitEditorField(id, inp){
   const ev = findHistEvent(id); if (!ev) return;
-  const k = inp.dataset.k, raw = inp.value;
-  if (k === "ages") ev.ages = raw.split(",").map(s => Math.round(+s.trim())).filter(Number.isFinite);
-  else if (k === "endAge") ev.endAge = raw === "" ? null : clampAge(+raw);
-  else if (k === "efficacy") ev.efficacy = Math.max(0, Math.min(1, +raw || 0));
-  else if (k === "value") ev.value = (histChannelMeta(ev.channel).id === "smokingStatus") ? raw : +raw;
-  else if (k === "age" || k === "startAge") ev[k] = clampAge(+raw);
+  const k = inp.dataset.k, raw = inp.value, meta = histChannelMeta(ev.channel);
+  if (k === "ages") {
+    ev.ages = Array.from(new Set(raw.split(",").map(s => +s.trim()).filter(Number.isFinite).map(clampAge))).sort((a, b) => a - b);
+  } else if (k === "endAge") {
+    if (raw.trim() === "") ev.endAge = null;
+    else { const n = +raw; if (Number.isFinite(n)) { let e = clampAge(n); if (ev.startAge != null && e <= ev.startAge) e = Math.min(AGE1, clampAge(ev.startAge) + 1); ev.endAge = e; } }   // enforce end > start
+  } else if (k === "efficacy") {
+    const n = +raw; if (Number.isFinite(n)) ev.efficacy = Math.max(0, Math.min(1, n));
+  } else if (k === "value") {
+    if (meta.id === "smokingStatus") ev.value = raw;
+    else { const n = +raw; if (Number.isFinite(n)) ev.value = (meta.group === "treatment") ? Math.max(0, n) : n; }   // dose ≥ 0; keep prior on garbage
+  } else if (k === "age" || k === "startAge") {
+    const n = +raw; if (Number.isFinite(n)) { ev[k] = clampAge(n); if (k === "age") mergeHistCollision(ev); }
+  }
+  syncHistoryEditor();   // reflect normalized values back into the fields
   renderAll();
 }
 // "+ Add" toolbar (type → channel → add at now). Built once at boot.

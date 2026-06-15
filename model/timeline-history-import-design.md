@@ -502,6 +502,36 @@ P0/P1 rules adopted before implementation:
 - **Defaults (M3.2 add).** input → preceding effective value; biomarker → `sim.medValues` at that age;
   treatment → dose 1; intervention → efficacy 0.3; operator → one pulse.
 
+### M3 build status (2026-06-15, overnight)
+
+- **M3.1 (read-only render) — DONE, committed `d77c858`.** Tab + panel + `renderHistoryTimeline(sim)`: age
+  axis (+ calendar-year axis when birthDate set), "now" cursor, one lane per channel — exposures/treatments as
+  ZOH step lines, interventions as `[start,end)` bars, operators as pulse ticks, biomarkers as measured dots on
+  a per-row mini-scale over the faint `sim.medValues` trajectory. Stable ids, separate `historyXMax`,
+  DocumentFragment + `replaceChildren`, try/catch, rendered last. Seeded-event headless smoke (8 glyphs).
+- **M3.2 (editing) — DONE, committed `f930560`.** "+ Add" toolbar (type→channel→add-at-now, channel-specific
+  defaults); click-glyph-to-select + HTML editor (commit on change/Enter/blur); click-empty-lane-to-add;
+  stable-id CRUD with no ambiguous duplicates; **P0 channel ownership** (`scalarLabAnchors`/`activeOperators`
+  skip owned channels). Reset clears the timeline. Headless-verified: edited lab reproduces exactly (180@50),
+  scalar LDL=100 ignored while timeline owns LDL (age-40 LDL stays at the ~115 model value), smoking event
+  drops LE 76→71.9 + delete restores.
+- **Ownership cue — DONE, committed `293c976`.** Owned scalar lab fields disabled + "Controlled by timeline".
+- **M3 review (Codex gpt-5.5/high) — folded.** It verdicted M3 "not yet sound to build drag on" until
+  validation/ownership/id/collision fixes landed. All folded: (1) **transactional editor validation** —
+  `commitEditorField` clamps age to `[AGE0,AGE1]`, rejects garbage (keeps prior value), enforces
+  `endAge>startAge`, dedups/clamps operator ages, and **resyncs the editor** so normalized values show; (2)
+  **ID uniqueness** — `ensureHistIds` advances the counter past existing `te-N` (no reissue); (3) **edit-time
+  collision merge** — editing a step/biomarker age onto another's slot drops the loser; (4) **validated
+  ownership** — unknown/typo channels are skipped (not shown as phantom lanes), and validation keeps every
+  event effective so ownership-by-existence is sound; (5) **ownership cue extended** to treatment + operator
+  toggles (labs already done); plus a categorical-render fix (`smokingStatus` was plotting at NaN), the
+  operator `{age}`-form tolerance, keep-prior-chart-on-render-error, and an invalid-`birthDate` guard.
+  Verified headless (uniq/categorical/clamp/garbage-reject/merge/window-order/cue all pass); 251/251 tests;
+  default app pristine. *(Follow-up: input/intervention scalar controls override-not-exclude so they aren't
+  silent no-ops; their visual disable is deferred.)*
+- **Next:** **M3.3** drag polish (optional; pointer-capture, preview-on-move, commit-on-`pointerup`) — now
+  sound to build on.
+
 **M2 solver review (Codex gpt-5.5/xhigh, 2026-06-14) — folded.** Codex confirmed the invariant holds and
 `LE_cond` is correct, but found the solver was **not guaranteed to converge and could silently return wrong
 offsets** (a high-gain HbA1c anchor settled into a 2-cycle), plus anchor-validation gaps. Fixes landed:
