@@ -5902,6 +5902,21 @@ function anchoredMediators(){
 // which has no independent mortality path. Called on each render so it tracks lab
 // edits live. Visual + interaction only — the engine math already cancels these
 // inputs once their target is anchored (the offset absorbs them exactly).
+// M3: disable a scalar lab field when the History & plan timeline owns that marker (a biomarker event exists),
+// so the exclusion in scalarLabAnchors() isn't a silent no-op. Called from renderAll (ownership can change as
+// timeline events are added/removed).
+function updateTimelineOwnershipCues(){
+  const owned = timelineChannelSet();
+  LAB_FIELDS.forEach(f => {
+    const input = document.getElementById("lab-" + f.med);
+    if (!input) return;
+    const own = owned.has("biomarker:" + f.med);
+    input.disabled = own;
+    input.title = own ? "Controlled by the History & plan timeline (a lab measurement for this marker exists there)." : "";
+    const lab = document.querySelector('label[for="lab-' + f.med + '"]');
+    if (lab) lab.style.opacity = own ? "0.5" : "";
+  });
+}
 function updateInputDisabledStates(){
   const anchored = anchoredMediators();
   PANEL_INPUT_IDS.forEach(id => {
@@ -7681,6 +7696,7 @@ function renderAll(){
   renderCauseOfDeath(sim, base);
   renderSurvival(sim, base);
   updateInputDisabledStates();
+  updateTimelineOwnershipCues();
 
   const le = sim.LE;
   document.getElementById("leVal").textContent = le.toFixed(1);
