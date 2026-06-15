@@ -583,7 +583,7 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   // it only prunes the already-dead branches. null when currentAge is not provided. Same DT convention as LE.
   let LE_cond = null;
   if (currentAge != null && Number.isFinite(currentAge)) {
-    let kc = Math.round(currentAge) - AGE0;
+    let kc = Math.round((currentAge - AGE0) / DT);   // DT-general grid index
     if (kc < 0) kc = 0; else if (kc > N_AGE - 1) kc = N_AGE - 1;
     // Sc = survival to the START of the current-age interval (BEFORE hazard[kc] is applied). survival[k]
     // already includes hazard[k] (cohort convention), so dividing by survival[kc] would grant a guaranteed
@@ -624,55 +624,72 @@ export function lifeExpectancy(MODEL, opts) {
  * anchor correctly too. Returns `{med: {byAge:[[age,resid],…], mode:"linear"}}` (+ `{offsets, maxMiss}` when
  * returnMaxMiss). This is the engine half of the app's lab-anchoring (computeOffsets) — see § timeline.
  */
-export function solveOffsets(MODEL, opts = {}, anchors = [], { iterations = 12, returnMaxMiss = false, preFirst = "zero" } = {}) {
+export function solveOffsets(MODEL, opts = {}, anchors = [], { iterations = 16, returnMaxMiss = false, preFirst = "zero", tol = 1e-7 } = {}) {
   const AGE0 = MODEL.meta.ageRange[0];
+  const AGE1 = MODEL.meta.ageRange[1];
   const DT = MODEL.meta.dt;
-  const idxOf = (age) => {
-    let k = Math.round((age - AGE0) / DT);
-    if (k < 0) k = 0;
-    return k;
-  };
-  // Group anchors by mediator, ascending by age, carrying a running residual per knot.
-  const byMed = {};
+  const NK = Math.round((AGE1 - AGE0) / DT);   // last grid index
+  // Only true MEDIATORS carry a personal offset (state nodes / hallmark burdens are not offsettable).
+  const offsettable = new Set(((MODEL.bLayer && MODEL.bLayer.mediators) || []).map((m) => m.id));
+  // Snap an age to the canonical integer grid — the SAME grid age is used for the knot AND the measurement
+  // index, so the residual is applied and read at one consistent point (a fractional 40.4 → 40 for both).
+  const snap = (age) => { let k = Math.round((age - AGE0) / DT); if (k < 0) k = 0; else if (k > NK) k = NK; return { k, age: AGE0 + k * DT }; };
+  // Canonicalize + VALIDATE anchors, grouped by mediator. Drop non-finite age/measured and non-offsettable
+  // mediators (reported via `dropped`). Dedup (med, gridK): a later anchor on the same grid slot wins —
+  // conflicting same-slot targets cannot both be satisfied, so the result is at least deterministic.
+  const byMed = {}, dropped = [];
   for (const a of anchors) {
-    if (a == null || a.med == null || !Number.isFinite(a.measured)) continue;
-    (byMed[a.med] ||= []).push({ k: idxOf(a.age), age: a.age, measured: a.measured, resid: 0 });
+    if (a == null || a.med == null || !Number.isFinite(a.age) || !Number.isFinite(a.measured) || !offsettable.has(a.med)) { if (a != null) dropped.push(a); continue; }
+    const { k, age } = snap(a.age);
+    const list = (byMed[a.med] ||= []);
+    const ex = list.find((kn) => kn.k === k);
+    if (ex) ex.measured = a.measured;        // same grid slot → last wins
+    else list.push({ k, age, measured: a.measured, resid: 0, miss: 0 });
   }
-  for (const med in byMed) byMed[med].sort((x, y) => x.age - y.age);
+  for (const med in byMed) byMed[med].sort((x, y) => x.k - y.k);
   const buildOffsets = () => {
     const off = {};
     for (const med in byMed) {
       const knots = byMed[med].map((kn) => [kn.age, kn.resid]);
-      // §8.2 (R1): the residual is ZERO before the first draw. Prepend a 0 knot one grid-step before the first
-      // anchor so the offset ramps in AT the draw rather than flat-extrapolating backward — which would
-      // retroactively rewrite cumulative state (crosslink/β-cell) and let a feedback mediator (HbA1c) amplify
-      // over decades (also destabilizing this solve). `preFirst:"hold"` opts back into flat-hold-backward.
-      if (preFirst === "zero" && knots.length && knots[0][0] - DT > AGE0) knots.unshift([knots[0][0] - DT, 0]);
+      // §8.2 (R1): residual is ZERO before the first draw — prepend a 0 knot one grid-step before it (allowing
+      // AGE0 itself, so an age-21 anchor ramps from age 20 rather than flat-holding backward). An anchor AT
+      // AGE0 gets no pre-knot (nothing precedes the grid start). `preFirst:"hold"` opts back into flat-hold.
+      if (preFirst === "zero" && knots.length && knots[0][0] - DT >= AGE0) knots.unshift([knots[0][0] - DT, 0]);
       off[med] = { byAge: knots, mode: "linear" };
     }
     return off;
   };
-  let maxMiss = Infinity;
-  if (Object.keys(byMed).length) {
-    for (let it = 0; it < iterations; it++) {
-      const sim = simulate(MODEL, { ...opts, offsets: buildOffsets() });
-      maxMiss = 0;
-      for (const med in byMed) {
-        const lane = sim.medValues[med];
-        if (!lane) continue;
-        for (const kn of byMed[med]) {
-          const miss = kn.measured - lane[kn.k];
-          kn.resid += miss;                 // add the remaining miss to this knot
-          if (Math.abs(miss) > maxMiss) maxMiss = Math.abs(miss);
-        }
-      }
-      if (maxMiss < 1e-12) break;           // converged early (non-feedback anchors)
+  // One full-pipeline sim; record each knot's miss and return the max |miss|.
+  const measure = () => {
+    const sim = simulate(MODEL, { ...opts, offsets: buildOffsets() });
+    let mm = 0;
+    for (const med in byMed) {
+      const lane = sim.medValues[med];
+      for (const kn of byMed[med]) { kn.miss = lane ? kn.measured - lane[kn.k] : 0; if (Math.abs(kn.miss) > mm) mm = Math.abs(kn.miss); }
     }
-  } else {
-    maxMiss = 0;
+    return mm;
+  };
+  let maxMiss = 0, converged = true;
+  if (Object.keys(byMed).length) {
+    // ADAPTIVE-DAMPED fixed point: r_{n+1} = r_n + α·(measured − realized(r_n)). The undamped step (α=1) is
+    // EXACT in one pass for a non-feedback anchor (loop gain g=1) and converges for g<2; a strong feedback
+    // mediator (HbA1c glucotoxic spiral, g can exceed 2) would DIVERGE into a 2-cycle. So when a pass fails to
+    // REDUCE the miss, halve α (ratchet) — this guarantees a contraction (|1−α·g|<1 for small enough α)
+    // without slowing the well-behaved common case (α stays 1; early-break in 1–3 passes). A FINAL measure()
+    // reports the TRUE miss of the returned offsets, so `converged` is honest (not the pre-update miss).
+    let alpha = 1, prev = Infinity;
+    for (let it = 0; it < iterations; it++) {
+      maxMiss = measure();
+      if (maxMiss <= tol) break;
+      if (maxMiss > prev * 0.99) alpha = Math.max(alpha * 0.5, 1e-4); // not improving ⇒ back off
+      prev = maxMiss;
+      for (const med in byMed) for (const kn of byMed[med]) kn.resid += alpha * kn.miss;
+    }
+    maxMiss = measure();                       // true miss of the RETURNED offsets
+    converged = maxMiss <= tol;
   }
   const offsets = buildOffsets();
-  return returnMaxMiss ? { offsets, maxMiss } : offsets;
+  return returnMaxMiss ? { offsets, maxMiss, converged, dropped } : offsets;
 }
 
 /* ============================ B-layer (Stage 1) ============================ */

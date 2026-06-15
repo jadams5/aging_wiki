@@ -415,5 +415,20 @@ App `computeOffsets()` rewired onto it. (b) ✅ **DONE** — `run()`/`currentOpt
 `LE_cond` surfaced in the readout ("≈ N yrs expected age at death, given you've reached X"). (c) ✅ **DONE** —
 `solveOffsets` prepends a zero knot one grid-step before the first draw (R1 pre-first-zero; `preFirst:"hold"`
 opts out). **Remaining:** (d) timeline `state.timeline` events model + `compileTimeline()` (§4) — the data-model
-foundation for the M3 panel; (e) date↔age + same-year binning UI decision (§8.6). Verified: 232/232 tests +
-headless-Chrome render smoke (cohort 77.5 / conditional 79.1 @ age 40, panels render).
+foundation for the M3 panel; (e) date↔age + same-year binning UI decision (§8.6).
+
+**M2 solver review (Codex gpt-5.5/xhigh, 2026-06-14) — folded.** Codex confirmed the invariant holds and
+`LE_cond` is correct, but found the solver was **not guaranteed to converge and could silently return wrong
+offsets** (a high-gain HbA1c anchor settled into a 2-cycle), plus anchor-validation gaps. Fixes landed:
+- **Adaptive-damped fixed point** — α halves whenever a pass fails to reduce the miss, guaranteeing a
+  contraction (breaks the 2-cycle) without slowing the well-behaved common case (α=1, early-break). A **final
+  measure() reports the TRUE miss of the returned offsets**, so `{converged, maxMiss}` is honest. The app
+  surfaces a **⚠ warning** when a lab anchor doesn't resolve (no more silent wrong fit).
+- **Anchor canonicalization + validation** — snap age to ONE grid point for both knot and index (fixes the
+  fractional-age 40.4 mismatch), clamp out-of-grid ages (no NaN), drop non-finite/non-offsettable mediators
+  (reported via `dropped`), dedup conflicting same-slot anchors (last wins).
+- **Pre-first boundary** fixed at `AGE0+DT` (an age-21 anchor now ramps from a `[AGE0,0]` knot).
+- **App `currentAge` clamped/snapped** via `effAge()` (a typed 200 no longer claims "reached 200"); `LE_cond`
+  `kc` made DT-general. Verified: **243/243 tests** (11 new robustness tests: real multi-draw HbA1c feedback,
+  honest non-convergence, out-of-grid/fractional/duplicate/invalid anchors, pre-first boundaries) +
+  headless-Chrome render smoke.

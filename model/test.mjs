@@ -1066,7 +1066,7 @@ num("M1: activity all-cause consumer — scalar==flat profile (LE)",
    EXACTLY — even for a feedback mediator (HbA1c) or simultaneous coupled anchors (BMI→SBP) that the M1
    one-shot residual only approximated. Residuals are computed against the FULL simulate() pipeline (post
    stiffness→SBP augment, node burdens, operators). See model/timeline-history-import-design.md §11. */
-function anchorMiss(opts, anchors, iterations = 20) {
+function anchorMiss(opts, anchors, iterations = 16) {  // 16 = the app's default (was 20)
   const offsets = solveOffsets(MODEL, opts, anchors, { iterations });
   const sim = simulate(MODEL, { ...opts, offsets });
   let m = 0;
@@ -1091,6 +1091,51 @@ str("M2: solver — no anchors ⇒ empty offsets", String(Object.keys(solveOffse
   const lane = resolveProfile(off.LDL, [...Array(111)].map((_, i) => 20 + i), 0);
   str("M2: solver — residual ~0 before the first draw (R1 pre-first-zero)", String(Math.abs(lane[30 - 20]) < 1e-9), "true");
 }
+
+/* --- M2 solver ROBUSTNESS (Codex review 2026-06-14): convergence honesty + anchor validation --- */
+// returnMaxMiss reports converged + the TRUE miss of the returned offsets.
+{
+  const r = solveOffsets(MODEL, { sex: "male" }, [{ med: "LDL", age: 55, measured: 130 }], { returnMaxMiss: true });
+  str("M2: returnMaxMiss reports {converged,maxMiss} honestly", String(r.converged === true && r.maxMiss < 1e-6), "true");
+}
+// REAL multi-draw HbA1c feedback: the early draw's offset feeds the glucotoxic loop affecting the late draw.
+num("M2: multi-draw HbA1c FEEDBACK reproduces both draws (≤1e-6)",
+  anchorMiss({ sex: "male" }, [{ med: "HbA1c", age: 45, measured: 6.5 }, { med: "HbA1c", age: 75, measured: 9.0 }]), 0, 1e-6);
+// High-gain anchor (preFirst:hold, late age) — adaptive damping must converge, NOT settle into a 2-cycle.
+str("M2: high-gain HbA1c anchor converges via damping (no 2-cycle)",
+  String(solveOffsets(MODEL, { sex: "male" }, [{ med: "HbA1c", age: 130, measured: 8.5 }], { returnMaxMiss: true, preFirst: "hold" }).converged === true), "true");
+// Honest NON-convergence: too few iterations ⇒ converged:false (not a silent wrong offset).
+{
+  const r = solveOffsets(MODEL, { sex: "male" }, [{ med: "HbA1c", age: 45, measured: 6.5 }, { med: "HbA1c", age: 75, measured: 11 }], { iterations: 1, returnMaxMiss: true });
+  str("M2: insufficient iterations ⇒ converged:false (honest, not silent)", String(r.converged === false && r.maxMiss > 1e-6), "true");
+}
+// Out-of-grid age clamps to the grid (no NaN) and still reproduces at the clamped age.
+str("M2: out-of-grid age (131) clamped — no NaN, converges",
+  (() => { const r = solveOffsets(MODEL, { sex: "male" }, [{ med: "LDL", age: 131, measured: 140 }], { returnMaxMiss: true }); return String(Number.isFinite(r.maxMiss) && r.converged === true); })(), "true");
+// Fractional age snaps knot AND index to the same grid age (40.4→40) ⇒ exact reproduction.
+num("M2: fractional anchor age snaps consistently (LDL 40.4 reproduces ≤1e-9)",
+  anchorMiss({ sex: "male" }, [{ med: "LDL", age: 40.4, measured: 150 }]), 0, 1e-9);
+// Conflicting same-grid-slot anchors ⇒ last wins (deterministic).
+{
+  const r = solveOffsets(MODEL, { sex: "male" }, [{ med: "LDL", age: 60, measured: 120 }, { med: "LDL", age: 60, measured: 180 }]);
+  num("M2: conflicting same-slot anchors ⇒ last wins (LDL@60==180)", simulate(MODEL, { sex: "male", offsets: r }).medValues.LDL[60 - AGE0], 180, 1e-6);
+}
+// Invalid anchors (NaN age, unknown/non-offsettable mediator) are DROPPED, not silently mis-handled.
+{
+  const r = solveOffsets(MODEL, { sex: "male" }, [{ med: "LDL", age: NaN, measured: 120 }, { med: "ecm-crosslink", age: 60, measured: 1 }, { med: "notamed", age: 60, measured: 1 }], { returnMaxMiss: true });
+  str("M2: NaN-age + non-offsettable mediators dropped (no crash, no false offset)",
+    String(r.dropped.length === 3 && Object.keys(r.offsets).length === 0 && r.converged === true), "true");
+}
+// Pre-first boundary: anchor AT AGE0 has no pre-knot; anchor at AGE0+DT inserts a [AGE0,0] pre-knot.
+{
+  const o20 = solveOffsets(MODEL, { sex: "male" }, [{ med: "LDL", age: 20, measured: 130 }]);
+  const o21 = solveOffsets(MODEL, { sex: "male" }, [{ med: "LDL", age: 21, measured: 130 }]);
+  str("M2: anchor@AGE0 — no pre-first knot", String(o20.LDL.byAge.length === 1), "true");
+  str("M2: anchor@AGE0+DT — inserts [AGE0,0] pre-first knot", String(o21.LDL.byAge.length === 2 && o21.LDL.byAge[0][0] === AGE0 && o21.LDL.byAge[0][1] === 0), "true");
+}
+// LE_cond at the last grid age ≈ 130 (not 131 — the off-by-one stays fixed at the boundary).
+str("M2: LE_cond at last grid age ≈ 130 (boundary, not 131)",
+  String(simulate(MODEL, { sex: "male", currentAge: 130 }).LE_cond >= 130 && simulate(MODEL, { sex: "male", currentAge: 130 }).LE_cond < 130.5), "true");
 
 export function runTests() {
   let allPass = true;
