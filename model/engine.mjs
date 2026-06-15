@@ -692,6 +692,50 @@ export function solveOffsets(MODEL, opts = {}, anchors = [], { iterations = 16, 
   return returnMaxMiss ? { offsets, maxMiss, converged, dropped } : offsets;
 }
 
+/**
+ * compileTimeline(events) — parse a flat timeline event list into engine-opts DELTAS (M2 §4). Pure +
+ * testable; the app MERGES these over the scalar UI state (events override the scalar default per channel),
+ * so an EMPTY event list returns all-empty deltas ⇒ the app's behaviour is byte-identical (the invariant).
+ *
+ * Each event has `channel: "<kind>:<id>"` where kind ∈ {input, treatment, intervention, operator, biomarker}
+ * and `age` (already resolved from a calendar date by the caller, if any). By kind:
+ *   input:<id>      {age, value}          → step time-profile of that exogenous input (ZOH between entries)
+ *   treatment:<id>  {age, value=dose}     → step time-profile of treatment dose (0 ⇒ off ⇒ start/stop window)
+ *   intervention:<nodeId> {startAge, endAge?, efficacy?}  → node-freeze window {startAge, endAge, efficacy}
+ *   operator:<presetId>   {ages?|age, scenario?}          → dosing schedule stub (preset details resolved by the app)
+ *   biomarker:<med> {age, value=measured} → an anchor {med, age, measured} (fed to solveOffsets by the app)
+ *
+ * Returns { inputs, treatments, interventions, operators, anchors } carrying ONLY channels that have events.
+ */
+export function compileTimeline(events = []) {
+  const inputs = {}, treatments = {}, interventions = {}, opByPreset = {}, anchors = [];
+  const steps = {};   // channel → [[age,value],…] for input/treatment step profiles
+  const splitCh = (ch) => { const i = ch.indexOf(":"); return i < 0 ? [ch, ""] : [ch.slice(0, i), ch.slice(i + 1)]; };
+  for (const ev of events || []) {
+    if (!ev || typeof ev.channel !== "string") continue;
+    const [kind, id] = splitCh(ev.channel);
+    if (!id) continue;
+    if (kind === "input" || kind === "treatment") {
+      (steps[ev.channel] ||= []).push([ev.age, ev.value]);
+    } else if (kind === "intervention") {
+      interventions[id] = { startAge: ev.startAge, endAge: ev.endAge ?? null, efficacy: ev.efficacy ?? 1 };
+    } else if (kind === "operator") {
+      const ages = Array.isArray(ev.ages) ? ev.ages : (ev.age != null ? [ev.age] : []);
+      const o = (opByPreset[id] ||= { presetId: id, ages: [], scenario: ev.scenario });
+      o.ages.push(...ages);
+      if (ev.scenario != null) o.scenario = ev.scenario;
+    } else if (kind === "biomarker") {
+      if (Number.isFinite(ev.age) && Number.isFinite(ev.value)) anchors.push({ med: id, age: ev.age, measured: ev.value });
+    }
+  }
+  for (const ch in steps) {
+    const [kind, id] = splitCh(ch);
+    const byAge = steps[ch].slice().sort((a, b) => a[0] - b[0]);
+    (kind === "input" ? inputs : treatments)[id] = { byAge, mode: "step" };
+  }
+  return { inputs, treatments, interventions, operators: Object.values(opByPreset), anchors };
+}
+
 /* ============================ B-layer (Stage 1) ============================ */
 //
 // Endogenous-mediator tier. Exogenous behavioral/environmental inputs drive

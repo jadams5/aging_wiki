@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp, solveOffsets } from "./engine.mjs";
+import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp, solveOffsets, compileTimeline } from "./engine.mjs";
 import { validateGraph } from "./validate-graph.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -1136,6 +1136,43 @@ num("M2: fractional anchor age snaps consistently (LDL 40.4 reproduces ≤1e-9)"
 // LE_cond at the last grid age ≈ 130 (not 131 — the off-by-one stays fixed at the boundary).
 str("M2: LE_cond at last grid age ≈ 130 (boundary, not 131)",
   String(simulate(MODEL, { sex: "male", currentAge: 130 }).LE_cond >= 130 && simulate(MODEL, { sex: "male", currentAge: 130 }).LE_cond < 130.5), "true");
+
+/* ============= M2: timeline events → engine-opts deltas (compileTimeline) =============
+   Parses a flat event list into per-channel deltas the app merges over its scalar state. Empty events ⇒
+   all-empty deltas (the byte-identical invariant). See model/timeline-history-import-design.md §4. */
+{
+  const d = compileTimeline([]);
+  str("M2: compileTimeline([]) ⇒ all-empty deltas",
+    String(Object.keys(d.inputs).length === 0 && Object.keys(d.treatments).length === 0 && Object.keys(d.interventions).length === 0 && d.operators.length === 0 && d.anchors.length === 0), "true");
+}
+str("M2: input events ⇒ sorted byAge STEP profile",
+  JSON.stringify(compileTimeline([{ channel: "input:alcohol", age: 38, value: 0 }, { channel: "input:alcohol", age: 25, value: 3 }]).inputs.alcohol),
+  JSON.stringify({ byAge: [[25, 3], [38, 0]], mode: "step" }));
+str("M2: treatment events ⇒ step dose profile",
+  JSON.stringify(compileTimeline([{ channel: "treatment:statin", age: 45, value: 1 }, { channel: "treatment:statin", age: 70, value: 0 }]).treatments.statin),
+  JSON.stringify({ byAge: [[45, 1], [70, 0]], mode: "step" }));
+str("M2: intervention window parsed",
+  JSON.stringify(compileTimeline([{ channel: "intervention:cellular-senescence", startAge: 60, endAge: 80, efficacy: 0.3 }]).interventions["cellular-senescence"]),
+  JSON.stringify({ startAge: 60, endAge: 80, efficacy: 0.3 }));
+str("M2: operator dosing stub parsed",
+  JSON.stringify(compileTimeline([{ channel: "operator:dq-one-off", ages: [60, 61], scenario: { killScenario: "central" } }]).operators),
+  JSON.stringify([{ presetId: "dq-one-off", ages: [60, 61], scenario: { killScenario: "central" } }]));
+str("M2: biomarker events ⇒ anchors",
+  JSON.stringify(compileTimeline([{ channel: "biomarker:LDL", age: 33, value: 150 }, { channel: "biomarker:LDL", age: 43, value: 120 }]).anchors),
+  JSON.stringify([{ med: "LDL", age: 33, measured: 150 }, { med: "LDL", age: 43, measured: 120 }]));
+// END-TO-END: a compiled input step profile drives simulate identically to a hand-written one.
+{
+  const d = compileTimeline([{ channel: "input:alcohol", age: 20, value: 6 }, { channel: "input:alcohol", age: 50, value: 0 }]);
+  num("M2: compiled input profile drives simulate identically",
+    simulate(MODEL, { sex: "male", inputs: d.inputs }).LE - simulate(MODEL, { sex: "male", inputs: { alcohol: { byAge: [[20, 6], [50, 0]], mode: "step" } } }).LE, 0, 1e-12);
+}
+// END-TO-END: compiled biomarker anchors feed solveOffsets and reproduce each draw.
+{
+  const d = compileTimeline([{ channel: "biomarker:LDL", age: 40, value: 150 }, { channel: "biomarker:LDL", age: 60, value: 110 }]);
+  const sim = simulate(MODEL, { sex: "male", offsets: solveOffsets(MODEL, { sex: "male" }, d.anchors) });
+  str("M2: compiled biomarker anchors reproduce via solver",
+    String(Math.abs(sim.medValues.LDL[40 - AGE0] - 150) < 1e-6 && Math.abs(sim.medValues.LDL[60 - AGE0] - 110) < 1e-6), "true");
+}
 
 export function runTests() {
   let allPass = true;

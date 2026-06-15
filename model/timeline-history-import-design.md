@@ -414,8 +414,18 @@ HbA1c-feedback + simultaneous coupled anchors + multi-draw + under node-freeze (
 App `computeOffsets()` rewired onto it. (b) ✅ **DONE** — `run()`/`currentOpts()` forward `currentAge`;
 `LE_cond` surfaced in the readout ("≈ N yrs expected age at death, given you've reached X"). (c) ✅ **DONE** —
 `solveOffsets` prepends a zero knot one grid-step before the first draw (R1 pre-first-zero; `preFirst:"hold"`
-opts out). **Remaining:** (d) timeline `state.timeline` events model + `compileTimeline()` (§4) — the data-model
-foundation for the M3 panel; (e) date↔age + same-year binning UI decision (§8.6).
+opts out). (d) ✅ **DONE** — `state.timeline = {birthDate, events:[]}` + the pure `compileTimeline(events)` engine helper
+(parses `input:`/`treatment:`/`intervention:`/`operator:`/`biomarker:` channels → engine-opts deltas). The app
+**merges** these OVER the scalar state per channel (events win); empty events ⇒ byte-identical (the invariant).
+`currentOpts()` now compiles+merges the timeline, `solveAnchors()` takes scalar labs + timeline biomarker
+points, `timelineEvents()` converts a calendar `date`→age via `birthDate`. **Augment-first** (the scalar UI
+still works; M3 populates events). Verified end-to-end: a seeded `input:smokingStatus=current` event drops LE
+77.5→73.3 in the rendered app. (e) date↔age conversion in place; **same-year binning** stays an M4 import-time
+decision (§8.6).
+
+**M2 COMPLETE.** Next: **M3** — the editable timeline panel (`renderHistoryTimeline()`, drag/add/edit,
+calendar axis, "today" cursor) that lets a user populate `state.timeline.events`; then **M4** importer, **M5**
+clock overlay.
 
 **M2 solver review (Codex gpt-5.5/xhigh, 2026-06-14) — folded.** Codex confirmed the invariant holds and
 `LE_cond` is correct, but found the solver was **not guaranteed to converge and could silently return wrong

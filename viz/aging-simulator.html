@@ -1091,6 +1091,50 @@ function solveOffsets(MODEL, opts = {}, anchors = [], { iterations = 16, returnM
   return returnMaxMiss ? { offsets, maxMiss, converged, dropped } : offsets;
 }
 
+/**
+ * compileTimeline(events) — parse a flat timeline event list into engine-opts DELTAS (M2 §4). Pure +
+ * testable; the app MERGES these over the scalar UI state (events override the scalar default per channel),
+ * so an EMPTY event list returns all-empty deltas ⇒ the app's behaviour is byte-identical (the invariant).
+ *
+ * Each event has `channel: "<kind>:<id>"` where kind ∈ {input, treatment, intervention, operator, biomarker}
+ * and `age` (already resolved from a calendar date by the caller, if any). By kind:
+ *   input:<id>      {age, value}          → step time-profile of that exogenous input (ZOH between entries)
+ *   treatment:<id>  {age, value=dose}     → step time-profile of treatment dose (0 ⇒ off ⇒ start/stop window)
+ *   intervention:<nodeId> {startAge, endAge?, efficacy?}  → node-freeze window {startAge, endAge, efficacy}
+ *   operator:<presetId>   {ages?|age, scenario?}          → dosing schedule stub (preset details resolved by the app)
+ *   biomarker:<med> {age, value=measured} → an anchor {med, age, measured} (fed to solveOffsets by the app)
+ *
+ * Returns { inputs, treatments, interventions, operators, anchors } carrying ONLY channels that have events.
+ */
+function compileTimeline(events = []) {
+  const inputs = {}, treatments = {}, interventions = {}, opByPreset = {}, anchors = [];
+  const steps = {};   // channel → [[age,value],…] for input/treatment step profiles
+  const splitCh = (ch) => { const i = ch.indexOf(":"); return i < 0 ? [ch, ""] : [ch.slice(0, i), ch.slice(i + 1)]; };
+  for (const ev of events || []) {
+    if (!ev || typeof ev.channel !== "string") continue;
+    const [kind, id] = splitCh(ev.channel);
+    if (!id) continue;
+    if (kind === "input" || kind === "treatment") {
+      (steps[ev.channel] ||= []).push([ev.age, ev.value]);
+    } else if (kind === "intervention") {
+      interventions[id] = { startAge: ev.startAge, endAge: ev.endAge ?? null, efficacy: ev.efficacy ?? 1 };
+    } else if (kind === "operator") {
+      const ages = Array.isArray(ev.ages) ? ev.ages : (ev.age != null ? [ev.age] : []);
+      const o = (opByPreset[id] ||= { presetId: id, ages: [], scenario: ev.scenario });
+      o.ages.push(...ages);
+      if (ev.scenario != null) o.scenario = ev.scenario;
+    } else if (kind === "biomarker") {
+      if (Number.isFinite(ev.age) && Number.isFinite(ev.value)) anchors.push({ med: id, age: ev.age, measured: ev.value });
+    }
+  }
+  for (const ch in steps) {
+    const [kind, id] = splitCh(ch);
+    const byAge = steps[ch].slice().sort((a, b) => a[0] - b[0]);
+    (kind === "input" ? inputs : treatments)[id] = { byAge, mode: "step" };
+  }
+  return { inputs, treatments, interventions, operators: Object.values(opByPreset), anchors };
+}
+
 /* ============================ B-layer (Stage 1) ============================ */
 //
 // Endogenous-mediator tier. Exogenous behavioral/environmental inputs drive
@@ -5906,7 +5950,12 @@ let state = {
   treatments: {},           // treatment id -> true
   operatorPresets: {},      // preset id -> {killScenario,reboundScenario}
   labs: {},                 // mediator id -> measured value (raw, as typed)
-  currentAge: 40            // anchor age for offsets + conditional readouts
+  currentAge: 40,           // anchor age for offsets + conditional readouts
+  // M2 timeline (augment layer): a flat event list applied OVER the scalar state above (events override the
+  // scalar default per channel). Empty ⇒ behaviour byte-identical to the pre-timeline app. Populated by the
+  // M3 panel / M4 importer. `birthDate` (ISO) maps an event's calendar `date` → age; events may carry `age`
+  // directly instead. See model/timeline-history-import-design.md §4.
+  timeline: { birthDate: null, events: [] }
 };
 
 // Default every panel input to its populationMean (so defaults reproduce baseline
@@ -5926,7 +5975,8 @@ PANEL_INPUT_IDS.forEach(id => {
    feedback and is held at the anchor while the curve still evolves with age/inputs/treatments elsewhere.
    `base` is the current scenario WITHOUT offsets. Convergence is recorded in `_anchorStatus` and surfaced. */
 let _anchorStatus = { converged: true, maxMiss: 0, dropped: [] };
-function computeOffsets(base){
+// Anchors from the scalar lab fields (each measured at the current age). Timeline biomarker events add more.
+function scalarLabAnchors(){
   const anchors = [];
   for (const f of LAB_FIELDS){
     const v = state.labs[f.med];
@@ -5935,7 +5985,11 @@ function computeOffsets(base){
     if (!isFinite(measured)) continue;
     anchors.push({ med: f.med, age: effAge(), measured });
   }
-  if (anchors.length === 0){ _anchorStatus = { converged: true, maxMiss: 0, dropped: [] }; return {}; }
+  return anchors;
+}
+// Solve personal offsets for an explicit anchor set against the full scenario `base`; records convergence.
+function solveAnchors(base, anchors){
+  if (!anchors.length){ _anchorStatus = { converged: true, maxMiss: 0, dropped: [] }; return {}; }
   const m = modelWithCouple(state.couple);
   const res = solveOffsets(m, base, anchors, { iterations: 16, returnMaxMiss: true });
   _anchorStatus = { converged: res.converged, maxMiss: res.maxMiss, dropped: res.dropped || [] };
@@ -5971,20 +6025,46 @@ function activeOperators(){
   return ops;
 }
 
-// Assemble the engine opts from current state. The lab-anchor solve (computeOffsets) needs the full
-// scenario WITHOUT offsets, so build `base` first, then solve offsets against it.
+// Resolve each timeline event's age — from a calendar `date` via birthDate, else its direct `age`.
+function timelineEvents(){
+  const evs = (state.timeline && state.timeline.events) || [];
+  const bd = state.timeline && state.timeline.birthDate ? new Date(state.timeline.birthDate) : null;
+  if (!bd) return evs;
+  return evs.map(ev => (ev.age == null && ev.date) ? { ...ev, age: (new Date(ev.date) - bd) / (365.2425 * 864e5) } : ev);
+}
+// Map compiled operator stubs {presetId, ages, scenario} → full engine operator entries via OPERATOR_PRESETS.
+function resolveTimelineOperators(stubs){
+  const ops = [];
+  for (const s of stubs || []){
+    const preset = OPERATOR_PRESETS.find(p => p.id === s.presetId);
+    if (!preset || !(s.ages && s.ages.length)) continue;
+    const sc = s.scenario || {};
+    ops.push({
+      kind: preset.kind, target: preset.target,
+      killFraction: preset.killFractionScenarios[sc.killScenario || preset.defaultKillScenario],
+      reboundHalfLifeYears: preset.reboundHalfLifeScenariosYears[sc.reboundScenario || preset.defaultReboundScenario],
+      ages: s.ages, presetId: preset.id
+    });
+  }
+  return ops;
+}
+// Assemble the engine opts from current state. The TIMELINE augment layer (compileTimeline) is merged OVER
+// the scalar state per channel (events win); empty events ⇒ byte-identical to the scalar-only app. The
+// lab-anchor solve needs the full scenario WITHOUT offsets, so build `base` first, then solve against it.
 function currentOpts(){
+  const tl = compileTimeline(timelineEvents());
   const base = {
     sex: state.sex,
     couple: state.couple,
     lifestyle: state.lifestyle,
-    interventions: state.interventions,
-    inputs: state.inputs,
-    treatments: state.treatments,
-    operators: activeOperators(),
+    inputs: { ...state.inputs, ...tl.inputs },
+    treatments: { ...state.treatments, ...tl.treatments },
+    interventions: { ...state.interventions, ...tl.interventions },
+    operators: [ ...activeOperators(), ...resolveTimelineOperators(tl.operators) ],
     currentAge: effAge()
   };
-  return { ...base, offsets: computeOffsets(base) };
+  const anchors = [ ...scalarLabAnchors(), ...tl.anchors ];
+  return { ...base, offsets: solveAnchors(base, anchors) };
 }
 // The all-default baseline opts for ΔLE: lifestyle 1, no interventions/inputs/
 // treatments/offsets. (Same sex + couple as current so the comparison is clean.)
