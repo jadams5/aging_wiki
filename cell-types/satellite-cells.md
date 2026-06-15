@@ -42,7 +42,7 @@ Note: no single surface marker perfectly purifies satellite cells in either spec
 Satellite cells sit between the **sarcolemma** (plasma membrane of the muscle fiber) and the **basal lamina** (the extracellular matrix sheath surrounding each fiber), held in place by integrin-alpha7/laminin interactions. This sublaminar niche is functionally critical: it provides:
 
 - **Quiescence signals**: Notch ligands (Dll1, Dll4) presented by the myofiber; myostatin/GDF11 via autocrine/paracrine loops; low-oxygen microenvironment.
-- **Activation signals**: FGF2, HGF, and nitric oxide released by damaged fibers; loss of Dll/Notch contact; mechanical deformation.
+- **Activation signals**: [[fgf2|FGF2]], HGF, and nitric oxide released by damaged fibers; loss of Dll/Notch contact; mechanical deformation. In *aged* muscle, chronically elevated niche FGF2 erodes satellite-cell quiescence (the FGF2–Spry1 axis), driving stem-cell-pool depletion — see [[fgf2]].
 - **Fate signals**: Wnt ligands (Wnt3a, Wnt7a) from the myofiber and niche ECM; high Wnt drives fibrogenic fate rather than myogenic commitment in aged muscle [^brack2007].
 
 The niche is spatially heterogeneous: satellite cells at the myotendinous junction and adjacent to blood vessels may receive distinct signals. Type II (fast-twitch) fibers carry more satellite cells per unit length than Type I fibers in young adult humans, a difference that narrows with age [^snijders2015].

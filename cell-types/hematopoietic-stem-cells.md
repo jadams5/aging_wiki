@@ -60,7 +60,7 @@ HSCs occupy two spatially distinct niches in the [[bone-marrow]]:
 - **Endosteal niche** — periosteal surface, CXCL12-abundant reticular (CAR) cells and osteoblasts; associated with HSC quiescence and long-term maintenance [^pinho-frenette-2019].
 - **Perivascular niche** — sinusoidal endothelium; CXCL12/CXCL4 gradients; associated with HSC mobilization and some proliferative activity [^pinho-frenette-2019].
 
-CXCL12 (SDF-1) produced by niche stromal cells is the dominant HSC-retention signal, acting through CXCR4 on HSCs. Disrupting this axis (G-CSF mobilization) is the basis of clinical stem cell mobilization for transplantation.
+[[cxcl12|CXCL12]] (SDF-1) produced by niche stromal cells is the dominant HSC-retention signal, acting through CXCR4 on HSCs. Disrupting this axis (G-CSF mobilization) is the basis of clinical stem cell mobilization for transplantation.
 
 ## Self-renewal and functional assay
 
