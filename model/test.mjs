@@ -1143,7 +1143,7 @@ str("M2: LE_cond at last grid age ≈ 130 (boundary, not 131)",
 {
   const d = compileTimeline([]);
   str("M2: compileTimeline([]) ⇒ all-empty deltas",
-    String(Object.keys(d.inputs).length === 0 && Object.keys(d.treatments).length === 0 && Object.keys(d.interventions).length === 0 && d.operators.length === 0 && d.anchors.length === 0), "true");
+    String(Object.keys(d.inputs).length === 0 && Object.keys(d.treatments).length === 0 && Object.keys(d.interventions).length === 0 && d.operators.length === 0 && d.anchors.length === 0 && d.lifestyle === null), "true");
 }
 str("M2: input events ⇒ sorted byAge STEP profile",
   JSON.stringify(compileTimeline([{ channel: "input:alcohol", age: 38, value: 0 }, { channel: "input:alcohol", age: 25, value: 3 }]).inputs.alcohol),
@@ -1172,6 +1172,54 @@ str("M2: biomarker events ⇒ anchors",
   const sim = simulate(MODEL, { sex: "male", offsets: solveOffsets(MODEL, { sex: "male" }, d.anchors) });
   str("M2: compiled biomarker anchors reproduce via solver",
     String(Math.abs(sim.medValues.LDL[40 - AGE0] - 150) < 1e-6 && Math.abs(sim.medValues.LDL[60 - AGE0] - 110) < 1e-6), "true");
+}
+
+/* ===== M7: extrinsic-risk (lifestyle) as a time-varying timeline channel (2026-06-15) =====
+   The Lifestyle/extrinsic-risk scalar moved onto the timeline as a step exposure (lifestyle:extrinsic). The
+   engine accepts `lifestyle` as a scalar (back-compat) OR an age-profile; the scalar path is byte-identical. */
+str("M7: lifestyle events ⇒ sorted byAge STEP profile",
+  JSON.stringify(compileTimeline([{ channel: "lifestyle:extrinsic", age: 45, value: 1 }, { channel: "lifestyle:extrinsic", age: 30, value: 3 }]).lifestyle),
+  JSON.stringify({ byAge: [[30, 3], [45, 1]], mode: "step" }));
+str("M7: lifestyle events do NOT leak into inputs/treatments",
+  String((() => { const d = compileTimeline([{ channel: "lifestyle:extrinsic", age: 30, value: 3 }]); return Object.keys(d.inputs).length === 0 && Object.keys(d.treatments).length === 0; })()), "true");
+str("M7: unknown lifestyle id ignored (lifestyle:typo ⇒ null — can't drive extrinsic)",
+  String(compileTimeline([{ channel: "lifestyle:typo", age: 30, value: 3 }]).lifestyle === null), "true");
+str("M7: negative lifestyle multiplier clamped to 0; non-finite knot dropped",
+  JSON.stringify(compileTimeline([{ channel: "lifestyle:extrinsic", age: 30, value: -2 }, { channel: "lifestyle:extrinsic", age: 40, value: NaN }, { channel: "lifestyle:extrinsic", age: 50, value: 4 }]).lifestyle),
+  JSON.stringify({ byAge: [[30, 0], [50, 4]], mode: "step" }));
+// Engine byte-identity: a scalar lifestyle == a constant-profile lifestyle of the same value (any age).
+num("M7: lifestyle scalar 3 == constant profile ×3 (LE byte-identical)",
+  simulate(MODEL, { sex: "male", lifestyle: 3 }).LE
+  - simulate(MODEL, { sex: "male", lifestyle: { byAge: [[AGE0, 3], [130, 3]], mode: "step" } }).LE, 0, 1e-12);
+// Lifestyle drives EXTRINSIC ONLY: every NON-extrinsic decomposition part is identical between a scalar ×3
+// and a constant-profile ×3 at every age (only `extrinsic` may differ — and here it matches too since both ×3).
+{
+  const sc = simulate(MODEL, { sex: "male", lifestyle: 3 });
+  const pf = simulate(MODEL, { sex: "male", lifestyle: { byAge: [[AGE0, 3]], mode: "step" } });
+  let worstNonExtr = 0;
+  for (let k = 0; k < sc.decomposition.length; k++) {
+    const a = sc.decomposition[k].parts, b = pf.decomposition[k].parts;
+    for (const cn in a) if (cn !== "extrinsic") worstNonExtr = Math.max(worstNonExtr, Math.abs(a[cn] - b[cn]));
+  }
+  num("M7: lifestyle affects extrinsic ONLY (max non-extrinsic part diff ≈ 0)", worstNonExtr, 0, 1e-12);
+}
+// Step profile changes ONLY the extrinsic channel: a constant ×3 lifetime profile equals the scalar ×3 across
+// every intrinsic cause (decomposition unchanged except extrinsic) — confirm via the matching LE above plus
+// the pre-first-knot fallback to popDefault 1.0 (a profile starting at 50 leaves <50 at baseline).
+{
+  const prof = simulate(MODEL, { sex: "male", lifestyle: { byAge: [[50, 5]], mode: "step" } });
+  const base = simulate(MODEL, { sex: "male" });
+  str("M7: lifestyle profile pre-first-knot == baseline 1.0 (extrinsic@40 unchanged)",
+    String(Math.abs(prof.decomposition[40 - AGE0].parts.extrinsic - base.decomposition[40 - AGE0].parts.extrinsic) < 1e-12), "true");
+  str("M7: lifestyle profile post-knot raises extrinsic ×5 (@60)",
+    String(Math.abs(prof.decomposition[60 - AGE0].parts.extrinsic - 5 * base.decomposition[60 - AGE0].parts.extrinsic) < 1e-9), "true");
+}
+// END-TO-END: a compiled lifestyle profile drives simulate identically to a hand-written one.
+{
+  const d = compileTimeline([{ channel: "lifestyle:extrinsic", age: 30, value: 3 }, { channel: "lifestyle:extrinsic", age: 60, value: 1 }]);
+  num("M7: compiled lifestyle profile drives simulate identically",
+    simulate(MODEL, { sex: "male", lifestyle: d.lifestyle }).LE
+    - simulate(MODEL, { sex: "male", lifestyle: { byAge: [[30, 3], [60, 1]], mode: "step" } }).LE, 0, 1e-12);
 }
 
 /* ===================== M4: history-bundle importer ===================== */
@@ -1303,6 +1351,64 @@ str("M2: biomarker events ⇒ anchors",
 
   str("M4: converted-value overflow → Infinity rejected",
     String(P({ measurements: [{ med: "LDL", date: "2020-01-01", value: Number.MAX_VALUE, unit: "mmol/L" }] }).report.errors.length === 1), "true");
+}
+
+/* ===== M7: built-in "Load example" bundle is parser-valid (single source of truth) =====
+   model/history-bundle.example.json is inlined into the app by build-app.mjs as HISTORY_BUNDLE_EXAMPLE and
+   loaded by the "Load example" button. Validate it here so the demo can't silently drift out of parser-spec. */
+{
+  const exampleObj = JSON.parse(readFileSync(resolve(HERE, "history-bundle.example.json"), "utf8"));
+  const r = parseHistoryBundle(exampleObj, buildBundleContext(MODEL));
+  str("M7: example bundle parses clean (not aborted, 0 errors)",
+    String(!r.report.aborted && r.report.errors.length === 0), "true");
+  str("M7: example bundle → 12 events, sex male, birthDate 1980-04-12",
+    `${r.events.length}|${r.sex}|${r.birthDate}`, "12|male|1980-04-12");
+  str("M7: example bundle includes an LDL biomarker event",
+    String(r.events.some((e) => e.channel === "biomarker:LDL")), "true");
+}
+
+/* ===== M7: bundle events[] passthrough — the faithful "Export settings" round-trip (2026-06-15) =====
+   The app exports its native age-based timeline events under a top-level `events:[]`; parseHistoryBundle ingests
+   them losslessly (carries lifestyle:extrinsic + all channels, no birthDate needed). */
+{
+  const CTX = buildBundleContext(MODEL);
+  const evIn = [
+    { channel: "lifestyle:extrinsic", age: 30, value: 3 },     // the channel the friendly schema can't express
+    { channel: "biomarker:LDL", age: 40, value: 150 },
+    { channel: "input:alcohol", age: 25, value: 4 },
+    { channel: "treatment:statin", age: 45, value: 1 },
+    { channel: "intervention:cellular-senescence", startAge: 50, endAge: null, efficacy: 0.5 },
+    { channel: "operator:dq-one-off", ages: [60], scenario: { killScenario: "central" } }
+  ];
+  const r = parseHistoryBundle({ bundleVersion: 1, sex: "male", events: evIn }, CTX);  // NB: no birthDate
+  str("M7: events[] passthrough parses clean with NO birthDate (not aborted, 0 errors)",
+    String(!r.report.aborted && r.report.errors.length === 0 && r.report.loaded.events === 6), "true");
+  str("M7: events[] passthrough preserves lifestyle:extrinsic",
+    String(r.events.some((e) => e.channel === "lifestyle:extrinsic" && e.value === 3 && e.age === 30)), "true");
+  str("M7: events[] passthrough preserves the intervention window",
+    JSON.stringify((() => { const e = r.events.find((x) => x.channel === "intervention:cellular-senescence"); return e && { s: e.startAge, end: e.endAge, eff: e.efficacy }; })()),
+    JSON.stringify({ s: 50, end: null, eff: 0.5 }));
+  // ROUND-TRIP: re-emitting the parsed events as a new events[] bundle reproduces the same canonical set —
+  // compare the FULL canonical payload (value/age/window/scenario), not just channel names.
+  const norm = (evs) => evs.map(({ _date, _dates, id, ...e }) => e).sort((a, c) => a.channel.localeCompare(c.channel) || ((a.age ?? a.startAge ?? 0) - (c.age ?? c.startAge ?? 0)));
+  const r2 = parseHistoryBundle({ bundleVersion: 1, sex: "male", events: norm(r.events) }, CTX);
+  str("M7: events[] round-trip is idempotent (full payload)",
+    JSON.stringify(norm(r2.events)), JSON.stringify(norm(r.events)));
+  // validation: unknown channel + bad efficacy are rejected per-entry (not aborted)
+  const rBad = parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "lifestyle:typo", age: 30, value: 3 }, { channel: "intervention:cellular-senescence", startAge: 50, efficacy: 9 }] }, CTX);
+  str("M7: events[] rejects unknown channel + out-of-range efficacy (2 errors, 0 events)",
+    String(rBad.report.errors.length === 2 && rBad.events.length === 0), "true");
+  // native operator hardening (Codex ckpt5): malformed scenario + non-finite ages are rejected, not coerced/dropped
+  str("M7: events[] native operator with non-object scenario rejected",
+    String(parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "operator:dq-one-off", ages: [60], scenario: "x" }] }, CTX).report.errors.length === 1), "true");
+  str("M7: events[] native operator with a non-finite age rejected (not silently dropped)",
+    String(parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "operator:dq-one-off", ages: [60, "x"] }] }, CTX).report.errors.length === 1), "true");
+  // oversized native operator ages[] is counted toward the import-size cap (can't bypass the guard)
+  str("M7: events[] oversized operator ages[] hits the size cap (aborted)",
+    String(parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "operator:dq-one-off", ages: Array.from({ length: 5001 }, (_, k) => 20 + (k % 80)) }] }, CTX).report.aborted), "true");
+  // optional currentAge restored when there is no birthDate
+  str("M7: events[] bundle carries optional currentAge",
+    String(parseHistoryBundle({ bundleVersion: 1, currentAge: 52, events: [{ channel: "biomarker:LDL", age: 40, value: 150 }] }, CTX).currentAge === 52), "true");
 }
 
 export function runTests() {

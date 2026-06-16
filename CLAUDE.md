@@ -510,7 +510,7 @@ unit: years | percentile | rate | composite-score
 training-cohort: "Horvath 2013: 8000 samples / 51 tissues"
 n-cpgs-or-features: 353                      # integer for single-model clocks; string-encoded multi-value for multi-model pages (e.g., "elastic-net 157 / PC 5021"). Lint accepts both
 model-architecture:                           # optional; elastic-net | lasso | ridge | svm | pc-clock | random-forest | composite-other. When `svm` + `n-cpgs-or-features: null`, the null is structurally accurate (SVM clocks use full probe space); lint should NOT flag
-training-target: chronological-age | mortality | morbidity | pace
+training-target: chronological-age | mortality | morbidity | pace | exposure   # `exposure` = DNAm/omic predictor trained to estimate an external exposure/behavioral quantity rather than an age or vital outcome (alcohol intake, smoking intensity, BMI, dietary pattern); R56
 calibration-tissues: ["[[blood]]", "[[saliva]]", "[[brain]]"]
 test-retest-icc:                              # optional; intra-class correlation
 human-evidence-level: strong                  # mirrors compound: none | preclinical-only | limited | strong

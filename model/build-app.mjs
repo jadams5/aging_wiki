@@ -27,6 +27,7 @@ const ROOT = resolve(HERE, "..");
 
 const ENGINE_PATH = resolve(HERE, "engine.mjs");
 const PARAMS_PATH = resolve(HERE, "params.json");
+const EXAMPLE_PATH = resolve(HERE, "history-bundle.example.json");
 const HTML_PATH = resolve(ROOT, "viz", "aging-simulator.html");
 
 const START = "// <<<ENGINE-INJECT-START>>>";
@@ -53,6 +54,12 @@ if (/^\s*export\b/m.test(engineSrc) || /^\s*import\b/m.test(engineSrc)) {
 const modelObj = JSON.parse(readFileSync(PARAMS_PATH, "utf8"));
 const modelJson = JSON.stringify(modelObj, null, 2);
 
+/* ---- 2b. built-in example history bundle (for the "Load example" button) --- */
+// Inlined (not fetched) so the app stays 100% client-side; same parser-validated, person-agnostic
+// fictional demo as model/history-bundle.example.json (single source of truth, checked by test.mjs).
+const exampleObj = JSON.parse(readFileSync(EXAMPLE_PATH, "utf8"));
+const exampleJson = JSON.stringify(exampleObj, null, 2);
+
 /* ---- 3. assemble injected block ---------------------------------------- */
 const injected = [
   START,
@@ -67,6 +74,9 @@ const injected = [
   "",
   "/* ---- MODEL (model/params.json) ---- */",
   "const MODEL = " + modelJson + ";",
+  "",
+  "/* ---- built-in example history bundle (model/history-bundle.example.json) ---- */",
+  "const HISTORY_BUNDLE_EXAMPLE = " + exampleJson + ";",
   "",
   "/* ---- on-load regression assert: baseline male LE ≈ 77.46 (2019-harmonized) ---- */",
   "console.assert(",

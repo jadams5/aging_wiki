@@ -156,7 +156,8 @@ const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration"
  *
  * opts:
  *   sex          : "male" | "female"        (required)
- *   lifestyle    : number   (default 1.0)   scales the extrinsic channel only
+ *   lifestyle    : number | {byAge:[[age,mult],…], mode:"step"}  (default 1.0)  scales the extrinsic
+ *                  channel only; scalar = constant lifetime multiplier, profile = time-varying extrinsic-risk
  *   interventions: { nodeId: { startAge, efficacy } }  (default {})
  *
  * Returns:
@@ -208,6 +209,15 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   const AGES = [];
   for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
   const N_AGE = AGES.length;
+
+  // EXTRINSIC-RISK (lifestyle) LANE. `lifestyle` may be a SCALAR (constant lifetime multiplier on the
+  // non-cascading extrinsic channel — back-compat; default 1.0 = population baseline) OR an age-profile
+  // `{byAge:[[age,mult],…], mode:"step"}` (a time-varying extrinsic-risk history, e.g. a high-risk-occupation
+  // window then a return to baseline). resolveProfile fills a scalar to a constant lane (byte-identical to the
+  // former `* lifestyle`) and steps a profile with popDefault 1.0 before the first entry, so a default run is
+  // numerically unchanged and an empty/absent profile reproduces the baseline exactly. Step (ZOH) like other
+  // exogenous exposures. Drives only `extrinsic` below — it does NOT cascade through hallmarks.
+  const lifestyleLane = resolveProfile(lifestyle, AGES, 1.0, "step");
 
   // STUB NODES (provenance:"stub") are excluded from the simulation here — the single point
   // where MODEL.nodes enters the engine — so a planned-but-unmodeled node (e.g. a future
@@ -375,13 +385,18 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
         // `prim` is HELD (benefit persists; node resumes aging in parallel). endAge omitted (null) ⇒ open-ended
         // ⇒ byte-identical to the pre-M1 behaviour. NOTE this is a scenario assumption for self-amplifying nodes.
         if (iv && age >= iv.startAge && (iv.endAge == null || age < iv.endAge)) {
-          prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
+          // Clamp to >= 0: non-monotonic curves (residual, liver) have falling regions where
+          // ΔT < 0; without the clamp a freeze would ADD burden. The clamp makes freeze
+          // semantics correct: "hold B at the start-age value" means never increase it.
+          prim[i] -= iv.efficacy * Math.max(0, Tarr[i][k + 1] - Tarr[i][k]);
         }
         if (hasRateTerms[i]) accumDev[i] += nodeRateTermsSum(NODES[i].rate.terms, inMap, D, NODE_IDX, k) * DT;
       }
       // production-suppress: reduce the target's accrual increment over its window (lower new-burden rate)
+      // Clamp to >= 0 for the same reason as the freeze clamp: non-monotonic curves have falling
+      // regions where ΔT < 0, and a suppress in a falling region should not ADD burden.
       for (const op of prodSuppressOps) {
-        if (age >= op.startAge && age <= op.endAge) prim[op.idx] -= op.atten * (Tarr[op.idx][k + 1] - Tarr[op.idx][k]);
+        if (age >= op.startAge && age <= op.endAge) prim[op.idx] -= op.atten * Math.max(0, Tarr[op.idx][k + 1] - Tarr[op.idx][k]);
       }
       // Existing pulse deviations heal over this interval by an exact exponential map. A dose at `age`
       // is then applied for the next grid point, preserving the operator's established timing semantics.
@@ -420,7 +435,6 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   const frIdx = NODE_IDX[fr.node];
   const causes = MODEL.mortality.causes; // {causeName:{node, RmaxPerYear:{male,female}}}
   const causeNames = Object.keys(causes);
-  const residTable = MODEL.mortality.residual.byAgePerYear[sex];
   const extrTable = MODEL.mortality.extrinsic.byAge[sex];
 
   // B-layer (Stage 1+2): emergent mediator trajectories. Stage 2 wires the CLEAN
@@ -534,11 +548,10 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
 
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
-    const extrinsic = interp(extrTable, age) * lifestyle;
+    const extrinsic = interp(extrTable, age) * lifestyleLane[k];
     const frailtyDev = Barr[frIdx][k] - Tarr[frIdx][k];
     const frailtyMultFor = (cn) =>
       Math.exp((frBeta[cn] !== undefined ? frBeta[cn] : frDefault) * frailtyDev);
-    const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
 
     // Stage-3a all-cause (activityFitness, sleep uShape) + Stage-3b BMI J-curve whole-bracket multipliers,
     // all computed PER-AGE now (§3A): read each input lane at k. Flat lanes ⇒ identical every age.
@@ -550,6 +563,8 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     // Stage-3a + Stage-3b scale the whole intrinsic bracket. Frailty is applied PER CAUSE (above).
     const bracketMult = allcauseMult * bmiJMult;
 
+    // Residual now flows through the causeNames loop like every other cause (residual-aging node
+    // carries B_res via the odds link, exactly reproducing the former interp(residTable, age) hazard).
     const parts = { extrinsic };
     let intrinsic = 0;
     for (const cn of causeNames) {
@@ -560,8 +575,6 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
       parts[cn] = p;
       intrinsic += p;
     }
-    parts.residual = bracketMult * frailtyMultFor("residual") * resid;
-    intrinsic += parts.residual;
 
     hazard[k] = extrinsic + intrinsic;
     decomposition[k] = { age, parts };
@@ -575,7 +588,17 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     survival[k] = Math.exp(-cum);
     leSum += survival[k] * DT;
   }
-  const LE = AGE0 + leSum;
+  // §3G: closed-form constant-hazard TAIL past the horizon. Every channel is flat-held past ~130
+  // (residual age-table, cause-node burdens, extrinsic, saturated rate-nodes), so the terminal hazard
+  // hazard[N-1] is constant beyond AGE1; continuing the same discrete sum to infinity is the exact
+  // geometric series  S_last·DT·r/(1−r),  r = e^(−h∞·DT). This removes horizon truncation entirely — a
+  // strongly-intervened cohort whose survival runs past the array bound gets a TRUE (untruncated) LE
+  // instead of a restricted mean. h∞→0 (all modeled mortality zeroed) ⇒ LE = Infinity (no modeled cause
+  // of death active). At baseline h∞ is large and S_last≈1e-63, so the tail is ~0 ⇒ baseline LE invariant.
+  const hInf = hazard[N_AGE - 1], Slast = survival[N_AGE - 1];
+  const tailFactor = hInf > 1e-12 ? (DT * Math.exp(-hInf * DT)) / (1 - Math.exp(-hInf * DT)) : Infinity;
+  const tailOf = (S0) => (S0 > 1e-12 ? S0 * tailFactor : 0);   // ∫ beyond horizon at terminal survival S0
+  const LE = AGE0 + leSum + tailOf(Slast);
 
   // §3F: conditional-from-today LE. The cohort `LE` (from AGE0) averages in branches where you'd ALREADY be
   // dead; for a LIVING person who supplied `currentAge`, renormalize future survival by S(currentAge) (treat
@@ -592,7 +615,7 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     if (Sc > 0) {
       let condSum = 0;
       for (let k = kc; k < N_AGE; k++) condSum += (survival[k] / Sc) * DT;
-      LE_cond = AGES[kc] + condSum;
+      LE_cond = AGES[kc] + condSum + tailOf(Slast / Sc);   // same constant-hazard tail, conditional on reaching kc
     }
   }
 
@@ -697,25 +720,29 @@ export function solveOffsets(MODEL, opts = {}, anchors = [], { iterations = 16, 
  * testable; the app MERGES these over the scalar UI state (events override the scalar default per channel),
  * so an EMPTY event list returns all-empty deltas ⇒ the app's behaviour is byte-identical (the invariant).
  *
- * Each event has `channel: "<kind>:<id>"` where kind ∈ {input, treatment, intervention, operator, biomarker}
+ * Each event has `channel: "<kind>:<id>"` where kind ∈ {input, treatment, lifestyle, intervention, operator, biomarker}
  * and `age` (already resolved from a calendar date by the caller, if any). By kind:
  *   input:<id>      {age, value}          → step time-profile of that exogenous input (ZOH between entries)
  *   treatment:<id>  {age, value=dose}     → step time-profile of treatment dose (0 ⇒ off ⇒ start/stop window)
+ *   lifestyle:<id>  {age, value=mult}     → step time-profile of the extrinsic-risk multiplier (one channel:
+ *                                           lifestyle:extrinsic). value 1.0 = population baseline.
  *   intervention:<nodeId> {startAge, endAge?, efficacy?}  → node-freeze window {startAge, endAge, efficacy}
  *   operator:<presetId>   {ages?|age, scenario?}          → dosing schedule stub (preset details resolved by the app)
  *   biomarker:<med> {age, value=measured} → an anchor {med, age, measured} (fed to solveOffsets by the app)
  *
- * Returns { inputs, treatments, interventions, operators, anchors } carrying ONLY channels that have events.
+ * Returns { inputs, treatments, lifestyle, interventions, operators, anchors } carrying ONLY channels that have
+ * events (`lifestyle` is null when no lifestyle event is present, so the app falls back to the scalar default).
  */
 export function compileTimeline(events = []) {
   const inputs = {}, treatments = {}, interventions = {}, opByPreset = {}, anchors = [];
-  const steps = {};   // channel → [[age,value],…] for input/treatment step profiles
+  let lifestyle = null;
+  const steps = {};   // channel → [[age,value],…] for input/treatment/lifestyle step profiles
   const splitCh = (ch) => { const i = ch.indexOf(":"); return i < 0 ? [ch, ""] : [ch.slice(0, i), ch.slice(i + 1)]; };
   for (const ev of events || []) {
     if (!ev || typeof ev.channel !== "string") continue;
     const [kind, id] = splitCh(ev.channel);
     if (!id) continue;
-    if (kind === "input" || kind === "treatment") {
+    if (kind === "input" || kind === "treatment" || (kind === "lifestyle" && id === "extrinsic")) {   // lifestyle is single-slot: validate id here so a typo (lifestyle:foo) can't silently drive extrinsic risk
       (steps[ev.channel] ||= []).push([ev.age, ev.value]);
     } else if (kind === "intervention") {
       interventions[id] = { startAge: ev.startAge, endAge: ev.endAge ?? null, efficacy: ev.efficacy ?? 1 };
@@ -731,9 +758,11 @@ export function compileTimeline(events = []) {
   for (const ch in steps) {
     const [kind, id] = splitCh(ch);
     const byAge = steps[ch].slice().sort((a, b) => a[0] - b[0]);
-    (kind === "input" ? inputs : treatments)[id] = { byAge, mode: "step" };
+    if (kind === "lifestyle") {                                            // single channel (lifestyle:extrinsic); drop non-finite knots + clamp the multiplier ≥0 (a negative extrinsic hazard is nonsensical)
+      lifestyle = { byAge: byAge.filter(([a, v]) => Number.isFinite(a) && Number.isFinite(v)).map(([a, v]) => [a, Math.max(0, v)]), mode: "step" };
+    } else (kind === "input" ? inputs : treatments)[id] = { byAge, mode: "step" };
   }
-  return { inputs, treatments, interventions, operators: Object.values(opByPreset), anchors };
+  return { inputs, treatments, lifestyle, interventions, operators: Object.values(opByPreset), anchors };
 }
 
 /* ===================== M4 — history-bundle importer ========================
@@ -840,7 +869,7 @@ export function canonicalizeHistoryEvents(events, ctx, report = null) {
   for (const ev of events || []) {
     if (!ev || typeof ev.channel !== "string") continue;                  // defensive: the exported helper may be handed junk
     const kind = ev.channel.slice(0, ev.channel.indexOf(":"));
-    if (kind === "input" || kind === "treatment" || kind === "biomarker") {
+    if (kind === "input" || kind === "treatment" || kind === "biomarker" || kind === "lifestyle") {   // lifestyle:extrinsic is a step exposure → snap + collision-merge like other step channels (compileTimeline validates the id)
       if (!Number.isFinite(ev.age)) continue;
       const g = snap(ev.age), key = ev.channel + "@" + g, cur = stepByKey.get(key);
       if (cur) warn(`${ev.channel}: multiple entries at age ${g}; kept the later draw (value ${_q((ev._date || "") >= (cur._date || "") ? ev.value : cur.value)})`);
@@ -849,7 +878,7 @@ export function canonicalizeHistoryEvents(events, ctx, report = null) {
       if (!Number.isFinite(ev.startAge)) continue;
       let s = snap(ev.startAge), e = (ev.endAge == null || !Number.isFinite(ev.endAge)) ? null : snap(ev.endAge);
       if (e != null && e <= s) { e = s < AGE1 ? Math.min(AGE1, s + DT) : null; warn(`${ev.channel}: window collapsed after grid-snap; widened to [${s},${e}]`); }
-      if (interByCh.has(ev.channel)) warn(`${ev.channel}: multiple freeze windows; kept the last`);
+      if (interByCh.has(ev.channel)) warn(`${ev.channel}: multiple node-override windows; kept the last`);
       interByCh.set(ev.channel, { ...ev, startAge: s, endAge: e });
     } else if (kind === "operator") {
       const ages = (ev.ages || []).filter(Number.isFinite).map(snap);
@@ -876,30 +905,38 @@ export function canonicalizeHistoryEvents(events, ctx, report = null) {
 export function parseHistoryBundle(input, ctx) {
   const report = {
     ok: false, aborted: false,
-    loaded: { measurements: 0, treatments: 0, exposures: 0, nodeInterventions: 0, operators: 0 },
+    loaded: { measurements: 0, treatments: 0, exposures: 0, nodeInterventions: 0, operators: 0, events: 0 },
     warnings: [], errors: [], unmapped: []
   };
-  const abort = (msg) => { report.errors.push(msg); report.aborted = true; return { events: [], sex: null, birthDate: null, report }; };
+  const abort = (msg) => { report.errors.push(msg); report.aborted = true; return { events: [], sex: null, birthDate: null, currentAge: null, report }; };
 
   let b = input;
   if (typeof input === "string") { try { b = JSON.parse(input); } catch (e) { return abort("invalid JSON: " + e.message); } }
   if (!b || typeof b !== "object" || Array.isArray(b)) return abort("bundle must be a JSON object");
   if (b.bundleVersion !== 1) return abort(`unsupported bundleVersion ${_q(b.bundleVersion)} (expected 1)`);
-  const birth = _parseISODate(b.birthDate);
-  if (!birth) return abort(`birthDate missing/invalid — need a real "YYYY-MM-DD"`);
+  // birthDate is OPTIONAL: required only to convert date-based entries (friendly sections). An app EXPORT uses
+  // the age-based events[] passthrough and may omit it. A PRESENT-but-malformed birthDate is still an abort.
+  let birth = null;
+  if (b.birthDate != null) { birth = _parseISODate(b.birthDate); if (!birth) return abort(`birthDate invalid — need a real "YYYY-MM-DD" (or omit it)`); }
   let sex = null;
   if (b.sex != null) { if (b.sex === "male" || b.sex === "female") sex = b.sex; else return abort(`sex must be "male" | "female" if present`); }
-  // count NESTED entries (one exposure/operator can carry many changes/dates) + the 0–2 events emitted per treatment
+  // optional currentAge — restores "now" when there is no birthDate to derive it from (else birthDate wins, app-side)
+  let currentAge = null;
+  if (b.currentAge != null) { if (Number.isFinite(b.currentAge)) currentAge = b.currentAge; else return abort(`currentAge must be a number if present`); }
+  // count NESTED entries (one exposure/operator can carry many changes/dates) + the 0–2 events emitted per treatment + raw events[]
   const total = _bundleArr(b.measurements).length
     + _bundleArr(b.treatments).length * 2
     + _bundleArr(b.exposures).reduce((n, e) => n + _bundleArr(e && e.changes).length, 0)
     + _bundleArr(b.nodeInterventions).length
-    + _bundleArr(b.operators).reduce((n, o) => n + _bundleArr(o && o.dates).length, 0);
+    + _bundleArr(b.operators).reduce((n, o) => n + _bundleArr(o && o.dates).length, 0)
+    // native events count as 1 EXCEPT operator events, which can carry an arbitrarily large nested ages[] —
+    // count those by ages.length so a single oversized operator event can't bypass the import-size guard.
+    + _bundleArr(b.events).reduce((n, ev) => n + (ev && typeof ev.channel === "string" && ev.channel.indexOf("operator:") === 0 ? _bundleArr(ev.ages).length : 1), 0);
   if (total > BUNDLE_MAX_EVENTS) return abort(`too many entries (${total} > ${BUNDLE_MAX_EVENTS})`);
 
  try {   // defensive backstop: any unexpected throw on exotic untrusted input ⇒ a clean abort, never an uncaught crash
   const err = (w, m) => report.errors.push(`${w}: ${m}`);
-  const toAge = (ds, w) => { const d = _parseISODate(ds); if (!d) { err(w, `invalid date ${_q(ds)}`); return null; } const a = _ageYears(birth, d); if (a < 0) { err(w, `date ${_q(ds)} precedes birthDate`); return null; } return a; };
+  const toAge = (ds, w) => { if (!birth) { err(w, `date ${_q(ds)} given but bundle has no birthDate to convert it`); return null; } const d = _parseISODate(ds); if (!d) { err(w, `invalid date ${_q(ds)}`); return null; } const a = _ageYears(birth, d); if (a < 0) { err(w, `date ${_q(ds)} precedes birthDate`); return null; } return a; };
   const events = [];
 
   // measurements → biomarker:<med>
@@ -987,6 +1024,7 @@ export function parseHistoryBundle(input, ctx) {
     if (!ages.length) return;
     let scenario = null;
     if (o.scenario != null) {
+      if (typeof o.scenario !== "object" || Array.isArray(o.scenario)) return err(w, `scenario must be an object`);
       const sc = o.scenario; scenario = {};
       if (sc.killScenario != null) { if (!spec.kill.has(sc.killScenario)) return err(w, `bad killScenario ${_q(sc.killScenario)}`); scenario.killScenario = sc.killScenario; }
       if (sc.reboundScenario != null) { if (!spec.rebound.has(sc.reboundScenario)) return err(w, `bad reboundScenario ${_q(sc.reboundScenario)}`); scenario.reboundScenario = sc.reboundScenario; }
@@ -997,9 +1035,57 @@ export function parseHistoryBundle(input, ctx) {
     report.loaded.operators++;
   });
 
+  // events[] — LOSSLESS passthrough of the app's native, age-based timeline events. This is what the app's own
+  // "Export settings" produces, so a bundle round-trips faithfully — it carries EVERY channel (incl.
+  // lifestyle:extrinsic, which the friendly date-based sections don't express) with no date/age conversion.
+  // Validated against the same catalogs (ctx) as the friendly sections; untrusted, so every field is checked.
+  const EVENT_KINDS = _np({ input: 1, treatment: 1, lifestyle: 1, intervention: 1, operator: 1, biomarker: 1 });
+  _bundleArr(b.events).forEach((ev, i) => {
+    const w = `events[${i}]`;
+    if (!ev || typeof ev.channel !== "string") return err(w, `missing channel`);
+    const ci = ev.channel.indexOf(":");
+    const kind = ci < 0 ? ev.channel : ev.channel.slice(0, ci), id = ci < 0 ? "" : ev.channel.slice(ci + 1);
+    if (!EVENT_KINDS[kind] || !id) return err(w, `bad channel ${_q(ev.channel)}`);
+    const known = kind === "input" ? !!ctx.inputs[id]
+      : kind === "treatment" ? ctx.treatments.has(id)
+      : kind === "lifestyle" ? id === "extrinsic"
+      : kind === "intervention" ? ctx.nodes.has(id)
+      : kind === "operator" ? !!ctx.operators[id]
+      : /* biomarker */ !!ctx.meds[id];
+    if (!known) return err(w, `unknown ${kind} ${_q(id)}`);
+    if (kind === "intervention") {
+      if (!Number.isFinite(ev.startAge)) return err(w, `startAge must be a finite number`);
+      const eff = ev.efficacy == null ? 0.3 : ev.efficacy;
+      if (!Number.isFinite(eff) || eff < 0 || eff > 1) return err(w, `efficacy must be a number in [0,1]`);
+      let endAge = ev.endAge == null ? null : ev.endAge;
+      if (endAge != null && (!Number.isFinite(endAge) || endAge <= ev.startAge)) return err(w, `endAge must be a finite number > startAge`);
+      events.push({ channel: ev.channel, startAge: ev.startAge, endAge, efficacy: eff });
+    } else if (kind === "operator") {
+      if (!Array.isArray(ev.ages) || !ev.ages.length || !ev.ages.every(Number.isFinite)) return err(w, `operator needs a non-empty ages[] of finite numbers`);  // reject (don't silently drop) malformed ages
+      const ages = ev.ages.slice();
+      let scenario = null;
+      if (ev.scenario != null) {
+        if (typeof ev.scenario !== "object" || Array.isArray(ev.scenario)) return err(w, `scenario must be an object`);
+        const spec = ctx.operators[id], sc = ev.scenario; scenario = {};
+        if (sc.killScenario != null) { if (!spec.kill.has(sc.killScenario)) return err(w, `bad killScenario ${_q(sc.killScenario)}`); scenario.killScenario = sc.killScenario; }
+        if (sc.reboundScenario != null) { if (!spec.rebound.has(sc.reboundScenario)) return err(w, `bad reboundScenario ${_q(sc.reboundScenario)}`); scenario.reboundScenario = sc.reboundScenario; }
+      }
+      const o = { channel: ev.channel, ages };
+      if (scenario) o.scenario = scenario;
+      events.push(o);
+    } else {   // step/point channels: input / treatment / lifestyle / biomarker — need a finite age + value
+      if (!Number.isFinite(ev.age)) return err(w, `age must be a finite number`);
+      const spec = kind === "input" ? ctx.inputs[id] : null;
+      if (spec && spec.categorical) { if (!spec.enum.includes(ev.value)) return err(w, `${_q(ev.value)} not in {${spec.enum.join("|")}}`); }
+      else if (!Number.isFinite(ev.value)) return err(w, `value must be a finite number`);
+      events.push({ channel: ev.channel, age: ev.age, value: ev.value });
+    }
+    report.loaded.events++;
+  });
+
   const canon = canonicalizeHistoryEvents(events, ctx, report);
   report.ok = report.errors.length === 0;
-  return { events: canon, sex, birthDate: b.birthDate, report };
+  return { events: canon, sex, birthDate: birth ? b.birthDate : null, currentAge, report };
  } catch (e) {   // backstop for the exported object-input path (cyclic/exotic values) — report, never crash
   report.errors.push("internal parse error: " + (e && e.message ? e.message : String(e)));
   report.aborted = true;

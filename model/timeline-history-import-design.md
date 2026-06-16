@@ -298,10 +298,14 @@ overlay as *measured-only* first; wire the simulated comparator when the proxy e
   Playwright drag-edit check.
 - **M4 — importer.** Bundle loader + analyte mapping + private transform (separate, in the personal repo).
 - **M5 — clock overlay** (measured-only; simulated comparator deferred to the clock-output sub-project).
-- **M6 — full "direct graph change"** (post-M3 add; see §13). Freeze/override **all** nodes (mediators + ∫rate
-  state nodes need new mechanisms) **+ EDGES** (scale/zero a coupling weight over a window). The real engine work.
-- **M7 — consolidate UI into the timeline** (see §13). Retire the Causal-graph freeze UI + the Lifestyle &
-  environment tab in favor of the History & plan timeline as the single editing surface. Sequenced after M6.
+- **M7 — consolidate UI into the timeline** (see §13). Retire the Causal-graph freeze-control UI + the Lifestyle
+  & environment tab in favor of the History & plan timeline as the single editing surface. **Reordered before M6
+  (2026-06-15):** the timeline already has full node parity with the graph freeze controls (both act on the same
+  23 non-stub nodes, `provenance !== "stub"`), so retiring those UIs does not depend on M6 — the edge/mediator/
+  state-clamp controls M6 adds were never exposed by the retired UIs anyway.
+- **M6 — full "direct graph change"** (post-M3 add; see §13). The real engine work, now **sequenced after M7**.
+  Add editing that neither retired UI exposed: direct clamp of algebraic **mediators** + emergent **∫rate state
+  nodes** (need new mechanisms) **+ EDGES** (scale/zero a coupling weight over an age window).
 
 M1–M3 deliver the user's "apply interventions/biomarkers over time on an editable timeline." M4–M5 deliver
 "upload my history and the sim aligns." M6–M7 generalize the editing surface (all nodes/edges) and make the
@@ -602,17 +606,35 @@ zero engine change; 251/251 tests stay green.**
 
 **Deferred to later milestones (user-requested roadmap):**
 
-- **M6 — full "direct graph change."** Expand the node-freeze channel beyond the currently-freezable set to
-  **all nodes** (incl. algebraic mediators + emergent ∫rate state nodes, which need *new* mechanisms — a
-  mediator isn't accrued and a state node is emergent-by-design, so a direct clamp cuts against the
-  no-age-pegging principle and must be designed deliberately) **and EDGES** (scale/zero a coupling weight, e.g.
+> **Correction + reorder (2026-06-15).** An earlier draft of these two bullets implied the timeline could not
+> yet drive the graph's editable node set. That is wrong. The timeline's "Node freeze / slow" channel already
+> populates from `NODES.filter(n => n.provenance !== "stub")` (`viz:8097`) — the **exact same 23 non-stub nodes**
+> the causal-graph tab's freeze controls act on (`NODE_BY_ID`, built from the same filter at `viz:642`). The
+> timeline is therefore already at **full node parity** with the graph freeze UI. Consequently **M7 no longer
+> depends on M6 and is reordered before it**: nothing M6 adds (edges, direct mediator/state clamp) was ever
+> exposed by the UIs M7 retires, so they can be retired now.
+
+- **M7 — consolidate UI into the timeline. ✅ DONE 2026-06-15.** Removed the **Causal-graph freeze-control UI**
+  (the Start-age / Efficacy / Clear-node intervention sub-panel) and the **Lifestyle & environment · Labs tab**
+  in favor of the **History & plan timeline** as the sole editing surface. The timeline already covered four of
+  the six editing surfaces — exposure→inputs, treatment→treatments, intervention→node-freeze, biomarker→labs.
+  **The two controls with no timeline home were dispositioned** (the only real design work in M7, NOT M6 engine
+  work):
+  1. **Lifestyle / extrinsic-risk scalar** (`state.lifestyle`) — moved onto the timeline as a *time-varying*
+     `lifestyle:extrinsic` exposure (one piece of engine work: `lifestyle` now accepts a scalar or age-profile).
+  2. **Global coupling scalar** (`state.couple`) — dropped from the UI (model-sensitivity knob, not a
+     personal-history input); pinned at the engine default 1.0.
+
+  The causal-graph diagram is retained as a read-only visualization + node-selection surface (click a node →
+  the **"Add a node-freeze on the timeline →"** button pre-fills its freeze event). **See "M7 build decisions"
+  below for the full build status + verification.**
+- **M6 — full "direct graph change."** The genuine engine work, **now sequenced after M7**. Add editing that
+  *neither* surface exposes today: direct clamp/override of algebraic **mediators** (not accrued — needs a new
+  mechanism) and emergent **∫rate state nodes** (emergent-by-design; a direct clamp cuts against the
+  no-age-pegging principle and must be designed deliberately), **and EDGES** (scale/zero a coupling weight, e.g.
   `senescence→inflammation`, over an age window — a new engine mechanism with invariant/clamp care). This is the
   genuine engine work that the M3-follow-up scoping deliberately avoided; the "direct graph change" label is
-  reserved for it.
-- **M7 — consolidate UI into the timeline.** Remove the current **Causal-graph freeze-control UI** and the
-  **Lifestyle & environment tab/UI** in favor of the **History & plan timeline** as the single editing surface
-  (the timeline already augments/overrides those channels; M7 makes it the sole entry point). Sequenced after
-  M6 so the timeline can drive every node/edge the graph UI currently can before the graph UI is retired.
+  reserved for it. Carries the deferred `#gap/freeze-nonmonotonic-liver` engine-side clamp fix.
 
 **Codex review (gpt-5.5/xhigh, 2026-06-15) of the M3-follow-up diff — folded.** Verdict: changes correct except
 two findings (most of the diff explicitly confirmed: ISO-part age math + birthday boundary; manual currentAge
@@ -631,6 +653,74 @@ merge; scenario commit preserves the other key + falls back to preset defaults; 
   never add burden) — a shared-path change needing re-baselining, hence M6 (freeze-semantics) work, not a
   dropdown-exclusion hack. #gap/freeze-nonmonotonic-liver
 
+### M7 build decisions (resolved 2026-06-15, user) + build status — COMPLETE
+
+**Decisions (the two leftover scalars + the graph diagram):**
+1. **Lifestyle / extrinsic-risk → the timeline** as a *time-varying* exposure (channel `lifestyle:extrinsic`),
+   NOT a global control. This required the one piece of engine work in M7: `simulate()`'s `lifestyle` opt now
+   accepts a scalar (back-compat) OR an age-profile `{byAge,mode:"step"}`, resolved via the existing
+   `resolveProfile(lifestyle, AGES, 1.0, "step")`. Scalar path is byte-identical (popDefault 1.0 ⇒ baseline
+   unchanged). `compileTimeline()` emits a `lifestyle` profile (validated id `extrinsic`, values clamped ≥0,
+   non-finite dropped); `canonicalizeHistoryEvents()` treats it as a step channel.
+2. **Global coupling scalar → dropped from the UI** entirely. `state.couple` stays at `MODEL.meta.couple` (1.0)
+   as the engine default; no user control. (It was a model-sensitivity knob, not a personal-history input.)
+3. **Causal-graph diagram → kept** as a read-only viz + node-selection surface. The inline freeze/coupling
+   sub-panel was removed; selecting a node enables a **"Add a node-freeze on the timeline →"** button that
+   switches to the timeline and pre-fills (via `addHistEventToChannel`) a freeze event for that node.
+
+**What was built:**
+- **Engine (`model/engine.mjs`)** — `lifestyle` scalar-or-profile in `simulate()`; `lifestyle:extrinsic` channel
+  in `compileTimeline()` (id-validated, clamped) + `canonicalizeHistoryEvents()`. Rebuilt into the viz via
+  `build-app.mjs`.
+- **App (`viz/aging-simulator.html`)** — retired the **Lifestyle & environment · Labs tab** (whole
+  `modtab-blayer` panel + tab button) and the **graph freeze/coupling sub-panel**; added the timeline
+  `lifestyle:extrinsic` exposure (add-bar option + editor `× extrinsic risk` field + meta/default/clamp);
+  `currentOpts` merges `tl.lifestyle || state.lifestyle`; added `switchModTab()` + `addSelectedNodeFreezeToTimeline()`
+  + `effectiveIntervention()` (reads freeze from the timeline now, with the legacy `state.interventions` as
+  fallback). Removed the now-dead B-layer control builders + ownership/disable-cue subsystem
+  (`buildBlayerControls`, `updateInputDisabledStates`, `updateTimelineOwnershipCues`, `anchoredMediators`,
+  `INPUT_DISABLE_INFO`) and the coupling/lifestyle slider wiring. Refreshed stale "Lifestyle slider / Labs panel"
+  copy to point at the timeline.
+- **Tests** — `model/test.mjs`: +9 M7 cases (scalar↔profile byte-identity, extrinsic-only invariance, pre-first-knot
+  fallback, unknown-id ignored, clamp, compiled-profile end-to-end). **289/289 headless pass.** `model/e2e-playwright.mjs`
+  rewritten to drive every scenario through the timeline (the sole editing surface) + M7 structural checks +
+  the new lifestyle channel + the jump button. **31/31 real-browser (Chromium) checks pass**, zero console/page errors.
+
+**Codex reviews (gpt-5.5/high, 2026-06-15, two checkpoints):** (1) engine+compile core — folded all findings
+(id-validation, value clamp, canonicalizer channel, stronger extrinsic-only test); (2) full diff after UI
+retirement — see corrections summary in `log/`.
+
+**Out of M7 / still M6:** direct clamp of mediators + ∫rate state nodes, edge editing, and the
+`#gap/freeze-nonmonotonic-liver` engine-side freeze clamp.
+
+### M7 follow-ups (2026-06-15, post-build)
+
+- **Forward-planning anchor fix (partial §10 b2 rework).** Reported bug: after importing a history bundle,
+  editing an exposure whose only live downstream is a lab-anchored mediator (e.g. `dietSatFat → LDL`, with LDL
+  anchored by a loaded lab) had NO effect — the offset solver re-derived the personal residual from the changed
+  input and exactly absorbed it. Fix: `currentOpts()` solves the anchor offset against the **historical** regime
+  (input/treatment step-knots, interventions, operator pulses with age `< now` only — `stripFutureProfiles` /
+  `stripFutureInterventions` / `stripFutureOperators`) and runs the forward sim with the **full planned** profile,
+  so a change at/after `now` moves the mediator's future trajectory instead of being re-absorbed. `< now` is
+  strict (an edit at the current age is a plan). The engine `solveOffsets` is untouched (the history/plan split
+  is app-layer); draws at age `< now` still reproduce their measured value exactly. This is the practical half of
+  the deferred §10 "biomarker-anchoring rework" needed for forward planning; the broader b1/b2 rework (multiple
+  draws, residual decay) remains future work.
+- **Terminology.** The user-facing "node-freeze" control was renamed to **"node override (slow aging)" / "Slow /
+  override this node"** (button, add-bar type, tooltip/readout/legend, import-report summary, editor
+  `efficacy`→`strength`). Internal ids/fn names (`#addFreezeToTimeline`) and the bundle `efficacy` field are
+  unchanged. The ❄ glyph now reads "active override".
+- **Panel rename.** The timeline panel/tab was renamed in the UI from **"History & plan timeline" → "Biomarker
+  & Intervention timeline"** (label only; `data-tab="timeline"` and all logic unchanged). References to "History
+  & plan timeline" elsewhere in this design note are the same panel under its former name.
+- **Privacy banner.** A `.privacy-note` was added to the header: the app is 100% client-side, no PII/PHI leaves
+  the device. Verified no `fetch`/XHR/beacon/WebSocket/storage/external-resource calls exist; the only external
+  URL is `WIKI_BASE` (optional user-clicked wiki reference links).
+- **"Load example" button.** A built-in, parser-validated, person-agnostic **fictional** demo history bundle
+  (`model/history-bundle.example.json`) is inlined by `build-app.mjs` as `HISTORY_BUNDLE_EXAMPLE` and loaded by a
+  "Load example" button next to "Load file" — inlined (not fetched) to preserve the client-side guarantee.
+  `test.mjs` now validates the example parses clean (12 events).
+
 ---
 
 ## 14. M4 — history-bundle importer (PLAN, 2026-06-15) — for Codex review before build
@@ -646,11 +736,28 @@ via `state.timeline.birthDate`, and `currentOpts()`→`compileTimeline()` alread
 
 ### 14.1 Bundle schema (v1) — reconciled with the real engine channels
 
+> **Export round-trip extension (2026-06-15).** The bundle now also serves as the **app's own export format**
+> ("Export settings → Download JSON / Copy"). Two additions make a faithful round-trip possible: (1) **`birthDate`
+> is now optional** — required only to convert the friendly date-based sections; an export uses ages, so it may
+> omit it (a present-but-malformed birthDate still aborts). (2) an optional top-level **`events: [...]`** array —
+> the app's NATIVE age-based timeline events verbatim (`{channel, age, value}` | `{channel, startAge, endAge,
+> efficacy}` | `{channel, ages, scenario}`). This is **lossless**: it carries every channel including
+> `lifestyle:extrinsic`, which the friendly date-based sections cannot express. An optional top-level
+> **`currentAge`** restores "now" when there is no birthDate. The `events[]` passthrough is validated against the
+> same catalogs as the friendly sections (untrusted input: unknown ids, NaN, non-object scenario, and oversized
+> nested operator `ages[]` are all rejected/size-capped). Export emits ONLY `events[]` (+ sex + birthDate-or-
+> currentAge); the friendly sections remain for hand-authored medical histories. `test.mjs` covers the round-trip.
+
 ```json
 {
   "bundleVersion": 1,
-  "birthDate": "1980-02-15",          // ISO; required to convert any dated entry → age
+  "birthDate": "1980-02-15",          // ISO; OPTIONAL — needed only to convert dated (friendly-section) entries → age
   "sex": "male",                      // optional; "male" | "female"; sets state.sex if present
+  "currentAge": 46,                   // optional; restores "now" when there is no birthDate (else birthDate wins)
+  "events": [                         // optional; LOSSLESS passthrough of native timeline events (the app's export)
+    {"channel":"lifestyle:extrinsic", "age":30, "value":3},
+    {"channel":"intervention:cellular-senescence", "startAge":50, "endAge":null, "efficacy":0.5}
+  ],
   "measurements": [                   // → biomarker:<med> events
     {"analyte":"ldl-c-mg-dl", "date":"2013-05-01", "value":150, "unit":"mg/dL", "assay":"...", "source":"..."}
   ],

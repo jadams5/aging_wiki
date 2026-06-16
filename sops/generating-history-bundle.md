@@ -62,10 +62,27 @@ treatments (`statin`, `antihypertensive`, `metformin`). `dose` ∈ `[0,1]` (defa
 a finite `end` emits an explicit dose-0 step (the drug is **not** disease-modifying — stopping rebounds).
 
 **`exposures[]`** — `{ "id": "alcohol", "changes": [ {"date":"…","value":4}, {"date":"…","value":0} ] }`.
-`id` ∈ the wired exogenous inputs (`smokingStatus`, `physicalActivity`, `sleep`, `dietSatFat`, `dietFiber`,
-`dietSodium`, `alcohol`, `airPollution`, `calorieBalance`). Each `changes[]` entry is a zero-order-hold step
-(value persists until the next change; cessation is a hard step). `smokingStatus` is **categorical** —
-`value` ∈ `{never, former, current}`; the numeric inputs take a number (out-of-model-range only **warns**).
+`id` ∈ the wired exogenous inputs (below). Each `changes[]` entry is a zero-order-hold step (value persists
+until the next change; cessation is a hard step). `smokingStatus` is **categorical** — `value` ∈
+`{never, former, current}`; the numeric inputs take a number (out-of-model-range only **warns**).
+
+Wired inputs, with the unit the `value` is expressed in, the model's plausible range, and the population
+mean (the value the model assumes before the first change / when the channel is absent):
+
+| `id` | unit | model range | population mean | notes |
+|---|---|---|---|---|
+| `smokingStatus` | categorical | `never \| former \| current` | population mix | the **only** categorical input |
+| `alcohol` | drinks/day | 0–10 | 1 | a "drink" = ~14 g ethanol |
+| `physicalActivity` | min/week MVPA | 0–600 | 150 | moderate-to-vigorous physical activity; 150 = the guideline floor |
+| `sleep` | hours/night | 3–11 | 7 | |
+| `dietSatFat` | % of energy | 3–25 | 11 | saturated fat as a share of total calories, not grams |
+| `dietFiber` | g/day soluble | 0–30 | 3 | **soluble** fiber only (e.g. psyllium, oat β-glucan), not total fiber |
+| `dietSodium` | mmol/day | 40–300 | 150 | 1 g sodium ≈ 43 mmol; 1 g salt (NaCl) ≈ 17 mmol |
+| `calorieBalance` | kcal/day | −1000–1000 | 0 | **flow** = intake − maintenance; **0 is the correct default** (energy balance), not "no data" — do not "fix" it to a non-zero value |
+| `airPollution` | µg/m³ PM2.5 | 2–60 | 8 | annual-average fine-particulate exposure |
+
+A tenth input, `smoking` (cigarettes/day, 0–40), exists but is **unwired** (a deferred placeholder) — it is
+rejected by the importer. Use the categorical `smokingStatus` instead.
 
 **`nodeInterventions[]`** — `{ "node": "cellular-senescence", "start": "…", "end": null, "efficacy": 0.3 }`.
 `node` ∈ any non-stub graph node (12 hallmark + 11 driver/cause). `efficacy` ∈ `[0,1]` (default 0.3). This is

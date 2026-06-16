@@ -50,6 +50,13 @@
     font-size: 12px; line-height: 1.45; color: var(--fg);
   }
   .experiment-note strong { color: #d4a017; }
+  .privacy-note {
+    max-width: 1100px; margin: 8px 0 0; padding: 10px 14px;
+    border: 1px solid #2e7d6b; border-left: 4px solid #1abc9c;
+    background: rgba(26, 188, 156, 0.10); border-radius: 6px;
+    font-size: 12px; line-height: 1.45; color: var(--fg);
+  }
+  .privacy-note strong { color: #149174; }
   .topbar {
     display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
     padding: 6px 14px; border-bottom: 1px solid var(--line); background: var(--panel);
@@ -203,25 +210,27 @@
 <header>
   <h1>Aging causal-graph simulator (v0.5)</h1>
   <div class="disclaimer">
-    An interactive map of how the drivers of human aging connect &mdash; from everyday inputs
+    An interactive map of how the drivers of human aging connect from everyday inputs
     (diet, activity, smoking, sleep) through clinical risk factors (cholesterol, blood pressure,
     blood sugar) and the molecular hallmarks of aging, down to the diseases people actually die of.
     Adjust a lifestyle factor, a lab value, or a hypothetical intervention and watch life
     expectancy, the projected cause-of-death breakdown, and each factor's trajectory over your
     lifespan respond.
     Mortality is modelled as sex-specific competing risks calibrated to open population data
-    (CDC WONDER mortality, NHANES, and published dose-response studies): accumulated damage at
-    each node raises the risk of the disease it feeds, and an intervention helps by slowing that
-    accumulation rather than by resetting the clock to a given age.
+    (CDC WONDER mortality, NHANES, and published dose-response studies).
     Hover the small <b>(i)</b> icons throughout for the assumptions and math behind any number.
-    This is an exploratory sensitivity tool &mdash; not a prediction and not medical advice.
   </div>
   <div class="experiment-note">
     <strong>⚠ This is an experiment, not a health tool.</strong>
-    It is built on real, open-access population data (CDC WONDER, NHANES, published dose-response literature),
-    but it is a simplified sensitivity explorer for understanding how causal factors interact &mdash;
+    It is built on real, open-access population data,
+    but it is a simplified sensitivity explorer for understanding how causal factors interact and
     <strong>not a personal predictor and not a source of actionable medical insight.</strong>
-    Do not use any output to make health, lifestyle, or treatment decisions. Consult a qualified clinician for those.
+  </div>
+  <div class="privacy-note">
+    <strong>🔒 100% private — runs entirely in your browser.</strong>
+    This is a fully client-side app: every calculation happens locally on your device and
+    <strong>no personal data is ever sent to any server.</strong> Anything you enter or load stays in this browser
+    tab only (unless you explicitly download or copy your settings to your own device) — it is never transmitted to a server.
   </div>
 </header>
 
@@ -239,12 +248,14 @@
           <button data-sex="male" class="active">Male</button>
           <button data-sex="female">Female</button>
         </span>
+        <label for="ageTop" style="display:block; font-size:11px; color:var(--muted); margin:7px 0 3px;">Age</label>
+        <input type="number" id="ageTop" min="20" max="100" step="1" value="40" style="width:62px; font-size:13px; padding:3px 5px; border:1px solid var(--line); border-radius:5px;">
       </div>
       <div style="flex:1;">
         <span class="le-big" id="leVal">&mdash;</span>
-        <span style="color:var(--muted);font-size:13px;">yrs life expectancy (cohort, from age 20)</span>
+        <span id="leValLabel" style="color:var(--muted);font-size:13px;" title="Life expectancy conditioned on having ALREADY survived to your current age — it prunes the already-dead branches that the cohort-from-age-20 number averages in. Prior damage still counts: it raises your forward hazard. '+X yrs from survival' is the part you gain purely from having reached today.">life expectancy</span>
         <span class="le-delta zero" id="leDelta"></span>
-        <div class="sub" id="leCond" style="margin-top:4px;" title="Conditional life expectancy given survival to your current age — prunes the already-dead branches the cohort number averages in. Prior damage still counts; it raises your forward hazard."></div>
+        <div class="sub" id="leCond" style="margin-top:4px;" title="Cohort life expectancy from age 20 — the all-comers number before conditioning on survival to today."></div>
         <div class="sub" id="survSub" style="margin-top:4px;"></div>
       </div>
     </div>
@@ -252,9 +263,8 @@
     <!-- tab toggle (both modifier surfaces share this location) + Fit view / Reset all -->
     <div class="modtabs" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
       <span class="seg" id="modTabSeg">
-        <button data-tab="graph" class="active">Causal graph &amp; intervention</button>
-        <button data-tab="blayer">Lifestyle &amp; environment &middot; Labs</button>
-        <button data-tab="timeline">History &amp; plan timeline</button>
+        <button data-tab="graph" class="active">Causal graph</button>
+        <button data-tab="timeline">Biomarker &amp; Intervention timeline</button>
       </span>
       <span style="display:flex; gap:8px;">
         <button id="graphFit" style="border:1px solid var(--line); background:#fff; border-radius:5px; padding:5px 12px; cursor:pointer;">⤢ Fit view</button>
@@ -264,10 +274,10 @@
       </span>
     </div>
 
-    <!-- TAB 1: causal graph (top) + intervention (below) -->
+    <!-- TAB 1: causal graph (read-only viz + node selection → jump to the timeline to intervene) -->
     <div class="modtab-panel" id="modtab-graph">
       <h2>Causal graph (control surface) <span class="infodot" id="graphInfo" role="img" aria-label="legend and model details">i</span></h2>
-      <div class="sub">Scroll to zoom, drag to pan, hover a node to isolate its links. Click a hallmark node to intervene. &#10052; = active freeze.</div>
+      <div class="sub">Scroll to zoom, drag to pan, hover a node to isolate its links. Click a node to select it, then slow / override its aging on the timeline. &#10052; = active override.</div>
       <div id="graphWrap" style="position:relative;">
         <div id="graphNodeInfo" role="status" aria-live="polite"></div>
         <svg id="graphSvg" viewBox="0 0 1250 408" preserveAspectRatio="xMidYMid meet" style="height:360px; background:#fcfcfd; border:1px solid #eef0f2; border-radius:6px;"></svg>
@@ -276,74 +286,26 @@
 
       <hr class="modtab-divider">
 
-      <h2>Intervention &mdash; <span class="sel-name" id="selName">none selected</span></h2>
-      <div class="sub" id="selMeta">Click a node in the graph to configure a freeze/slow intervention.</div>
-      <div class="controls" id="interv">
+      <h2>Selected node &mdash; <span class="sel-name" id="selName">none selected</span></h2>
+      <div class="sub" id="selMeta">Click a node in the graph to select it; slow or override its aging over time on the Biomarker &amp; Intervention timeline.</div>
+      <div class="controls">
         <div class="row">
-          <label for="startSlider">Start age</label>
-          <input type="range" id="startSlider" min="20" max="100" step="1" value="50" disabled>
-          <span class="val" id="startVal">50</span>
-        </div>
-        <div class="row">
-          <label for="effSlider">Efficacy</label>
-          <input type="range" id="effSlider" min="0" max="100" step="1" value="0" disabled>
-          <span class="val" id="effVal">0%</span>
-        </div>
-        <div class="row">
-          <button id="clearNode" disabled>Clear this node's intervention</button>
+          <button id="addFreezeToTimeline" disabled>Slow / override this node on the timeline &rarr;</button>
         </div>
         <div class="hint" style="font-size:11px;">
-          Efficacy slows the node's intrinsic accumulation from the start age on (100% fully freezes
-          further accrual). The relief propagates downstream as a bounded fixed-point deviation through
-          the coupling &mdash; smoothly and monotonically with efficacy (no step/cliff).
-        </div>
-        <div class="row" style="margin-top:10px;">
-          <label for="coupleSlider" style="width:auto; flex:none;">Coupling <span class="infodot" id="coupleInfo" role="img" aria-label="what the coupling slider does">i</span></label>
-          <input type="range" id="coupleSlider" min="0" max="2" step="0.05" style="flex:1;">
-          <span class="val" id="coupleVal" style="width:40px;"></span>
+          A <b>node override</b> slows a node's intrinsic aging from a chosen age (0&ndash;100% strength) &mdash;
+          edited on the <b>Biomarker &amp; Intervention timeline</b> (set a start age, optional end age, and strength there).
+          This button jumps to the timeline and pre-fills an override for the selected node. Mediators,
+          &int;rate state nodes, exposures and labs are driven from the timeline too.
         </div>
       </div>
     </div>
 
-    <!-- TAB 2: Lifestyle & environment + Labs (B-layer) -->
-    <div class="modtab-panel" id="modtab-blayer" style="display:none;">
-      <h2>Lifestyle &amp; environment &middot; Labs <span style="font-weight:400;color:var(--muted);font-size:11px;">(your inputs &mdash; these set the clinical risk-factor values)</span></h2>
-      <div class="sub" style="margin-top:2px;">
-        Defaults are each input's population mean, so the all-default state reproduces the population baseline exactly.
-        Lab fields anchor that risk factor's curve to a measured value at the chosen current age (held forward).
-        &Delta;LE is the change in life expectancy vs the all-default baseline. (This is cohort life expectancy from age 20; an intervention started at your current age has its &Delta;LE survivorship-discounted by &approx;survival-to-current-age, so it slightly <em>understates</em> the benefit conditional on being alive now.)
-      </div>
-
-      <div class="bsub">Exogenous inputs</div>
-      <div class="brow" title="Scales the extrinsic (non-biological) mortality channel: accidents + suicide + homicide. Does not cascade through hallmarks.">
-        <label class="bl" for="lifestyleSlider">Lifestyle / extrinsic risk</label>
-        <span style="font-size:10px; color:var(--muted);">low</span>
-        <input type="range" id="lifestyleSlider" min="0" max="10" step="0.1">
-        <span style="font-size:10px; color:var(--muted);">high</span>
-        <span class="bval" id="lifestyleVal" style="width:auto; white-space:nowrap;"></span>
-      </div>
-      <div class="bgrid" id="inputsGrid"><!-- populated --></div>
-
-      <div class="bsub">Treatments</div>
-      <div class="txtoggles" id="treatToggles"><!-- populated --></div>
-
-      <div class="bsub">Labs (offset anchoring)</div>
-      <div style="display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start;">
-        <div class="labgrid" id="labGrid"><!-- populated --></div>
-        <div class="brow" style="margin:0;">
-          <label class="bl" style="width:auto;" for="currentAge">Current age (lab anchor + one-off treatment age)</label>
-          <input type="number" id="currentAge" min="20" max="100" step="1" value="40">
-        </div>
-      </div>
-      <div class="labnote" id="labNote">
-        Enter a measured value to pin that mediator's curve to it at the current age (offset = measured &minus; engine-predicted).
-        One-off operator treatments also occur at this age. Clear a lab field to revert to the engine's computed value.
-      </div>
-    </div>
-
-    <!-- TAB 3: editable history & plan timeline (M3) — applies interventions/biomarkers OVER time -->
+    <!-- TAB 2 (Biomarker & Intervention timeline) — applies exposures/treatments/interventions/labs OVER time.
+         M7 (2026-06-15): the former "Lifestyle & environment · Labs" tab and the graph freeze sub-panel were
+         retired; the timeline is now the sole editing surface. All those channels live here. -->
     <div class="modtab-panel" id="modtab-timeline" style="display:none;">
-      <h2>History &amp; plan timeline <span style="font-weight:400;color:var(--muted);font-size:11px;">(apply exposures, treatments, interventions &amp; lab measurements over age &mdash; these override the sliders for that channel)</span></h2>
+      <h2>Biomarker &amp; Intervention timeline <span style="font-weight:400;color:var(--muted);font-size:11px;">apply exposures, treatments, node overrides &amp; lab measurements</span></h2>
       <div class="sub" id="historyHint">Add events to build a history over time. Behaviours/treatments step (hold until the next entry); lab measurements anchor the model at each draw. The vertical mark is "now".</div>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:6px 0;">
         <label class="bl" style="width:auto;" for="birthDate">Birth date (optional &mdash; enables a calendar axis)</label>
@@ -351,12 +313,20 @@
         <span id="historyAddBar" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;"></span>
       </div>
       <div id="historyImport" style="margin:0 0 8px;">
-        <button id="historyImportToggle" type="button" style="cursor:pointer;">Import history bundle (JSON)&hellip;</button>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <button id="historyImportToggle" type="button" style="cursor:pointer;">Import history file</button>
+          <button id="historyLoadExample" type="button" style="cursor:pointer;" title="Load a built-in fictional demo medical history (replaces the timeline)">Load example history</button>
+        </div>
         <div id="historyImportPanel" style="display:none; margin-top:6px;">
-          <div style="font-size:11px; color:var(--muted); margin-bottom:5px;"><b>Replaces</b> the timeline &middot; stays in your browser, nothing is uploaded.</div>
+          <div style="font-size:11px; color:var(--muted); margin-bottom:5px;"><b>Replaces</b> the timeline &middot; stays in your browser, nothing is uploaded. &ldquo;Load example&rdquo; (above) loads a built-in <b>fictional</b> demo medical history.</div>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <input type="file" id="historyFile" accept=".json,application/json" style="font-size:11px;">
             <button id="historyLoadFile" style="cursor:pointer;">Load file</button>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;">
+            <span style="font-size:11px; color:var(--muted);">Export current settings:</span>
+            <button id="historyExportFile" style="cursor:pointer;">Download JSON</button>
+            <button id="historyCopy" style="cursor:pointer;">Copy to clipboard</button>
           </div>
           <div id="historyImportReport" style="margin-top:6px; font-size:11px; line-height:1.45;"></div>
         </div>
@@ -580,7 +550,8 @@ const CAUSE_KEYS = ["extrinsic", "cardiovascular", "cancer", "neurodegeneration"
  *
  * opts:
  *   sex          : "male" | "female"        (required)
- *   lifestyle    : number   (default 1.0)   scales the extrinsic channel only
+ *   lifestyle    : number | {byAge:[[age,mult],…], mode:"step"}  (default 1.0)  scales the extrinsic
+ *                  channel only; scalar = constant lifetime multiplier, profile = time-varying extrinsic-risk
  *   interventions: { nodeId: { startAge, efficacy } }  (default {})
  *
  * Returns:
@@ -632,6 +603,15 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   const AGES = [];
   for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
   const N_AGE = AGES.length;
+
+  // EXTRINSIC-RISK (lifestyle) LANE. `lifestyle` may be a SCALAR (constant lifetime multiplier on the
+  // non-cascading extrinsic channel — back-compat; default 1.0 = population baseline) OR an age-profile
+  // `{byAge:[[age,mult],…], mode:"step"}` (a time-varying extrinsic-risk history, e.g. a high-risk-occupation
+  // window then a return to baseline). resolveProfile fills a scalar to a constant lane (byte-identical to the
+  // former `* lifestyle`) and steps a profile with popDefault 1.0 before the first entry, so a default run is
+  // numerically unchanged and an empty/absent profile reproduces the baseline exactly. Step (ZOH) like other
+  // exogenous exposures. Drives only `extrinsic` below — it does NOT cascade through hallmarks.
+  const lifestyleLane = resolveProfile(lifestyle, AGES, 1.0, "step");
 
   // STUB NODES (provenance:"stub") are excluded from the simulation here — the single point
   // where MODEL.nodes enters the engine — so a planned-but-unmodeled node (e.g. a future
@@ -799,13 +779,18 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
         // `prim` is HELD (benefit persists; node resumes aging in parallel). endAge omitted (null) ⇒ open-ended
         // ⇒ byte-identical to the pre-M1 behaviour. NOTE this is a scenario assumption for self-amplifying nodes.
         if (iv && age >= iv.startAge && (iv.endAge == null || age < iv.endAge)) {
-          prim[i] -= iv.efficacy * (Tarr[i][k + 1] - Tarr[i][k]);
+          // Clamp to >= 0: non-monotonic curves (residual, liver) have falling regions where
+          // ΔT < 0; without the clamp a freeze would ADD burden. The clamp makes freeze
+          // semantics correct: "hold B at the start-age value" means never increase it.
+          prim[i] -= iv.efficacy * Math.max(0, Tarr[i][k + 1] - Tarr[i][k]);
         }
         if (hasRateTerms[i]) accumDev[i] += nodeRateTermsSum(NODES[i].rate.terms, inMap, D, NODE_IDX, k) * DT;
       }
       // production-suppress: reduce the target's accrual increment over its window (lower new-burden rate)
+      // Clamp to >= 0 for the same reason as the freeze clamp: non-monotonic curves have falling
+      // regions where ΔT < 0, and a suppress in a falling region should not ADD burden.
       for (const op of prodSuppressOps) {
-        if (age >= op.startAge && age <= op.endAge) prim[op.idx] -= op.atten * (Tarr[op.idx][k + 1] - Tarr[op.idx][k]);
+        if (age >= op.startAge && age <= op.endAge) prim[op.idx] -= op.atten * Math.max(0, Tarr[op.idx][k + 1] - Tarr[op.idx][k]);
       }
       // Existing pulse deviations heal over this interval by an exact exponential map. A dose at `age`
       // is then applied for the next grid point, preserving the operator's established timing semantics.
@@ -844,7 +829,6 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
   const frIdx = NODE_IDX[fr.node];
   const causes = MODEL.mortality.causes; // {causeName:{node, RmaxPerYear:{male,female}}}
   const causeNames = Object.keys(causes);
-  const residTable = MODEL.mortality.residual.byAgePerYear[sex];
   const extrTable = MODEL.mortality.extrinsic.byAge[sex];
 
   // B-layer (Stage 1+2): emergent mediator trajectories. Stage 2 wires the CLEAN
@@ -958,11 +942,10 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
 
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
-    const extrinsic = interp(extrTable, age) * lifestyle;
+    const extrinsic = interp(extrTable, age) * lifestyleLane[k];
     const frailtyDev = Barr[frIdx][k] - Tarr[frIdx][k];
     const frailtyMultFor = (cn) =>
       Math.exp((frBeta[cn] !== undefined ? frBeta[cn] : frDefault) * frailtyDev);
-    const resid = interp(residTable, age) * edgeMultFor("residual", k, age);
 
     // Stage-3a all-cause (activityFitness, sleep uShape) + Stage-3b BMI J-curve whole-bracket multipliers,
     // all computed PER-AGE now (§3A): read each input lane at k. Flat lanes ⇒ identical every age.
@@ -974,6 +957,8 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
     // Stage-3a + Stage-3b scale the whole intrinsic bracket. Frailty is applied PER CAUSE (above).
     const bracketMult = allcauseMult * bmiJMult;
 
+    // Residual now flows through the causeNames loop like every other cause (residual-aging node
+    // carries B_res via the odds link, exactly reproducing the former interp(residTable, age) hazard).
     const parts = { extrinsic };
     let intrinsic = 0;
     for (const cn of causeNames) {
@@ -984,8 +969,6 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
       parts[cn] = p;
       intrinsic += p;
     }
-    parts.residual = bracketMult * frailtyMultFor("residual") * resid;
-    intrinsic += parts.residual;
 
     hazard[k] = extrinsic + intrinsic;
     decomposition[k] = { age, parts };
@@ -999,7 +982,17 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
     survival[k] = Math.exp(-cum);
     leSum += survival[k] * DT;
   }
-  const LE = AGE0 + leSum;
+  // §3G: closed-form constant-hazard TAIL past the horizon. Every channel is flat-held past ~130
+  // (residual age-table, cause-node burdens, extrinsic, saturated rate-nodes), so the terminal hazard
+  // hazard[N-1] is constant beyond AGE1; continuing the same discrete sum to infinity is the exact
+  // geometric series  S_last·DT·r/(1−r),  r = e^(−h∞·DT). This removes horizon truncation entirely — a
+  // strongly-intervened cohort whose survival runs past the array bound gets a TRUE (untruncated) LE
+  // instead of a restricted mean. h∞→0 (all modeled mortality zeroed) ⇒ LE = Infinity (no modeled cause
+  // of death active). At baseline h∞ is large and S_last≈1e-63, so the tail is ~0 ⇒ baseline LE invariant.
+  const hInf = hazard[N_AGE - 1], Slast = survival[N_AGE - 1];
+  const tailFactor = hInf > 1e-12 ? (DT * Math.exp(-hInf * DT)) / (1 - Math.exp(-hInf * DT)) : Infinity;
+  const tailOf = (S0) => (S0 > 1e-12 ? S0 * tailFactor : 0);   // ∫ beyond horizon at terminal survival S0
+  const LE = AGE0 + leSum + tailOf(Slast);
 
   // §3F: conditional-from-today LE. The cohort `LE` (from AGE0) averages in branches where you'd ALREADY be
   // dead; for a LIVING person who supplied `currentAge`, renormalize future survival by S(currentAge) (treat
@@ -1016,7 +1009,7 @@ function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inputs = {}
     if (Sc > 0) {
       let condSum = 0;
       for (let k = kc; k < N_AGE; k++) condSum += (survival[k] / Sc) * DT;
-      LE_cond = AGES[kc] + condSum;
+      LE_cond = AGES[kc] + condSum + tailOf(Slast / Sc);   // same constant-hazard tail, conditional on reaching kc
     }
   }
 
@@ -1121,25 +1114,29 @@ function solveOffsets(MODEL, opts = {}, anchors = [], { iterations = 16, returnM
  * testable; the app MERGES these over the scalar UI state (events override the scalar default per channel),
  * so an EMPTY event list returns all-empty deltas ⇒ the app's behaviour is byte-identical (the invariant).
  *
- * Each event has `channel: "<kind>:<id>"` where kind ∈ {input, treatment, intervention, operator, biomarker}
+ * Each event has `channel: "<kind>:<id>"` where kind ∈ {input, treatment, lifestyle, intervention, operator, biomarker}
  * and `age` (already resolved from a calendar date by the caller, if any). By kind:
  *   input:<id>      {age, value}          → step time-profile of that exogenous input (ZOH between entries)
  *   treatment:<id>  {age, value=dose}     → step time-profile of treatment dose (0 ⇒ off ⇒ start/stop window)
+ *   lifestyle:<id>  {age, value=mult}     → step time-profile of the extrinsic-risk multiplier (one channel:
+ *                                           lifestyle:extrinsic). value 1.0 = population baseline.
  *   intervention:<nodeId> {startAge, endAge?, efficacy?}  → node-freeze window {startAge, endAge, efficacy}
  *   operator:<presetId>   {ages?|age, scenario?}          → dosing schedule stub (preset details resolved by the app)
  *   biomarker:<med> {age, value=measured} → an anchor {med, age, measured} (fed to solveOffsets by the app)
  *
- * Returns { inputs, treatments, interventions, operators, anchors } carrying ONLY channels that have events.
+ * Returns { inputs, treatments, lifestyle, interventions, operators, anchors } carrying ONLY channels that have
+ * events (`lifestyle` is null when no lifestyle event is present, so the app falls back to the scalar default).
  */
 function compileTimeline(events = []) {
   const inputs = {}, treatments = {}, interventions = {}, opByPreset = {}, anchors = [];
-  const steps = {};   // channel → [[age,value],…] for input/treatment step profiles
+  let lifestyle = null;
+  const steps = {};   // channel → [[age,value],…] for input/treatment/lifestyle step profiles
   const splitCh = (ch) => { const i = ch.indexOf(":"); return i < 0 ? [ch, ""] : [ch.slice(0, i), ch.slice(i + 1)]; };
   for (const ev of events || []) {
     if (!ev || typeof ev.channel !== "string") continue;
     const [kind, id] = splitCh(ev.channel);
     if (!id) continue;
-    if (kind === "input" || kind === "treatment") {
+    if (kind === "input" || kind === "treatment" || (kind === "lifestyle" && id === "extrinsic")) {   // lifestyle is single-slot: validate id here so a typo (lifestyle:foo) can't silently drive extrinsic risk
       (steps[ev.channel] ||= []).push([ev.age, ev.value]);
     } else if (kind === "intervention") {
       interventions[id] = { startAge: ev.startAge, endAge: ev.endAge ?? null, efficacy: ev.efficacy ?? 1 };
@@ -1155,9 +1152,11 @@ function compileTimeline(events = []) {
   for (const ch in steps) {
     const [kind, id] = splitCh(ch);
     const byAge = steps[ch].slice().sort((a, b) => a[0] - b[0]);
-    (kind === "input" ? inputs : treatments)[id] = { byAge, mode: "step" };
+    if (kind === "lifestyle") {                                            // single channel (lifestyle:extrinsic); drop non-finite knots + clamp the multiplier ≥0 (a negative extrinsic hazard is nonsensical)
+      lifestyle = { byAge: byAge.filter(([a, v]) => Number.isFinite(a) && Number.isFinite(v)).map(([a, v]) => [a, Math.max(0, v)]), mode: "step" };
+    } else (kind === "input" ? inputs : treatments)[id] = { byAge, mode: "step" };
   }
-  return { inputs, treatments, interventions, operators: Object.values(opByPreset), anchors };
+  return { inputs, treatments, lifestyle, interventions, operators: Object.values(opByPreset), anchors };
 }
 
 /* ===================== M4 — history-bundle importer ========================
@@ -1264,7 +1263,7 @@ function canonicalizeHistoryEvents(events, ctx, report = null) {
   for (const ev of events || []) {
     if (!ev || typeof ev.channel !== "string") continue;                  // defensive: the exported helper may be handed junk
     const kind = ev.channel.slice(0, ev.channel.indexOf(":"));
-    if (kind === "input" || kind === "treatment" || kind === "biomarker") {
+    if (kind === "input" || kind === "treatment" || kind === "biomarker" || kind === "lifestyle") {   // lifestyle:extrinsic is a step exposure → snap + collision-merge like other step channels (compileTimeline validates the id)
       if (!Number.isFinite(ev.age)) continue;
       const g = snap(ev.age), key = ev.channel + "@" + g, cur = stepByKey.get(key);
       if (cur) warn(`${ev.channel}: multiple entries at age ${g}; kept the later draw (value ${_q((ev._date || "") >= (cur._date || "") ? ev.value : cur.value)})`);
@@ -1273,7 +1272,7 @@ function canonicalizeHistoryEvents(events, ctx, report = null) {
       if (!Number.isFinite(ev.startAge)) continue;
       let s = snap(ev.startAge), e = (ev.endAge == null || !Number.isFinite(ev.endAge)) ? null : snap(ev.endAge);
       if (e != null && e <= s) { e = s < AGE1 ? Math.min(AGE1, s + DT) : null; warn(`${ev.channel}: window collapsed after grid-snap; widened to [${s},${e}]`); }
-      if (interByCh.has(ev.channel)) warn(`${ev.channel}: multiple freeze windows; kept the last`);
+      if (interByCh.has(ev.channel)) warn(`${ev.channel}: multiple node-override windows; kept the last`);
       interByCh.set(ev.channel, { ...ev, startAge: s, endAge: e });
     } else if (kind === "operator") {
       const ages = (ev.ages || []).filter(Number.isFinite).map(snap);
@@ -1300,30 +1299,38 @@ function canonicalizeHistoryEvents(events, ctx, report = null) {
 function parseHistoryBundle(input, ctx) {
   const report = {
     ok: false, aborted: false,
-    loaded: { measurements: 0, treatments: 0, exposures: 0, nodeInterventions: 0, operators: 0 },
+    loaded: { measurements: 0, treatments: 0, exposures: 0, nodeInterventions: 0, operators: 0, events: 0 },
     warnings: [], errors: [], unmapped: []
   };
-  const abort = (msg) => { report.errors.push(msg); report.aborted = true; return { events: [], sex: null, birthDate: null, report }; };
+  const abort = (msg) => { report.errors.push(msg); report.aborted = true; return { events: [], sex: null, birthDate: null, currentAge: null, report }; };
 
   let b = input;
   if (typeof input === "string") { try { b = JSON.parse(input); } catch (e) { return abort("invalid JSON: " + e.message); } }
   if (!b || typeof b !== "object" || Array.isArray(b)) return abort("bundle must be a JSON object");
   if (b.bundleVersion !== 1) return abort(`unsupported bundleVersion ${_q(b.bundleVersion)} (expected 1)`);
-  const birth = _parseISODate(b.birthDate);
-  if (!birth) return abort(`birthDate missing/invalid — need a real "YYYY-MM-DD"`);
+  // birthDate is OPTIONAL: required only to convert date-based entries (friendly sections). An app EXPORT uses
+  // the age-based events[] passthrough and may omit it. A PRESENT-but-malformed birthDate is still an abort.
+  let birth = null;
+  if (b.birthDate != null) { birth = _parseISODate(b.birthDate); if (!birth) return abort(`birthDate invalid — need a real "YYYY-MM-DD" (or omit it)`); }
   let sex = null;
   if (b.sex != null) { if (b.sex === "male" || b.sex === "female") sex = b.sex; else return abort(`sex must be "male" | "female" if present`); }
-  // count NESTED entries (one exposure/operator can carry many changes/dates) + the 0–2 events emitted per treatment
+  // optional currentAge — restores "now" when there is no birthDate to derive it from (else birthDate wins, app-side)
+  let currentAge = null;
+  if (b.currentAge != null) { if (Number.isFinite(b.currentAge)) currentAge = b.currentAge; else return abort(`currentAge must be a number if present`); }
+  // count NESTED entries (one exposure/operator can carry many changes/dates) + the 0–2 events emitted per treatment + raw events[]
   const total = _bundleArr(b.measurements).length
     + _bundleArr(b.treatments).length * 2
     + _bundleArr(b.exposures).reduce((n, e) => n + _bundleArr(e && e.changes).length, 0)
     + _bundleArr(b.nodeInterventions).length
-    + _bundleArr(b.operators).reduce((n, o) => n + _bundleArr(o && o.dates).length, 0);
+    + _bundleArr(b.operators).reduce((n, o) => n + _bundleArr(o && o.dates).length, 0)
+    // native events count as 1 EXCEPT operator events, which can carry an arbitrarily large nested ages[] —
+    // count those by ages.length so a single oversized operator event can't bypass the import-size guard.
+    + _bundleArr(b.events).reduce((n, ev) => n + (ev && typeof ev.channel === "string" && ev.channel.indexOf("operator:") === 0 ? _bundleArr(ev.ages).length : 1), 0);
   if (total > BUNDLE_MAX_EVENTS) return abort(`too many entries (${total} > ${BUNDLE_MAX_EVENTS})`);
 
  try {   // defensive backstop: any unexpected throw on exotic untrusted input ⇒ a clean abort, never an uncaught crash
   const err = (w, m) => report.errors.push(`${w}: ${m}`);
-  const toAge = (ds, w) => { const d = _parseISODate(ds); if (!d) { err(w, `invalid date ${_q(ds)}`); return null; } const a = _ageYears(birth, d); if (a < 0) { err(w, `date ${_q(ds)} precedes birthDate`); return null; } return a; };
+  const toAge = (ds, w) => { if (!birth) { err(w, `date ${_q(ds)} given but bundle has no birthDate to convert it`); return null; } const d = _parseISODate(ds); if (!d) { err(w, `invalid date ${_q(ds)}`); return null; } const a = _ageYears(birth, d); if (a < 0) { err(w, `date ${_q(ds)} precedes birthDate`); return null; } return a; };
   const events = [];
 
   // measurements → biomarker:<med>
@@ -1411,6 +1418,7 @@ function parseHistoryBundle(input, ctx) {
     if (!ages.length) return;
     let scenario = null;
     if (o.scenario != null) {
+      if (typeof o.scenario !== "object" || Array.isArray(o.scenario)) return err(w, `scenario must be an object`);
       const sc = o.scenario; scenario = {};
       if (sc.killScenario != null) { if (!spec.kill.has(sc.killScenario)) return err(w, `bad killScenario ${_q(sc.killScenario)}`); scenario.killScenario = sc.killScenario; }
       if (sc.reboundScenario != null) { if (!spec.rebound.has(sc.reboundScenario)) return err(w, `bad reboundScenario ${_q(sc.reboundScenario)}`); scenario.reboundScenario = sc.reboundScenario; }
@@ -1421,9 +1429,57 @@ function parseHistoryBundle(input, ctx) {
     report.loaded.operators++;
   });
 
+  // events[] — LOSSLESS passthrough of the app's native, age-based timeline events. This is what the app's own
+  // "Export settings" produces, so a bundle round-trips faithfully — it carries EVERY channel (incl.
+  // lifestyle:extrinsic, which the friendly date-based sections don't express) with no date/age conversion.
+  // Validated against the same catalogs (ctx) as the friendly sections; untrusted, so every field is checked.
+  const EVENT_KINDS = _np({ input: 1, treatment: 1, lifestyle: 1, intervention: 1, operator: 1, biomarker: 1 });
+  _bundleArr(b.events).forEach((ev, i) => {
+    const w = `events[${i}]`;
+    if (!ev || typeof ev.channel !== "string") return err(w, `missing channel`);
+    const ci = ev.channel.indexOf(":");
+    const kind = ci < 0 ? ev.channel : ev.channel.slice(0, ci), id = ci < 0 ? "" : ev.channel.slice(ci + 1);
+    if (!EVENT_KINDS[kind] || !id) return err(w, `bad channel ${_q(ev.channel)}`);
+    const known = kind === "input" ? !!ctx.inputs[id]
+      : kind === "treatment" ? ctx.treatments.has(id)
+      : kind === "lifestyle" ? id === "extrinsic"
+      : kind === "intervention" ? ctx.nodes.has(id)
+      : kind === "operator" ? !!ctx.operators[id]
+      : /* biomarker */ !!ctx.meds[id];
+    if (!known) return err(w, `unknown ${kind} ${_q(id)}`);
+    if (kind === "intervention") {
+      if (!Number.isFinite(ev.startAge)) return err(w, `startAge must be a finite number`);
+      const eff = ev.efficacy == null ? 0.3 : ev.efficacy;
+      if (!Number.isFinite(eff) || eff < 0 || eff > 1) return err(w, `efficacy must be a number in [0,1]`);
+      let endAge = ev.endAge == null ? null : ev.endAge;
+      if (endAge != null && (!Number.isFinite(endAge) || endAge <= ev.startAge)) return err(w, `endAge must be a finite number > startAge`);
+      events.push({ channel: ev.channel, startAge: ev.startAge, endAge, efficacy: eff });
+    } else if (kind === "operator") {
+      if (!Array.isArray(ev.ages) || !ev.ages.length || !ev.ages.every(Number.isFinite)) return err(w, `operator needs a non-empty ages[] of finite numbers`);  // reject (don't silently drop) malformed ages
+      const ages = ev.ages.slice();
+      let scenario = null;
+      if (ev.scenario != null) {
+        if (typeof ev.scenario !== "object" || Array.isArray(ev.scenario)) return err(w, `scenario must be an object`);
+        const spec = ctx.operators[id], sc = ev.scenario; scenario = {};
+        if (sc.killScenario != null) { if (!spec.kill.has(sc.killScenario)) return err(w, `bad killScenario ${_q(sc.killScenario)}`); scenario.killScenario = sc.killScenario; }
+        if (sc.reboundScenario != null) { if (!spec.rebound.has(sc.reboundScenario)) return err(w, `bad reboundScenario ${_q(sc.reboundScenario)}`); scenario.reboundScenario = sc.reboundScenario; }
+      }
+      const o = { channel: ev.channel, ages };
+      if (scenario) o.scenario = scenario;
+      events.push(o);
+    } else {   // step/point channels: input / treatment / lifestyle / biomarker — need a finite age + value
+      if (!Number.isFinite(ev.age)) return err(w, `age must be a finite number`);
+      const spec = kind === "input" ? ctx.inputs[id] : null;
+      if (spec && spec.categorical) { if (!spec.enum.includes(ev.value)) return err(w, `${_q(ev.value)} not in {${spec.enum.join("|")}}`); }
+      else if (!Number.isFinite(ev.value)) return err(w, `value must be a finite number`);
+      events.push({ channel: ev.channel, age: ev.age, value: ev.value });
+    }
+    report.loaded.events++;
+  });
+
   const canon = canonicalizeHistoryEvents(events, ctx, report);
   report.ok = report.errors.length === 0;
-  return { events: canon, sex, birthDate: b.birthDate, report };
+  return { events: canon, sex, birthDate: birth ? b.birthDate : null, currentAge, report };
  } catch (e) {   // backstop for the exported object-input path (cyclic/exotic values) — report, never crash
   report.errors.push("internal parse error: " + (e && e.message ? e.message : String(e)));
   report.aborted = true;
@@ -2050,7 +2106,7 @@ const MODEL = {
     "version": "v0.5",
     "ageRange": [
       20,
-      130
+      200
     ],
     "dt": 1,
     "couple": 1,
@@ -2238,904 +2294,16 @@ const MODEL = {
         },
         "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). SWAP-TO-2022 pending. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
         "provenance": "calibrated"
-      }
-    },
-    "residual": {
-      "byAgePerYear": {
-        "male": [
-          [
-            20,
-            0.000106825
-          ],
-          [
-            21,
-            0.000116385
-          ],
-          [
-            22,
-            0.000122462
-          ],
-          [
-            23,
-            0.000126536
-          ],
-          [
-            24,
-            0.000130085
-          ],
-          [
-            25,
-            0.000134577
-          ],
-          [
-            26,
-            0.000141478
-          ],
-          [
-            27,
-            0.000152244
-          ],
-          [
-            28,
-            0.000168324
-          ],
-          [
-            29,
-            0.000191152
-          ],
-          [
-            30,
-            0.00022215
-          ],
-          [
-            31,
-            0.000253061
-          ],
-          [
-            32,
-            0.000275877
-          ],
-          [
-            33,
-            0.000292364
-          ],
-          [
-            34,
-            0.000304277
-          ],
-          [
-            35,
-            0.000313364
-          ],
-          [
-            36,
-            0.000321358
-          ],
-          [
-            37,
-            0.000329978
-          ],
-          [
-            38,
-            0.000340919
-          ],
-          [
-            39,
-            0.000355847
-          ],
-          [
-            40,
-            0.000376386
-          ],
-          [
-            41,
-            0.000398605
-          ],
-          [
-            42,
-            0.000418661
-          ],
-          [
-            43,
-            0.00043824
-          ],
-          [
-            44,
-            0.000458995
-          ],
-          [
-            45,
-            0.000482537
-          ],
-          [
-            46,
-            0.000510432
-          ],
-          [
-            47,
-            0.000544188
-          ],
-          [
-            48,
-            0.000585235
-          ],
-          [
-            49,
-            0.0006349
-          ],
-          [
-            50,
-            0.00069437
-          ],
-          [
-            51,
-            0.000756983
-          ],
-          [
-            52,
-            0.000816329
-          ],
-          [
-            53,
-            0.000873932
-          ],
-          [
-            54,
-            0.000931532
-          ],
-          [
-            55,
-            0.000991206
-          ],
-          [
-            56,
-            0.001055474
-          ],
-          [
-            57,
-            0.001127369
-          ],
-          [
-            58,
-            0.001210409
-          ],
-          [
-            59,
-            0.001308445
-          ],
-          [
-            60,
-            0.001425335
-          ],
-          [
-            61,
-            0.001524539
-          ],
-          [
-            62,
-            0.001580087
-          ],
-          [
-            63,
-            0.001611004
-          ],
-          [
-            64,
-            0.001635765
-          ],
-          [
-            65,
-            0.001672253
-          ],
-          [
-            66,
-            0.001737622
-          ],
-          [
-            67,
-            0.00184808
-          ],
-          [
-            68,
-            0.002018566
-          ],
-          [
-            69,
-            0.002262327
-          ],
-          [
-            70,
-            0.002590342
-          ],
-          [
-            71,
-            0.002806408
-          ],
-          [
-            72,
-            0.00277977
-          ],
-          [
-            73,
-            0.002615899
-          ],
-          [
-            74,
-            0.00241794
-          ],
-          [
-            75,
-            0.002286214
-          ],
-          [
-            76,
-            0.0023183
-          ],
-          [
-            77,
-            0.002607417
-          ],
-          [
-            78,
-            0.003240053
-          ],
-          [
-            79,
-            0.004294645
-          ],
-          [
-            80,
-            0.005838791
-          ],
-          [
-            81,
-            0.007864967
-          ],
-          [
-            82,
-            0.010190503
-          ],
-          [
-            83,
-            0.012604983
-          ],
-          [
-            84,
-            0.014896294
-          ],
-          [
-            85,
-            0.016858246
-          ],
-          [
-            86,
-            0.018301362
-          ],
-          [
-            87,
-            0.019064589
-          ],
-          [
-            88,
-            0.019032279
-          ],
-          [
-            89,
-            0.018155759
-          ],
-          [
-            90,
-            0.016474509
-          ],
-          [
-            91,
-            0.018100225
-          ],
-          [
-            92,
-            0.019679996
-          ],
-          [
-            93,
-            0.021290102
-          ],
-          [
-            94,
-            0.023005584
-          ],
-          [
-            95,
-            0.024899905
-          ],
-          [
-            96,
-            0.027044545
-          ],
-          [
-            97,
-            0.02950848
-          ],
-          [
-            98,
-            0.032357493
-          ],
-          [
-            99,
-            0.035653187
-          ],
-          [
-            100,
-            0.039451512
-          ],
-          [
-            101,
-            0.04341544
-          ],
-          [
-            102,
-            0.047283295
-          ],
-          [
-            103,
-            0.051217632
-          ],
-          [
-            104,
-            0.05537976
-          ],
-          [
-            105,
-            0.059929747
-          ],
-          [
-            106,
-            0.065026534
-          ],
-          [
-            107,
-            0.07082818
-          ],
-          [
-            108,
-            0.07749231
-          ],
-          [
-            109,
-            0.085176888
-          ],
-          [
-            110,
-            0.094041408
-          ],
-          [
-            111,
-            0.103323056
-          ],
-          [
-            112,
-            0.112417498
-          ],
-          [
-            113,
-            0.121721256
-          ],
-          [
-            114,
-            0.131625619
-          ],
-          [
-            115,
-            0.142514237
-          ],
-          [
-            116,
-            0.154759722
-          ],
-          [
-            117,
-            0.168718841
-          ],
-          [
-            118,
-            0.184725616
-          ],
-          [
-            119,
-            0.203081177
-          ],
-          [
-            120,
-            0.224038364
-          ],
-          [
-            121,
-            0.248531014
-          ],
-          [
-            122,
-            0.276897861
-          ],
-          [
-            123,
-            0.308418065
-          ],
-          [
-            124,
-            0.34230985
-          ],
-          [
-            125,
-            0.377703121
-          ],
-          [
-            126,
-            0.413604028
-          ],
-          [
-            127,
-            0.448841676
-          ],
-          [
-            128,
-            0.481975043
-          ],
-          [
-            129,
-            0.511110933
-          ],
-          [
-            130,
-            0.533513063
-          ]
-        ],
-        "female": [
-          [
-            20,
-            0.000057882
-          ],
-          [
-            21,
-            0.000065418
-          ],
-          [
-            22,
-            0.000073277
-          ],
-          [
-            23,
-            0.000081341
-          ],
-          [
-            24,
-            0.00008952
-          ],
-          [
-            25,
-            0.000097751
-          ],
-          [
-            26,
-            0.000105995
-          ],
-          [
-            27,
-            0.00011423
-          ],
-          [
-            28,
-            0.000122451
-          ],
-          [
-            29,
-            0.000130662
-          ],
-          [
-            30,
-            0.000138871
-          ],
-          [
-            31,
-            0.000146306
-          ],
-          [
-            32,
-            0.000152472
-          ],
-          [
-            33,
-            0.000157812
-          ],
-          [
-            34,
-            0.000162783
-          ],
-          [
-            35,
-            0.000167855
-          ],
-          [
-            36,
-            0.000177023
-          ],
-          [
-            37,
-            0.000193834
-          ],
-          [
-            38,
-            0.000217773
-          ],
-          [
-            39,
-            0.000248163
-          ],
-          [
-            40,
-            0.000273625
-          ],
-          [
-            41,
-            0.000290922
-          ],
-          [
-            42,
-            0.000305451
-          ],
-          [
-            43,
-            0.00031852
-          ],
-          [
-            44,
-            0.000331418
-          ],
-          [
-            45,
-            0.000345407
-          ],
-          [
-            46,
-            0.000361726
-          ],
-          [
-            47,
-            0.00038158
-          ],
-          [
-            48,
-            0.000406138
-          ],
-          [
-            49,
-            0.000436514
-          ],
-          [
-            50,
-            0.000473756
-          ],
-          [
-            51,
-            0.000511893
-          ],
-          [
-            52,
-            0.000545816
-          ],
-          [
-            53,
-            0.000577826
-          ],
-          [
-            54,
-            0.000610281
-          ],
-          [
-            55,
-            0.000645612
-          ],
-          [
-            56,
-            0.000686344
-          ],
-          [
-            57,
-            0.000735096
-          ],
-          [
-            58,
-            0.000794574
-          ],
-          [
-            59,
-            0.00086754
-          ],
-          [
-            60,
-            0.000956762
-          ],
-          [
-            61,
-            0.001028686
-          ],
-          [
-            62,
-            0.001059909
-          ],
-          [
-            63,
-            0.001068096
-          ],
-          [
-            64,
-            0.001070516
-          ],
-          [
-            65,
-            0.001083999
-          ],
-          [
-            66,
-            0.001124816
-          ],
-          [
-            67,
-            0.001208492
-          ],
-          [
-            68,
-            0.001349544
-          ],
-          [
-            69,
-            0.001561125
-          ],
-          [
-            70,
-            0.001854563
-          ],
-          [
-            71,
-            0.002013539
-          ],
-          [
-            72,
-            0.00189566
-          ],
-          [
-            73,
-            0.001619942
-          ],
-          [
-            74,
-            0.001303189
-          ],
-          [
-            75,
-            0.00105945
-          ],
-          [
-            76,
-            0.0009983
-          ],
-          [
-            77,
-            0.001224285
-          ],
-          [
-            78,
-            0.001835681
-          ],
-          [
-            79,
-            0.002920733
-          ],
-          [
-            80,
-            0.004553398
-          ],
-          [
-            81,
-            0.006692754
-          ],
-          [
-            82,
-            0.009111255
-          ],
-          [
-            83,
-            0.011579951
-          ],
-          [
-            84,
-            0.013865632
-          ],
-          [
-            85,
-            0.015742448
-          ],
-          [
-            86,
-            0.017009449
-          ],
-          [
-            87,
-            0.017511061
-          ],
-          [
-            88,
-            0.017165107
-          ],
-          [
-            89,
-            0.016000487
-          ],
-          [
-            90,
-            0.014194384
-          ],
-          [
-            91,
-            0.015499107
-          ],
-          [
-            92,
-            0.016777664
-          ],
-          [
-            93,
-            0.018102899
-          ],
-          [
-            94,
-            0.0195448
-          ],
-          [
-            95,
-            0.02116969
-          ],
-          [
-            96,
-            0.023039291
-          ],
-          [
-            97,
-            0.02520957
-          ],
-          [
-            98,
-            0.027729166
-          ],
-          [
-            99,
-            0.030637053
-          ],
-          [
-            100,
-            0.033958822
-          ],
-          [
-            101,
-            0.037391154
-          ],
-          [
-            102,
-            0.040720413
-          ],
-          [
-            103,
-            0.044092383
-          ],
-          [
-            104,
-            0.047651541
-          ],
-          [
-            105,
-            0.051541078
-          ],
-          [
-            106,
-            0.055903018
-          ],
-          [
-            107,
-            0.060878486
-          ],
-          [
-            108,
-            0.066608203
-          ],
-          [
-            109,
-            0.073233309
-          ],
-          [
-            110,
-            0.080896655
-          ],
-          [
-            111,
-            0.088907162
-          ],
-          [
-            112,
-            0.096717199
-          ],
-          [
-            113,
-            0.104684168
-          ],
-          [
-            114,
-            0.11315999
-          ],
-          [
-            115,
-            0.122488559
-          ],
-          [
-            116,
-            0.133002164
-          ],
-          [
-            117,
-            0.145016421
-          ],
-          [
-            118,
-            0.158823008
-          ],
-          [
-            119,
-            0.17467897
-          ],
-          [
-            120,
-            0.192790503
-          ],
-          [
-            121,
-            0.214033651
-          ],
-          [
-            122,
-            0.238767207
-          ],
-          [
-            123,
-            0.266336364
-          ],
-          [
-            124,
-            0.296022615
-          ],
-          [
-            125,
-            0.327015187
-          ],
-          [
-            126,
-            0.358374099
-          ],
-          [
-            127,
-            0.388974603
-          ],
-          [
-            128,
-            0.417410195
-          ],
-          [
-            129,
-            0.441803036
-          ],
-          [
-            130,
-            0.459397222
-          ]
-        ]
       },
-      "note": "DENSE per-integer-age remainder, HARMONIZED to CDC WONDER 2019 all-cause (no COVID). = 2019 all-cause − all bands − extrinsic at every integer age (≤90 from data; >90 re-anchored old-age escalation). 2026-06-11. UPDATED 2026-06-11: E40-E46 malnutrition mass rebucketed from falls cause into residual (engine-based recompute: residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual)). #gap: array written at ~9 sig figs ⇒ baseline LE drifts ~1e-7 from the empirical anchor (vs the SOP 1e-9 ideal) — below test tolerance + harmless, but regenerate the dense residual at FULL float precision to restore exactness."
+      "residual": {
+        "node": "residual-aging",
+        "RmaxPerYear": {
+          "male": 0.016474509,
+          "female": 0.014194384
+        },
+        "cdc": "residual remainder; 2019-harmonized; see model/cod-residual-partition-2019.md",
+        "provenance": "calibrated. Exact refactor of the former mortality.residual channel; Rmax=residTable(90) per sex; B_res=h/(1+h) per integer age 20-130. Invariance-proven: max|delta-hazard|<1e-14 both sexes vs pre-conversion baseline."
+      }
     },
     "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
     "oldAgeTail": {
@@ -4374,6 +3542,915 @@ const MODEL = {
             [
               130,
               0.9696
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "id": "residual-aging",
+      "label": "Residual aging (unmodeled)",
+      "layer": "phenotype",
+      "tractability": "low",
+      "provenance": "calibrated. v0.4 reserve-depletion refactor of the residual channel (2026-06-15): exact conversion of the per-year residTable into odds-link form Rmax*B/(1-B), with B=h/(1+h) at every integer age 20-130, Rmax=residTable(90). Reconstruction error <1e-15; B@90=0.5; B@130<0.971; baseline LE invariant to <1e-14 max-hazard deviation. Residual is definitionally driverless (the unmodeled remainder). Ships calibrated (not anchored: inherited residual has precision and provenance gaps, SWAP-TO-2022 pending). #gap: no upstream driver edges by construction; SWAP-TO-2022 pending.",
+      "role": "mortality-cause",
+      "mortalityCause": "residual",
+      "citation": "CDC WONDER 2019 D76 residual (all-cause minus modeled causes minus extrinsic)",
+      "wiki": "model/cod-residual-partition-2019",
+      "definition": "Heterogeneous aggregate of all deaths not individually modeled as their own cause node: ill-defined and unattributable deaths (R95-R99), medical and surgical complications (Y40-Y84), residual symptoms, and the long tail of minor individual causes below the modeling threshold. Excludes the 9 named disease causes (cardiovascular, cancer, neurodegeneration, infection, diabetes, COPD, CKD, liver, falls) and extrinsic/accidents -- each is its own channel. Shrinks as the CoD-residual-partition campaign attributes more buckets to driver nodes; Rmax and B_res are recomputed on each partition step. Freeze caveat: because it bundles many unrelated processes, freezing residual = a coarse halt-all-unmodeled-aging scenario lever -- the least mechanistically interpretable freeze in the model.",
+      "curve": {
+        "form": "table",
+        "byAge": [
+          [
+            20,
+            0.006442485266866949
+          ],
+          [
+            21,
+            0.007014992682130331
+          ],
+          [
+            22,
+            0.007378575283405629
+          ],
+          [
+            23,
+            0.007622170772984473
+          ],
+          [
+            24,
+            0.007834277670384474
+          ],
+          [
+            25,
+            0.00810261323229948
+          ],
+          [
+            26,
+            0.008514570937013854
+          ],
+          [
+            27,
+            0.009156568332975176
+          ],
+          [
+            28,
+            0.010113903083687736
+          ],
+          [
+            29,
+            0.011469812088461418
+          ],
+          [
+            30,
+            0.01330505701769438
+          ],
+          [
+            31,
+            0.01512837788154526
+          ],
+          [
+            32,
+            0.016469889111809126
+          ],
+          [
+            33,
+            0.017437002117210526
+          ],
+          [
+            34,
+            0.0181346254729037
+          ],
+          [
+            35,
+            0.01866609307802126
+          ],
+          [
+            36,
+            0.01913315936593211
+          ],
+          [
+            37,
+            0.019636303089764065
+          ],
+          [
+            38,
+            0.020274179164514877
+          ],
+          [
+            39,
+            0.02114316536144572
+          ],
+          [
+            40,
+            0.022336261664439784
+          ],
+          [
+            41,
+            0.023623677289206967
+          ],
+          [
+            42,
+            0.024782856029981353
+          ],
+          [
+            43,
+            0.02591181362651335
+          ],
+          [
+            44,
+            0.027105730745390917
+          ],
+          [
+            45,
+            0.028456430441953163
+          ],
+          [
+            46,
+            0.030052032562256182
+          ],
+          [
+            47,
+            0.03197589098624884
+          ],
+          [
+            48,
+            0.0343050282583373
+          ],
+          [
+            49,
+            0.037108236760252794
+          ],
+          [
+            50,
+            0.0404435257537781
+          ],
+          [
+            51,
+            0.04393020639187832
+          ],
+          [
+            52,
+            0.047211650470613396
+          ],
+          [
+            53,
+            0.0503752469746417
+          ],
+          [
+            54,
+            0.05351774134049207
+          ],
+          [
+            55,
+            0.05675152720630103
+          ],
+          [
+            56,
+            0.060209641960291695
+          ],
+          [
+            57,
+            0.06404822258170406
+          ],
+          [
+            58,
+            0.06844300889605483
+          ],
+          [
+            59,
+            0.07357860791857192
+          ],
+          [
+            60,
+            0.07962834759900701
+          ],
+          [
+            61,
+            0.08470109085769426
+          ],
+          [
+            62,
+            0.08751716183513607
+          ],
+          [
+            63,
+            0.08907704193959001
+          ],
+          [
+            64,
+            0.09032248766639313
+          ],
+          [
+            65,
+            0.09215159156217512
+          ],
+          [
+            66,
+            0.09541014173464929
+          ],
+          [
+            67,
+            0.10086347513443651
+          ],
+          [
+            68,
+            0.10915253412426003
+          ],
+          [
+            69,
+            0.12074221069128217
+          ],
+          [
+            70,
+            0.13587003643511297
+          ],
+          [
+            71,
+            0.14555365805474918
+          ],
+          [
+            72,
+            0.14437154463171537
+          ],
+          [
+            73,
+            0.13702687758166301
+          ],
+          [
+            74,
+            0.12798446617481937
+          ],
+          [
+            75,
+            0.12186172142726055
+          ],
+          [
+            76,
+            0.12336101537561525
+          ],
+          [
+            77,
+            0.1366432822347178
+          ],
+          [
+            78,
+            0.16434821123593824
+          ],
+          [
+            79,
+            0.20677996802373366
+          ],
+          [
+            80,
+            0.26167312768617823
+          ],
+          [
+            81,
+            0.3231362499340578
+          ],
+          [
+            82,
+            0.38216757599809065
+          ],
+          [
+            83,
+            0.4334664099359095
+          ],
+          [
+            84,
+            0.4748457984961367
+          ],
+          [
+            85,
+            0.505756154869287
+          ],
+          [
+            86,
+            0.5262660998483691
+          ],
+          [
+            87,
+            0.5364398668756309
+          ],
+          [
+            88,
+            0.5360180425218976
+          ],
+          [
+            89,
+            0.5242742851426966
+          ],
+          [
+            90,
+            0.5
+          ],
+          [
+            91,
+            0.5235101736429846
+          ],
+          [
+            92,
+            0.5443303953407743
+          ],
+          [
+            93,
+            0.5637580114356269
+          ],
+          [
+            94,
+            0.5827135209635904
+          ],
+          [
+            95,
+            0.6018189163960123
+          ],
+          [
+            96,
+            0.6214414725099493
+          ],
+          [
+            97,
+            0.6417260087203118
+          ],
+          [
+            98,
+            0.6626288432737205
+          ],
+          [
+            99,
+            0.683958619617487
+          ],
+          [
+            100,
+            0.7054231875355481
+          ],
+          [
+            101,
+            0.7249203034051674
+          ],
+          [
+            102,
+            0.7416079606505895
+          ],
+          [
+            103,
+            0.7566259722823658
+          ],
+          [
+            104,
+            0.770723309425081
+          ],
+          [
+            105,
+            0.7843770771094218
+          ],
+          [
+            106,
+            0.7978613721544643
+          ],
+          [
+            107,
+            0.8112943691803125
+          ],
+          [
+            108,
+            0.8246773789373459
+          ],
+          [
+            109,
+            0.8379313075254637
+          ],
+          [
+            110,
+            0.8509308935110225
+          ],
+          [
+            111,
+            0.8624804352242051
+          ],
+          [
+            112,
+            0.8721836257852669
+          ],
+          [
+            113,
+            0.8807886117204823
+          ],
+          [
+            114,
+            0.888761007687988
+          ],
+          [
+            115,
+            0.8963794015961356
+          ],
+          [
+            116,
+            0.9037896283716776
+          ],
+          [
+            117,
+            0.911041573577021
+          ],
+          [
+            118,
+            0.9181187934152626
+          ],
+          [
+            119,
+            0.9249643254513572
+          ],
+          [
+            120,
+            0.9315025894684648
+          ],
+          [
+            121,
+            0.9378333371565241
+          ],
+          [
+            122,
+            0.9438443743015064
+          ],
+          [
+            123,
+            0.9492924421227307
+          ],
+          [
+            124,
+            0.9540824214134708
+          ],
+          [
+            125,
+            0.95820536797078
+          ],
+          [
+            126,
+            0.9616941847065481
+          ],
+          [
+            127,
+            0.9645950226296126
+          ],
+          [
+            128,
+            0.9669484927132606
+          ],
+          [
+            129,
+            0.9687737611986648
+          ],
+          [
+            130,
+            0.9700456704138035
+          ]
+        ],
+        "female": {
+          "byAge": [
+            [
+              20,
+              0.0040612489270127295
+            ],
+            [
+              21,
+              0.004587581230090012
+            ],
+            [
+              22,
+              0.005135880366095045
+            ],
+            [
+              23,
+              0.005697854224566528
+            ],
+            [
+              24,
+              0.0062671941788463425
+            ],
+            [
+              25,
+              0.006839495988527957
+            ],
+            [
+              26,
+              0.007412041317226627
+            ],
+            [
+              27,
+              0.007983302925077158
+            ],
+            [
+              28,
+              0.008552937852535147
+            ],
+            [
+              29,
+              0.00912122725469782
+            ],
+            [
+              30,
+              0.009688727368626316
+            ],
+            [
+              31,
+              0.010202159031399463
+            ],
+            [
+              32,
+              0.010627554915167476
+            ],
+            [
+              33,
+              0.010995669234171553
+            ],
+            [
+              34,
+              0.011338100336925802
+            ],
+            [
+              35,
+              0.01168724458630719
+            ],
+            [
+              36,
+              0.01231772226616364
+            ],
+            [
+              37,
+              0.01347171692839238
+            ],
+            [
+              38,
+              0.015110368281444613
+            ],
+            [
+              39,
+              0.017182772540051277
+            ],
+            [
+              40,
+              0.01891241566133944
+            ],
+            [
+              41,
+              0.02008393885500244
+            ],
+            [
+              42,
+              0.02106582592146738
+            ],
+            [
+              43,
+              0.021947364910565106
+            ],
+            [
+              44,
+              0.022815814231806272
+            ],
+            [
+              45,
+              0.023755981086660737
+            ],
+            [
+              46,
+              0.024850457986371352
+            ],
+            [
+              47,
+              0.026178714491885413
+            ],
+            [
+              48,
+              0.027816676691422404
+            ],
+            [
+              49,
+              0.02983507915918763
+            ],
+            [
+              50,
+              0.03229830094340523
+            ],
+            [
+              51,
+              0.034807789898150296
+            ],
+            [
+              52,
+              0.03702907694603872
+            ],
+            [
+              53,
+              0.03911574503747239
+            ],
+            [
+              54,
+              0.04122220935090391
+            ],
+            [
+              55,
+              0.04350486347839986
+            ],
+            [
+              56,
+              0.046123012261228086
+            ],
+            [
+              57,
+              0.04923788370392002
+            ],
+            [
+              58,
+              0.05301062288652753
+            ],
+            [
+              59,
+              0.05759821919165174
+            ],
+            [
+              60,
+              0.06314783053374312
+            ],
+            [
+              61,
+              0.06757414897257912
+            ],
+            [
+              62,
+              0.06948266956718348
+            ],
+            [
+              63,
+              0.06998181160597752
+            ],
+            [
+              64,
+              0.0701292507648265
+            ],
+            [
+              65,
+              0.07094985117207755
+            ],
+            [
+              66,
+              0.0734252441380751
+            ],
+            [
+              67,
+              0.07845885404777653
+            ],
+            [
+              68,
+              0.08682129767971132
+            ],
+            [
+              69,
+              0.09908439010126553
+            ],
+            [
+              70,
+              0.11555667795525774
+            ],
+            [
+              71,
+              0.124231772325177
+            ],
+            [
+              72,
+              0.1178157126232843
+            ],
+            [
+              73,
+              0.10243509587446219
+            ],
+            [
+              74,
+              0.08408987652453709
+            ],
+            [
+              75,
+              0.0694546695604528
+            ],
+            [
+              76,
+              0.06570925848256964
+            ],
+            [
+              77,
+              0.07940276816371115
+            ],
+            [
+              78,
+              0.11451488187976779
+            ],
+            [
+              79,
+              0.17065223685003145
+            ],
+            [
+              80,
+              0.24287662401877724
+            ],
+            [
+              81,
+              0.3204246555942705
+            ],
+            [
+              82,
+              0.39094637139106114
+            ],
+            [
+              83,
+              0.44928224142349354
+            ],
+            [
+              84,
+              0.4941419848085617
+            ],
+            [
+              85,
+              0.5258555080243628
+            ],
+            [
+              86,
+              0.5451076795597515
+            ],
+            [
+              87,
+              0.5523045331803417
+            ],
+            [
+              88,
+              0.5473656125349737
+            ],
+            [
+              89,
+              0.5299074468640718
+            ],
+            [
+              90,
+              0.5
+            ],
+            [
+              91,
+              0.5219698485435748
+            ],
+            [
+              92,
+              0.5417034094742459
+            ],
+            [
+              93,
+              0.5605084179991239
+            ],
+            [
+              94,
+              0.5792908328784715
+            ],
+            [
+              95,
+              0.5986213579351746
+            ],
+            [
+              96,
+              0.6187756379137971
+            ],
+            [
+              97,
+              0.6397725974403483
+            ],
+            [
+              98,
+              0.6614221839515022
+            ],
+            [
+              99,
+              0.6833832473404767
+            ],
+            [
+              100,
+              0.7052245285599468
+            ],
+            [
+              101,
+              0.724837918720553
+            ],
+            [
+              102,
+              0.7415198675868728
+            ],
+            [
+              103,
+              0.7564733003633569
+            ],
+            [
+              104,
+              0.7704879666687822
+            ],
+            [
+              105,
+              0.7840680879370713
+            ],
+            [
+              106,
+              0.797504849038485
+            ],
+            [
+              107,
+              0.8109252516921226
+            ],
+            [
+              108,
+              0.8243325550950491
+            ],
+            [
+              109,
+              0.8376443033902312
+            ],
+            [
+              110,
+              0.8507284792629093
+            ],
+            [
+              111,
+              0.8623261769517986
+            ],
+            [
+              112,
+              0.8720207248326804
+            ],
+            [
+              113,
+              0.8805976035105139
+            ],
+            [
+              114,
+              0.8885441971549403
+            ],
+            [
+              115,
+              0.8961510215652878
+            ],
+            [
+              116,
+              0.9035684994460603
+            ],
+            [
+              117,
+              0.9108453474624414
+            ],
+            [
+              118,
+              0.9179597852220545
+            ],
+            [
+              119,
+              0.9248470803351118
+            ],
+            [
+              120,
+              0.931423089841337
+            ],
+            [
+              121,
+              0.9378061332386268
+            ],
+            [
+              122,
+              0.9438871966930347
+            ],
+            [
+              123,
+              0.9494016819860331
+            ],
+            [
+              124,
+              0.95424369378288
+            ],
+            [
+              125,
+              0.9583998070206536
+            ],
+            [
+              126,
+              0.96190127547638
+            ],
+            [
+              127,
+              0.9647929665780568
+            ],
+            [
+              128,
+              0.9671125268575985
+            ],
+            [
+              129,
+              0.9688717887921383
+            ],
+            [
+              130,
+              0.9700282187856176
             ]
           ]
         }
@@ -6008,6 +6085,106 @@ const MODEL = {
   }
 };
 
+/* ---- built-in example history bundle (model/history-bundle.example.json) ---- */
+const HISTORY_BUNDLE_EXAMPLE = {
+  "bundleVersion": 1,
+  "birthDate": "1980-04-12",
+  "sex": "male",
+  "measurements": [
+    {
+      "analyte": "ldl-c-mg-dl",
+      "date": "2015-03-02",
+      "value": 150,
+      "unit": "mg/dL",
+      "assay": "direct",
+      "source": "annual physical"
+    },
+    {
+      "analyte": "ldl-c-mg-dl",
+      "date": "2020-03-09",
+      "value": 120,
+      "unit": "mg/dL",
+      "source": "annual physical (on statin)"
+    },
+    {
+      "analyte": "hba1c-pct",
+      "date": "2020-03-09",
+      "value": 5.4,
+      "unit": "%",
+      "source": "annual physical"
+    },
+    {
+      "analyte": "bp-systolic-mmhg",
+      "date": "2020-03-09",
+      "value": 128,
+      "unit": "mmHg",
+      "source": "home cuff, seated, arm at heart level"
+    },
+    {
+      "analyte": "bmi-kg-m2",
+      "date": "2020-03-09",
+      "value": 26.4,
+      "unit": "kg/m^2"
+    },
+    {
+      "analyte": "resting-hr-bpm",
+      "date": "2020-03-09",
+      "value": 58,
+      "unit": "bpm",
+      "source": "wearable, 30-day average"
+    }
+  ],
+  "treatments": [
+    {
+      "id": "statin",
+      "start": "2018-06-01",
+      "end": null,
+      "dose": 1
+    }
+  ],
+  "exposures": [
+    {
+      "id": "smokingStatus",
+      "changes": [
+        {
+          "date": "2000-09-01",
+          "value": "current"
+        },
+        {
+          "date": "2011-01-15",
+          "value": "former"
+        }
+      ]
+    },
+    {
+      "id": "alcohol",
+      "changes": [
+        {
+          "date": "2005-01-01",
+          "value": 4
+        },
+        {
+          "date": "2019-01-01",
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "nodeInterventions": [],
+  "operators": [
+    {
+      "id": "dq-one-off",
+      "dates": [
+        "2026-05-01"
+      ],
+      "scenario": {
+        "killScenario": "central",
+        "reboundScenario": "central"
+      }
+    }
+  ]
+};
+
 /* ---- on-load regression assert: baseline male LE ≈ 77.46 (2019-harmonized) ---- */
 console.assert(
   Math.abs(simulate(MODEL, { sex: 'male' }).LE - 77.46) < 0.05,
@@ -6151,6 +6328,8 @@ const LAB_FIELDS = [
 ];
 const LAB_LABEL_BY_MED = {};
 LAB_FIELDS.forEach(f => { LAB_LABEL_BY_MED[f.med] = f.label; });
+const LAB_UNIT_BY_MED = {};
+LAB_FIELDS.forEach(f => { LAB_UNIT_BY_MED[f.med] = f.unit; });
 
 // For each panel input: which mediators it feeds directly, and whether it has a
 // direct-to-mortality (cause) edge. A slider is "practically pinned" — and thus
@@ -6159,76 +6338,9 @@ LAB_FIELDS.forEach(f => { LAB_LABEL_BY_MED[f.med] = f.label; });
 // graph, so it stays correct as edges change: e.g. alcohol→systolicBP is NOT
 // disabled by a BP anchor because alcohol also carries direct cancer/liver edges;
 // physicalActivity stays live via its direct fitness→all-cause edge.
-const INPUT_DISABLE_INFO = (() => {
-  const medIds = new Set(MEDIATORS.map(m => m.id));
-  const medEdges = MODEL.edges.filter(e => e.kind === "mediator");
-  const causeEdges = MODEL.edges.filter(e => e.kind === "cause");
-  const info = {};
-  PANEL_INPUT_IDS.forEach(id => {
-    info[id] = {
-      medTargets: [...new Set(medEdges.filter(e => e.from === id && medIds.has(e.to)).map(e => e.to))],
-      hasCauseEdge: causeEdges.some(e => e.from === id)
-    };
-  });
-  return info;
-})();
-
-// Set of mediators currently pinned by a (non-empty) lab anchor.
-function anchoredMediators(){
-  return new Set(LAB_FIELDS
-    .filter(f => state.labs[f.med] != null && state.labs[f.med] !== "")
-    .map(f => f.med));
-}
-
-// Gray out + disable any input slider whose every mediator target is anchored and
-// which has no independent mortality path. Called on each render so it tracks lab
-// edits live. Visual + interaction only — the engine math already cancels these
-// inputs once their target is anchored (the offset absorbs them exactly).
-// M3: disable a scalar lab field when the History & plan timeline owns that marker (a biomarker event exists),
-// so the exclusion in scalarLabAnchors() isn't a silent no-op. Called from renderAll (ownership can change as
-// timeline events are added/removed).
-function updateTimelineOwnershipCues(){
-  const owned = timelineChannelSet();
-  const TIP = "Controlled by the History & plan timeline (an event for this channel exists there).";
-  // lab fields (excluded from anchoring when owned)
-  LAB_FIELDS.forEach(f => {
-    const input = document.getElementById("lab-" + f.med);
-    if (!input) return;
-    const own = owned.has("biomarker:" + f.med);
-    input.disabled = own; input.title = own ? TIP : "";
-    const lab = document.querySelector('label[for="lab-' + f.med + '"]');
-    if (lab) lab.style.opacity = own ? "0.5" : "";
-  });
-  // treatment toggles (overridden) + operator toggles (excluded) — disable the checkbox + dim its label.
-  const cue = (elId, own) => { const e = document.getElementById(elId); if (!e) return; e.disabled = own; e.title = own ? TIP : ""; const lab = e.closest("label"); if (lab) lab.style.opacity = own ? "0.5" : ""; };
-  ((typeof B !== "undefined" && B.treatments) || []).forEach(t => cue("tx-" + t.id, owned.has("treatment:" + t.id)));
-  OPERATOR_PRESETS.forEach(p => cue("op-" + p.id, owned.has("operator:" + p.id)));
-}
-function updateInputDisabledStates(){
-  const anchored = anchoredMediators();
-  PANEL_INPUT_IDS.forEach(id => {
-    const info = INPUT_DISABLE_INFO[id];
-    const row = document.getElementById("brow-" + id);
-    if (!info || !row) return;
-    const disabled = info.medTargets.length > 0 &&
-      info.medTargets.every(t => anchored.has(t)) && !info.hasCauseEdge;
-    row.classList.toggle("brow-disabled", disabled);
-    row.querySelectorAll("input, button").forEach(el => { el.disabled = disabled; });
-    let note = row.querySelector(".binactive");
-    if (disabled){
-      if (!note){
-        note = document.createElement("span");
-        note.className = "binactive";
-        row.appendChild(note);
-      }
-      const labels = info.medTargets.map(t => LAB_LABEL_BY_MED[t] || t);
-      note.textContent = `set by ${labels.join(" & ")} anchor`;
-      note.style.display = "";
-    } else if (note){
-      note.style.display = "none";
-    }
-  });
-}
+// (M7: INPUT_DISABLE_INFO / anchoredMediators / updateTimelineOwnershipCues / updateInputDisabledStates were
+// retired with the Lifestyle & environment · Labs tab — they only ever grayed-out the now-removed scalar
+// controls. The timeline is the sole editing surface; lab-anchor exclusion still lives in scalarLabAnchors().)
 
 /* ============================ Engine adapter ============================= */
 // The app calls the canonical engine. `couple` is a MODEL.meta field, so to vary
@@ -6357,9 +6469,14 @@ function syncCurrentAgeFromBirthDate(){
   if (age == null || !Number.isFinite(age)) return false;
   age = Math.max(AGE0, Math.min(AGE1, age));   // clamp to the model grid so the field/state agree with effAge() (no "15 shown but 20 used" desync; future dates already return null above)
   state.currentAge = age;
-  const ca = document.getElementById("currentAge");
-  if (ca) ca.value = age;
+  syncAgeFields();
   return true;
+}
+// Keep the current-age input (#ageTop in the headline column) reflecting state.currentAge. Skips it while it is
+// being actively edited so typing isn't clobbered mid-keystroke. (M7: the labs-panel #currentAge field was retired.)
+function syncAgeFields(){
+  const el = document.getElementById("ageTop");
+  if (el && document.activeElement !== el) el.value = state.currentAge;
 }
 function clampAgeIdx(age){
   let a = Math.round(age);
@@ -6419,20 +6536,49 @@ function resolveTimelineOperators(stubs){
 // Assemble the engine opts from current state. The TIMELINE augment layer (compileTimeline) is merged OVER
 // the scalar state per channel (events win); empty events ⇒ byte-identical to the scalar-only app. The
 // lab-anchor solve needs the full scenario WITHOUT offsets, so build `base` first, then solve against it.
+// FORWARD-PLANNING anchor split (M7 follow-up). A lab anchor reflects HISTORY (you were measured under your
+// past regime), so the personal offset is solved against the regime BEFORE `now` — planned changes at/after now
+// are stripped. The forward sim then runs with the FULL planned profile, so a change at/after now MOVES the
+// mediator's future trajectory instead of being re-absorbed by the anchor (the bug: cutting saturated fat had
+// no effect because the LDL lab pinned LDL and the constant input change was absorbed into the offset).
+// `<now` is strict so a change entered AT the current age (the natural "from now on" edit) counts as a plan.
+// Draws at age<now still reproduce their measured value exactly (history==plan there).
+function stripFutureProfiles(map, now){
+  const out = {};
+  for (const k in map){ const p = map[k]; out[k] = (p && Array.isArray(p.byAge)) ? { byAge: p.byAge.filter(([a]) => a < now), mode: p.mode } : p; }
+  return out;   // an emptied profile → resolveProfile falls back to the population default (no historical knot known)
+}
+function stripFutureInterventions(map, now){
+  const out = {};
+  for (const k in map){ const iv = map[k]; if (iv && iv.startAge != null && iv.startAge < now) out[k] = iv; }   // a past-started freeze is history; a forward freeze is a plan
+  return out;
+}
+function stripFutureOperators(ops, now){
+  return (ops || []).map(o => ({ ...o, ages: (o.ages || []).filter(a => a < now) })).filter(o => o.ages.length);
+}
 function currentOpts(){
   const tl = compileTimeline(timelineEvents());
-  const base = {
+  const now = effAge();
+  const planned = {
     sex: state.sex,
     couple: state.couple,
-    lifestyle: state.lifestyle,
+    lifestyle: tl.lifestyle || state.lifestyle,   // timeline extrinsic-risk profile wins; else the scalar fallback (1.0)
     inputs: { ...state.inputs, ...tl.inputs },
     treatments: { ...state.treatments, ...tl.treatments },
     interventions: { ...state.interventions, ...tl.interventions },
     operators: [ ...activeOperators(), ...resolveTimelineOperators(tl.operators) ],
-    currentAge: effAge()
+    currentAge: now
   };
   const anchors = [ ...scalarLabAnchors(), ...tl.anchors ];
-  return { ...base, offsets: solveAnchors(base, anchors) };
+  // Solve the offset against HISTORY (regime before `now`); apply it to the PLANNED forward sim.
+  const historical = {
+    ...planned,
+    inputs: stripFutureProfiles(planned.inputs, now),
+    treatments: stripFutureProfiles(planned.treatments, now),
+    interventions: stripFutureInterventions(planned.interventions, now),
+    operators: stripFutureOperators(planned.operators, now)
+  };
+  return { ...planned, offsets: solveAnchors(historical, anchors) };
 }
 // The all-default baseline opts for ΔLE: lifestyle 1, no interventions/inputs/
 // treatments/offsets. (Same sex + couple as current so the comparison is clean.)
@@ -6753,7 +6899,7 @@ function renderGraph(sim, base){
     const latent = node.latent;
     const ref = node._ref;
     const isSel = state.selected === node.id;
-    const iv = latent && state.interventions[node.id];
+    const iv = latent && effectiveIntervention(node.id);
     const active = iv && iv.efficacy > 0;
     const dimmed = foc && !foc.nodeSet.has(node.id);
     const grey = node.greyed;
@@ -6822,13 +6968,13 @@ function nodeTipHtml(node){
   if (node.greyed) s += `<br><span style="color:#e6b800">⚠ unlinked / planned (no active edge)</span>`;
   if (node.latent){
     s += `<br>tractability: ${ref.tractability}`;
-    const iv = state.interventions[node.id];
-    if (iv && iv.efficacy > 0) s += `<br><span style="color:#2ecc71">❄ freeze ${Math.round(iv.efficacy*100)}% from age ${iv.startAge}</span>`;
+    const iv = effectiveIntervention(node.id);
+    if (iv && iv.efficacy > 0) s += `<br><span style="color:#2ecc71">❄ override: aging slowed ${Math.round(iv.efficacy*100)}% from age ${iv.startAge}</span>`;
     if (ref.provenance) s += `<br><span style="color:#aaa">${ref.provenance}</span>`;
   } else if (node.kind === "input"){
     s += `<br>population mean: ${ref.populationMean}${ref.unit ? " " + ref.unit : ""}`;
   } else if (node.kind === "mediator"){
-    s += `<br>unit: ${ref.unit || "?"} &middot; <span style="color:#aaa">adjust via Labs / Lifestyle</span>`;
+    s += `<br>unit: ${ref.unit || "?"} &middot; <span style="color:#aaa">drive via a Lab measurement on the timeline</span>`;
   } else if (node.kind === "state"){
     s += `<br><span style="color:#aaa">∫rate·dt damage/physiology state</span>`;
   }
@@ -6873,6 +7019,7 @@ const NODE_INFO = {
   "ckd": { kind: "cause", wiki: "phenotypes/chronic-kidney-disease", desc: "The kidney's accumulating filtration loss and scarring that, past a threshold, raises your risk of kidney-failure death and its cardiovascular knock-on effects." },
   "liver": { kind: "cause", wiki: "phenotypes/liver-fibrosis", desc: "Cumulative scarring of the liver from years of injury, hardening tissue toward cirrhosis and raising the chance of death from liver failure." },
   "falls-mortality": { kind: "cause", wiki: null, desc: "Death from a fall (ICD W00-W19) — the aging-related external-injury cause; its hazard is driven by sarcopenia (muscle weakness raises fall risk). Currently also carries a small bundled malnutrition residual being split out." },
+  "residual-aging": { kind: "cause", wiki: "model/cod-residual-partition-2019", desc: "Heterogeneous aggregate of all deaths not individually modeled as their own cause node: ill-defined deaths (R95-R99), surgical complications (Y40-Y84), and the long tail of minor causes. Excludes the 9 named disease causes and extrinsic/accidents. Driverless by construction — it is the unmodeled remainder. Shrinks as the CoD-residual-partition campaign attributes more buckets to driver nodes. Freezing it = halting all unmodeled aging, the coarsest and least mechanistically interpretable lever in the model." },
   "sarcopenia": { kind: "driver", wiki: "phenotypes/sarcopenia", desc: "Age-related loss of muscle mass and strength that erodes physical reserve. An upstream driver — it raises the falls cause hazard (sarcopenia→falls), not a cause of death itself." },
   "clonal-hematopoiesis": { kind: "driver", wiki: "phenotypes/clonal-hematopoiesis", desc: "Age-related expansion of mutant blood-cell clones from aging stem cells. An upstream driver — it raises atherosclerosis burden (→ cardiovascular death) and blood-cancer risk, not a cause of death itself." },
   // 5 clinical-risk-factor mediators
@@ -7508,273 +7655,74 @@ function deselectNode(){
   hideGraphNodeInfo();   // dismiss the sticky description card (Esc / empty-background click)
 }
 
+// M7: a node's active freeze now lives on the timeline (channel intervention:<id>); state.interventions is the
+// legacy scalar fallback (no UI writes it anymore, but the engine still merges it). Return the effective freeze
+// {startAge, endAge, efficacy} for a node, or null — used by the graph ❄ glyph + the node tooltip + the readout.
+// Mirror currentOpts' merge order EXACTLY ({...state.interventions, ...tl.interventions}: timeline WINS) and
+// compileTimeline's last-wins, so the glyph/tooltip can never disagree with what actually drives the sim.
+function effectiveIntervention(id){
+  let ev = null;
+  for (const e of ((state.timeline && state.timeline.events) || [])) if (e.channel === "intervention:" + id) ev = e;  // last-wins
+  if (ev) return { startAge: ev.startAge, endAge: ev.endAge ?? null, efficacy: ev.efficacy ?? 1 };
+  return state.interventions[id] || null;   // legacy fallback (currently always empty — no UI writes it)
+}
+
+// M7: the graph tab is now a read-only viz + node-SELECTION surface. Selecting a node updates the readout and
+// enables the "Add a node-freeze on the timeline" button; the actual freeze/slow is edited on the timeline
+// (the sole editing surface). Freeze-editable nodes = the NODE_BY_ID (non-stub) set, identical to the timeline's
+// intervention channel. Non-freezable nodes (mediator / state / input / mortality) report HOW to drive them.
 function syncIntervControls(){
   const id = state.selected;
-  const startS = document.getElementById("startSlider");
-  const effS   = document.getElementById("effSlider");
-  const clearB = document.getElementById("clearNode");
+  const jumpB = document.getElementById("addFreezeToTimeline");
   const nameEl = document.getElementById("selName");
   const metaEl = document.getElementById("selMeta");
+  if (!nameEl || !metaEl) return;
 
   if (!id){
-    startS.disabled = effS.disabled = clearB.disabled = true;
+    if (jumpB) jumpB.disabled = true;
     nameEl.textContent = "none selected";
-    metaEl.textContent = "Click a node in the graph to configure a freeze/slow intervention.";
+    metaEl.textContent = "Click a node in the graph to select it; slow or override its aging over time on the Biomarker & Intervention timeline.";
     return;
   }
   const node = NODE_BY_ID[id];
-  // Non-latent node (mediator / state / input / mortality): selectable for timeline
-  // highlight, but NOT interventionable via the freeze controls — those act on hallmark
-  // burdens only. Mediators are moved via Labs / Lifestyle inputs instead.
+  // Non-latent node (mediator / state / input / mortality): selectable for timeline highlight, but NOT
+  // freeze-interventionable — it is driven by an upstream timeline channel (exposure / lab), not a freeze.
   if (!node){
     const uni = UNI.byId[id] || { label: id, kind: "?" };
     nameEl.textContent = uni.label;
-    const adj = uni.kind === "mediator" ? "adjust via the Labs / Lifestyle panel"
+    const adj = uni.kind === "mediator" ? "drive it with a Lab measurement on the timeline"
       : uni.kind === "state" ? "an emergent ∫rate state — moved by its upstream drivers"
-      : uni.kind === "input" ? "set it in the Lifestyle &amp; environment panel"
+      : uni.kind === "input" ? "set it with an Exposure event on the timeline"
       : "terminal node";
     metaEl.innerHTML = `<span class="badge" style="background:${kindColor(uni.kind)}">${KIND_LABEL[uni.kind] || uni.kind}</span> ` +
-      `highlighted in the timeline &middot; <span style="color:var(--muted)">not freeze-interventionable — ${adj}</span>`;
-    startS.disabled = effS.disabled = clearB.disabled = true;
+      `<span style="color:var(--muted)">can't be overridden directly — ${adj}</span>`;
+    if (jumpB) jumpB.disabled = true;
     return;
   }
   nameEl.textContent = node.label;
   const tcol = LAYER_COLOR[node.layer];
+  const iv = effectiveIntervention(id);
   metaEl.innerHTML = `<span class="badge" style="background:${tcol}">${node.layer}</span> ` +
-    `tractability: <b>${node.tractability}</b> &middot; provenance: ${node.provenance}`;
-
-  startS.disabled = effS.disabled = clearB.disabled = false;
-  const iv = state.interventions[id] || { startAge: 50, efficacy: 0 };
-  startS.value = iv.startAge;
-  effS.value = Math.round(iv.efficacy * 100);
-  document.getElementById("startVal").textContent = iv.startAge;
-  document.getElementById("effVal").textContent = Math.round(iv.efficacy * 100) + "%";
+    `tractability: <b>${node.tractability}</b> &middot; provenance: ${node.provenance}` +
+    (iv && iv.efficacy > 0 ? ` &middot; <span style="color:#2ecc71">&#10052; override on timeline: aging slowed ${Math.round(iv.efficacy*100)}% from age ${iv.startAge}</span>` : "");
+  if (jumpB) jumpB.disabled = false;
 }
 
-function applyIntervFromControls(){
+// M7: select a freeze-editable node, switch to the timeline tab, and add/select its node-freeze event there.
+function addSelectedNodeFreezeToTimeline(){
   const id = state.selected;
-  if (!id || !NODE_BY_ID[id]) return;   // interventions act on hallmark (latent) nodes only
-  const startAge = +document.getElementById("startSlider").value;
-  const eff = (+document.getElementById("effSlider").value) / 100;
-  document.getElementById("startVal").textContent = startAge;
-  document.getElementById("effVal").textContent = Math.round(eff * 100) + "%";
-  if (eff <= 0){
-    delete state.interventions[id];
-  } else {
-    state.interventions[id] = { startAge: startAge, efficacy: eff };
-  }
-  renderAll();
+  if (!id || !NODE_BY_ID[id]) return;   // freeze acts on the non-stub graph nodes only
+  switchModTab("timeline");
+  addHistEventToChannel("intervention:" + id, effAge());   // adds (or selects existing) + opens it in the editor
 }
 
-/* ============================ B-layer controls UI ======================== */
-function fmtNum(v){
-  if (Math.abs(v) >= 100 || Number.isInteger(v)) return String(Math.round(v));
-  return (Math.round(v * 10) / 10).toFixed(1);
-}
-
-function buildBlayerControls(){
-  /* ---- exogenous inputs ---- */
-  const grid = document.getElementById("inputsGrid");
-  grid.innerHTML = "";
-  PANEL_INPUT_IDS.forEach(id => {
-    const inp = EXO_BY_ID[id];
-    const row = document.createElement("div");
-    row.className = "brow";
-    row.id = "brow-" + id;
-
-    if (id === "smokingStatus"){
-      // segmented never/former/current (default = population)
-      row.innerHTML = `<label class="bl">${inp.label}</label>`;
-      const seg = document.createElement("span");
-      seg.className = "seg-mini";
-      seg.id = "smokeSeg";
-      [["population","Population"],["never","Never"],["former","Former"],["current","Current"]].forEach(([val,lbl]) => {
-        const b = document.createElement("button");
-        b.dataset.val = val;
-        b.textContent = lbl;
-        if ((state.inputs.smokingStatus === undefined && val === "population") || state.inputs.smokingStatus === val){
-          b.classList.add("active");
-        }
-        b.addEventListener("click", () => {
-          seg.querySelectorAll("button").forEach(x => x.classList.remove("active"));
-          b.classList.add("active");
-          if (val === "population") delete state.inputs.smokingStatus;
-          else state.inputs.smokingStatus = val;
-          renderAll();
-        });
-        seg.appendChild(b);
-      });
-      row.appendChild(seg);
-      grid.appendChild(row);
-      return;
-    }
-
-    // numeric slider
-    const [lo, hi] = inp.range;
-    const cur = state.inputs[id] != null ? state.inputs[id] : inp.populationMean;
-    const step = (hi - lo) <= 30 ? ((hi - lo) <= 6 ? 0.5 : 1) : (id === "calorieBalance" ? 25 : (hi - lo) / 200);
-    row.innerHTML =
-      `<label class="bl">${inp.label}` +
-        (inp.info ? ` <span class="infodot" role="img" aria-label="${inp.label} explanation">i</span>` : "") +
-      `</label>` +
-      `<input type="range" id="in-${id}" min="${lo}" max="${hi}" step="${step}" value="${cur}">` +
-      `<span class="bval" id="inv-${id}">${fmtNum(cur)} ${inp.unit}</span>`;
-    grid.appendChild(row);
-    if (inp.info){
-      const dot = row.querySelector(".infodot");
-      if (dot){
-        dot.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY, inp.info));
-        dot.addEventListener("mouseleave", hideTip);
-      }
-    }
-    const slider = row.querySelector(`#in-${id}`);
-    const out = row.querySelector(`#inv-${id}`);
-    slider.addEventListener("input", () => {
-      const v = +slider.value;
-      state.inputs[id] = v;
-      out.textContent = `${fmtNum(v)} ${inp.unit}`;
-      renderAll();
-    });
-  });
-
-  /* ---- treatments ---- */
-  const tx = document.getElementById("treatToggles");
-  tx.innerHTML = "";
-  TREATMENTS.forEach(t => {
-    const lab = document.createElement("label");
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.id = "tx-" + t.id;
-    cb.checked = !!state.treatments[t.id];
-    cb.addEventListener("change", () => {
-      if (cb.checked) state.treatments[t.id] = true;
-      else delete state.treatments[t.id];
-      renderAll();
-    });
-    lab.appendChild(cb);
-    lab.appendChild(document.createTextNode(" " + t.label + " → " + (MED_BY_ID[t.to] ? MED_BY_ID[t.to].label : t.to)));
-    tx.appendChild(lab);
-  });
-  OPERATOR_PRESETS.forEach(preset => {
-    const wrap = document.createElement("div");
-    wrap.className = "operator-preset";
-    const lab = document.createElement("label");
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.id = "op-" + preset.id;
-    cb.checked = !!state.operatorPresets[preset.id];
-    lab.appendChild(cb);
-    lab.appendChild(document.createTextNode(" " + preset.label + " at current age"));
-    wrap.appendChild(lab);
-
-    const controls = document.createElement("div");
-    controls.className = "operator-preset-controls";
-    const active = state.operatorPresets[preset.id] || {
-      killScenario: preset.defaultKillScenario,
-      reboundScenario: preset.defaultReboundScenario
-    };
-    const killSelect = document.createElement("select");
-    Object.entries(preset.killFractionScenarios).forEach(([key, value]) => {
-      const opt = document.createElement("option");
-      opt.value = key; opt.textContent = `${key} kill (${Math.round(value * 100)}%)`;
-      opt.selected = key === active.killScenario;
-      killSelect.appendChild(opt);
-    });
-    const reboundSelect = document.createElement("select");
-    Object.entries(preset.reboundHalfLifeScenariosYears).forEach(([key, value]) => {
-      const opt = document.createElement("option");
-      opt.value = key; opt.textContent = `${key} persistence (${value} yr half-life)`;
-      opt.selected = key === active.reboundScenario;
-      reboundSelect.appendChild(opt);
-    });
-    controls.append("Efficacy ", killSelect, " Rebound ", reboundSelect);
-    wrap.appendChild(controls);
-    const note = document.createElement("div");
-    note.className = "operator-note";
-    note.textContent = "Exploratory target-engagement scenario. Kill range is human-biopsy anchored; rebound half-life is sensitivity-only. No direct cancer term — but an indirect cancer benefit flows via the senescence→inflammation→cancer path. Effect appears from the year after the dosing age.";
-    wrap.appendChild(note);
-
-    const syncPreset = () => {
-      if (cb.checked) {
-        state.operatorPresets[preset.id] = {
-          killScenario: killSelect.value,
-          reboundScenario: reboundSelect.value
-        };
-      } else {
-        delete state.operatorPresets[preset.id];
-      }
-      controls.style.opacity = cb.checked ? "1" : "0.5";
-      killSelect.disabled = reboundSelect.disabled = !cb.checked;
-      renderAll();
-    };
-    cb.addEventListener("change", syncPreset);
-    killSelect.addEventListener("change", syncPreset);
-    reboundSelect.addEventListener("change", syncPreset);
-    controls.style.opacity = cb.checked ? "1" : "0.5";
-    killSelect.disabled = reboundSelect.disabled = !cb.checked;
-    tx.appendChild(wrap);
-  });
-
-  /* ---- labs (offset anchoring) ---- */
-  const lg = document.getElementById("labGrid");
-  lg.innerHTML = "";
-  LAB_FIELDS.forEach(f => {
-    const lab = document.createElement("label");
-    lab.setAttribute("for", "lab-" + f.med);
-    lab.textContent = `${f.label} (${f.unit})`;
-    const input = document.createElement("input");
-    input.type = "number";
-    input.id = "lab-" + f.med;
-    input.step = f.step; input.min = f.min; input.max = f.max;
-    input.placeholder = "—";
-    if (state.labs[f.med] != null) input.value = state.labs[f.med];
-    input.addEventListener("input", () => {
-      const v = input.value.trim();
-      if (v === ""){ delete state.labs[f.med]; renderAll(); return; }
-      const n = +v;
-      if (!isFinite(n)){ renderAll(); return; }   // mid-entry ("-", ".") — don't update the model
-      // Clamp the value the MODEL uses to [min,max] even mid-typing, so the engine never
-      // runs on an out-of-range value (e.g. resting HR below its floor — HR multiplies the
-      // elastin-fatigue rate). The text box itself stays smooth; the 'change' handler snaps
-      // it into range on commit.
-      state.labs[f.med] = String(Math.min(f.max, Math.max(f.min, n)));
-      renderAll();
-    });
-    // On commit (blur/enter) also snap the text box into range so what's shown matches
-    // what the model uses.
-    input.addEventListener("change", () => {
-      const v = input.value.trim();
-      if (v === ""){ delete state.labs[f.med]; renderAll(); return; }
-      let n = +v;
-      if (!isFinite(n)){ delete state.labs[f.med]; input.value = ""; renderAll(); return; }
-      n = Math.min(f.max, Math.max(f.min, n));
-      input.value = String(n);
-      state.labs[f.med] = String(n);
-      renderAll();
-    });
-    lg.appendChild(lab);
-    lg.appendChild(input);
-  });
-
-  // current-age field
-  const ca = document.getElementById("currentAge");
-  ca.value = state.currentAge;
-  ca.addEventListener("input", () => {
-    let v = +ca.value;
-    if (!isFinite(v)) return;
-    state.currentAge = v;
-    renderAll();
-  });
-
-  updateInputDisabledStates();
-}
 
 /* ============================ Master render ============================== */
-/* ===================== M3: History & plan timeline (editable) =====================
+/* ===================== M3: Biomarker & Intervention timeline (editable) =====================
    Renders state.timeline.events (the M2 augment layer). Read-only in M3.1; click-edit in M3.2. Defensive:
    builds into a DocumentFragment and atomically swaps it in; never throws out of renderAll (a new-panel
    defect must not blank the headline readouts — FIXED-MISTAKE #4). Called LAST in renderAll(). */
-const HIST = { l: 96, r: 16, t: 30, b: 26, laneH: 30, laneGap: 7, W: 1080 };
+const HIST = { l: 110, r: 16, t: 34, b: 34, laneH: 30, laneGap: 7, W: 1080 };
 const HIST_GROUP_ORDER = { exposure: 0, treatment: 1, intervention: 2, biomarker: 3, other: 4 };
 let _histEventSeq = 0;
 function nextHistId(){ return "te-" + (++_histEventSeq); }
@@ -7788,12 +7736,16 @@ function histChannelMeta(ch){
   const i = ch.indexOf(":"); const kind = i < 0 ? ch : ch.slice(0, i), id = i < 0 ? "" : ch.slice(i + 1);
   // Validate the ID against the known catalog too (not just the kind) — an unknown id (input:typo, biomarker:typo)
   // is "other", so it's skipped in the render AND can't own a scalar.
-  if (kind === "input" && EXO_BY_ID[id])                                   return { group:"exposure", kind, id, label: EXO_BY_ID[id].label, color:"#5a6b7b" };
-  if (kind === "treatment" && ((typeof B !== "undefined" && B.treatments) || []).some(t => t.id === id)) return { group:"treatment", kind, id, label: id, color:"#2e86c1" };
-  if (kind === "intervention" && NODE_BY_ID[id])                           return { group:"intervention", kind, id, label: NODE_BY_ID[id].label, color:"#7d3c98" };
-  if (kind === "operator" && OPERATOR_PRESETS.some(p => p.id === id))       { const p = OPERATOR_PRESETS.find(x => x.id === id); return { group:"intervention", kind, id, label: p.label, color:"#af7ac5" }; }
-  if (kind === "biomarker" && LAB_FIELDS.some(f => f.med === id))           return { group:"biomarker", kind, id, label: LAB_LABEL_BY_MED[id] || id, color: MED_COLOR[id] || "#888", range: MED_SCALE[id] || { lo: 0, hi: 1 } };
-  return { group:"other", kind, id, label: ch, color:"#888" };
+  // `unit:` carries the channel's measurement unit (what the old B-layer sliders/labels showed) so the editor +
+  // add-bar can label the value field. smokingStatus is categorical (no numeric unit). Treatments are a 0–1 dose
+  // fraction; the extrinsic-risk lifestyle channel is a ×multiplier (1 = population average).
+  if (kind === "input" && EXO_BY_ID[id])                                   return { group:"exposure", kind, id, label: EXO_BY_ID[id].label, color:"#5a6b7b", unit: id === "smokingStatus" ? null : EXO_BY_ID[id].unit };
+  if (kind === "lifestyle" && id === "extrinsic")                          return { group:"exposure", kind, id, label:"Lifestyle / extrinsic risk", color:"#5a6b7b", unit: "×" };   // M7: the former extrinsic-risk slider, now a time-varying exposure (×mult on accidents/suicide/homicide; non-cascading)
+  if (kind === "treatment" && ((typeof B !== "undefined" && B.treatments) || []).some(t => t.id === id)) { const t = B.treatments.find(x => x.id === id); return { group:"treatment", kind, id, label: (t && t.label) || id, color:"#2e86c1", unit: "dose 0–1" }; }
+  if (kind === "intervention" && NODE_BY_ID[id])                           return { group:"intervention", kind, id, label: NODE_BY_ID[id].label, color:"#7d3c98", unit: null };
+  if (kind === "operator" && OPERATOR_PRESETS.some(p => p.id === id))       { const p = OPERATOR_PRESETS.find(x => x.id === id); return { group:"intervention", kind, id, label: p.label, color:"#af7ac5", unit: null }; }
+  if (kind === "biomarker" && LAB_FIELDS.some(f => f.med === id))           return { group:"biomarker", kind, id, label: LAB_LABEL_BY_MED[id] || id, color: MED_COLOR[id] || "#888", range: MED_SCALE[id] || { lo: 0, hi: 1 }, unit: LAB_UNIT_BY_MED[id] || null };
+  return { group:"other", kind, id, label: ch, color:"#888", unit: null };
 }
 function histEventAge(ev){
   if (ev.age != null) return ev.age;
@@ -7807,7 +7759,7 @@ function latestHistEventAge(){
   return m;
 }
 function histVal(v){ return (typeof v === "number" && !Number.isInteger(v)) ? (+v).toFixed(1) : String(v); }
-function histClampLabel(s){ return s.length > 16 ? s.slice(0, 15) + "…" : s; }
+function histClampLabel(s){ return s.length > 14 ? s.slice(0, 13) + "…" : s; }
 // Numeric value for PLOTTING a step event — a categorical exposure (smokingStatus: never/former/current) maps
 // to an ordinal level so it draws (the raw category is still shown as the text label). Without this a string
 // value yields NaN coordinates and the glyph renders invisibly.
@@ -7838,13 +7790,13 @@ function renderHistoryTimeline(sim){
     for (let a = Math.ceil(AGE0 / 10) * 10; a <= xMax + 1e-6; a += 10) {
       const x = xOf(a);
       el("line", { x1: x, y1: HIST.t, x2: x, y2: H - HIST.b, stroke: "#f0f0f2" }, frag);
-      el("text", { x, y: H - HIST.b + 15, "text-anchor": "middle", "font-size": "11", fill: "#888" }, frag).textContent = a;
-      if (birthYear != null) el("text", { x, y: HIST.t - 16, "text-anchor": "middle", "font-size": "10", fill: "#bbb" }, frag).textContent = birthYear + a;
+      el("text", { x, y: H - HIST.b + 16, "text-anchor": "middle", "font-size": "13", fill: "#888" }, frag).textContent = a;
+      if (birthYear != null) el("text", { x, y: HIST.t - 18, "text-anchor": "middle", "font-size": "12", fill: "#bbb" }, frag).textContent = birthYear + a;
     }
-    el("text", { x: HIST.l + plotW / 2, y: H - 5, "text-anchor": "middle", "font-size": "11", fill: "#888" }, frag).textContent = birthYear != null ? "age  ·  calendar year above" : "age";
+    el("text", { x: HIST.l + plotW / 2, y: H - 6, "text-anchor": "middle", "font-size": "13", fill: "#888" }, frag).textContent = birthYear != null ? "age  ·  calendar year above" : "age";
     const ca = effAge(), cx = xOf(ca);
     el("line", { x1: cx, y1: HIST.t - 4, x2: cx, y2: H - HIST.b, stroke: "#e67e22", "stroke-width": "1.6", "stroke-dasharray": "3,2" }, frag);
-    el("text", { x: cx, y: HIST.t - 6, "text-anchor": "middle", "font-size": "10", fill: "#e67e22" }, frag).textContent = "now (" + ca + ")";
+    el("text", { x: cx, y: HIST.t - 6, "text-anchor": "middle", "font-size": "12", fill: "#e67e22" }, frag).textContent = "now (" + ca + ")";
     if (!channels.length) {
       el("text", { x: HIST.l + plotW / 2, y: HIST.t + 44, "text-anchor": "middle", "font-size": "13", fill: "#999" }, frag).textContent =
         "No events yet — use the buttons above to add exposures, treatments, interventions, or lab measurements over time.";
@@ -7859,7 +7811,9 @@ function renderHistoryTimeline(sim){
         const p = svgPointFromEvent(svg, evt);
         addHistEventToChannel(ch, clampAge(AGE0 + ((p.x - HIST.l) / plotW) * (xMax - AGE0)));
       });
-      el("text", { x: HIST.l - 6, y: yMid + 3, "text-anchor": "end", "font-size": "11", fill: meta.color }, frag).textContent = histClampLabel(meta.label);
+      const _lt = el("text", { x: HIST.l - 6, y: yMid + 4, "text-anchor": "end", "font-size": "13", fill: meta.color }, frag);
+      _lt.textContent = histClampLabel(meta.label);
+      el("title", {}, _lt).textContent = meta.label;   // full name on hover (the lane label is space-truncated)
       const evs = byCh[ch].slice().sort((a, b) => histEventAge(a) - histEventAge(b));
       const glyph = (tag, attrs) => {                                // clickable event marker; selected = darker/thicker
         const sel = attrs["data-id"] === historySelectedId;
@@ -7880,7 +7834,7 @@ function renderHistoryTimeline(sim){
           if (py != null) el("line", { x1: x, y1: py, x2: x, y2: y, stroke: meta.color, "stroke-width": "1.5" }, frag);
           el("line", { x1: x, y1: y, x2: Math.max(xEnd, x), y2: y, stroke: meta.color, "stroke-width": "1.9" }, frag);
           glyph("circle", { cx: x, cy: y, r: "3.6", fill: "#fff", stroke: meta.color, "stroke-width": "1.8", "data-id": ev.id });
-          el("text", { x: x + 5, y: y - 4, "font-size": "9.5", fill: meta.color }, frag).textContent = histVal(ev.value);
+          el("text", { x: x + 5, y: y - 4, "font-size": "11", fill: meta.color }, frag).textContent = histVal(ev.value);
           py = y;
         });
       } else if (meta.group === "intervention") {
@@ -7891,7 +7845,7 @@ function renderHistoryTimeline(sim){
           } else {
             const sa = ev.startAge ?? ev.age ?? AGE0, ea = ev.endAge ?? xMax;
             glyph("rect", { x: xOf(sa), y: y0 + 5, width: Math.max(3, xOf(ea) - xOf(sa)), height: HIST.laneH - 10, fill: meta.color, "fill-opacity": "0.32", stroke: meta.color, "data-id": ev.id });
-            el("text", { x: xOf(sa) + 4, y: yMid + 3, "font-size": "9.5", fill: meta.color }, frag).textContent = Math.round((ev.efficacy ?? 1) * 100) + "%";
+            el("text", { x: xOf(sa) + 4, y: yMid + 4, "font-size": "11", fill: meta.color }, frag).textContent = Math.round((ev.efficacy ?? 1) * 100) + "%";
           }
         });
       } else if (meta.group === "biomarker") {
@@ -7902,9 +7856,9 @@ function renderHistoryTimeline(sim){
         const pad = (hi - lo) * 0.05 || 1; lo -= pad; hi += pad;
         const yOfV = v => y0 + HIST.laneH - 3 - ((v - lo) / ((hi - lo) || 1)) * (HIST.laneH - 6);
         if (lane) { let d = ""; for (let a = AGE0; a <= xMax; a += 2) { const v = lane[Math.round(a - AGE0)]; if (v == null) continue; d += (d ? "L" : "M") + xOf(a).toFixed(1) + "," + yOfV(v).toFixed(1); } if (d) el("path", { d, fill: "none", stroke: meta.color, "stroke-width": "1", "stroke-opacity": "0.4" }, frag); }
-        el("text", { x: HIST.l + 2, y: y0 + 9, "font-size": "8.5", fill: "#bbb" }, frag).textContent = hi.toFixed(hi < 20 ? 1 : 0);
-        el("text", { x: HIST.l + 2, y: y0 + HIST.laneH - 2, "font-size": "8.5", fill: "#bbb" }, frag).textContent = lo.toFixed(lo < 20 ? 1 : 0);
-        evs.forEach(ev => { const x = xOf(ev.age), y = yOfV(+ev.value); glyph("circle", { cx: x, cy: y, r: "3.9", fill: meta.color, stroke: "#fff", "stroke-width": "1.4", "data-id": ev.id }); el("text", { x: x + 5, y: y - 4, "font-size": "9.5", fill: meta.color }, frag).textContent = histVal(ev.value); });
+        el("text", { x: HIST.l + 2, y: y0 + 10, "font-size": "10", fill: "#bbb" }, frag).textContent = hi.toFixed(hi < 20 ? 1 : 0);
+        el("text", { x: HIST.l + 2, y: y0 + HIST.laneH - 2, "font-size": "10", fill: "#bbb" }, frag).textContent = lo.toFixed(lo < 20 ? 1 : 0);
+        evs.forEach(ev => { const x = xOf(ev.age), y = yOfV(+ev.value); glyph("circle", { cx: x, cy: y, r: "3.9", fill: meta.color, stroke: "#fff", "stroke-width": "1.4", "data-id": ev.id }); el("text", { x: x + 5, y: y - 4, "font-size": "11", fill: meta.color }, frag).textContent = histVal(ev.value); });
       }
     });
     setViewBox(); svg.replaceChildren(frag);
@@ -7954,6 +7908,10 @@ function defaultHistValue(meta, age, sim){
   if (meta.id === "smokingStatus") return "current";
   if (meta.group === "biomarker"){ const lane = sim && sim.medValues && sim.medValues[meta.id]; const v = lane ? lane[Math.round(age - AGE0)] : null; return v != null ? +(+v).toFixed(meta.id === "HbA1c" ? 1 : 0) : (meta.range.lo + meta.range.hi) / 2; }
   if (meta.group === "treatment") return 1;
+  if (meta.kind === "lifestyle"){   // extrinsic-risk multiplier: carry the prior value, else population baseline ×1.0
+    const prior = state.timeline.events.filter(e => e.channel === ("lifestyle:" + meta.id) && e.age != null && e.age <= age).sort((a, b) => b.age - a.age)[0];
+    return prior ? prior.value : 1.0;
+  }
   if (meta.group === "exposure"){
     const prior = state.timeline.events.filter(e => e.channel === ("input:" + meta.id) && e.age != null && e.age <= age).sort((a, b) => b.age - a.age)[0];
     if (prior) return prior.value;
@@ -7968,10 +7926,13 @@ function syncHistoryEditor(){
   const ev = historySelectedId ? findHistEvent(historySelectedId) : null;
   if (!ev){ box.innerHTML = '<span style="color:var(--muted)">Click an event to edit it · click an empty lane to add to that channel · or use the “+ Add” bar above.</span>'; return; }
   const meta = histChannelMeta(ev.channel);
-  const numF = (label, key, val, step) => `<label style="margin-left:8px;white-space:nowrap">${label} <input type="number" data-k="${key}" value="${val == null ? "" : val}" step="${step}" style="width:72px"></label>`;
-  let html = `<b style="color:${meta.color}">${meta.label}</b>`;
+  const numF = (label, key, val, step) => `<label style="white-space:nowrap">${label} <input type="number" data-k="${key}" value="${val == null ? "" : val}" step="${step}" style="width:72px"></label>`;
+  // The (possibly long) channel/node name goes on its OWN line; the fields sit below in a flex-wrap row so a
+  // long name like "Altered intercellular communication" can't push the inputs off the panel edge.
+  let html = `<div style="margin-bottom:5px"><b style="color:${meta.color}">${meta.label}</b></div>`;
+  let fields = "";
   if (meta.kind === "intervention"){
-    html += numF("start age", "startAge", ev.startAge, 1) + numF("end age (blank=ongoing)", "endAge", ev.endAge, 1) + numF("efficacy 0–1", "efficacy", ev.efficacy, 0.05);
+    fields += numF("start age (yr)", "startAge", ev.startAge, 1) + numF("end age (yr, blank=ongoing)", "endAge", ev.endAge, 1) + numF("strength 0–1 (slow fraction)", "efficacy", ev.efficacy, 0.05);
   } else if (meta.kind === "operator"){
     const preset = OPERATOR_PRESETS.find(p => p.id === meta.id) || {};
     const sc = ev.scenario || {};
@@ -7979,15 +7940,22 @@ function syncHistoryEditor(){
     const rbKeys = Object.keys(preset.reboundHalfLifeScenariosYears || {});
     const curKill = sc.killScenario || preset.defaultKillScenario;
     const curRb = sc.reboundScenario || preset.defaultReboundScenario;
-    html += `<label style="margin-left:8px">dosing ages <input type="text" data-k="ages" value="${(ev.ages || []).join(",")}" style="width:110px" placeholder="60,61"></label>`;
-    if (killKeys.length) html += `<label style="margin-left:8px">kill <select data-k="killScenario">${killKeys.map(kk => `<option value="${kk}"${kk === curKill ? " selected" : ""}>${kk} (${Math.round(preset.killFractionScenarios[kk] * 100)}%)</option>`).join("")}</select></label>`;
-    if (rbKeys.length) html += `<label style="margin-left:8px">rebound &frac12;-life <select data-k="reboundScenario">${rbKeys.map(rk => `<option value="${rk}"${rk === curRb ? " selected" : ""}>${rk} (${preset.reboundHalfLifeScenariosYears[rk]}y)</option>`).join("")}</select></label>`;
+    fields += `<label style="white-space:nowrap">dosing ages <input type="text" data-k="ages" value="${(ev.ages || []).join(",")}" style="width:110px" placeholder="60,61"></label>`;
+    if (killKeys.length) fields += `<label style="white-space:nowrap">kill <select data-k="killScenario">${killKeys.map(kk => `<option value="${kk}"${kk === curKill ? " selected" : ""}>${kk} (${Math.round(preset.killFractionScenarios[kk] * 100)}%)</option>`).join("")}</select></label>`;
+    if (rbKeys.length) fields += `<label style="white-space:nowrap">rebound &frac12;-life <select data-k="reboundScenario">${rbKeys.map(rk => `<option value="${rk}"${rk === curRb ? " selected" : ""}>${rk} (${preset.reboundHalfLifeScenariosYears[rk]}y)</option>`).join("")}</select></label>`;
   } else if (meta.id === "smokingStatus"){
-    html += numF("age", "age", ev.age, 1) + `<label style="margin-left:8px">status <select data-k="value"><option ${ev.value === "never" ? "selected" : ""}>never</option><option ${ev.value === "former" ? "selected" : ""}>former</option><option ${ev.value === "current" ? "selected" : ""}>current</option></select></label>`;
+    fields += numF("age (yr)", "age", ev.age, 1) + `<label style="white-space:nowrap">status <select data-k="value"><option ${ev.value === "never" ? "selected" : ""}>never</option><option ${ev.value === "former" ? "selected" : ""}>former</option><option ${ev.value === "current" ? "selected" : ""}>current</option></select></label>`;
   } else {
-    html += numF("age", "age", ev.age, 1) + numF(meta.group === "biomarker" ? "measured" : "value", "value", ev.value, meta.group === "treatment" ? 0.1 : 1);
+    // value-field label carries the channel's UNIT (what the old sliders showed): "value (min/week MVPA)",
+    // "measured (mg/dL)", "dose (dose 0–1)", or the extrinsic-risk × multiplier.
+    let valLabel;
+    if (meta.kind === "lifestyle") valLabel = "× extrinsic risk (1 = pop. avg)";
+    else { const base = meta.group === "biomarker" ? "measured" : (meta.group === "treatment" ? "dose" : "value"); valLabel = meta.unit ? `${base} (${meta.unit})` : base; }
+    const valStep = (meta.group === "treatment" || meta.kind === "lifestyle") ? 0.1 : 1;
+    fields += numF("age (yr)", "age", ev.age, 1) + numF(valLabel, "value", ev.value, valStep);
   }
-  html += ` <button data-act="del" style="margin-left:10px;cursor:pointer">Delete</button>`;
+  fields += `<button data-act="del" style="cursor:pointer">Delete</button>`;
+  html += `<div style="display:flex; flex-wrap:wrap; gap:5px 12px; align-items:center;">${fields}</div>`;
   box.innerHTML = html;
   box.querySelectorAll("input,select").forEach(inp => {
     inp.addEventListener("change", () => commitEditorField(ev.id, inp));
@@ -8021,7 +7989,7 @@ function commitEditorField(id, inp){
     ev.scenario = Object.assign({}, ev.scenario); ev.scenario[k] = raw;   // {killScenario, reboundScenario}
   } else if (k === "value") {
     if (meta.id === "smokingStatus") ev.value = raw;
-    else { const n = +raw; if (Number.isFinite(n)) ev.value = (meta.group === "treatment") ? Math.max(0, n) : n; }   // dose ≥ 0; keep prior on garbage
+    else { const n = +raw; if (Number.isFinite(n)) ev.value = (meta.group === "treatment" || meta.kind === "lifestyle") ? Math.max(0, n) : n; }   // dose / extrinsic-mult ≥ 0; keep prior on garbage
   } else if (k === "age" || k === "startAge") {
     const n = +raw; if (Number.isFinite(n)) { ev[k] = clampAge(n); if (k === "age") mergeHistCollision(ev); if (k === "startAge") fixHistWindow(ev); }
   }
@@ -8035,24 +8003,27 @@ function fixHistWindow(ev){
   const sa = clampAge(ev.startAge);
   if (ev.endAge <= sa) ev.endAge = sa < AGE1 ? Math.min(AGE1, sa + 1) : null;
 }
-// "+ Add" toolbar (type → channel → add at now). Built once at boot.
+// "+ Add" toolbar (type → channel → add). Built once at boot.
 function buildHistoryAddBar(){
   const bar = document.getElementById("historyAddBar");
   if (!bar) return;
   const typeSel = document.createElement("select");
-  [["exposure", "Exposure / lifestyle"], ["treatment", "Pharmacotherapy"], ["intervention", "Node freeze / slow"], ["biomarker", "Lab measurement"]].forEach(([v, l]) => { const o = document.createElement("option"); o.value = v; o.textContent = l; typeSel.appendChild(o); });
+  [["exposure", "Exposure / lifestyle"], ["treatment", "Pharmacotherapy"], ["intervention", "Node override"], ["biomarker", "Lab measurement"]].forEach(([v, l]) => { const o = document.createElement("option"); o.value = v; o.textContent = l; typeSel.appendChild(o); });
   const idSel = document.createElement("select"); idSel.style.maxWidth = "220px";
-  const addBtn = document.createElement("button"); addBtn.textContent = "+ Add at now"; addBtn.style.cursor = "pointer";
+  const addBtn = document.createElement("button"); addBtn.textContent = "+ Add";
+  addBtn.style.cssText = "cursor:pointer; background:#1e8449; color:#fff;";   // green fill only — keep the native button size
+  // Channel → dropdown label WITH unit (matching the old sliders' unit display), via histChannelMeta.
+  const optFor = (ch) => { const m = histChannelMeta(ch); return [ch, m.unit ? `${m.label} (${m.unit})` : m.label]; };
   const fillIds = () => {
-    idSel.innerHTML = ""; const t = typeSel.value; let opts = [];
-    if (t === "exposure") opts = PANEL_INPUT_IDS.map(id => ["input:" + id, (EXO_BY_ID[id] ? EXO_BY_ID[id].label : id)]);
-    else if (t === "treatment") opts = [   // Pharmacotherapy = continuous treatments (statin/metformin…) + scheduled operators (senolytics)
-      ...(((B && B.treatments) || []).map(tx => ["treatment:" + tx.id, tx.id])),
-      ...OPERATOR_PRESETS.map(p => ["operator:" + p.id, p.label])
+    idSel.innerHTML = ""; const t = typeSel.value; let chans = [];
+    if (t === "exposure") chans = ["lifestyle:extrinsic", ...PANEL_INPUT_IDS.map(id => "input:" + id)];   // M7: extrinsic-risk multiplier (former slider) lives under the exposure type
+    else if (t === "treatment") chans = [   // Pharmacotherapy = continuous treatments (statin/metformin…) + scheduled operators (senolytics)
+      ...(((B && B.treatments) || []).map(tx => "treatment:" + tx.id)),
+      ...OPERATOR_PRESETS.map(p => "operator:" + p.id)
     ];
-    else if (t === "intervention") opts = NODES.filter(n => n.provenance !== "stub").map(n => ["intervention:" + n.id, n.label]);   // all freeze-editable nodes (tier hallmarks + phenotype drivers/causes) — same set the engine already freezes via the graph tab
-    else if (t === "biomarker") opts = LAB_FIELDS.map(f => ["biomarker:" + f.med, f.label]);
-    opts.forEach(([ch, l]) => { const o = document.createElement("option"); o.value = ch; o.textContent = l; idSel.appendChild(o); });
+    else if (t === "intervention") chans = NODES.filter(n => n.provenance !== "stub").map(n => "intervention:" + n.id);   // all freeze-editable nodes (tier hallmarks + phenotype drivers/causes) — same set the engine already freezes via the graph tab
+    else if (t === "biomarker") chans = LAB_FIELDS.map(f => "biomarker:" + f.med);
+    chans.map(optFor).forEach(([ch, l]) => { const o = document.createElement("option"); o.value = ch; o.textContent = l; idSel.appendChild(o); });
   };
   typeSel.addEventListener("change", fillIds); fillIds();
   addBtn.addEventListener("click", () => { if (idSel.value) addHistEventToChannel(idSel.value, effAge()); });
@@ -8074,7 +8045,7 @@ function renderImportReport(report){
     return;
   }
   const L = report.loaded || {};
-  line(`Loaded: ${L.measurements||0} measurements · ${L.treatments||0} treatments · ${L.exposures||0} exposures · ${L.nodeInterventions||0} node-freezes · ${L.operators||0} operators`, report.ok ? "#1e8449" : "#b9770e");
+  line(`Loaded: ${L.measurements||0} measurements · ${L.treatments||0} treatments · ${L.exposures||0} exposures · ${L.nodeInterventions||0} node overrides · ${L.operators||0} operators${L.events ? ` · ${L.events} settings-events` : ""}`, report.ok ? "#1e8449" : "#b9770e");
   if ((report.errors||[]).length){ line(`${report.errors.length} entr${report.errors.length===1?"y":"ies"} skipped (errors):`, "#c0392b"); report.errors.forEach(e => line("  ✗ " + e, "#c0392b")); }
   if ((report.warnings||[]).length){ line(`${report.warnings.length} warning(s):`, "#b9770e"); report.warnings.forEach(w => line("  ⚠ " + w, "#b9770e")); }
   if ((report.unmapped||[]).length){ line("Unmapped analytes (kept as annotation, not drivers): " + report.unmapped.join(", "), "#7f8c8d"); }
@@ -8114,6 +8085,10 @@ function importHistoryBundle(text){
       state.timeline.birthDate = res.birthDate;
       const bdEl = document.getElementById("birthDate"); if (bdEl) bdEl.value = res.birthDate;
       if (!syncCurrentAgeFromBirthDate()) _appendReportLine("⚠ birth date did not yield a valid current age (future-dated?) — 'now' cursor unchanged.", "#b9770e");
+    } else {
+      state.timeline.birthDate = null;
+      const bdEl = document.getElementById("birthDate"); if (bdEl) bdEl.value = "";
+      if (res.currentAge != null){ state.currentAge = res.currentAge; syncAgeFields(); }   // no DOB → restore "now" from the bundle's currentAge
     }
     setSexFromBundle(res.sex);
     renderAll();
@@ -8134,6 +8109,7 @@ function buildHistoryImporter(){
   const panel = document.getElementById("historyImportPanel");
   const fileInput = document.getElementById("historyFile");
   const fileBtn = document.getElementById("historyLoadFile");
+  const exampleBtn = document.getElementById("historyLoadExample");
   if (toggle && panel) toggle.addEventListener("click", () => { panel.style.display = (panel.style.display === "none") ? "block" : "none"; });
   if (fileBtn && fileInput) fileBtn.addEventListener("click", () => {
     const f = fileInput.files && fileInput.files[0];
@@ -8144,6 +8120,70 @@ function buildHistoryImporter(){
     reader.onerror = () => { if (gen !== _historyImportGen) return; renderImportReport({ aborted: true, errors: ["could not read the file"] }); };
     reader.readAsText(f);
   });
+  // "Load example" — the built-in fictional demo bundle (inlined by build-app.mjs; no network). Same import
+  // path as a file load (replace-with-confirm, parse report). _historyImportGen bump supersedes any pending read.
+  if (exampleBtn) exampleBtn.addEventListener("click", () => {
+    if (typeof HISTORY_BUNDLE_EXAMPLE === "undefined"){ renderImportReport({ aborted: true, errors: ["built-in example is unavailable (rebuild with model/build-app.mjs)"] }); return; }
+    _historyImportGen++;
+    importHistoryBundle(JSON.stringify(HISTORY_BUNDLE_EXAMPLE));
+  });
+  // Export current settings → the SAME bundle schema "Load file" reads (faithful round-trip via the events[]
+  // passthrough). Download writes a file; Copy uses the clipboard with a textarea fallback (file:// / insecure
+  // contexts block navigator.clipboard). All client-side — nothing leaves the device.
+  const exportBtn = document.getElementById("historyExportFile");
+  if (exportBtn) exportBtn.addEventListener("click", downloadSettingsBundle);
+  const copyBtn = document.getElementById("historyCopy");
+  if (copyBtn) copyBtn.addEventListener("click", copySettingsBundle);
+}
+
+// Build a Load-file-compatible bundle from the CURRENT timeline state: native age-based events[] (lossless —
+// carries lifestyle + every channel), plus sex and birthDate (or currentAge when no birthDate is set).
+function exportSettingsBundle(){
+  const out = [];
+  for (const ev of timelineEvents()){                       // timelineEvents() resolves any date→age
+    const ci = ev.channel.indexOf(":"); const kind = ci < 0 ? ev.channel : ev.channel.slice(0, ci);
+    if (kind === "intervention"){ if (Number.isFinite(ev.startAge)) out.push({ channel: ev.channel, startAge: Math.round(ev.startAge), endAge: ev.endAge == null ? null : Math.round(ev.endAge), efficacy: ev.efficacy ?? 1 }); }
+    else if (kind === "operator"){ const ages = (ev.ages || []).filter(Number.isFinite).map(Math.round); if (ages.length) out.push(ev.scenario ? { channel: ev.channel, ages, scenario: ev.scenario } : { channel: ev.channel, ages }); }
+    else if (Number.isFinite(ev.age)) out.push({ channel: ev.channel, age: Math.round(ev.age), value: ev.value });
+  }
+  const bundle = { bundleVersion: 1, sex: state.sex, events: out };
+  if (state.timeline.birthDate) bundle.birthDate = state.timeline.birthDate;   // calendar axis + "now" derivation
+  else bundle.currentAge = effAge();                                           // no DOB → pin "now" explicitly
+  return bundle;
+}
+function _settingsReportLine(text, color){
+  const box = document.getElementById("historyImportReport");
+  if (!box) return; box.replaceChildren();
+  const d = document.createElement("div"); d.style.color = color || ""; d.textContent = text; box.appendChild(d);
+}
+function downloadSettingsBundle(){
+  const json = JSON.stringify(exportSettingsBundle(), null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = "aging-sim-settings.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+  _settingsReportLine("Downloaded aging-sim-settings.json (re-loadable via “Load file”).", "#1e8449");
+}
+function copySettingsBundle(){
+  const json = JSON.stringify(exportSettingsBundle(), null, 2);
+  const ok = () => _settingsReportLine("Settings copied to clipboard (re-loadable via “Load file”).", "#1e8449");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(json).then(ok, () => _copyFallback(json));
+  } else _copyFallback(json);
+}
+// file:// / insecure-context fallback: hidden-textarea execCommand, else show the JSON in a selectable box.
+function _copyFallback(json){
+  try {
+    const ta = document.createElement("textarea"); ta.value = json;
+    ta.style.cssText = "position:fixed; top:0; left:0; opacity:0;"; document.body.appendChild(ta); ta.focus(); ta.select();
+    const ok = document.execCommand && document.execCommand("copy"); ta.remove();
+    if (ok){ _settingsReportLine("Settings copied to clipboard (re-loadable via “Load file”).", "#1e8449"); return; }
+  } catch (_) { /* fall through to manual copy */ }
+  const box = document.getElementById("historyImportReport");
+  if (!box) return; box.replaceChildren();
+  const d = document.createElement("div"); d.style.color = "#b9770e"; d.textContent = "Couldn’t auto-copy (browser blocked it) — select & copy this JSON:"; box.appendChild(d);
+  const ta = document.createElement("textarea"); ta.value = json; ta.readOnly = true; ta.style.cssText = "width:100%; height:120px; font-size:11px; margin-top:4px;"; box.appendChild(ta); ta.focus(); ta.select();
 }
 
 function renderAll(){
@@ -8160,33 +8200,56 @@ function renderAll(){
   renderTimeline(sim, base);
   renderCauseOfDeath(sim, base);
   renderSurvival(sim, base);
-  updateInputDisabledStates();
-  updateTimelineOwnershipCues();
+  // (M7: the B-layer ownership/disable cues were retired with the Lifestyle & environment tab.)
 
-  const le = sim.LE;
-  document.getElementById("leVal").textContent = le.toFixed(1);
+  // Headline = survival-CONDITIONED expected age at death (given survival to today). The cohort-from-age-20
+  // number + the additive breakdown move to the lines below: headline = base.LE + everythingElse + survivalGain
+  //   base.LE        all-default baseline, cohort from age 20
+  //   everythingElse (sim.LE − base.LE)      what your interventions / lifestyle / lab anchors add (cohort scale)
+  //   survivalGain   (sim.LE_cond − sim.LE)  what you gain purely from having reached today (prunes dead branches)
+  // Falls back to the cohort number when LE_cond is unavailable (no current age). Uses effAge() so the readout
+  // matches the age the engine actually used.
+  const cohortLE = sim.LE;                                              // current scenario, from age 20
+  const headline = (sim.LE_cond != null) ? sim.LE_cond : cohortLE;
+  const survivalGain = (sim.LE_cond != null) ? Math.max(0, sim.LE_cond - cohortLE) : 0;
+  const everythingElse = cohortLE - base.LE;
+  // Display caps: the engine's closed-form tail (§3G) makes LE a TRUE life expectancy even when survival runs
+  // far past the array horizon — which can reach centuries (accident-limited) or ∞ (all modeled mortality
+  // zeroed). Past ~999 the number is false precision ("only accidents/residual left", not biology), so cap.
+  const fmtLE = (x) => !Number.isFinite(x) ? "∞" : x > 999 ? "999+" : x.toFixed(1);
+  const fmtDelta = (d) => !Number.isFinite(d) ? (d > 0 ? "+∞" : "−∞")
+                        : Math.abs(d) > 999 ? (d > 0 ? "+999+" : "−999+")
+                        : (d >= 0 ? "+" : "") + d.toFixed(1);
+
+  document.getElementById("leVal").textContent = fmtLE(headline);
+  // Headline label = "life expectancy" + the survival-conditioning gain (yrs gained purely from having reached
+  // today). The cohort-from-20 figure sits in leCond below; the vs-baseline effect sits in leDelta. The survival
+  // clause is shown only when the gain is finite (suppressed in the centuries/∞ regimes where it's moot).
+  let headLabel = "life expectancy";
+  if (sim.LE_cond != null && Number.isFinite(survivalGain) && survivalGain >= 0.05)
+    headLabel += ` · +${survivalGain.toFixed(1)} yrs from survival`;
+  document.getElementById("leValLabel").textContent = headLabel;
+
+  // leDelta = the "everything else" effect (interventions / lifestyle / lab anchors) vs the all-default baseline.
   const dEl = document.getElementById("leDelta");
-  const delta = le - base.LE;
-  if (Math.abs(delta) < 0.05){
+  if (Number.isFinite(everythingElse) && Math.abs(everythingElse) < 0.05){
     dEl.textContent = "(baseline)"; dEl.className = "le-delta zero";
-  } else if (delta > 0){
-    dEl.textContent = "+" + delta.toFixed(1) + " yrs"; dEl.className = "le-delta pos";
   } else {
-    dEl.textContent = delta.toFixed(1) + " yrs"; dEl.className = "le-delta neg";
+    dEl.textContent = fmtDelta(everythingElse) + " yrs vs baseline";
+    dEl.className = "le-delta " + (everythingElse > 0 ? "pos" : "neg");
   }
-  // M2: conditional-from-today LE (given survival to the current age) alongside the cohort number. Uses the
-  // effective (grid-snapped/clamped) age so the readout matches what the engine actually used. Surfaces a
-  // warning if a lab anchor did not resolve (solver non-convergence) instead of silently showing a wrong fit.
+
+  // leCond = the cohort-from-age-20 figure (before survival conditioning). The survival gain now sits next to
+  // the headline above, so it is not repeated here. Anchor-resolution warnings still surface here.
   const condEl = document.getElementById("leCond");
   if (condEl){
-    let t = (sim.LE_cond != null)
-      ? `≈ ${sim.LE_cond.toFixed(1)} yrs expected age at death, given you've reached ${effAge()}`
-      : "";
+    let t = `${fmtLE(cohortLE)} yrs cohort life expectancy (from age 20)`;
     if (!_anchorStatus.converged) t += `  ⚠ a lab anchor didn't resolve (residual ≈ ${_anchorStatus.maxMiss.toFixed(2)})`;
     else if (_anchorStatus.dropped && _anchorStatus.dropped.length) t += `  ⚠ ${_anchorStatus.dropped.length} lab anchor(s) ignored (not anchorable)`;
     condEl.textContent = t;
   }
-  // M3: the History & plan timeline renders LAST so any defect there can't blank the headline readouts above.
+  syncAgeFields();   // keep the #ageTop input in step with state.currentAge after any state change
+  // M3: the Biomarker & Intervention timeline renders LAST so any defect there can't blank the headline readouts above.
   renderHistoryTimeline(sim);
 }
 
@@ -8240,7 +8303,7 @@ function buildLegend(){
     `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="3"/></svg>high tractability${ib("tractHigh")}</span>` +
     `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.8"/></svg>moderate${ib("tractMod")}</span>` +
     `<span class="item"><svg width="22" height="14" style="display:inline-block;width:22px;height:14px;"><circle cx="11" cy="7" r="6" fill="#999" stroke="#333" stroke-width="1.5" stroke-dasharray="3,2"/></svg>low${ib("tractLow")}</span>` +
-    `<span class="item">&#10052; active freeze</span>` +
+    `<span class="item">&#10052; active override</span>` +
     "</div>";
   wrap.innerHTML = html;
   // Attach the tooltip handlers to each registered (i) bubble.
@@ -8264,23 +8327,7 @@ function buildLegend(){
     "Mortality is a sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; " +
     "female CVD-onset delay &amp; male external excess emerge from data), amplified by a " +
     "sarcopenia frailty multiplier; clonal-hematopoiesis is a driver with no own death line. " +
-    "The extrinsic channel (accidents / lifestyle) is non-cascading and scaled by the Lifestyle slider.";
-  info.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY, html));
-  info.addEventListener("mouseleave", hideTip);
-})();
-
-// (i) info tooltip on the Coupling slider — explains the deviation-propagation
-// gain and the (non-obvious) no-op-without-an-active-intervention behavior.
-(function wireCoupleInfo(){
-  const info = document.getElementById("coupleInfo");
-  if (!info) return;
-  const html =
-    "Global gain on how strongly a change at one node propagates <i>downstream</i> through the causal graph. " +
-    "The engine solves <code>D = prim + couple&middot;(G&middot;D)</code> and burden <code>B = clamp(T + D)</code>: " +
-    "<b>0</b> severs the edges (each node ages in isolation), <b>1.0</b> is the calibrated baseline, " +
-    "<b>2.0</b> doubles the cascade. " +
-    "<b>Note:</b> with no intervention active the primary deviation is 0, so the slider has no visible effect on the baseline &mdash; " +
-    "it only matters once you select a node and set a non-zero freeze/slow efficacy.";
+    "The extrinsic channel (accidents / lifestyle) is non-cascading and scaled by the Lifestyle / extrinsic-risk exposure on the timeline.";
   info.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY, html));
   info.addEventListener("mouseleave", hideTip);
 })();
@@ -8294,6 +8341,14 @@ document.querySelectorAll("#sexSeg button").forEach(btn => {
     invalidateBaseMedCache();        // baseline mediator cache is per-sex
     renderAll();
   });
+});
+
+const ageTopEl = document.getElementById("ageTop");
+if (ageTopEl) ageTopEl.addEventListener("input", () => {
+  const v = +ageTopEl.value;
+  if (!isFinite(v)) return;
+  state.currentAge = v;            // syncAgeFields() (in the readout) keeps the field in step with state
+  renderAll();
 });
 
 document.querySelectorAll("#codModeSeg button").forEach(btn => {
@@ -8323,15 +8378,16 @@ document.querySelectorAll("#tlGroupSeg button").forEach(btn => {
 
 // Modifiers-panel tab toggle: graph+intervention vs. B-layer (Lifestyle/Labs).
 // Both surfaces are always populated in the DOM; we only swap visibility.
+// Modifiers-panel tab toggle: graph (read-only viz + node selection) vs. Biomarker & Intervention timeline (the editor).
+// Factored so the graph→timeline "Add a node-freeze" jump can switch tabs programmatically.
+function switchModTab(tab){
+  document.querySelectorAll("#modTabSeg button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.querySelectorAll(".modtab-panel").forEach(p => { p.style.display = (p.id === "modtab-" + tab) ? "" : "none"; });
+  const gf = document.getElementById("graphFit"); if (gf) gf.style.display = (tab === "graph") ? "" : "none";  // Fit view is graph-only
+  if (tab === "timeline") renderHistoryTimeline(window._lastSim);   // ensure it draws when first revealed
+}
 document.querySelectorAll("#modTabSeg button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#modTabSeg button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    const tab = btn.dataset.tab;
-    document.querySelectorAll(".modtab-panel").forEach(p => { p.style.display = (p.id === "modtab-" + tab) ? "" : "none"; });
-    const gf = document.getElementById("graphFit"); if (gf) gf.style.display = (tab === "graph") ? "" : "none";  // Fit view is graph-only
-    if (tab === "timeline") renderHistoryTimeline(window._lastSim);   // ensure it draws when first revealed
-  });
+  btn.addEventListener("click", () => switchModTab(btn.dataset.tab));
 });
 // Birth date → calendar axis + date↔age conversion for timeline events (wired once at boot).
 {
@@ -8344,42 +8400,14 @@ document.querySelectorAll("#modTabSeg button").forEach(btn => {
   if (bdInput && bdInput.value) { state.timeline.birthDate = bdInput.value; syncCurrentAgeFromBirthDate(); }
 }
 
-const coupleSlider = document.getElementById("coupleSlider");
-coupleSlider.value = state.couple;
-document.getElementById("coupleVal").textContent = state.couple.toFixed(2);
-coupleSlider.addEventListener("input", () => {
-  state.couple = +coupleSlider.value;
-  document.getElementById("coupleVal").textContent = state.couple.toFixed(2);
-  renderAll();
-});
-
-const lifestyleSlider = document.getElementById("lifestyleSlider");
-function lifestyleLabel(v){
-  if (v < 0.5)  return "low-risk";
-  if (v < 1.5)  return "US avg";
-  if (v < 4)    return "elevated";
-  return "high-risk";
+// M7: the graph "Selected node" panel — jump to the timeline and pre-fill a node-freeze for the selected node.
+{
+  const jumpB = document.getElementById("addFreezeToTimeline");
+  if (jumpB) jumpB.addEventListener("click", addSelectedNodeFreezeToTimeline);
 }
-function syncLifestyleVal(){
-  document.getElementById("lifestyleVal").textContent =
-    "×" + state.lifestyle.toFixed(1) + " (" + lifestyleLabel(state.lifestyle) + ")";
-}
-lifestyleSlider.value = state.lifestyle;
-syncLifestyleVal();
-lifestyleSlider.addEventListener("input", () => {
-  state.lifestyle = +lifestyleSlider.value;
-  syncLifestyleVal();
-  renderAll();
-});
-
-document.getElementById("startSlider").addEventListener("input", applyIntervFromControls);
-document.getElementById("effSlider").addEventListener("input", applyIntervFromControls);
-document.getElementById("clearNode").addEventListener("click", () => {
-  if (state.selected) delete state.interventions[state.selected];
-  syncIntervControls();
-  renderAll();
-});
 document.getElementById("resetAll").addEventListener("click", () => {
+  // M7: the coupling + lifestyle sliders and the B-layer controls were retired; state.couple/state.lifestyle
+  // remain as the engine's scalar fallbacks (1.0 = baseline), driven now only by the timeline.
   state.interventions = {};
   state.couple = MODEL.meta.couple;
   state.lifestyle = 1.0;
@@ -8395,16 +8423,11 @@ document.getElementById("resetAll").addEventListener("click", () => {
     if (id === "smokingStatus") return;
     state.inputs[id] = EXO_BY_ID[id].populationMean;
   });
-  coupleSlider.value = state.couple;
-  document.getElementById("coupleVal").textContent = state.couple.toFixed(2);
-  lifestyleSlider.value = state.lifestyle;
-  syncLifestyleVal();
   const bdEl = document.getElementById("birthDate"); if (bdEl) bdEl.value = "";
   // M4.2: clear the importer UI + report (don't leave bundle data sitting in the DOM); invalidate any in-flight read
   _historyImportGen++;
   const fEl = document.getElementById("historyFile"); if (fEl) fEl.value = "";
   const rEl = document.getElementById("historyImportReport"); if (rEl) rEl.replaceChildren();
-  buildBlayerControls();
   syncIntervControls();
   syncHistoryEditor();
   renderAll();
@@ -8419,15 +8442,16 @@ document.getElementById("resetAll").addEventListener("click", () => {
     const t = sim.T[node.id], b = sim.B[node.id];
     for (let k = 0; k < N_AGE; k++) maxDev = Math.max(maxDev, Math.abs(b[k] - t[k]));
   }
-  const okNodes = (NODES.length === 23);
+  const okNodes = (NODES.length === 24);
   const okEdges = (MODEL.edges.filter(e => e.kind === "coupling").length === 38); // unified MODEL.edges; 38 coupling
   const okVer = (MODEL.meta.version === "v0.5");
   // graph-completeness: every cause-of-death node must have a DRIVER drawn (≥1 inbound
   // non-terminal edge). Catches a cause whose upstream coupling lives only in the engine
   // (e.g. the frailty multiplier) and isn't emitted into the unified graph.
+  // Exception: residual-aging is definitionally driverless (it IS the unmodeled remainder).
   const _inb = {};
   UNI.edges.forEach(e => { if (e.cat !== "terminal") _inb[e.to] = (_inb[e.to] || 0) + 1; });
-  const _undriven = NODES.filter(n => n.role === "mortality-cause" && !_inb[n.id]).map(n => n.id);
+  const _undriven = NODES.filter(n => n.role === "mortality-cause" && n.id !== "residual-aging" && !_inb[n.id]).map(n => n.id);
   const okGraph = _undriven.length === 0;
   const leM = simulate(MODEL, { sex: "male" }).LE;
   const leF = simulate(MODEL, { sex: "female" }).LE;
@@ -8449,7 +8473,6 @@ document.getElementById("resetAll").addEventListener("click", () => {
 buildLegend();
 buildCodLegend();
 buildTimelineLegend();
-buildBlayerControls();
 syncIntervControls();
 buildHistoryAddBar();      // M3: the timeline "+ Add" toolbar (wired once)
 buildHistoryImporter();    // M4.2: the history-bundle import strip (wired once)

@@ -36,7 +36,7 @@ export function extractModelJson(mdText) {
 function main() {
   const md = readFileSync(MD_PATH, "utf8");
   const model = extractModelJson(md);
-  // Sanity: v0.5, 23 nodes (22 + frailty-mortality Op-B 2026-06-11), 38 edges.
+  // Sanity: v0.5, 24 nodes (23 + residual-aging Op-B 2026-06-15), 38 edges.
   const v = model.meta?.version;
   const nNodes = model.nodes?.length;
   const nEdges = model.edges?.length;
@@ -45,7 +45,7 @@ function main() {
     `Wrote ${OUT_PATH}\n  version=${v}  nodes=${nNodes}  edges=${nEdges}\n`
   );
   if (v !== "v0.5") console.warn(`WARN: expected version v0.5, got ${v}`);
-  if (nNodes !== 23) console.warn(`WARN: expected 23 nodes, got ${nNodes}`);
+  if (nNodes !== 24) console.warn(`WARN: expected 24 nodes, got ${nNodes}`);
   // MODEL.edges is the unified graph (coupling|mediator|cause|augment|frailty). The
   // hallmark-coupling subgraph should hold 38 edges; total grows with the B-layer.
   const nCoupling = (model.edges || []).filter((e) => e.kind === "coupling").length;

@@ -73,6 +73,7 @@ The ARE-regulated gene battery includes the principal cytoprotective programs:
 | Category | Key targets |
 |----------|------------|
 | Glutathione synthesis | GCLC, GCLM (rate-limiting step), GSR, GSTM1, GSTP1 |
+| Cystine import | [[slc7a11]] / xCT (system xc⁻ light chain; supplies cystine for GSH synthesis; directly ARE-regulated → ferroptosis resistance) |
 | Thioredoxin system | TXN1, TXNRD1 |
 | NADPH generation | G6PD, IDH1, ME1 |
 | Oxidant removal | NQO1, HO-1 (HMOX1), PRDX1, SOD2 |

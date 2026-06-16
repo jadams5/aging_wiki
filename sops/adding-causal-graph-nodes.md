@@ -168,8 +168,9 @@ Every change is gated on these. `model/test.mjs` pins both.
 2. **No age-pegging.** Age is a *verification* target, never an input to a rate. A new driver
    (Op C) accumulates as `∫ rate(upstream inputs) dt`; its age-correlation must **emerge** from the
    integral (copy `ecm-crosslink` = ∫coeff·HbA1c, `beta-cell-decline` = ∫intrinsic+glucotox). The
-   only permitted age-keyed term is the **explicit, labeled residual** (`mortality.residual`), and
-   the residual discipline below bounds even that.
+   only permitted age-keyed term is the **explicit, labeled residual** — now the freezable
+   `residual-aging` reserve-depletion cause node (converted from `mortality.residual` 2026-06-15;
+   see `model/residual-cause-node-design.md`) — and the residual discipline below bounds even that.
 
 ---
 
@@ -220,8 +221,9 @@ Same evidence discipline as the wiki itself — wiki-first, then literature, the
 > burden `curve.byAge/.female`, and `cdc:` string.
 >
 > **Residual recompute — DENSE, via the engine (exact; no decade-subtraction, no >90 special case).**
-> `mortality.residual.byAgePerYear` is a per-integer-age table (20→130). Recompute it so total hazard
-> is unchanged at every integer age:
+> Since 2026-06-15 the residual is the `residual-aging` reserve-depletion CAUSE NODE, not a raw
+> `mortality.residual` table. First recompute the dense per-integer-age residual *rate* (20→130) so total
+> hazard is unchanged at every integer age:
 > `residual_new(age) = old_total_hazard(age) − new_nonresidual_hazard(age)`,
 > the robust way being to **run the engine**: `simulate()` the PRE-fold params and the POST-fold
 > params at baseline (sex only), then for each age `k`:
@@ -231,6 +233,12 @@ Same evidence discipline as the wiki itself — wiki-first, then literature, the
 > arrays in the json block (see `/tmp/fix_residual.mjs` for the reference script). Verify: re-simulate
 > ⇒ baseline LE == pre-fold LE to ~1e-9. **Batching:** fold several bands, then recompute the dense
 > residual ONCE against the pre-batch baseline.
+>
+> **Then write it to the NODE, not a table:** `Rmax_res = residual_new(90)`; per-year `B_res(age) =
+> h/(1+h)` with `h = residual_new(age)/Rmax_res`; store `B_res` in the `residual-aging` node's
+> `curve.byAge` (male) + `curve.female.byAge`, and `Rmax_res` in `mortality.causes.residual.RmaxPerYear`.
+> The odds link `Rmax_res·B_res/(1−B_res)` reproduces `residual_new(age)` exactly (B_res(90)=0.5). Each
+> partition fold thus also regenerates the residual node (it shrinks as mass is attributed elsewhere).
 
 > **The vascular-misfiling trap:** mesenteric/intestinal infarction (K55) sits in the *digestive*
 > ICD chapter but is **vascular** — it folds into cardiovascular, not a digestive bucket. Partition
@@ -249,7 +257,9 @@ Steps 2-5 of Op A, plus:
 - Add the cause key to `CAUSE_KEYS` in `engine.mjs` (residual stays last).
 - Add a per-cause frailty β to `mortality.frailty.betaByCause` (default: reuse the residual's β to
   stay LE-invariant; a cause-specific Peng-2022 HR is a deliberate, re-baselined improvement).
-- Wire ≥1 upstream edge (§5) — a cause node with no driver is just a relabeled residual slice.
+- Wire ≥1 upstream edge (§5) — a cause node with no driver is just a relabeled residual slice. **Sole
+  exception: `residual-aging`**, which IS the unmodeled remainder and is definitionally driverless; the
+  app graph-completeness self-check exempts it by id (see `model/residual-cause-node-design.md` §8/Rev 1).
 
 ---
 
