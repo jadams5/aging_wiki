@@ -3006,7 +3006,10 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           1.9
         ]
       ],
-      "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Stage 3c (2026-06-10) PLATEAU refinement at the high-volume end (see below). Activity's mortality benefit flows through cardiorespiratory fitness (VO2max), weight- AND glucose-independent (Barry 2014: obese-fit ~ normal-fit). mult_allcause = exp(-0.139 * dMETs(activity)), RR 0.87 per MET (Kodama 2009) => beta = ln(0.87) = -0.139. Applied to the WHOLE intrinsic bracket (all causes + residual), at the frailty-multiplier site (target 'allcause'). dMETs = MET-deviation of the activity level from population-average activity (physicalActivity popMean 150 min/wk -> dMETs 0 -> mult 1, baseline preserved). metMap is an ILLUSTRATIVE piecewise-linear map on physicalActivity (min/wk MVPA) -> METs-relative-to-popMean: sedentary(0)=-1.5, below-avg(75)=-0.5, popMean(150)=0, moderate(300)=+1.0, high(450)=+1.6, athlete(600)=+1.9; range -1.5..+1.9 spans sedentary<->athlete (a sedentary->trained shift is ~+1.1 MET in the data). PLATEAU (Stage 3c): the map now DECELERATES above 300 min/wk (slope 0.0067 METs/min over 150-300, 0.0040 over 300-450, 0.0020 over 450-600) rather than the prior near-linear climb to +2.5 at 600. Rationale: the dose-response to ALL-CAUSE MORTALITY flattens beyond ~3-5x guideline volume (Arem 2015, pooled 6 US cohorts n>650k: benefit flattens beyond 3-5x guidelines, NO increased risk at >10x => the J-curve/reverse-J concern for extreme exercise is NOT supported for mortality) while cardiorespiratory FITNESS itself has no demonstrated upper benefit limit (Mandsager 2018, n=122k: elite fitness beats high fitness). The deceleration encodes the DIMINISHING-RETURNS of activity-VOLUME->fitness (each added weekly minute buys less VO2max at the top), keeping the curve MONOTONIC (no upturn). Deliberately NOT a U-shape: the genuine extreme-endurance harms (atrial fibrillation ~2-5x, elevated but stable coronary-artery-calcium) are MORBIDITY endpoints not captured by this all-cause-mortality channel; the small Schnohr 2015 strenuous-jogger subgroup mortality signal (n~40, wide CI) did not replicate in the large cohorts. Consistent with interventions/lifestyle/exercise.md (Arem 2015 section). DOUBLE-COUNT NOTE: activity also drives HbA1c (Stage 1), but HbA1c->CVD only fires above the 5.7 prediabetes threshold, where active people rarely sit, so the overlap is negligible for non-diabetics; the fitness channel is the primary activity->mortality path. Activity is NOT additionally routed activity->cardiovascular separately. ILLUSTRATIVE mapping; SOLID-direction (Kodama 2009 / Barry 2014); plateau-shape SOLID (Arem 2015 / Mandsager 2018).",
+      "excludeCauses": [
+        "falls"
+      ],
+      "provenance": "Stage 3a (2026-06-08; deferred from Stage 2). Stage 3c (2026-06-10) PLATEAU refinement at the high-volume end (see below). 2026-06-16 FALLS EXCLUSION (excludeCauses:['falls']): cardiorespiratory fitness (VO2max) has NO fall-PREVENTION mechanism — falls are a strength/balance/MUSCLE outcome, not an aerobic-capacity one — so this whole-bracket fitness mult is now divided back OUT of the falls cause. Activity's fall benefit instead flows through the muscle channel (physicalActivity -> muscle-balance -> leanMassIndex -> falls), removing the activity->{fitness,muscle}->falls double-count that the leanMassIndex->falls edge exposed. (=1 at baseline activity, so the exclusion divides by 1 ⇒ baseline-LE invariant.) Infection is NOT excluded: there fitness (pulmonary reserve + immune) and muscle (respiratory-muscle/cough + aspiration + amino-acid reserve) are DISTINCT additive mechanisms, not a double-count. #gap/needs-effect-size: the muscle channel's activity-response (c_pa) should be calibrated against exercise->fall-prevention RCTs (~20-30% fall-risk reduction) — currently it under-carries that benefit, a magnitude #gap separate from this structural fix. Activity's mortality benefit flows through cardiorespiratory fitness (VO2max), weight- AND glucose-independent (Barry 2014: obese-fit ~ normal-fit). mult_allcause = exp(-0.139 * dMETs(activity)), RR 0.87 per MET (Kodama 2009) => beta = ln(0.87) = -0.139. Applied to the intrinsic bracket (all causes + residual EXCEPT falls), at the frailty-multiplier site (target 'allcause'). dMETs = MET-deviation of the activity level from population-average activity (physicalActivity popMean 150 min/wk -> dMETs 0 -> mult 1, baseline preserved). metMap is an ILLUSTRATIVE piecewise-linear map on physicalActivity (min/wk MVPA) -> METs-relative-to-popMean: sedentary(0)=-1.5, below-avg(75)=-0.5, popMean(150)=0, moderate(300)=+1.0, high(450)=+1.6, athlete(600)=+1.9; range -1.5..+1.9 spans sedentary<->athlete (a sedentary->trained shift is ~+1.1 MET in the data). PLATEAU (Stage 3c): the map now DECELERATES above 300 min/wk (slope 0.0067 METs/min over 150-300, 0.0040 over 300-450, 0.0020 over 450-600) rather than the prior near-linear climb to +2.5 at 600. Rationale: the dose-response to ALL-CAUSE MORTALITY flattens beyond ~3-5x guideline volume (Arem 2015, pooled 6 US cohorts n>650k: benefit flattens beyond 3-5x guidelines, NO increased risk at >10x => the J-curve/reverse-J concern for extreme exercise is NOT supported for mortality) while cardiorespiratory FITNESS itself has no demonstrated upper benefit limit (Mandsager 2018, n=122k: elite fitness beats high fitness). The deceleration encodes the DIMINISHING-RETURNS of activity-VOLUME->fitness (each added weekly minute buys less VO2max at the top), keeping the curve MONOTONIC (no upturn). Deliberately NOT a U-shape: the genuine extreme-endurance harms (atrial fibrillation ~2-5x, elevated but stable coronary-artery-calcium) are MORBIDITY endpoints not captured by this all-cause-mortality channel; the small Schnohr 2015 strenuous-jogger subgroup mortality signal (n~40, wide CI) did not replicate in the large cohorts. Consistent with interventions/lifestyle/exercise.md (Arem 2015 section). DOUBLE-COUNT NOTE: activity also drives HbA1c (Stage 1), but HbA1c->CVD only fires above the 5.7 prediabetes threshold, where active people rarely sit, so the overlap is negligible for non-diabetics; the fitness channel is the primary activity->mortality path. Activity is NOT additionally routed activity->cardiovascular separately. ILLUSTRATIVE mapping; SOLID-direction (Kodama 2009 / Barry 2014); plateau-shape SOLID (Arem 2015 / Mandsager 2018).",
       "kind": "cause"
     },
     {
@@ -3126,12 +3129,32 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       "kind": "augment"
     },
     {
-      "from": "sarcopenia",
+      "fromState": "muscle-balance",
+      "mediator": "leanMassIndex",
+      "coeff": {
+        "male": 0.62,
+        "female": 0.42
+      },
+      "kind": "augment",
+      "provenance": "STATE→MEDIATOR augment (2026-06-16): leanMassIndex += coeff*muscle-balance, so the muscle-balance reserve (signed, in ALMI kg/m^2 units before scaling) shapes the observable ALMI trajectory. coeff is SEX-SPECIFIC because muscle-balance is driven by sex-independent node burdens (chronic-inflammation, stem-cell-exhaustion) but the realized ALMI decline should be ~proportional to baseline ALMI: male 0.62, female 0.42 give ~-10% relative decline by age 85 (male 8.5->~7.6, female 6.4->~5.8 — population MEAN stays above the EWGSOP2 sarcopenia cutoffs 7.0/5.5, so only the left tail (sd 1.1) is sarcopenic, matching ~10-30% prevalence). At baseline inputs both the live and baseline mediator passes integrate the same muscle-balance ⇒ deviation 0 ⇒ baseline-LE invariant. Mirrors beta-cell-decline→HbA1c. PLACEHOLDER coeffs; graph-node-validator to confirm against longitudinal ALMI data."
+    },
+    {
+      "from": "leanMassIndex",
       "to": "falls",
       "kind": "cause",
-      "form": "nodeLogLinear",
-      "beta": 0.6366,
-      "provenance": "calibrated 2026-06-11 (populated from the sarcopenia→falls stub); UNIFIED 2026-06-12: kind frailty→cause (form nodeLogLinear). This is a regular node-source driver→cause edge — the SAME multiplicative exp(β·(B−T)) form as a mediator cause edge (cf. LDL→cardiovascular), just sourced from a burden-layer node — NOT a special 'frailty amplifier'. sarcopenia is now an ordinary causal driver of the falls cause (structural twin of clonal-hematopoiesis→atherosclerosis). The `frailty` KIND is retired here (no live frailty edges) and reserved for a future non-specific physiologic-reserve node (ONE source × MANY causes — a genuinely different shape). The NARROW, mechanistically-direct replacement for the removed generic sarcopenia→every-cause multiplier — multiplies ONLY the falls cause hazard. β = ln(OR) for a full-span (robust→sarcopenic) sarcopenia (B−T) deviation; =1 at baseline. Anchor: Yeung 2019 meta-analysis (PMID 30993881, J Cachexia Sarcopenia Muscle, 742 cites): sarcopenia→falls PROSPECTIVE OR 1.89 (95% CI 1.33-2.68; cross-sectional OR 1.60); ln(1.89)=0.6366. Fall INCIDENCE OR used as the fall-MORTALITY multiplier — conservative, since sarcopenia also raises case-fatality (not added). Muscle weakness→falls is mechanistically direct, unlike the discarded sarcopenia→cancer/CKD/liver links. SINGLE frailty source for 'falls' (validator-enforced one-per-cause). #gap: a fall-DEATH-specific HR (vs incidence) would refine this; #gap: other fall drivers (balance/vision/neuropathy/hypotension/osteoporosis) are node-add candidates, not yet wired."
+      "form": "mediatorLogLinear",
+      "med": "leanMassIndex",
+      "beta": -0.4244,
+      "provenance": "calibrated (2026-06-16, graph-node-validator). REPLACES the former sarcopenia→falls node edge (2026-06-16 bodycomp/sarcopenia build) — the muscle→falls mortality path now sources from the OBSERVABLE, DEXA-anchorable leanMassIndex mediator instead of the age-sigmoid sarcopenia node (de-age-pegging). Same multiplicative deviation form (cf. LDL→cardiovascular): exp(beta·(leanMassIndex − baseline)), =1 at baseline ALMI ⇒ baseline falls hazard preserved EXACTLY. beta NEGATIVE: lower ALMI ⇒ higher fall/fracture mortality. Magnitude anchored to Yeung 2019 (doi:10.1002/jcsm.12411; PMID 30993881; J Cachexia Sarcopenia Muscle; meta-analysis n=45,926 across 33 studies; prospective-study sub-analysis OR 1.89, 95% CI 1.33-2.68; DOI corrected from a validator transcription error 10.1093/ageing/afz035 → 10.1002/jcsm.12411, verified against PMID 30993881) — verified: this is fall INCIDENCE OR from a sarcopenia (binary, EWGSOP criteria) vs non-sarcopenia comparison, not a per-kg/m^2 dose-response or a mortality endpoint. Re-expression per kg/m^2: male sarcopenic cutoff 7.0 vs young baseline 8.5 → delta = −1.5 kg/m^2; beta = ln(1.89)/(−1.5) = −0.4244 (arithmetic verified). Fall INCIDENCE OR used as fall-MORTALITY multiplier — conservative because sarcopenia also raises case-fatality (not added). FEMALE NOTE: female sarcopenic gap is 6.4−5.5=0.9 kg/m^2 (smaller than the male gap used to derive beta); the same beta applied to the female channel implies a smaller OR at the 0.9-kg gap (OR ≈ 1.47 vs 1.89 for males) — underestimates female per-unit risk; acceptable approximation for a single shared beta but noted. ARITHMETIC VERIFIED: beta −0.4244 × (−1.5) = ln(1.89) ✓. The old sarcopenia node + its incoming couplings remain for DISPLAY; the atrophy biology is now integrated in muscle-balance (no double-count: sarcopenia node no longer drives any cause). SINGLE driver for 'falls' (one-per-cause). #gap/needs-mortality-endpoint (fall incidence proxy); #gap/needs-per-kg-m2-dose-response (vs binary sarcopenia categorization); #gap: other fall drivers (balance/vision/neuropathy/osteoporosis) still node-add candidates."
+    },
+    {
+      "from": "leanMassIndex",
+      "to": "infection",
+      "kind": "cause",
+      "form": "mediatorLogLinear",
+      "med": "leanMassIndex",
+      "beta": -0.36,
+      "provenance": "placeholder. 2026-06-16: the SECOND mechanistic muscle→mortality edge (added in preference to a lazy leanMassIndex→allcause multiplier — sarcopenia kills through SPECIFIC pathways, decompose them). Low skeletal muscle raises death from infection (cause node immunosenescence; ICD pneumonia/sepsis) by a DIRECT, well-documented mechanism, NOT a generic frailty fudge: (a) RESPIRATORY-muscle weakness → weak cough + impaired airway/secretion clearance → pneumonia + ventilatory failure; (b) SWALLOWING-muscle (sarcopenic dysphagia) → ASPIRATION pneumonia — a leading cause of death in the frail elderly; (c) skeletal muscle is the body's labile amino-acid reserve mobilized for the acute-phase/immune response, so low mass → blunted response + worse sepsis survival. Deviation form exp(beta·(leanMassIndex − baseline)), =1 at baseline ⇒ baseline infection hazard preserved EXACTLY; beta NEGATIVE (lower ALMI ⇒ higher infection mortality). beta −0.36 PLACEHOLDER: a sarcopenic ALMI ~1.5 kg/m^2 below young baseline → infection-mortality HR ~1.7 ⇒ beta = ln(1.7)/(−1.5) = −0.354 ≈ −0.36. VALIDATOR SEARCH (2026-06-16): no community-based cohort study was found reporting sarcopenia→infection/pneumonia cause-specific MORTALITY with a per-kg/m^2 dose-response. Best available evidence is disease-specific: (1) aspiration pneumonia 90-day mortality in n=151 patients, HR 2.19 (1.06-4.52) for lowest ASMI quartile vs other quartiles (PMID 27858956; post-admissionfor aspiration pneumonia, mean age 85.9, single center); (2) biliary sepsis in-hospital mortality OR 3.81 (1.08-13.47), n=745 (PMID 38253616; hospital-based); (3) COVID-19 upper thoracic CT sarcopenia mortality OR 3.47 (1.74-6.91) in meta-analysis of 14 studies (PMID 37344057). The placeholder HR 1.7 is conservative relative to these disease-specific studies (which range HR 2.2-3.8) but community-based infection mortality is genuinely unstudied at the population level. The per-kg/m^2 continuous dose-response (as opposed to binary sarcopenia vs not) is not directly reported in any found study. OVERLAP with the activityFitness→allcause path RESOLVED for falls, RETAINED-as-distinct for infection (2026-06-16): fitness = pulmonary reserve + systemic immune competence; muscle = respiratory-muscle cough/clearance + swallowing/aspiration + amino-acid reserve — distinct additive mechanisms. #gap/activity-fitness-muscle-overlap downgraded to a minor residual (infection only). #gap/needs-effect-size — a sarcopenia→infection-mortality meta-analysis in community-based older adults (not surgical/COVID-specific) with a continuous ALMI dose-response is the missing anchor. DELIBERATELY EXCLUDED: leanMassIndex→cardiovascular (double-count with activityFitness) and leanMassIndex→cancer (reverse causation)."
     },
     {
       "kind": "mediator",
@@ -3956,6 +3979,35 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           ]
         },
         "provenance": "Population resting HR ~65 bpm (male) / ~68 (female); FLAT illustrative baseline (NHANES resting HR ~60-70; age-neutral, no age-pegging). Added 2026-06-10 (A2) as a DRIVER for the elastin-fatigue state node — pulsatile mechanical fatigue of elastin scales with cardiac cycles × pressure amplitude, i.e. HR × pulse-pressure. Anchorable via Labs. DEFERRED follow-ups: a restingHR→mortality edge (resting HR is an independent CV/all-cause risk factor) and a physicalActivity→restingHR fitness edge (training lowers resting HR ⇒ slower elastin fatigue) — neither wired yet, so restingHR currently affects nothing but the (still-unwired) elastin-fatigue node."
+      },
+      {
+        "id": "leanMassIndex",
+        "label": "Appendicular lean mass index",
+        "unit": "kg/m^2",
+        "sd": 1.1,
+        "baseline": {
+          "male": [
+            [
+              25,
+              8.5
+            ],
+            [
+              85,
+              8.5
+            ]
+          ],
+          "female": [
+            [
+              25,
+              6.4
+            ],
+            [
+              85,
+              6.4
+            ]
+          ]
+        },
+        "provenance": "EMERGENT body-composition observable (DEXA-anchorable). Appendicular lean mass index = appendicular lean mass / height^2 (kg/m^2), the EWGSOP2/FNIH sarcopenia quantity. Baseline is FLAT at the young-healthy value (male 8.5, female 6.4; sd 1.1 shared) — NO age-pegging. Baseline values are directionally consistent with published NHANES-derived young-adult ALMI norms (NHANES DXA 1999-2004 reference cohort males ~8-9, females ~6-7 kg/m^2; EWGSOP2 cutoffs of <7.0 M / <5.5 F are diagnostic thresholds derived for older adults, not young-adult norms). FEMALE SD NOTE (2026-06-16, validator): the shared sd 1.1 implies a 1-sd-below-mean young female has ALMI 5.3 kg/m^2, which is already below the EWGSOP2 cutoff 5.5 — meaning ~16% of young females would statistically be 'sarcopenic' at baseline. This is NOT physiologically correct; it reflects that the EWGSOP2 cutoff was derived from an older-adult population where the distribution shifted left, not a young-healthy reference. The sd and female baseline may need population-specific calibration in a future pass. The age-DECLINE EMERGES from the `muscle-balance` state node via a stateAugment, exactly mirroring the HbA1c/beta-cell-decline pattern. Cruz-Jentoft 2019 EWGSOP2 (doi:10.1093/ageing/afy169) target: 1-2%/yr mass loss after 50; current engine delivers ~0.28-0.36%/yr (see muscle-balance provenance for the calibration gap). EWGSOP2 sarcopenia cutpoints ALMI <7.0 (M)/<5.5 (F) sit ~1.5/0.9 below the young baseline. DEXA-anchorable as an offsettable mediator (Labs/timeline biomarker:leanMassIndex). Drives falls mortality via leanMassIndex->falls (mediatorLogLinear, replacing the old age-sigmoid sarcopenia->falls). Added 2026-06-16 (bodycomp/sarcopenia build; see model/bodycomp-dexa-sarcopenia-design.md)."
       }
     ],
     "treatments": [
@@ -3978,11 +4030,28 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       },
       {
         "id": "metformin",
-        "label": "Metformin / GLP-1",
+        "label": "Metformin",
         "to": "HbA1c",
         "form": "absShift",
         "amount": -0.8,
-        "provenance": "Metformin/GLP-1 lowers HbA1c ~-0.8% (GLP-1 larger); modeled as additive downshift. amount %."
+        "provenance": "Metformin lowers HbA1c ~-0.8% (monotherapy); modeled as additive downshift. amount %. SCOPE: this is metformin's modeled-relevant lever (its glycemic effect). Metformin is ~weight-neutral and its hard human aging/CV benefit is weak/contested (UKPDS overweight subgroup; the TAME aging RCT has not read out), so an HbA1c downshift is the defensible single-lever stand-in. GLP-1 RAs were UN-BUNDLED from this entry on 2026-06-16 into the separate 'glp1' weight lever — their dominant aging-relevant effect is weight loss (the BMI cascade), not glycemia; see the glp1 treatment."
+      },
+      {
+        "id": "glp1",
+        "label": "GLP-1 RA (semaglutide)",
+        "effects": [
+          {
+            "to": "BMI",
+            "form": "absShift",
+            "amount": -3.0
+          },
+          {
+            "to": "leanMassIndex",
+            "form": "absShift",
+            "amount": -0.30
+          }
+        ],
+        "provenance": "GLP-1 receptor agonist (semaglutide 2.4mg). TWO effects (2026-06-16 v1+v1.1 bodycomp build): (1) WEIGHT lever — BMI absShift -3.0 (~-10% body weight at baseline BMI ~30 / ref height 1.7m; SELECT ~9-10% Lincoff 2023 n=17,604, STEP-1 ~14.9% Wilding 2021), flowing through the full BMI cascade (BMI->SBP->CVD, BMI->CVD residual, BMI->allcause J-curve, BMI->HbA1c so glycemia EMERGES from weight ~-0.075% at dBMI -3, BMI->restingHR). Treatments attach to MEDIATORS (calorieBalance is an exogenous input), so applied directly on BMI at the trial-OBSERVED steady-state magnitude. NOTE fixed-absolute-BMI approximates a %-of-bodyweight effect (=-10% at BMI 30; ~-12% at 25, ~-8.6% at 35); tirzepatide ~20-22% would be ~-6.5. (2) SARCOPENIA PARADOX — leanMassIndex absShift -0.30: CALIBRATED (2026-06-16, graph-node-validator). Arithmetic verified: Locatelli 2024 (doi:10.2337/dci23-0100; PMID 38687506; Diabetes Care, review): ~10% of total GLP-1 weight loss is lean mass, ~6 kg absolute out of ~15-24% body weight. For the modeled -3.0 BMI at ref height 1.7m: Δweight = -3.0 × 1.7² = -8.67 kg; 10% lean fraction → Δlean = -0.867 kg; ΔALMI = -0.867/1.7² = -0.300 kg/m². Arithmetic verified exactly. Resistance training (physicalActivity) opposes it via muscle-balance. WEIGHT-INDEPENDENT CV RESIDUAL — REMOVED 2026-06-16 (was causeEffects cardiovascular pctReduction 0.05). The graph-node-validator + Codex (gpt-5.5) review found a STRUCTURAL DOUBLE-COUNT: the BMI cascade (calibrated to OBSERVATIONAL Lu 2014 BMI→CHD) already delivers ~16-20% CV-hazard reduction for the -3.0 BMI lever (engine-measured across ages 50-80), which ≈ the SELECT total MACE RRR (HR 0.80, PMID 37952131) ON ITS OWN — so any added weight-independent term overshoots. SELECT adiposity-mediation (PMID 41138739, Lincoff group 2025) reports only ~33% of the MACE benefit is weight-mediated (~67% weight-INDEPENDENT), implying the observational BMI cascade OVER-credits drug-induced weight loss's CV benefit (consistent with Look AHEAD's null MACE). The correct fix (a 'trialMediationReplacement' that replaces the treatment's OBSERVATIONAL weight-mediated CV slice with the trial-decomposed value, then adds the honest weight-independent arm; net correction = totalHR^dose / m_obs, dose-scaled ⇒ ×1 at baseline) is DEFERRED: implementation revealed the treatment's ΔBMI reaches cardiovascular through ≥4 ENTANGLED paths (direct BMI→CVD residual, BMI→SBP→CVD, the BMI→allcause J-curve bracket, BMI→HbA1c→CVD), so isolating m_obs non-fragilely needs counterfactual-evaluation infrastructure, not a closed form (a 2-path closed form gives ~10% vs the measured ~20% — wrong). INTERIM STATE (option b, Codex-blessed as acceptable): GLP-1's CV benefit is carried by the observational BMI cascade ≈ SELECT total; the model thus implicitly treats GLP-1's CV benefit as ~fully weight-mediated (the SHAPE is wrong — a future equal-weight-loss intervention would look CV-equivalent), pending the trialMediationReplacement build. The general engine capability (multi-target treatment.effects, treatment→cause causeEffects with pctReduction) is built + tested and awaits the mediation-replacement form. #gap/needs-mediation-decomposition (BMI-cascade weight-mediated slice vs weight-independent arm); see model/bodycomp-dexa-sarcopenia-design.md."
       }
     ],
     "operatorPresets": [
@@ -4142,6 +4211,43 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "label": "Sinoatrial-node reserve",
         "provenance": "stub",
         "note": "STUB (planned, not yet modeled; engine-inert, rendered greyed). The sinoatrial node is the heart's pacemaker; its functional reserve declines cumulatively with age via pacemaker-cell loss + I_f/HCN4 funny-current substrate degradation (per the verified resting-heart-rate biomarker page). Intended as a rate-integrated state node (integral of an SA-node-aging rate over time) that GATES the physicalActivity->restingHR training coefficient (BLOCKING, not countering: training bradycardia is blunted when reserve is low, NOT because age blocks it) and shifts the intrinsic resting rate. Has no rate/value yet by design. See age-hardcoding-audit.md and the sinoatrial-node-reserve->restingHR stub edge."
+      },
+      {
+        "id": "muscle-balance",
+        "class": "physiology",
+        "units": "physical",
+        "label": "Muscle balance (lean-mass reserve)",
+        "initial": 0,
+        "floor": -2.5,
+        "cap": 1.5,
+        "rate": {
+          "terms": [
+            {
+              "op": "linear",
+              "coeff": -0.0345,
+              "drivers": [
+                "chronic-inflammation"
+              ]
+            },
+            {
+              "op": "linear",
+              "coeff": -0.0345,
+              "drivers": [
+                "stem-cell-exhaustion"
+              ]
+            },
+            {
+              "op": "linear",
+              "coeff": 0.0000293,
+              "drivers": [
+                {
+                  "input": "physicalActivity"
+                }
+              ]
+            }
+          ]
+        },
+        "provenance": "placeholder. SIGNED, BOUNDED lean-mass reserve in ALMI kg/m^2 deviation units (+ = training surplus, - = atrophy deficit), augmenting leanMassIndex 1:1. The age-DECLINE of ALMI EMERGES here (no age-pegging): catabolic terms read the chronic-inflammation + stem-cell-exhaustion node burdens (the inflammaging + satellite-cell-exhaustion mechanism of atrophy — these were the `coupling -> sarcopenia` edges, now re-homed onto the integrated muscle state; the old sarcopenia node keeps those incoming couplings for DISPLAY only, its mortality edge moved to leanMassIndex->falls). Activity term is a DEVIATION driver (input physicalActivity - popMean 150), so it is 0 at the population mean (baseline-invariant) and bidirectional: training (>150 min/wk) builds/preserves muscle, sedentary (<150) accelerates loss — the integrated dynamic the user requested (slow stock, not an instantaneous algebraic snap). Bounded to [-2.5, +1.5] kg/m^2: the floor caps severe sarcopenia (ALMI 8.5->6.0 M), the +1.5 ceiling caps trained hypertrophy (Codex no-runaway requirement). CALIBRATION GAP (2026-06-16, graph-node-validator): with the current coefficients (catabolic -0.0345 × chronic-inflammation, -0.0345 × stem-cell-exhaustion; augment coeff 0.62 M / 0.42 F), the emergent ALMI loss rate post-50 is ~0.28-0.36%/yr (engine-verified at age 65-70 and 70-80). This is 3-5x BELOW the Cruz-Jentoft 2019 EWGSOP2 target of 1-2%/yr (doi:10.1093/ageing/afy169: 'loss of leg muscle mass (1-2% per year)' after 50, citing Goodpaster 2006 Health ABC). Total decline by age 85 is ~10.4% M / ~9.4% F (engine-verified: 8.5→7.6 / 6.4→5.8), which is the design target but over a 60-year span rather than the 35-year post-50 window Cruz-Jentoft quotes. CONSEQUENCE: the activity→falls channel under-carries the RCT fall-prevention signal — at 300 min/wk (2× guideline) the falls hazard reduction is only ~5.6% (engine-verified) vs the ~20-30% expected from exercise→fall-prevention RCTs. To hit the 1-2%/yr target the catabolic coefficients would need to increase ~4x (to ~0.12-0.14), but that would push ALMI into the −2.5 floor prematurely for high-burden individuals; alternatively the intrinsicAtrophyBase can be added (no mechanism term). RESOLUTION: requires a dedicated calibration pass with a physiological cross-check against Locatelli 2024 resistance-training recovery (~3 kg lean = ~0.6 ALMI units at 1.7m height) as the activity-channel anchor. #gap/needs-calibration (rate under-delivers 1-2%/yr Cruz-Jentoft target). Added 2026-06-16 (model/bodycomp-dexa-sarcopenia-design.md)."
       }
     ],
     "stateAugmentsNote": "STATE→MEDIATOR AUGMENTS (2026-06-10; β-cell→HbA1c vertical). Each {fromState, mediator, coeff} injects coeff·stateValue INTO a mediator mid-march (per-age, AFTER the mediator phase + offsets, BEFORE state rates advance), so a state node's accumulated value can re-shape a mediator trajectory that the SAME march's downstream integrals then read. coeff is a number or a {male,female} map. This is the substrate that lets an emergent damage variable un-pin a formerly age-tabled mediator: β-cell-decline → HbA1c replaces the HbA1c age-table with a flat 5.3 baseline + the emergent rise. Anchoring stays exact in Increment 2 because the augment is input-independent (constant base rate), so computeOffsets' post-augment prediction cancels; Increment 3 (glucotox feedback makes the augment input-dependent) revisits anchor semantics.",
@@ -4303,7 +4409,7 @@ cause_hazard(age) = CDC_baseline_{sex}(age) · Π_med exp(β_{med→cause}·Δ_m
               (Δ_med in the edge's natural units; at baseline all Δ=0 → CDC reproduced)
 ```
 
-- **Treatment as intervention:** the mediator baselines below use *untreated* strata where available; statins/antihypertensives/metformin are interventions that push a mediator *down*.
+- **Treatment as intervention:** the mediator baselines below use *untreated* strata where available; statins (LDL↓) / antihypertensives (SBP↓) / metformin (HbA1c↓) / GLP-1 RAs (BMI↓, which then cascades to SBP/HbA1c/CVD/all-cause) are interventions that push a mediator *down*.
 - **Percentile-offset anchoring:** measured lab → percentile vs the untreated reference → held forward; `personal_offset = measured − emergent_prediction` (residual to current inputs).
 - **Non-linear edges** use their documented form (below), not naive linear.
 

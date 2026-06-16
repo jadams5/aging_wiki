@@ -83,14 +83,17 @@ num("genomic-instability freeze@40 eff0.4 ΔLE", dLE("genomic-instability", { ef
 num("genomic-instability freeze@40 eff1.0 ΔLE", dLE("genomic-instability", { efficacy: 1.0 }), 1.888, 0.04); // 2026-06-11 frailty-multiplier removal re-baseline (down, same reason)
 
 num("atherosclerosis freeze@40 100% ΔLE", dLE("atherosclerosis"), 3.707, 0.06); // Op A 2026-06-11 re-baseline: CV band expanded ~8% → direct athero freeze gains proportionally
-num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 3.974, 0.06); // 2026-06-11 frailty-multiplier removal re-baseline (down most: inflammation→stem-cell→sarcopenia→frailty-mult slice removed)
+num("chronic-inflammation freeze@40 100% ΔLE", dLE("chronic-inflammation"), 4.04, 0.06); // 2026-06-11 frailty-mult removal re-baseline (3.974); 2026-06-16 +0.066 from the NEW chronic-inflammation→muscle-balance→leanMassIndex→{falls,infection} pathway (inflammaging drives muscle loss drives fall/pneumonia death — a real mechanistic coupling, not the old all-cause fudge)
 num("cancer freeze@40 100% ΔLE", dLE("cancer"), 2.466, 0.06);
 // 2026-06-11: the sarcopenia→every-cause frailty multiplier was DISCONNECTED (it identified Peng frail-vs-robust
-// HRs with the sarcopenia age-sigmoid → implausible cross-cause benefit; the entire former 4.137 yr WAS that
-// multiplier). REPLACED by a single, mechanistically-direct sarcopenia→FALLS frailty edge (β=ln(1.89)=0.6366,
-// Yeung 2019 PMID 30993881 prospective OR 1.89). So freezing sarcopenia now buys ~0.04 yr via FALLS ONLY — two
-// orders of magnitude smaller, and honest (falls ≈ 0.4% of deaths). Other fall drivers are node-add candidates.
-num("sarcopenia freeze@40 100% ΔLE (falls-only, Yeung 2019 OR 1.89)", dLE("sarcopenia"), 0.035, 0.006); // 0.042→0.035 after the malnutrition split lowered falls Rmax (W00-W19 only)
+// HRs with the sarcopenia age-sigmoid → implausible cross-cause benefit), REPLACED by a single sarcopenia→FALLS
+// edge (Yeung 2019 OR 1.89). 2026-06-16 (bodycomp build): the muscle→falls path was MIGRATED OFF the age-sigmoid
+// sarcopenia NODE onto the OBSERVABLE, DEXA-anchorable `leanMassIndex` mediator (leanMassIndex→falls,
+// mediatorLogLinear, β −0.4244 — same Yeung 1.89 re-expressed per kg/m²). The sarcopenia node is now DISPLAY-ONLY
+// (keeps its incoming chronic-inflammation/stem-cell-exhaustion couplings for the graph; the atrophy biology is
+// integrated in the `muscle-balance` state node), so freezing the node buys ~0. The muscle mortality channel is
+// now exercised via leanMassIndex (see the leanMassIndex/GLP-1 bodycomp tests below).
+num("sarcopenia node freeze@40 ⇒ ~0 (display-only post-migration)", dLE("sarcopenia"), 0.0, 1e-9);
 num("cellular-senescence freeze@40 100% ΔLE", dLE("cellular-senescence"), 0.710, 0.05); // 2026-06-11 frailty-multiplier removal re-baseline (down: lost senescence→stem-cell→sarcopenia→frailty-mult slice)
 
 // ---- v0.4 burden-driven old-age escalation (replaces age-keyed Gompertz tail) ----
@@ -292,15 +295,19 @@ str("B3a: activity monotone in LE", String(
   dLEm({ inputs: { physicalActivity: 300 } }) < dLEm({ inputs: { physicalActivity: 600 } })
 ), "true");
 // activityFitness multiplies the WHOLE intrinsic bracket by the SAME factor
-// exp(-0.139·ΔMETs). ΔMETs -1.5 (sedentary) ⇒ 1.2318. Verified on the two
-// mediator-free cause lines (infection, residual): CVD/cancer/dementia additionally
-// pick up the (documented, Stage-1) activity→HbA1c→cause overlap above the 5.7
-// threshold, so they are NOT clean readouts of the fitness factor alone.
+// exp(-0.139·ΔMETs). ΔMETs -1.5 (sedentary) ⇒ 1.2318. CLEAN readout on `residual`
+// (driverless by construction). NOTE (2026-06-16): `infection` is NO LONGER a clean
+// fitness-only probe — the new leanMassIndex→infection edge + physicalActivity→muscle-balance
+// means a sedentary person's infection hazard now carries BOTH the fitness bracket mult AND a
+// muscle-mass penalty. That OVERLAP (activity acting on infection via two channels — VO2max-fitness
+// and muscle-mass) is physiologically two distinct predictors, but partly shares variance; tracked
+// as #gap in the muscle-balance / leanMassIndex→infection provenance. So we probe `residual` (no
+// mediator/muscle edge) for the clean fitness factor, and separately ASSERT the new coupling below.
 const actMultInfection = causeMultAt("infection", 60, { inputs: { physicalActivity: 0 } });
 const actMultResid = causeMultAt("residual", 60, { inputs: { physicalActivity: 0 } });
-num("B3a: sedentary bracket mult (infection)", actMultInfection, Math.exp(-0.139 * -1.5), 0.002);
-str("B3a: fitness mult uniform on mediator-free lines", String(
-  Math.abs(actMultInfection - actMultResid) < 1e-9
+num("B3a: sedentary fitness bracket mult (clean residual probe)", actMultResid, Math.exp(-0.139 * -1.5), 0.002);
+str("B3a: infection now carries an extra muscle penalty beyond fitness (sedentary)", String(
+  actMultInfection > actMultResid + 0.01
 ), "true");
 // Weight/glucose-independent (Barry 2014): the fitness MULTIPLIER itself does not
 // read BMI. Stage 3b wires BMI independently to mortality, so total LE is no longer
@@ -314,7 +321,7 @@ str("B3a: fitness mult uniform on mediator-free lines", String(
   const sedFixedBMI = simulate(MODEL, { sex: "male", inputs: { physicalActivity: 0 }, offsets: { BMI: 8 } });
   const kk = 60 - MODEL.meta.ageRange[0];
   const fitnessFactorWithBMI =
-    sedFixedBMI.decomposition[kk].parts.infection / baseFixedBMI.decomposition[kk].parts.infection;
+    sedFixedBMI.decomposition[kk].parts.residual / baseFixedBMI.decomposition[kk].parts.residual;   // residual = clean fitness-only probe (infection now carries a muscle edge)
   num("B3a: fitness mult weight-independent (BMI held)", fitnessFactorWithBMI, Math.exp(-0.139 * -1.5), 0.002);
 }
 
@@ -370,6 +377,92 @@ str("B3b: BMI 16 (underweight) lowers LE", String(dLEm({ offsets: { BMI: -13.95 
 str("B3b: underweight penalty steep (< obese)", String(
   dLEm({ offsets: { BMI: -13.95 } }) < dLEm({ offsets: { BMI: 5 } })
 ), "true");
+
+// ---- GLP-1 RA weight lever (un-bundled from the metformin/HbA1c entry 2026-06-16) ----
+// GLP-1 is modeled as a BMI absShift (−3.0 kg/m² ≈ −10% body weight at baseline BMI ~30),
+// NOT as an HbA1c shift. (a) lowers BMI by exactly 3.0 at any age (absShift, dose 1.0);
+// (b) the glycemic benefit EMERGES via BMI→HbA1c (0.025·−3 = −0.075%) instead of being
+// hardcoded; (c) raises LE for a baseline (BMI~30, upper J-curve arm) person through the
+// BMI→SBP→CVD + direct-CV-residual + all-cause-J-curve cascade.
+num("GLP-1: lowers BMI by exactly 3.0 (absShift)", dMed("BMI", 50, { treatments: { glp1: true } }), -3.0, 1e-9);
+num("GLP-1: HbA1c benefit emerges from weight (−0.075%)", dMed("HbA1c", 50, { treatments: { glp1: true } }), -0.075, 1e-6);
+str("GLP-1: raises LE (baseline obese person)", String(dLEm({ treatments: { glp1: true } }) > 0.1), "true");
+// metformin (relabeled to its glycemic-only scope) still lowers HbA1c by 0.8.
+num("metformin: lowers HbA1c by 0.8", dMed("HbA1c", 50, { treatments: { metformin: true } }), -0.8, 1e-9);
+
+/* ===== Body composition (DEXA) + muscle reserve + GLP-1 v1+v1.1 (2026-06-16) ===== */
+// leanMassIndex: a DEXA-anchorable OBSERVABLE mediator with a FLAT young-healthy baseline; the ALMI
+// age-decline EMERGES from the muscle-balance state node (∫ catabolic[inflammaging+stem-cell-exhaustion]
+// − activity dt) via a stateAugment — the HbA1c/beta-cell-decline pattern. De-age-pegs sarcopenia.
+const AGE0_ = MODEL.meta.ageRange[0];
+const almAt = (age, opts = {}) => simulate(MODEL, { sex: "male", ...opts }).medValues.leanMassIndex[age - AGE0_];
+// (a) baseline-LE invariance: the new mediator/state/edges add nothing at population-average inputs.
+//     (Subsumed by the B2 pop-avg invariant, but pinned explicitly here for the bodycomp surface.)
+num("bodycomp: baseline LE invariant (ALMI machinery inert)", dLEm({ inputs: {}, treatments: {}, offsets: {} }), 0, 1e-9);
+// (b) ALMI declines EMERGENTLY with age (not age-pegged): ~10% below young by 85, mean stays above the
+//     EWGSOP2 male cutoff 7.0 (only the sd-1.1 left tail is sarcopenic).
+str("bodycomp: ALMI declines ~emergently (8.5→~7.6 @85, M)", String(almAt(85) < almAt(25) - 0.6 && almAt(85) > 7.0), "true");
+// (c) exercise BUILDS/preserves muscle — the integrated physicalActivity→muscle-balance→ALMI edge.
+str("bodycomp: higher activity raises ALMI@80", String(almAt(80, { inputs: { physicalActivity: 600 } }) > almAt(80, { inputs: { physicalActivity: 0 } }) + 0.4), "true");
+// (d) muscle-balance is BOUNDED (no runaway): even max lifelong activity can't push ALMI far above young baseline.
+str("bodycomp: ALMI bounded above (hypertrophy cap)", String(almAt(50, { inputs: { physicalActivity: 600 } }) < 8.5 + 1.6), "true");
+// (e) DEXA anchoring: a measured ALMI is reproduced (offsettable mediator), like any lab.
+{
+  const r = solveOffsets(MODEL, { sex: "male" }, [{ med: "leanMassIndex", age: 70, measured: 6.5 }], { returnMaxMiss: true });
+  const got = simulate(MODEL, { sex: "male", offsets: r.offsets }).medValues.leanMassIndex[70 - AGE0_];
+  num("bodycomp: DEXA anchor leanMassIndex@70=6.5 reproduced", got, 6.5, 1e-6);
+  // and a sarcopenic anchored ALMI LOWERS LE via the leanMassIndex→falls + →infection edges.
+  str("bodycomp: anchored-sarcopenic ALMI lowers LE", String(lifeExpectancy(MODEL, { sex: "male", offsets: r.offsets }) < baseMle), "true");
+  // muscle drives mortality through SPECIFIC mechanistic causes (falls + infection), NOT a lazy all-cause edge.
+  const k70 = 70 - AGE0_;
+  const bz = simulate(MODEL, { sex: "male" }), sz = simulate(MODEL, { sex: "male", offsets: r.offsets });
+  str("bodycomp: low ALMI raises falls hazard", String(sz.decomposition[k70].parts.falls / bz.decomposition[k70].parts.falls > 1.1), "true");
+  str("bodycomp: low ALMI raises infection hazard (respiratory/aspiration)", String(sz.decomposition[k70].parts.infection / bz.decomposition[k70].parts.infection > 1.05), "true");
+  // …but NOT cardiovascular or cancer (deliberately excluded — fitness double-count / reverse causation).
+  str("bodycomp: low ALMI does NOT touch cardiovascular (no double-count)", String(Math.abs(sz.decomposition[k70].parts.cardiovascular / bz.decomposition[k70].parts.cardiovascular - 1) < 1e-9), "true");
+}
+// activityFitness is now EXCLUDED from falls (VO₂max doesn't prevent falls; muscle does) — resolving the
+// activity→{fitness,muscle}→falls double-count. Probe: a model clone whose muscle-balance does NOT read
+// physicalActivity (so the muscle channel is activity-inert). A sedentary person's FALLS hazard is then ~1
+// (fitness excluded, muscle activity-inert ⇒ nothing), while RESIDUAL still gets the full fitness mult 1.23.
+{
+  const Mna = JSON.parse(JSON.stringify(MODEL));
+  const mb = Mna.bLayer.stateNodes.find((s) => s.id === "muscle-balance");
+  mb.rate.terms = mb.rate.terms.filter((t) => !(t.drivers && t.drivers[0] && t.drivers[0].input === "physicalActivity"));
+  const k60 = 60 - AGE0_;
+  const b0 = simulate(Mna, { sex: "male" }), sed = simulate(Mna, { sex: "male", inputs: { physicalActivity: 0 } });
+  const fallsMult = sed.decomposition[k60].parts.falls / b0.decomposition[k60].parts.falls;
+  const residMult = sed.decomposition[k60].parts.residual / b0.decomposition[k60].parts.residual;
+  num("B3a: activityFitness EXCLUDED from falls (sedentary falls mult ~1)", fallsMult, 1.0, 1e-9);
+  num("B3a: activityFitness still applies to residual (sedentary ~1.23)", residMult, Math.exp(-0.139 * -1.5), 0.002);
+}
+// (f) GLP-1 multi-effect: lowers BMI by 3.0 AND leanMassIndex by 0.30 jointly (the sarcopenia paradox).
+num("GLP-1: lowers leanMassIndex by 0.30 (lean-mass fraction)", dMed("leanMassIndex", 50, { treatments: { glp1: true } }), -0.30, 1e-9);
+// (g) the muscle penalty makes the NET GLP-1 ΔLE smaller than the BMI-path-only benefit (paradox visible),
+//     but still net-positive for a baseline-obese person. Compare full vs a BMI-only model clone.
+{
+  const Mbmi = JSON.parse(JSON.stringify(MODEL));
+  const g = Mbmi.bLayer.treatments.find((t) => t.id === "glp1");
+  g.effects = [g.effects[0]]; delete g.causeEffects;   // BMI lever alone
+  const dFull = dLEm({ treatments: { glp1: true } });
+  const dBmiOnly = lifeExpectancy(Mbmi, { sex: "male", treatments: { glp1: true } }) - baseMle;
+  str("GLP-1: net ΔLE positive but muscle penalty subtracts", String(dFull > 0.5 && (dFull - dBmiOnly) < 0.5), "true");
+}
+// (h) The weight-independent CV residual was REMOVED 2026-06-16: it double-counted the OBSERVATIONAL BMI→CVD
+//     cascade, which alone ~= the SELECT total MACE RRR for a −3 BMI lever. A correct fix (trialMediationReplacement:
+//     replace the treatment's observational weight-mediated CV slice with the trial-decomposed value) is deferred —
+//     the treatment's ΔBMI reaches CVD through ≥4 entangled paths, so isolating it needs counterfactual machinery,
+//     not a closed form. Interim: GLP-1's CV benefit rides the BMI cascade (shape = ~fully weight-mediated).
+str("GLP-1: no live CV residual (double-count removed)", String(!MODEL.bLayer.treatments.find((t) => t.id === "glp1").causeEffects), "true");
+// the treatment→cause engine capability remains built + tested (dormant): a synthetic causeEffects lowers CVD.
+{
+  const Mcv = JSON.parse(JSON.stringify(MODEL));
+  Mcv.bLayer.treatments.find((t) => t.id === "glp1").causeEffects = [{ cause: "cardiovascular", form: "pctReduction", amount: 0.10 }];
+  const k60 = 60 - AGE0_;
+  const a = simulate(MODEL, { sex: "male", treatments: { glp1: true } });
+  const b = simulate(Mcv, { sex: "male", treatments: { glp1: true } });
+  str("engine: treatment→cause pctReduction lowers CVD (capability live)", String(b.decomposition[k60].parts.cardiovascular < a.decomposition[k60].parts.cardiovascular), "true");
+}
 
 // ---- Rate-integration migration: ECM-crosslink stock (∫ glycemia·dt) ----
 // First node of the age-pegging migration (model/age-hardcoding-audit.md). The stock

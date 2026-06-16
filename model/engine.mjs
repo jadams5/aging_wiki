@@ -483,6 +483,34 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   const causeEdgesByTarget = {};
   for (const e of causeEdges) (causeEdgesByTarget[e.to] ||= []).push(e);
 
+  // Treatment → cause hazard multipliers (the weight-INDEPENDENT GLP-1 cardiovascular residual, etc.).
+  // A treatment may carry `causeEffects:[{cause, form:"pctReduction", amount, cap?}]` — a DIRECT capped
+  // reduction of a named cause's hazard, distinct from any mediator path the same treatment drives. The
+  // dose lane is the SAME per-treatment step profile mediators() uses, so start/stop windows apply. At
+  // dose 0 (untreated) the multiplier is 1 ⇒ baseline-LE invariant. Grouped by cause for the per-age loop.
+  const txCauseByCause = {};
+  if (hasB) for (const tx of (MODEL.bLayer.treatments || [])) {
+    const d0 = treatments[tx.id];
+    if (d0 === undefined || d0 === false || !tx.causeEffects) continue;
+    const lane = resolveProfile(d0 === true ? 1.0 : d0, AGES, 0, "step");
+    for (const ce of tx.causeEffects) (txCauseByCause[ce.cause] ||= []).push({ ...ce, lane });
+  }
+  // Π of treatment→cause multipliers for a cause at age-index k (1 when no active treatment hits it).
+  function txCauseMult(cn, k) {
+    const list = txCauseByCause[cn];
+    if (!list) return 1;
+    let m = 1;
+    for (const ce of list) {
+      const dose = ce.lane[k] || 0;
+      if (dose === 0) continue;
+      if (ce.form === "pctReduction") {
+        const red = Math.min(ce.cap ?? 1, ce.amount * dose);   // cap the fractional reduction
+        m *= (1 - red);
+      }
+    }
+    return m;
+  }
+
   // Π of Stage-2 edge multipliers for a given target at age-index k.
   // NOTE: the special target "allcause" (Stage-3a activityFitness edge) is NOT a
   // cause name — it is applied separately to the WHOLE intrinsic bracket below,
@@ -555,8 +583,13 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
 
     // Stage-3a all-cause (activityFitness, sleep uShape) + Stage-3b BMI J-curve whole-bracket multipliers,
     // all computed PER-AGE now (§3A): read each input lane at k. Flat lanes ⇒ identical every age.
+    // Per-edge mults are RETAINED (not just the product) so a cause can opt OUT of a specific whole-bracket
+    // edge via `excludeCauses` — e.g. activityFitness excludes 'falls': cardiorespiratory fitness (VO₂max) has
+    // no fall-PREVENTION mechanism (falls are a strength/balance/muscle outcome), so activity's fall benefit
+    // must flow through the muscle channel (→muscle-balance→leanMassIndex→falls), NOT be double-counted here.
     let allcauseMult = 1;
-    for (const e of nonBmiAllcause) allcauseMult *= allcauseEdgeMult(e, inputLanes, popMean, k);
+    const acEdgeMults = [];
+    for (const e of nonBmiAllcause) { const m = allcauseEdgeMult(e, inputLanes, popMean, k); acEdgeMults.push([e, m]); allcauseMult *= m; }
     let bmiJMult = 1;
     for (const e of bmiJcurveEdges) bmiJMult *= bmiJcurveMult(e, k, medValues, medBaseline);
 
@@ -570,8 +603,12 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
     for (const cn of causeNames) {
       const c = causes[cn];
       const Bc = Barr[NODE_IDX[c.node]][k];
-      const ch = c.RmaxPerYear[sex] * (Bc / Math.max(1 - Bc, 1e-3)) * edgeMultFor(cn, k, age);
-      const p = bracketMult * frailtyMultFor(cn) * ch;
+      const ch = c.RmaxPerYear[sex] * (Bc / Math.max(1 - Bc, 1e-3)) * edgeMultFor(cn, k, age) * txCauseMult(cn, k);
+      // Per-cause bracket: divide out any whole-bracket edge that EXCLUDES this cause. At baseline every
+      // edge mult is 1 ⇒ dividing changes nothing ⇒ baseline-LE invariance preserved exactly.
+      let bracket_cn = bracketMult;
+      for (const [e, m] of acEdgeMults) if (m !== 0 && e.excludeCauses && e.excludeCauses.includes(cn)) bracket_cn /= m;
+      const p = bracket_cn * frailtyMultFor(cn) * ch;
       parts[cn] = p;
       intrinsic += p;
     }
@@ -785,7 +822,8 @@ const ANALYTE_MED_MAP = _np({
   "hba1c-pct": "HbA1c", "hba1c-percent": "HbA1c", "hba1c": "HbA1c",
   "bp-systolic-mmhg": "systolicBP", "sbp-mmhg": "systolicBP", "systolic-bp-mmhg": "systolicBP", "systolic-bp": "systolicBP",
   "bmi": "BMI", "bmi-kg-m2": "BMI",
-  "resting-hr-bpm": "restingHR", "rhr-bpm": "restingHR", "resting-hr": "restingHR"
+  "resting-hr-bpm": "restingHR", "rhr-bpm": "restingHR", "resting-hr": "restingHR",
+  "almi-kg-m2": "leanMassIndex", "almi": "leanMassIndex", "alm-index": "leanMassIndex", "appendicular-lean-mass-index": "leanMassIndex", "dexa-almi": "leanMassIndex"
 });
 // Per-med accepted units → multiplier-to-canonical (number) or converter fn(value)→canonical. Unknown unit ⇒ reject.
 const UNIT_CONV = _np({
@@ -793,7 +831,8 @@ const UNIT_CONV = _np({
   systolicBP: _np({ "mmhg": 1 }),
   BMI:        _np({ "kg/m^2": 1, "kg/m2": 1 }),
   HbA1c:      _np({ "%": 1, "pct": 1, "percent": 1, "mmol/mol": (v) => (v / 10.929) + 2.15 }), // IFCC mmol/mol → NGSP %
-  restingHR:  _np({ "bpm": 1, "/min": 1 })
+  restingHR:  _np({ "bpm": 1, "/min": 1 }),
+  leanMassIndex: _np({ "kg/m^2": 1, "kg/m2": 1 })   // DEXA appendicular lean mass index (ALMI)
 });
 const BUNDLE_MAX_EVENTS = 5000;   // guard against a pathological bundle hanging the UI (counts NESTED changes/dates too)
 
@@ -1458,12 +1497,15 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
   // Edges grouped by target mediator.
   const edgesByMed = {};
   for (const e of EKm.mediator) (edgesByMed[e.to] ||= []).push(e);
-  // Treatments grouped by target mediator (only those requested in opts).
+  // Treatments grouped by target mediator (only those requested in opts). A treatment may carry
+  // MULTIPLE mediator effects via `effects:[{to,form,amount,floor}]` (e.g. a GLP-1 RA lowering BMI
+  // AND lean mass); the legacy single-`to`/`form`/`amount` shape is normalized to one effect. Each
+  // grouped entry carries its parent `txId` so the apply loop reads that treatment's dose lane.
   const txByMed = {};
   for (const tx of b.treatments) {
-    if (treatments[tx.id] !== undefined && treatments[tx.id] !== false) {
-      (txByMed[tx.to] ||= []).push(tx);
-    }
+    if (treatments[tx.id] === undefined || treatments[tx.id] === false) continue;
+    const effects = tx.effects || [{ to: tx.to, form: tx.form, amount: tx.amount, floor: tx.floor }];
+    for (const eff of effects) (txByMed[eff.to] ||= []).push({ txId: tx.id, form: eff.form, amount: eff.amount, floor: eff.floor });
   }
 
   // Dependency ordering: a mediator that is the SOURCE of a mediator→mediator
@@ -1502,8 +1544,8 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
       for (const e of edges) {
         v += applyMediatorEdge(e, lanes, popMean[e.from], baselineVal, K, medCtx, k);
       }
-      for (const tx of txs) {
-        v = applyTreatment(tx, v, txDoseLane[tx.id][k]);
+      for (const eff of txs) {
+        v = applyTreatment(eff, v, txDoseLane[eff.txId][k]);
       }
       // §3C: the personal-offset residual is applied LAST — AFTER treatments — as a final additive correction
       // on the realized value (was added pre-treatment at the old `:921`, which let a treatment SCALE the
@@ -1556,9 +1598,17 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
       }
     }
     // 3. publish algebraic node values (topo-ordered; may read augmented mediators + integ state).
-    for (const s of ordered) if (s.value) out[s.id][k] = termsSum(s.value.terms, out, k);
-    // 4. advance integrated states by rate(k)·DT (rate reads augmented mediators at this age).
-    for (const s of ordered) if (!s.value) integ[s.id] += stateNodeRate(s, out, k) * DT;
+    for (const s of ordered) if (s.value) out[s.id][k] = termsSum(s.value.terms, out, k, lanes, popMean);
+    // 4. advance integrated states by rate(k)·DT (rate reads augmented mediators + input lanes at this age).
+    //    Optional `floor`/`cap` CLAMP the accumulator (e.g. muscle-balance ∈ [−atrophyFloor, +hypertrophyCeiling]
+    //    so a lifelong-high-activity profile can't drive ALMI unboundedly above baseline). At default inputs the
+    //    baseline and live runs integrate identically, so a clamp never breaks baseline-LE invariance (deviation 0).
+    for (const s of ordered) if (!s.value) {
+      let nv = integ[s.id] + stateNodeRate(s, out, k, lanes, popMean) * DT;
+      if (s.floor != null && nv < s.floor) nv = s.floor;
+      if (s.cap != null && nv > s.cap) nv = s.cap;
+      integ[s.id] = nv;
+    }
   }
 
   return out;
@@ -1596,16 +1646,35 @@ function stateNodeDriverIds(node) {
 // Σ over terms at age-index k. `linear` term = coeff·drivers[0](k); `product` term =
 // coeff·∏ drivers[i](k). A driver resolves via driverValueAt (id or {id,minus,floor}); a
 // missing driver contributes 0. Shared by integrated `rate` laws and algebraic `value` laws.
-function termsSum(terms, out, k) {
+function termsSum(terms, out, k, lanes, popMean) {
+  // Resolve a driver. Default: an `out` id (mediator / state node / injected node burden), via
+  // driverValueAt. NEW `{input:id,...}` form: read an EXOGENOUS INPUT lane as its DEVIATION from
+  // popMean (0 at population-average input ⇒ contributes 0 at baseline ⇒ invariance-safe), with
+  // optional minus/floor/cap. This is the input→state bridge (symmetric with the node-layer
+  // `{node:id}` driver in nodeRateTermsSum) that lets a B-layer state node integrate a behaviour —
+  // e.g. muscle-balance reading physicalActivity. `lanes`/`popMean` are absent for legacy callers
+  // (algebraic `value` laws with no input driver) ⇒ an `{input}` driver then resolves to 0.
+  const resolve = (d) => {
+    if (d && typeof d === "object" && d.input !== undefined) {
+      const pm = (popMean && popMean[d.input] != null) ? popMean[d.input] : 0;
+      const lane = lanes && lanes[d.input];
+      let v = ((lane && lane[k] !== undefined) ? lane[k] : pm) - pm;
+      if (d.minus !== undefined) v -= d.minus;
+      if (d.floor !== undefined) v = Math.max(d.floor, v);
+      if (d.cap !== undefined) v = Math.min(d.cap, v);
+      return v;
+    }
+    return driverValueAt(d, out, k);
+  };
   let r = 0;
   for (const t of terms || []) {
     const drivers = t.drivers || [];
     if (t.op === "product") {
       let p = t.coeff || 0;
-      for (const d of drivers) p *= driverValueAt(d, out, k);
+      for (const d of drivers) p *= resolve(d);
       r += p;
     } else { // "linear" (default)
-      r += (t.coeff || 0) * driverValueAt(drivers[0], out, k);
+      r += (t.coeff || 0) * resolve(drivers[0]);
     }
   }
   return r;
@@ -1638,12 +1707,12 @@ function nodeRateTermsSum(terms, inMap, D, NODE_IDX, k) {
 
 // Rate of an integrated state node at age-index k. Back-compat: a bare {driver, ratePerUnit}
 // is treated as one linear term.
-function stateNodeRate(node, out, k) {
+function stateNodeRate(node, out, k, lanes, popMean) {
   if (node.rate === undefined && node.driver !== undefined) {
     const d = out[node.driver];
     return (node.ratePerUnit || 0) * (d ? d[k] : 0);
   }
-  return termsSum(node.rate && node.rate.terms, out, k);
+  return termsSum(node.rate && node.rate.terms, out, k, lanes, popMean);
 }
 
 // Order state nodes drivers-before-dependents (a node whose rate references ANOTHER state
