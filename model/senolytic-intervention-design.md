@@ -158,6 +158,21 @@ wiki-silent for ALL three; senomorphic is secondary/indirect for these agents; e
    **< 1** (incomplete coverage). If `S` is ever disaggregated by cell type, fisetin / quercetin / D+Q clear *different
    sub-pools* (endothelial vs preadipocyte/mesenchymal vs macrophage-spared).
 
+   **Combination / preset-stacking limitation (2026-06-24, five `senolytic-pulse` presets now live — `dq-one-off`,
+   `fisetin-one-off`, `quercetin-mono-one-off`, `pcc1-one-off`, `piperlongumine-one-off`).** Because `S` is a single
+   lumped pool, **co-active senolytic pulses simply ADD their `ε_kill` on that one pool** (each `op.dev -= ε·Barr` at a
+   shared dosing age). The engine therefore treats every combination as **fully complementary** (different cells) and
+   cannot distinguish it from a **redundant** one. Biology says otherwise — the SCAP targets heavily overlap (quercetin's
+   endothelial pool ⊂ fisetin's coverage; PCC1's NOXA/PUMA and PL's OXR1→ROS mechanisms are broad and overlap most
+   pools), and **none clears the macrophage/dendritic-cell pool fisetin spares** (an un-clearable floor the lumped model
+   also can't represent). Demo (yearly, central kills): singles ΔLE fisetin 0.147 / quercetin 0.085 / PCC1 0.121 / PL
+   0.103; **all-four stacked → effective kill ≈0.45/pulse, senescence@80 0.251→0.160, ΔLE 0.331.** So **single-agent
+   presets read at face value; combinations are an OPTIMISTIC UPPER BOUND, not validated** — the true combined effect
+   should sit nearer `max(individuals)` + modest complementary gains, capped by the spared-cell floor. **Per user
+   (2026-06-24): document here + in each preset's `provenance`; do NOT add a UI warning.** The correct fix is the
+   deferred cell-type sub-pool disaggregation (`clearance-state-design.md` Q6) with per-agent coverage maps.
+   `#gap/clearance-celltype`
+
 **Wiki-maintenance gap surfaced:** the D+Q human-trial evidence (Zhu 2015 / Justice 2019 / Hickson 2019 / Farr 2024)
 has **no dedicated `studies/` pages** — it lives inline in `quercetin.md`/`dasatinib.md`/`senolytics.md`
 (verified-scope confirms the PDFs were read). `studies/yousefzadeh-2018-fisetin-senolytic` is the only standalone

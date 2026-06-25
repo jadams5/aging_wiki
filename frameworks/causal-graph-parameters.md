@@ -457,10 +457,15 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "_migrated": "2026-06-12 Phase C3b: de-age-pegged from curve{exponential,A:0.025,r:0.04} to emergent ∫rate·dt with a SELF-AMPLIFYING (value-proportional) rate = (e^r−1)·(value + A). Age-free: the exponential rise EMERGES from senescence's own paracrine/bystander feed-forward, not from an age input. coeff = e^0.04−1 is the discrete-time growth factor that reproduces the former exponential curve EXACTLY at the integer age grid (max err ~9e-16) ⇒ baseline + intervention LE numerically unchanged. terms:[] = exogenous-driver channel (smokingStatus/alcohol/airPollution/calorieBalance stubs now populate-ready). Pattern: model/gi-migration-design.md."
       },
       "clearance": {
-        "c0": 0,
+        "form": "saturating",
+        "Vmax": 0.075,
+        "Km": 0.30,
         "driver": "immunosenescence",
+        "betaImm": 0.010,
+        "productionResponse": true,
+        "c0": 0,
         "beta": 0,
-        "_design": "2026-06-12 Phase: senescent-cell-clearance-capacity (ALGEBRAIC; design model/clearance-state-design.md). Deviation-form clearance contribution (−c0·x − Δc·S) folded into accumDev each step; x=carried deviation, Δc=−beta·(immunosenescence deviation). Acts on the DEVIATION x (NOT absolute S) ⇒ baseline exactly preserved. c0=beta=0 ⇒ DISABLED (baseline AND perturbation behaviour unchanged; the drop of a senolytic pulse persists). NOT behaviorally inert once c0>0 — biological c0/beta DISABLED until calibrated; drop-healing validated with SYNTHETIC values in test.mjs. Stability when connected: continuous c0 > r=0.04/yr; discrete |e^0.04 − c0·dt| < 1 (0.0408 is the discrete annual increment, not the continuous eigenvalue). Operationalizes the immunosenescence→cellular-senescence stub via immunosenescence→lowers c→raises S. ⚠ LIMITATION: acting on the deviation x means clearance restores S only TOWARD baseline T, never below — immune-restoration is NOT absolute rejuvenation; lowering absolute baseline burden needs an identified production/clearance decomposition (wiki-silent). #gap/needs-clearance-coefficients #gap/immunosenescence-age-table #gap/needs-production-clearance-decomposition"
+        "_design": "2026-06-24 Phase SR: saturating-removal integration (model/sr-saturating-removal-integration-design.md §11; Codex-collaborated best-guess). form=saturating ⇒ removal R(S)=Vmax·S/(Km+S) on the senescence DEVIATION + production-response self-amp (rate.self.coeff·x) + immunosenescence→Vmax modifier. Deviation-form: dx/dt = coeff·x − [R(S;VmaxEff)−R(T;Vmax)], both vanish at x=0 ⇒ baseline byte-identical (M 77.458855/F 82.117850). Vmax=0.075/yr, Km=0.30 chosen so the deviation system is removal-dominated (resilient) until T_crit≈0.44 ⇒ age≈93 (R'(T)>P_S=0.0408), then tips into loss-of-resilience — human quasi-steady-state regime (Raz 2026); structure from Karin 2019 (mechanism iv, density-dependent self-inhibition). betaImm=0.010 (immunosenescence lowers ceiling, SECONDARY — Karin found mechanism iii not required). productionResponse=true ACTIVATES self-amp on deviations (was frozen; Path B). Km is NOT Karin's mouse κ/X_c=0.065 (S here is normalized hallmark burden, not the SR death threshold). Senolytic-pulse rebound stays SEPARATE (its own τ, engine op.dev exact map) — NOT healed by R(S) (gross-production refill ≠ net relaxation; §11). Legacy linear c0/beta retained=0 (form=linear path). #gap/needs-clearance-coefficients (now best-guess anchored, pending fit) #gap/immunosenescence-age-table"
       }
     },
     {
@@ -4068,12 +4073,60 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         },
         "defaultKillScenario": "central",
         "reboundHalfLifeScenariosYears": {
-          "short": 1,
-          "central": 3,
-          "long": 8
+          "short": 0.25,
+          "central": 0.5,
+          "long": 1.5
         },
         "defaultReboundScenario": "central",
-        "provenance": "EXPLORATORY HUMAN TARGET-ENGAGEMENT SCENARIO (2026-06-13), not a clinical outcome prediction. Kill envelope is anchored to Hickson 2019 Day-14 human biopsy changes after one 3-day D+Q course: adipose p21+ cells -17%, p16+ cells -35%, SA-beta-gal+ cells -62%; skin p16+ -20%, p21+ -31% (n=9, open-label, uncontrolled; marker x tissue spread, not a CI). The annual-grid operator applies one campaign at currentAge. Rebound half-lives 1/3/8 yr are explicit sensitivity scenarios because no longitudinal human senescent-burden recovery constant is available; they are not sourced estimates. Existing downstream edges propagate reduced chronic senescence/SASP through inflammation, arterial stiffness, and cause burdens. No DIRECT senescence-to-cancer term is added (and no speculative direct cancer penalty); an INDIRECT cancer benefit nonetheless flows through the live cellular-senescence->chronic-inflammation->cancer coupling, so the scenario does lower modeled cancer burden via the inflammation path. Endogenous immunosenescence-driven clearance c0/beta remains disabled and separate. #gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/ihc-not-perfectly-senescence-specific"
+        "provenance": "EXPLORATORY HUMAN TARGET-ENGAGEMENT SCENARIO (2026-06-13; rebound re-anchored 2026-06-24), not a clinical outcome prediction. Kill envelope is anchored to Hickson 2019 Day-14 human biopsy changes after one 3-day D+Q course: adipose p21+ cells -17%, p16+ cells -35%, SA-beta-gal+ cells -62%; skin p16+ -20%, p21+ -31% (n=9, open-label, uncontrolled; marker x tissue spread, not a CI). The annual-grid operator applies one campaign at currentAge. Rebound half-lives 0.25/0.5/1.5 yr (SR integration §11): re-anchored from the prior 1/3/8 yr to a quarter-power allometric scaling of Karin 2019 old-mouse ~25 d senescent-cell turnover (25 d·(70/0.0275)^0.25 ≈ 0.49 yr) — consistent with the months-scale clinical hit-and-run cadence; still NOT a fitted longitudinal human recovery constant. The pulse rebound is kept SEPARATE from the endogenous SR removal (gross-production refill ≠ net relaxation; §11). Existing downstream edges propagate reduced chronic senescence/SASP through inflammation, arterial stiffness, and cause burdens. No DIRECT senescence-to-cancer term is added (and no speculative direct cancer penalty); an INDIRECT cancer benefit nonetheless flows through the live cellular-senescence->chronic-inflammation->cancer coupling, so the scenario does lower modeled cancer burden via the inflammation path. Endogenous saturating-removal clearance is now ACTIVE (form=saturating; see the cellular-senescence node) and acts on the endogenous deviation, separate from this pulse rebound. #gap/needs-rebound-time-constant #gap/needs-controlled-kill-fraction #gap/ihc-not-perfectly-senescence-specific"
+      },
+      {
+        "id": "fisetin-one-off",
+        "label": "Fisetin one-off senolytic campaign",
+        "kind": "senolytic-pulse",
+        "target": "cellular-senescence",
+        "ageSource": "currentAge",
+        "killFractionScenarios": { "conservative": 0.05, "central": 0.15, "optimistic": 0.30 },
+        "defaultKillScenario": "central",
+        "reboundHalfLifeScenariosYears": { "short": 0.25, "central": 0.5, "long": 1.5 },
+        "defaultReboundScenario": "central",
+        "provenance": "BEST-GUESS EXPLORATORY (2026-06-24, SR §11), not a clinical prediction. Kill envelope ~half of D+Q. SCAP target: clears p16+ T-cell / NK / endothelial / MSC senescent cells but SPARES macrophages & dendritic cells (Yousefzadeh 2018) => NOT pan-clearing. Human evidence ex-vivo-only (no hard-endpoint RCT result yet); oral bioavailability <5% => real supplement doses likely at the LOW end. ** COMBINATION CAVEAT: the single LUMPED senescence node cannot represent SCAP cell-type selectivity, the spared macrophage/DC sub-pool, or complementarity vs redundancy when stacked with other senolytics — co-active presets ADD on one pool (optimistic upper bound). Cell-type sub-pool disaggregation is deferred (clearance-state-design.md Q6). ** provenance: placeholder. #gap/needs-human-kill-fraction #gap/clearance-celltype"
+      },
+      {
+        "id": "quercetin-mono-one-off",
+        "label": "Quercetin (monotherapy) one-off",
+        "kind": "senolytic-pulse",
+        "target": "cellular-senescence",
+        "ageSource": "currentAge",
+        "killFractionScenarios": { "conservative": 0.03, "central": 0.08, "optimistic": 0.15 },
+        "defaultKillScenario": "central",
+        "reboundHalfLifeScenariosYears": { "short": 0.25, "central": 0.5, "long": 1.5 },
+        "defaultReboundScenario": "central",
+        "provenance": "BEST-GUESS EXPLORATORY (2026-06-24, SR §11), not a clinical prediction. WEAKEST envelope (~1/4 of D+Q). DISTINCT from dq-one-off: this is quercetin MONOTHERAPY — the human senescent-cell-clearance evidence is ALL D+Q; crediting it to quercetin alone is an explicit wiki error. SCAP target: endothelial / HUVEC only (BCL-xL / EFNB1 in vitro ~50% @10 uM); NO human monotherapy evidence; low bioavailability. ** COMBINATION CAVEAT: same single-lumped-S limitation as fisetin — heavily overlaps the endothelial sub-pool fisetin/navitoclax also hit, so stacking it is largely REDUNDANT biologically, but the lumped model would still ADD it. ** provenance: placeholder. #gap/clearance-celltype"
+      },
+      {
+        "id": "pcc1-one-off",
+        "label": "Procyanidin C1 (grape-seed) one-off",
+        "kind": "senolytic-pulse",
+        "target": "cellular-senescence",
+        "ageSource": "currentAge",
+        "killFractionScenarios": { "conservative": 0.05, "central": 0.12, "optimistic": 0.25 },
+        "defaultKillScenario": "central",
+        "reboundHalfLifeScenariosYears": { "short": 0.25, "central": 0.5, "long": 1.5 },
+        "defaultReboundScenario": "central",
+        "provenance": "BEST-GUESS PLACEHOLDER (2026-06-24), weaker-anchored than fisetin — PRECLINICAL only (Xu 2021 Nat Metab; no human senolytic data). Central ~0.12 (between quercetin-mono and fisetin): has aged-mouse LIFESPAN data (+9.4% whole-life) which quercetin-mono lacks, but senolytic dose is >=50 uM in vitro (>> grape-seed supplement exposure). SCAP target: senescent STROMAL / mesenchymal cells; mechanism NOXA/PUMA -> ROS -> mitochondrial apoptosis is broad (NOT SCAP-network-restricted like the flavonoids), so its coverage may overlap fisetin's MSC pool AND extend beyond it — UNRESOLVED. ** COMBINATION CAVEAT: single-lumped-S can't represent this; stacking ADDS. ** provenance: placeholder. #gap/clearance-celltype #gap/needs-human-data"
+      },
+      {
+        "id": "piperlongumine-one-off",
+        "label": "Piperlongumine (long-pepper) one-off",
+        "kind": "senolytic-pulse",
+        "target": "cellular-senescence",
+        "ageSource": "currentAge",
+        "killFractionScenarios": { "conservative": 0.03, "central": 0.10, "optimistic": 0.20 },
+        "defaultKillScenario": "central",
+        "reboundHalfLifeScenariosYears": { "short": 0.25, "central": 0.5, "long": 1.5 },
+        "defaultReboundScenario": "central",
+        "provenance": "BEST-GUESS PLACEHOLDER (2026-06-24), weakest-anchored — PRECLINICAL only (Wang 2016 Aging; no human data). Central ~0.10: in-vitro selectivity only ~2.5-3.3x (EC50 ~20 uM normal vs ~6-8 uM senescent) and frequently PARTIAL alone (navitoclax-synergistic). SCAP target: tested on IR / replicative / Ras-induced senescent fibroblasts; mechanism = OXR1 -> chronic antioxidant-defense erosion -> ROS-dependent senolysis (broad across senescence inducers). ** COMBINATION CAVEAT: single-lumped-S can't represent overlap; its broad ROS mechanism likely overlaps the others' pools substantially, so additive stacking OVER-credits it. ** provenance: placeholder. #gap/clearance-celltype #gap/needs-human-data"
       }
     ],
     "constants": {

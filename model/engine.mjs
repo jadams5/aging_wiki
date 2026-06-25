@@ -342,7 +342,22 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
   // c0/beta ship as 0 (disabled) and tests use synthetic values. Stability (when connected): continuous
   // c0 > r=0.04/yr; discrete |e^0.04 − c0·dt| < 1. See model/clearance-state-design.md.
   const clearanceNodes = [];
-  NODES.forEach((n, i) => { if (n.clearance) clearanceNodes.push({ idx: i, c0: n.clearance.c0 || 0, driverIdx: NODE_IDX[n.clearance.driver], beta: n.clearance.beta || 0 }); });
+  NODES.forEach((n, i) => {
+    if (!n.clearance) return;
+    clearanceNodes.push({
+      idx: i,
+      form: n.clearance.form || "linear",
+      c0: n.clearance.c0 || 0,
+      driverIdx: NODE_IDX[n.clearance.driver],
+      beta: n.clearance.beta || 0,
+      // saturating-removal fields (model/sr-saturating-removal-integration-design.md §11)
+      Vmax: n.clearance.Vmax || 0,
+      Km: n.clearance.Km || 1,
+      betaImm: n.clearance.betaImm || 0,
+      productionResponse: !!n.clearance.productionResponse,
+      selfCoeff: (n.rate && n.rate.self && n.rate.self.coeff) || 0,
+    });
+  });
 
   for (let k = 0; k < N_AGE; k++) {
     const age = AGES[k];
@@ -418,13 +433,42 @@ export function simulate(MODEL, { sex, lifestyle = 1.0, interventions = {}, inpu
       // (small, late — verified ~age 89; never above the TRUE baseline). Distinct beta-channel item, resolve when the
       // immunosenescence→clearance channel is calibrated — see clearance-state-design.md. Inert today (beta=0).
       for (const cl of clearanceNodes) {
-        let c0 = cl.c0;
-        for (const op of clearanceRestoreOps) { if (op.idx === cl.idx && age >= op.startAge && age <= op.endAge) c0 += op.boost; }
-        const dc = cl.beta && cl.driverIdx !== undefined ? -cl.beta * D[cl.driverIdx] : 0;  // Δc = −beta·driverDev
-        if (c0 !== 0 || dc !== 0) {
-          let x = accumDev[cl.idx];
-          for (const op of pulseOps) { if (op.idx === cl.idx && op.decay >= 1) x += op.dev; }
-          accumDev[cl.idx] += (-c0 * x - dc * Barr[cl.idx][k]) * DT;
+        // x = endogenous + persistent-intervention deviation. A rebounding senolytic pulse (decay<1) heals via its
+        // OWN exact map (op.dev) and is EXCLUDED here (the double-heal guard / §11 separation): SR removal acts on the
+        // endogenous deviation, NOT on the pulse component (gross-production refill ≠ net SR relaxation).
+        let x = accumDev[cl.idx];
+        for (const op of pulseOps) { if (op.idx === cl.idx && op.decay >= 1) x += op.dev; }
+
+        if (cl.form === "saturating" && cl.Vmax > 0) {
+          // SATURATING REMOVAL (model/sr-saturating-removal-integration-design.md §11). Deviation-form, baseline-exact:
+          //   dx/dt = coeff·x  −  [R(S) − R(T)],   R(s)=Vmax·s/(Km+s),   S = T + x  (endogenous burden)
+          // production-response (coeff·x = self-amp on the deviation) + saturating removal; BOTH vanish at x=0 ⇒
+          // baseline byte-identical. Stable while R'(T)=Vmax·Km/(Km+T)² > P_S=coeff (tips ~age 93 at Vmax .075/Km .30).
+          const T = Tarr[cl.idx][k];
+          const S = Math.max(0, T + x);                 // endogenous burden (clamp ≥0 for the removal evaluation)
+          // immunosenescence lowers the ceiling: VmaxEff = Vmax − betaImm·(driver deviation); clearance-restoration raises it
+          let Vmax = cl.Vmax;
+          for (const op of clearanceRestoreOps) { if (op.idx === cl.idx && age >= op.startAge && age <= op.endAge) Vmax += op.boost; }
+          const dVmax = cl.betaImm && cl.driverIdx !== undefined ? -cl.betaImm * D[cl.driverIdx] : 0;
+          const VmaxEff = Math.max(0, Vmax + dVmax);     // live ceiling (immunosenescence ↓, restoration ↑)
+          const q = (s) => s / (cl.Km + s);
+          // Deviation form: live removal uses the LIVE ceiling VmaxEff; baseline removal uses the population-default
+          // ceiling cl.Vmax. (Using VmaxEff for BOTH would cancel the immunosenescence/restoration effect at S=T.)
+          const Rlive = VmaxEff * q(S);
+          const Rbase = cl.Vmax * q(T);
+          // production-response uses (S − T), the clamped deviation, so it stays consistent with the clamped removal
+          // argument S=max(0,T+x). In-domain (x ≥ −T) this equals coeff·x; out-of-domain it is bounded (can't push
+          // burden below 0). Vanishes at x=0 ⇒ baseline still exact.
+          const prodResp = cl.productionResponse ? cl.selfCoeff * (S - T) : 0;
+          accumDev[cl.idx] += (prodResp - (Rlive - Rbase)) * DT;
+        } else {
+          // LEGACY LINEAR clearance (−c0·x − Δc·S); inert at c0=beta=0.
+          let c0 = cl.c0;
+          for (const op of clearanceRestoreOps) { if (op.idx === cl.idx && age >= op.startAge && age <= op.endAge) c0 += op.boost; }
+          const dc = cl.beta && cl.driverIdx !== undefined ? -cl.beta * D[cl.driverIdx] : 0;  // Δc = −beta·driverDev
+          if (c0 !== 0 || dc !== 0) {
+            accumDev[cl.idx] += (-c0 * x - dc * Barr[cl.idx][k]) * DT;
+          }
         }
       }
     }

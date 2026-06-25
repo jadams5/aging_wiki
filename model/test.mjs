@@ -56,9 +56,9 @@ str("D+Q preset: canonical exploratory scenario exists", String(!!dqPreset), "tr
 str("D+Q preset: human kill envelope pinned at 17/35/62%",
   JSON.stringify(dqPreset && dqPreset.killFractionScenarios),
   JSON.stringify({ conservative: 0.17, central: 0.35, optimistic: 0.62 }));
-str("D+Q preset: rebound values explicitly scenario-bounded",
+str("D+Q preset: rebound values explicitly scenario-bounded (SR §11: allometric ~0.5 yr central)",
   JSON.stringify(dqPreset && dqPreset.reboundHalfLifeScenariosYears),
-  JSON.stringify({ short: 1, central: 3, long: 8 }));
+  JSON.stringify({ short: 0.25, central: 0.5, long: 1.5 }));
 const dqCentral = dqPreset ? simulate(MODEL, { sex: "male", operators: [{
   kind: dqPreset.kind,
   target: dqPreset.target,
@@ -66,8 +66,12 @@ const dqCentral = dqPreset ? simulate(MODEL, { sex: "male", operators: [{
   reboundHalfLifeYears: dqPreset.reboundHalfLifeScenariosYears.central,
   ages: [55],
 }] }) : simulate(MODEL, { sex: "male" });
-num("D+Q preset: central one-off @55 remains a small exploratory ΔLE",
-  dqCentral.LE - baseM, 0.01865, 0.001);
+// RE-BASELINED 2026-06-24 (SR integration, model/sr-saturating-removal-integration-design.md §11): was 0.01865.
+// Two intended causes: (1) the D+Q central rebound half-life dropped 3 yr → 0.5 yr (allometric, clinical hit-and-run),
+// so a one-off course is more TRANSIENT ⇒ smaller ΔLE; (2) SR removal is now active. The smaller, more-transient
+// senolytic ΔLE is the designed effect, not a regression.
+num("D+Q preset: central one-off @55 remains a small exploratory ΔLE (SR-rebaselined)",
+  dqCentral.LE - baseM, 0.0053, 0.001);
 
 // v0.4: upstream-node freeze ΔLEs ROSE vs v0.3 because old-age escalation is now
 // burden-driven, not age-keyed. In v0.3 the cause-node burden was clamped at 1
@@ -902,8 +906,18 @@ str("GLP-1: no live CV residual (double-count removed)", String(!MODEL.bLayer.tr
     ages: [60], reboundHalfLifeYears: 4,
   }] });
   const gapRebound = (age) => baseSen(age) - atAge(rebound.B["cellular-senescence"], age);
-  num("operators: rebound half-life exact (pulse gap halves over 4 yr)",
-    gapRebound(65) / gapRebound(61), 0.5, 1e-9);
+  // The rebound MAP is op.dev·exp(−ln2·dt/τ) — exact. Under SR-active feedback (production-response amplifies the
+  // pulse's downstream loops) the MEASURED senescence gap picks up a small correction, so the exact-to-1e-9 check is
+  // done under form:linear (SR inert) which isolates op.dev; SR-active is asserted approximately. (Baseline is
+  // byte-identical across forms, so baseSen is shared.)
+  const MLinRb = JSON.parse(JSON.stringify(MODEL));
+  MLinRb.nodes.find((n) => n.id === "cellular-senescence").clearance.form = "linear";
+  const reboundLin = simulate(MLinRb, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60], reboundHalfLifeYears: 4 }] });
+  const gapRL = (age) => baseSen(age) - atAge(reboundLin.B["cellular-senescence"], age);
+  num("operators: rebound half-life exact under form:linear (pulse gap halves over 4 yr)",
+    gapRL(65) / gapRL(61), 0.5, 1e-9);
+  num("operators: rebound half-life ~exact under SR (small feedback correction)",
+    gapRebound(65) / gapRebound(61), 0.5, 0.01);
   str("operators: finite rebound prevents effectively permanent one-off benefit",
     String(gapRebound(81) < gapRebound(61) / 20), "true");
 
@@ -923,7 +937,8 @@ str("GLP-1: no live CV residual (double-count removed)", String(!MODEL.bLayer.tr
   {
     const MC = JSON.parse(JSON.stringify(MODEL));
     const senN = MC.nodes.find((n) => n.id === "cellular-senescence");
-    senN.clearance = { ...(senN.clearance || {}), c0: 0.15, driver: (senN.clearance && senN.clearance.driver) || "immunosenescence", beta: 0 };
+    // form:linear to exercise the LEGACY linear-clearance double-heal guard (the SR branch would ignore c0).
+    senN.clearance = { ...(senN.clearance || {}), form: "linear", c0: 0.15, driver: (senN.clearance && senN.clearance.driver) || "immunosenescence", beta: 0 };
     const POST = []; for (let a = 61; a <= 100; a++) POST.push(a);
     const rbC0 = simulate(MC, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60], reboundHalfLifeYears: 4 }] });
     const gR = (a) => baseSen(a) - atAge(rbC0.B["cellular-senescence"], a);
@@ -952,9 +967,12 @@ str("GLP-1: no live CV residual (double-count removed)", String(!MODEL.bLayer.tr
   Ms.nodes.find((n) => n.id === "cellular-senescence").rate.terms = [{ coeff: 0.0002, drivers: [{ id: "smoking", minus: 2, floor: 0 }] }];
   const noMorph = simulate(Ms, { sex: "male", inputs: { smoking: 20 } });
   const morph = simulate(Ms, { sex: "male", inputs: { smoking: 20 }, operators: [{ kind: "senomorphic", from: "cellular-senescence", to: "chronic-inflammation", atten: 0.8, startAge: 20, endAge: 130 }] });
-  str("operators: senomorphic lowers downstream inflammation WITHOUT changing senescence",
+  // Senomorphic attenuates sen→infl: inflammation drops; senescence is ESSENTIALLY unchanged. (With the SR
+  // production-response active, senescence moves by a negligible ~1e-6 — the self-amp amplifying a sub-threshold
+  // multi-hop loop residual — vs the ~0.3 senescence scale. Tolerance reflects "negligible," not "bit-exact.")
+  str("operators: senomorphic lowers downstream inflammation WITHOUT meaningfully changing senescence",
     String(atAge(morph.B["chronic-inflammation"], 80) < atAge(noMorph.B["chronic-inflammation"], 80)
-        && Math.abs(atAge(morph.B["cellular-senescence"], 80) - atAge(noMorph.B["cellular-senescence"], 80)) < 1e-9), "true");
+        && Math.abs(atAge(morph.B["cellular-senescence"], 80) - atAge(noMorph.B["cellular-senescence"], 80)) < 1e-3), "true");
 
   // node-deviation rate-channel: an inflammation rate term reading D_sen integrates cumulatively
   const Mr = JSON.parse(JSON.stringify(Ms));
@@ -966,50 +984,57 @@ str("GLP-1: no live CV residual (double-count removed)", String(!MODEL.bLayer.tr
     String(dInfl(80) > dInfl(50) && dInfl(50) > 0), "true");
 }
 
-// ---- clearance-capacity state (design model/clearance-state-design.md; SYNTHETIC coeffs) ----
-// Clearance acts on the DEVIATION (−c0·x − Δc·S) ⇒ baseline preserved. Biological c0/beta ship DISABLED;
-// these tests use synthetic values. Covers: disabled ⇒ a senolytic-pulse drop PERSISTS; synthetic c0 ⇒ the
-// drop HEALS (the corrected re-accumulation — production already re-grows; clearance heals the deviation);
-// baseline-invariant under synthetic c0; immunosenescence deviation (synthetic beta) raises senescence
-// (clearance failure); the clearance-restoration operator clears the excess.
+// ---- SATURATING-REMOVAL clearance (model/sr-saturating-removal-integration-design.md §11) ----
+// Senescence clearance ships ACTIVE: form=saturating, Vmax=0.075, Km=0.30, betaImm=0.010, productionResponse=true.
+// Deviation-form ⇒ baseline byte-identical (pinned above). Covers: SR ⇒ a senolytic drop HEALS; form:linear ⇒ it
+// PERSISTS (legacy regression); SR baseline invariance; immunosenescence (betaImm) ⇒ senescence RISES; the
+// clearance-restoration operator (raises Vmax) ⇒ clears the excess; tipping-age stability (resilient mid-life,
+// loses resilience only at very old age) + no divergence.
 {
   const AGE0c = MODEL.meta.ageRange[0];
   const atAge = (B, age) => B[age - AGE0c];
   const baseSen = (age) => atAge(simulate(MODEL, { sex: "male" }).B["cellular-senescence"], age);
+  // NO-rebound (persistent) pulse so the heal is attributable to SR removal (not op.dev decay).
   const pulseOp = [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [60] }];
 
-  // (A) clearance DISABLED (default c0=beta=0) ⇒ the pulse drop PERSISTS (gap ~constant)
-  const disabled = simulate(MODEL, { sex: "male", operators: pulseOp });
-  const gapDis = (age) => baseSen(age) - atAge(disabled.B["cellular-senescence"], age);
-  str("clearance: disabled ⇒ senolytic drop PERSISTS (gap@80 ≈ gap@62 > 0.02)",
-    String(Math.abs(gapDis(80) - gapDis(62)) < 0.005 && gapDis(62) > 0.02), "true");
+  // (A) SR ACTIVE ⇒ a persistent senolytic drop HEALS toward baseline (gap shrinks; mid-life is removal-dominated)
+  const srPulse = simulate(MODEL, { sex: "male", operators: pulseOp });
+  const gapSR = (age) => baseSen(age) - atAge(srPulse.B["cellular-senescence"], age);
+  str("clearance: SR ⇒ senolytic drop HEALS (gap@80 << gap@62, both > 0)",
+    String(gapSR(62) > 0.02 && gapSR(80) < gapSR(62) * 0.6 && gapSR(80) > -1e-9), "true");
 
-  // (B) synthetic c0 ⇒ the drop HEALS (gap SHRINKS over time)
-  const Mc = JSON.parse(JSON.stringify(MODEL));
-  Mc.nodes.find((n) => n.id === "cellular-senescence").clearance.c0 = 0.15;
-  const baseSenC = (age) => atAge(simulate(Mc, { sex: "male" }).B["cellular-senescence"], age);
-  const healed = simulate(Mc, { sex: "male", operators: pulseOp });
-  const gapHeal = (age) => baseSenC(age) - atAge(healed.B["cellular-senescence"], age);
-  str("clearance: synthetic c0 ⇒ drop HEALS (gap@80 << gap@62)",
-    String(gapHeal(80) < gapHeal(62) * 0.5 && gapHeal(62) > 0.02), "true");
+  // (B) form:linear (c0=0) ⇒ the SAME drop PERSISTS (legacy disabled-clearance regression; baseline shared)
+  const MLin = JSON.parse(JSON.stringify(MODEL));
+  MLin.nodes.find((n) => n.id === "cellular-senescence").clearance.form = "linear";
+  const linPulse = simulate(MLin, { sex: "male", operators: pulseOp });
+  const gapLin = (age) => baseSen(age) - atAge(linPulse.B["cellular-senescence"], age);
+  str("clearance: form:linear (c0=0) ⇒ senolytic drop PERSISTS (gap@80 ≈ gap@62 > 0.02)",
+    String(Math.abs(gapLin(80) - gapLin(62)) < 0.005 && gapLin(62) > 0.02), "true");
 
-  // (C) synthetic c0, NO perturbation ⇒ baseline preserved (clearance acts on deviation x=0)
-  num("clearance: synthetic c0, no perturbation ⇒ baseline LE invariant",
-    lifeExpectancy(Mc, { sex: "male" }) - baseM, 0, 1e-9);
+  // (C) SR active, NO perturbation ⇒ baseline preserved (all terms vanish at x=0)
+  num("clearance: SR active, no perturbation ⇒ baseline LE invariant",
+    lifeExpectancy(MODEL, { sex: "male" }) - baseM, 0, 1e-9);
 
-  // (D) immunosenescence deviation (synthetic beta) ⇒ clearance fails ⇒ senescence RISES
+  // (D) immunosenescence deviation lowers Vmax (betaImm) ⇒ clearance weakens ⇒ senescence RISES.
+  // Synthetic betaImm=0.05 for a clear signal (default 0.010 also rises, ~7e-3 @80).
   const Mb = JSON.parse(JSON.stringify(MODEL));
-  const clB = Mb.nodes.find((n) => n.id === "cellular-senescence").clearance; clB.c0 = 0.15; clB.beta = 0.3;
+  Mb.nodes.find((n) => n.id === "cellular-senescence").clearance.betaImm = 0.05;
   const immUp = { "immunosenescence": { efficacy: -1, startAge: 20 } };  // negative efficacy raises immunosenescence
   const senHi = simulate(Mb, { sex: "male", interventions: immUp });
   const senBase = simulate(Mb, { sex: "male" });
-  str("clearance: elevated immunosenescence (beta>0) ⇒ senescence RISES (clearance failure)",
-    String(atAge(senHi.B["cellular-senescence"], 80) > atAge(senBase.B["cellular-senescence"], 80)), "true");
+  str("clearance: elevated immunosenescence (betaImm>0 ⇒ Vmax↓) ⇒ senescence RISES (clearance failure)",
+    String(atAge(senHi.B["cellular-senescence"], 80) > atAge(senBase.B["cellular-senescence"], 80) + 1e-6), "true");
 
-  // (E) clearance-restoration operator clears the immunosenescence-driven excess
-  const restore = simulate(Mb, { sex: "male", interventions: immUp, operators: [{ kind: "clearance-restoration", target: "cellular-senescence", boost: 0.3, startAge: 20, endAge: 130 }] });
-  str("clearance: clearance-restoration operator lowers the senescence excess",
+  // (E) clearance-restoration operator RAISES Vmax ⇒ clears the immunosenescence-driven excess
+  const restore = simulate(Mb, { sex: "male", interventions: immUp, operators: [{ kind: "clearance-restoration", target: "cellular-senescence", boost: 0.05, startAge: 20, endAge: 130 }] });
+  str("clearance: clearance-restoration (Vmax boost) lowers the senescence excess",
     String(atAge(restore.B["cellular-senescence"], 80) < atAge(senHi.B["cellular-senescence"], 80)), "true");
+
+  // (F) Stability / no-divergence: a senolytic + rebound runs to completion with finite LE and clamped burden.
+  const srStab = simulate(MODEL, { sex: "male", operators: [{ kind: "senolytic-pulse", target: "cellular-senescence", killFraction: 0.5, ages: [50], reboundHalfLifeYears: 0.5 }] });
+  let mxSen = 0; for (let a = AGE0c; a <= MODEL.meta.ageRange[1]; a++) mxSen = Math.max(mxSen, atAge(srStab.B["cellular-senescence"], a));
+  str("clearance: SR stays bounded (finite LE, senescence burden clamped ≤ 1, no divergence)",
+    String(Number.isFinite(srStab.LE) && mxSen <= 1 + 1e-12), "true");
 }
 
 /* ====================== M1: time-profiles (2026-06-14) ======================
