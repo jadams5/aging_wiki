@@ -29,6 +29,8 @@ This page covers the **drug class as a whole**. Specific compounds live in `mole
 - [[dasatinib]] (verified) — TKI; D+Q "D"; preadipocyte-active via ephrin/EPH receptors
 - [[navitoclax]] (planned) — Bcl-2/Bcl-xL inhibitor; thrombocytopenia-limited
 - [[a1331852]] (planned) — selective Bcl-xL inhibitor
+- [[procyanidin-c1]] (verified) — grape-seed B-type procyanidin trimer; **dual** senomorphic (low-dose) / senolytic (≥50 µM) via NOXA/PUMA→ROS→mitochondrial apoptosis; aged-mouse lifespan extension (Xu 2021); preclinical, no human senolytic trial
+- [[piperlongumine]] (verified) — long-pepper alkaloid; OXR1-targeting → chronic ROS → senolysis; ~2.5–3.3× selectivity; navitoclax-synergistic; preclinical
 
 ## Definitional clarifications
 
@@ -88,7 +90,8 @@ Navitoclax in **aged-mouse** studies improved hematopoietic stem cell function (
 |---|---|---|
 | [[fisetin]] | PI3K/AKT/mTOR pathway disruption (proposed); cell-type-specific clearance; mechanism incompletely characterized | Phase 2 trials ongoing (NCT03675724, NCT03325322) |
 | [[quercetin]] | BCL-xL / EFNB1 in HUVECs (PI3Kδ is preadipocyte-selective per Zhu 2015, not HUVEC); D+Q "Q" component | Phase 1/2 in D+Q regimen |
-| Procyanidin C1 (grape seed) | Less-studied; preclinical evidence in mice (Xu 2021 *Nat Metab*) | Preclinical |
+| [[procyanidin-c1]] (grape seed) | Dual dose-dependent: senomorphic (SASP-suppressing) at low concentration, senolytic at ≥50 µM; kills via NOXA/PUMA upregulation → ROS → mitochondrial depolarization → caspase 3/7 (NOT BCL-2/BCL-xL). Aged-mouse lifespan +9.4% whole-life / +64% post-treatment (Xu 2021 *Nat Metab*) | Preclinical (no human senolytic trial) |
+| [[piperlongumine]] | Long-pepper (*Piper longum*) alkaloid; targets OXR1 → chronic antioxidant-defense erosion → ROS-dependent senolysis; ~2.5–3.3× senescent-vs-normal selectivity; synergistic with [[navitoclax]] (Wang 2016) | Preclinical (no human trial) |
 
 ### Other / investigational
 

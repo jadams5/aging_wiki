@@ -108,6 +108,7 @@ The hypothesis predicts:
 - [[hypotheses/free-radical-theory-of-aging]] — NMRs carry paradoxically high baseline oxidative damage relative to mice despite extreme longevity, constituting a direct counter-example to the free radical theory; see [[model-organisms/heterocephalus-glaber]] (verified-partial). #gap/contradictory-evidence (from the oxidative stress perspective)
 - [[hypotheses/information-theory-of-aging]] — if negligible senescence is real, NMR epigenetic clocks may not advance with chronological age, or may advance at extremely low rates; this has not been systematically tested #gap/unsourced
 - [[hypotheses/disposable-soma-theory]] — negligible senescence would imply NMR soma maintenance investment is far higher than expected for its reproductive schedule; this is qualitatively consistent with the disposable soma framework but requires quantification
+- [[hypotheses/saturating-removal-model]] — supplies the *mechanistic* damage-accumulation basis for the Gompertz/Weibull hazard fits used to test (non-)senescence. In SR terms, a genuinely negligibly-senescent species would have a near-flat hazard — a vanishingly small damage-production rate η and/or removal that never saturates — placing it outside both the ballistic and quasi-steady-state regimes the model identifies in conventionally-aging species (humans, dogs, mice, etc.). The model was fit only to senescent species; NMR is the candidate test case it has not yet been applied to.
 
 ## Related hallmarks
 

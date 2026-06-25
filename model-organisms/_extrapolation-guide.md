@@ -72,6 +72,21 @@ Each model-organism page (`mus-musculus.md`, `caenorhabditis-elegans.md`, etc.) 
 
 ---
 
+## Mortality-dynamics lens: which species share humans' *aging regime*
+
+Pathway and phenotype conservation are molecular axes. A complementary **demographic** axis asks whether a species' *mortality dynamics* resemble humans'. The [[hypotheses/saturating-removal-model|Saturating Removal model]] (Raz et al. 2026) fits damage-accumulation parameters to survival curves across nine species and classifies each into one of two regimes [^raz2026]:
+
+- **Quasi-steady-state aging** (Gompertz-like hazard; damage tracks a balanced production/removal set-point) — **humans, dogs (except German Shepherd), cats, guinea pigs**. These are the species whose *mortality shape* most resembles humans.
+- **Ballistic aging** (Weibull-like hazard; production outpaces removal) — **mice, *C. elegans*, most *Drosophila* strains, yeast**. Mortality shape is *less* human-like.
+
+**Caveats for the standard models:** **mice are in the ballistic regime**, and **male mice are further from human-like aging than female mice** (females spend their first ~2 yr quasi-steady-state, then go ballistic). This is an additional reason — orthogonal to telomere/immune divergences below — to be cautious extrapolating mouse *lifespan-curve* effects to humans. Among companion animals, **dogs/cats/guinea pigs are demographically the closest to humans**, which may make them underused models for human mortality dynamics. See [[studies/raz-2026-sr-model-aging-regimes]].
+
+> This lens classifies the *shape of mortality*, not mechanism. A species can be molecularly informative yet demographically dissimilar (mice), or vice versa. Use it alongside — not instead of — the pathway/phenotype rubric.
+
+[^raz2026]: [[studies/raz-2026-sr-model-aging-regimes]] · Raz N et al. · *Nat Aging* 6:1330–1340 (2026) · doi:10.1038/s43587-026-01138-7 · SR-model fit across nine species; regime classification · design: in-silico modeling of observational mortality data.
+
+---
+
 ## Common extrapolation pitfalls
 
 These cases historically misled translation; flag them when relevant.

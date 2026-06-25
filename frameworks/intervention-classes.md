@@ -452,6 +452,49 @@ WHERE contains(mechanisms, "RAR-agonist")
 
 ---
 
+### senomorphic
+
+**Added:** 2026-06-24 — first compound page: [[molecules/compounds/procyanidin-c1]]
+
+**Definition:** Suppresses the senescence-associated secretory phenotype (SASP) in senescent cells without inducing their death. Reduces the paracrine pro-inflammatory burden of the senescent microenvironment — cytokines (IL-6, IL-8), chemokines, matrix metalloproteinases — without clearing the underlying senescent cell population. Mechanistically distinct from **senolytic** (which kills senescent cells) and from general **anti-inflammatory** agents (which do not specifically target SASP at its source). Canonical examples include rapamycin (mTORC1-mediated SASP suppression), JAK inhibitors, and procyanidin C1 at sub-senolytic concentrations (suppresses SASP output without apoptosis). Note: some compounds exhibit dose-dependent switching — senomorphic at low dose, senolytic at high dose (procyanidin C1; dasatinib at sub-senolytic concentrations in some cell types).
+
+**Aliases in use:** `senomorphic`, `sasp-suppression`
+
+**Note:** The `anti-inflammatory` class carries `sasp-suppression` as a sub-alias. Use `senomorphic` on compound pages where the evidence is specifically for SASP suppression in senescent cells (rather than general anti-inflammatory activity). Use both `senomorphic` and `senolytic` on compound pages with dual-mode dose-dependent activity.
+
+**Hallmarks primarily targeted:** [[chronic-inflammation]], [[cellular-senescence]], [[altered-intercellular-communication]]
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "senomorphic")
+  OR contains(mechanisms, "sasp-suppression")
+```
+
+---
+
+### ros-induction (pro-oxidant senolytic)
+
+**Added:** 2026-06-24 — first compound page: [[molecules/compounds/procyanidin-c1]]
+
+**Definition:** Selectively elevates intracellular reactive oxygen species (ROS) in senescent cells, exploiting their already-elevated oxidative stress burden and reduced antioxidant reserve to trigger mitochondrial dysfunction and apoptosis. Mechanistically opposite to the **antioxidant** class: these compounds act as pro-oxidants preferentially in senescent cells while leaving non-senescent cells relatively unaffected (due to the differential antioxidant capacity). Often accompanied by mitochondrial membrane depolarization. Distinct from the **BH3-mimetic** class (which targets BCL-2 family proteins directly) and the **tyrosine kinase inhibitor** senolytic class. The canonical member is procyanidin C1 (PCC1) at high dose per Xu et al. 2021 (*Nature Metabolism*). This class also encompasses other pro-oxidant natural products studied as senolytics.
+
+**Canonical value in use:** `ros-induction`
+
+**Note on naming:** "Pro-oxidant" is the functional descriptor; `ros-induction` is the concise mechanism value. Do NOT use `ros-induction` on antioxidant compounds — the two classes are mechanistically opposed. On compound pages, pair `ros-induction` with `senolytic` to ensure the compound appears in both the senolytic Dataview block and the pro-oxidant senolytic block.
+
+**Hallmarks primarily targeted:** [[cellular-senescence]], [[mitochondrial-dysfunction]]
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "ros-induction")
+```
+
+---
+
 ## Discrepancies and cleanup flags
 
 The following `mechanisms:` values on existing compound/intervention pages do not fit cleanly into the classes above. Recommend either (a) updating the compound's mechanism value to use the canonical class name, or (b) adding a new class. These are flagged — not silently reconciled — per R16 discipline.
