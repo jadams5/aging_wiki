@@ -105,7 +105,7 @@ Skeletal muscle in T2DM and insulin resistance shows reduced mitochondrial conte
 
 **Beta-cell senescence** accelerates with age and is mechanistically linked to T2DM onset: in aged mice, beta-cells accumulate p16^Ink4a, p21, and senescence-associated beta-galactosidase; clearance of these senescent beta-cells (using the INK-ATTAC suicide gene model to eliminate p16^Ink4a+ cells) delays T2DM onset and improves insulin secretion. Conversely, transplanting senescent beta-cells into young mice impairs their glucose tolerance [^aguayo2019]. This establishes beta-cell senescence as causally — not merely correlatively — contributing to T2DM. #gap/needs-human-replication #gap/no-fulltext-access (Aguayo-Mazzucato 2019 full PDF download pending at time of verification; quantitative details — exact p16+ cell %, glucose tolerance effect size — unconfirmed from source)
 
-**Adipose tissue senescence:** Senescent preadipocytes and adipocytes secrete a proinflammatory SASP that impairs adipogenesis, promotes macrophage infiltration, and exacerbates insulin resistance. See [[fisetin]] and [[dasatinib]] for senolytic compounds with adipose-senescence-targeting activity.
+**[[tissues/white-adipose-tissue|Adipose tissue]] senescence:** Senescent preadipocytes and adipocytes secrete a proinflammatory SASP that impairs [[processes/adipogenesis|adipogenesis]] (in part via [[inhba|activin A]]), promotes macrophage infiltration, and exacerbates insulin resistance. See [[fisetin]] and [[dasatinib]] for senolytic compounds with adipose-senescence-targeting activity.
 
 See [[cellular-senescence]] for general senescence biology.
 

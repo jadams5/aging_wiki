@@ -34,7 +34,7 @@ Key binding targets of follistatin relevant to muscle:
 | Ligand | Family | Effect on muscle when follistatin blocks it |
 |---|---|---|
 | Myostatin (GDF-8) | TGF-β | Removes primary negative regulator of myofibre hypertrophy |
-| Activin A | TGF-β | Removes catabolic signal; activin A rises with age and disease |
+| [[inhba|Activin A]] | TGF-β | Removes catabolic signal; activin A rises with age and disease |
 | Activin B | TGF-β | Secondary catabolic signal; less muscle-specific than activin A |
 | BMP-11 (GDF-11) | TGF-β | Controversial; may oppose muscle growth in some contexts |
 

@@ -1,7 +1,7 @@
 ---
 type: process
 aliases: [SASP, senescence-associated secretory phenotype, senescent secretome, paracrine senescence]
-key-proteins: ["[[il-6]]", "[[il-8]]", "[[il-1a]]", "[[il-1b]]", "[[cxcl1]]", "[[ccl2]]", "[[mmp1]]", "[[mmp3]]", "[[hmgb1]]"]
+key-proteins: ["[[il-6]]", "[[il-8]]", "[[il-1a]]", "[[il-1b]]", "[[cxcl1]]", "[[ccl2]]", "[[mmp1]]", "[[mmp3]]", "[[hmgb1]]", "[[inhba]]"]
 pathways: ["[[nf-kb]]", "[[mtor]]", "[[cgas-sting]]", "[[jak-stat]]"]
 hallmarks: ["[[cellular-senescence]]", "[[chronic-inflammation]]", "[[altered-intercellular-communication]]"]
 selective-variants: ["[[midas]]"]
@@ -130,7 +130,7 @@ The SASP is hypothesized to be a primary driver of **inflammaging** — the low-
    - **Atherosclerosis** — IL-6 and MMP-driven plaque instability
    - **Sarcopenia** — SASP inhibits satellite cell activation; IL-6 promotes muscle catabolism
    - **Neurodegeneration** — Senescent microglia and astrocytes produce neurotoxic SASP in Alzheimer's and Parkinson's
-   - **Type 2 diabetes** — Adipose senescent cells impair insulin signaling via IL-1β and TNF-α
+   - **Type 2 diabetes** — Adipose senescent cells impair insulin signaling via IL-1β and TNF-α, and secrete the TGF-β-superfamily ligand [[inhba|activin A]], which paracrinally blocks adipocyte progenitor differentiation; clearing senescent cells or JAK-inhibiting their secretome lowers circulating activin A, restores adipogenesis, reduces lipotoxicity, and improves insulin sensitivity in aged mice [^xu2015elife]
 
 This causal chain is the primary rationale for [[interventions/pharmacological/senolytics|senolytic]] and **senomorphic** therapeutic strategies targeting SASP.
 
@@ -190,4 +190,5 @@ Related entities: [[cellular-senescence]] · [[chronic-inflammation]] · [[fiset
 [^gluck2017]: doi:10.1038/ncb3586 · in-vitro + in-vivo · cGAS recognizes cytosolic chromatin fragments (CCFs) arising from lamin B1 degradation in senescent cells; STING → TBK1 → IRF3 (type I IFN) and NF-κB drives SASP; cGAS-STING required for SASP across multiple senescence inducers (IR, oncogene, oxidative stress); cGAS-STING also regulates senescence in vivo (irradiation and NrasG12V OIS models) · model: mouse MEFs (C57BL/6, cGAS KO, STING KO) and human WI-38 fibroblasts
 [^shin2025]: [[studies/shin-2025-rehmgb1-paracrine-senescence]] · in-vitro + in-vivo · ReHMGB1 (reduced form, 20 μg/mL × 72 h) but not OxHMGB1 induces senescence in WI-38/BJ/renal epithelial/HSKM via RAGE-mediated JAK2/STAT1 + PI3K-AKT/NF-κB; transcriptome closely resembles IR-induced primary senescence (1,087 DEGs); systemic ReHMGB1 (5 mg/kg IV, 3-mo C57BL/6J, 7 dpt) elevates p21 in GA/TA/liver, p16+/p21+ TA myofibers, IL-6 + IL-1β in serum; pharmacological rescue with FPS-ZM1 (100 nM RAGE antagonist) or Momelotinib (0.3 μM JAK2i) abrogates senescence; anti-HMGB1 mAb (3E8 clone, 0.1 mg/kg IV) in 15-mo BaCl₂ TA injury restores grip strength, increases MyoD+ progenitors, partially restores fiber CSA; ReHMGB1 elevated in 70–80 yr human serum (Supp Fig 6) · model: human cell lines + young/middle-aged C57BL/6J mice; supplementary human-serum cohort · PDF verified 2026-05-20
 [^kang2015]: doi:10.1126/science.aaa5612 · in-vitro + in-vivo · GATA4 accumulates in senescent cells by escaping p62-dependent selective autophagy; GATA4 activates NF-κB and SASP; GATA4 accumulates in aging mouse and human brain · Science 349:1–7, 2015 · model: multiple human and mouse cell lines; in-vivo: aging mouse and human brain tissue · PDF not locally verified (green OA in archive but download failed)
+[^xu2015elife]: [[studies/xu-2015-senescent-cells-adipogenesis]] · in-vitro (human fat progenitors) + in-vivo (INK-ATTAC + ruxolitinib in aged C57BL/6 mice) · senescent fat progenitors secrete [[inhba|activin A]], paracrinally inhibiting adipogenesis; genetic senescent-cell clearance and JAK inhibition (ruxolitinib 60 mg/kg/day, 8 wk, ~22-mo mice) lower circulating activin A, preserve fat mass, raise PPARγ/C-EBPα, cut hepatic triglycerides + plasma FFA, and improve insulin sensitivity · *eLife* 2015 · doi:10.7554/eLife.12997 · #gap/needs-human-replication (metabolic endpoints mouse-only)
 [^suryadevara2026_sasp]: [[studies/suryadevara-2026-senotypes]] · Suryadevara V et al.; NIH SenNet Consortium; Robbins P, Fan R · review (Perspective) · doi:10.1016/j.cell.2026.05.028 · *Cell* 189(12):3501–3505 · 2026 Jun 11 · model: human tissue atlas framework · note: paywalled; abstract-sourced only; introduces "senotype" concept for tissue-specific senescent cell states shaped by microenvironmental interactions

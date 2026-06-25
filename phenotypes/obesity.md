@@ -83,7 +83,7 @@ This adipokine dysregulation is a canonical mechanism by which obesity engages [
 
 ### Adipose tissue senescence
 
-A growing body of evidence shows that **senescent cells accumulate in adipose tissue** with aging and obesity, and that adipose-tissue SASP (senescence-associated secretory phenotype) drives systemic inflammation and accelerates age-related disease [^rubio2022-nutrition-senescence] [^liang2024-obesity-senescence]:
+A growing body of evidence shows that **senescent cells accumulate in [[tissues/white-adipose-tissue|adipose tissue]]** with aging and obesity, and that adipose-tissue SASP (senescence-associated secretory phenotype) drives systemic inflammation and accelerates age-related disease [^rubio2022-nutrition-senescence] [^liang2024-obesity-senescence]:
 
 - p16^INK4a+ and p21^CIP1+ senescent preadipocytes and adipocytes are enriched in obese visceral fat
 - These cells secrete a pro-inflammatory SASP (IL-6, IL-8, GDF15, MMP-3) that paracrinally reinforces senescence in neighboring cells and paracrinely impairs adipogenesis — filling adipose niches with dysfunctional, non-lipid-storing cells
