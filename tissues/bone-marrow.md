@@ -114,6 +114,14 @@ The bone marrow niche contains senescent stromal cells — mesenchymal, endothel
 
 #gap/needs-replication — the functional consequence of clearing senescent niche cells (vs senescent HSCs) for hematopoietic output in aged organisms is not well established in vivo. See [[interventions/pharmacological/senolytics]] (verified-partial) for the therapeutic rationale.
 
+### Vascular and lymphatic niche decline
+
+The perivascular niche is not only senescence-prone but structurally remodeled with age. Bone capillaries include a specialized **type-H subtype** (CD31^hi^ Emcn^hi^) that, with its associated PDGFRβ+/NG2+ perivascular cells, supplies the stem-cell-factor ([[kitlg|SCF]]) and architecture that support HSCs; this compartment declines with age, lowering HSC support [^kusumbe2016]. The decline is partly *niche*-driven and partly *intrinsic*: endothelial Notch gain-of-function (Fbxw7 deletion) or PDGF-B overexpression can rebuild the aged type-H/perivascular niche and raise functional HSC frequency, yet limiting-dilution transplantation shows the aged HSCs' own damage (persistent γH2AX) is **not** corrected by niche rejuvenation alone [^kusumbe2016]. This is a clean in-vivo dissection of the niche-vs-intrinsic question flagged as unresolved in the Limitations below.
+
+Bone marrow also contains **lymphatic vessels** — a recent and counter-paradigmatic finding, since the skeleton was long considered alymphatic. LYVE1+/PROX1+/VEGFR3+ lymphatics penetrate the marrow (macrophages excluded by F4/80-negativity) and act as an inducible niche component: after genotoxic stress (irradiation, 5-fluorouracil) they expand via IL-6-driven lymphangiogenesis and secrete [[cxcl12|CXCL12]], driving HSC regeneration alongside a MYH11+ perivascular progenitor population that supports bone repair [^biswas2023]. In aged marrow these lymphatic endothelial cells become senescent and fail to expand after injury, contributing to impaired hematopoietic and skeletal regeneration — a defect rescued by transplanting young lymphatic endothelial cells [^biswas2023]. See [[prox1]], [[lyve1]], and [[studies/biswas-2023-bone-lymphatics]].
+
+**Does skull marrow escape niche aging?** Because red marrow retreats toward the axial skeleton and skull with age (see Anatomy above), the calvarial compartment has drawn special interest. A 2024 *Nature* study argued skull marrow is an *expanding, aging-resilient* reservoir whose vasculature uniquely increases with age [^koh2024]; this is **contested** on imaging-methodology grounds (whole-mount without tissue clearing) and by a 2025 multi-laboratory preprint reporting that skull marrow in fact degenerates with age like other sites [^yang2025-preprint]. Treat skull-marrow resilience as unresolved. #gap/contradictory-evidence
+
 ### Yellow marrow expansion (adipose infiltration)
 
 Age-associated adipogenesis within the BM cavities reduces hematopoietically active space and alters the niche cytokine environment. This is mechanistically linked to MSC fate-switching (osteoblast → adipocyte) and is associated with reduced HSC retention signaling. The clinical consequence is a reduction in functional hematopoietic reserve, contributing to [[anemia-of-aging]]. #gap/unsourced — quantitative relationship between marrow adiposity and HSC functional decline needs dedicated citation.
@@ -168,7 +176,7 @@ A conceptually appealing strategy: clear senescent niche stromal cells to restor
 | [[genomic-instability]] | DNA DSB accumulation in quiescent HSCs; CHIP somatic mutations |
 | [[epigenetic-alterations]] | Methylation drift at lineage-specification loci; epigenetic clock in HSCs |
 | [[chronic-inflammation]] | CHIP-mutant macrophages (TET2, DNMT3A) overproduce IL-1β/IL-6; niche SASP |
-| [[cellular-senescence]] | Senescent niche stromal cells impair HSC retention signals |
+| [[cellular-senescence]] | Senescent niche stromal cells impair HSC retention signals; aged type-H endothelium + lymphatic-endothelial senescence impair regeneration |
 
 ---
 
@@ -204,3 +212,11 @@ A conceptually appealing strategy: clear senescent niche stromal cells to restor
 [^jaiswal2014]: [[studies/jaiswal-2014-chip-adverse-outcomes]] · doi:10.1056/NEJMoa1408617 · Jaiswal S et al. · n=17,182 · observational (exome sequencing) · model: human blood DNA · CHIP prevalence ~10% >70 yr; HR 1.4 all-cause / 2.0 CHD (CI 1.2–3.4) / 2.6 stroke / 11.1 hematologic malignancy · local PDF available (archive confirmed) · see [[hematopoietic-stem-cells]] for verified claims
 
 [^pang2011]: [[studies/pang-2011-human-hsc-myeloid-bias-age]] · doi:10.1073/pnas.1116110108 · Pang WW et al. · n=11 young (20–35 yr) + 13 elderly (65+ yr) BM donors · observational · model: human bone marrow · elevated HSC frequency in elderly; myeloid bias confirmed in humans · see [[hematopoietic-stem-cells]] for verified claims
+
+[^kusumbe2016]: [[studies/kusumbe-2016-vascular-niche-aging]] · doi:10.1038/nature17638 · Kusumbe AP, Ramasamy SK, Itkin T, ... Adams RH · *Nature* 2016 · in-vivo (mouse, C57BL/6J males; young 2–5 wk, aged 55–70 wk) · age-related decline of type-H endothelium + PDGFRβ+/NG2+ perivascular cells reduces cellular SCF and HSC support (P<0.0001); endothelial Notch (Fbxw7) GOF or PDGF-B overexpression partially restores niche + HSC frequency; cell-intrinsic HSC aging (persistent γH2AX) NOT rescued by niche rejuvenation (limiting-dilution transplant) · verified 2026-06-28
+
+[^biswas2023]: [[studies/biswas-2023-bone-lymphatics]] · doi:10.1016/j.cell.2022.12.031 · Biswas L, Chen J, De Angelis J, ... Kusumbe AP · *Cell* 2023;186:382–397 · in-vivo (mouse) + human bone biopsy · LYVE1+/PROX1+/VEGFR3+ lymphatics within marrow (F4/80-negative); expand post genotoxic stress (irradiation, 5-FU) via IL-6 lymphangiogenesis; LEC-secreted CXCL12 drives HSC regeneration + MYH11+ perivascular progenitors; aged bone LECs senescent and fail to expand; young-LEC transfer rescues · verified end-to-end 2026-06-28
+
+[^koh2024]: [[studies/koh-2024-skull-marrow-reservoir]] · doi:10.1038/s41586-024-08163-9 · Koh BI, ... Adams RH · *Nature* 2024;636:172–181 · in-vivo (mouse) + human CT · claims skull/calvarial marrow is an expanding, aging-resilient hematopoietic reservoir with age-increasing vasculature, unlike long-bone niche decline; imaging used cryosections + dura whole-mount, NOT tissue clearing · **CONTESTED** (see [^yang2025-preprint]) · verified 2026-06-28
+
+[^yang2025-preprint]: **PREPRINT (not peer-reviewed)** · doi:10.1101/2025.10.02.679940 · PMID 41256358 · PMC12621781 · Yang Y et al. (20-author multi-site incl. Mayo, Johns Hopkins, Oxford) · *bioRxiv* 2025-10-03 · "Degeneration and Impaired Resilience of Skull Bone and Hematopoietic Bone Marrow" · reports skull marrow degenerates with age (senescence, DNA damage, inflammation, declining angiogenesis), contradicting [^koh2024] · cited only to document the controversy — #gap/contradictory-evidence
