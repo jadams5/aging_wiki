@@ -22,6 +22,7 @@ verified: true
 verified-date: 2026-06-15
 verified-by: claude
 verified-scope: "Canonical-DB IDs confirmed via UniProt/NCBI/HGNC/Ensembl REST APIs. Rajagopal 2010 PNAS verified against full PDF. Capote 2021 verified against PMC full text (PMC8430342). Beaulieu 2008, Wang 2017, Jiang 2018, Campo 2015, McDonald 2000, Bohn 1999 metadata verified via Crossref/PubMed — author lists and page numbers corrected. Hoque 2014, Shenoy 2003, Lin 2002, Whalen 2011, Smith 2018 verified via Crossref metadata only; abstract-level for those; mechanism claims consistent with abstract."
+---
 
 # β-arrestin-2 (ARRB2)
 
