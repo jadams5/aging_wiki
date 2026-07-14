@@ -180,7 +180,7 @@ Feasibility tier. Mirrors the `scale:` field on the experiment page.
 
 ### ECM crosslinks (GlycoSENS)
 
-**Canonical pages:** [[processes/glucosepane]] (verified), [[processes/advanced-glycation-end-products]], [[processes/pentosidine]], [[processes/carboxymethyl-lysine]], [[interventions/pharmacological/age-crosslink-breakers]] (verified)
+**Canonical pages:** [[processes/glucosepane]] (verified), [[processes/advanced-glycation-end-products]], [[processes/pentosidine]], [[interventions/pharmacological/age-crosslink-breakers]] (verified). [[processes/carboxymethyl-lysine]] is a linked AGE-signaling node but is **not** part of the ECM-crosslink state because CML is monovalent.
 
 **Why missing from the hallmark frame:** López-Otín's [[altered-intercellular-communication]] hallmark loosely absorbs ECM-stiffening as a "communication" phenotype, but ECM crosslinking is structurally a damage-accumulation class — molecularly distinct, mechanistically irreversible, and not driven by signaling deregulation. Folding it into intercellular communication obscures its primary causal role.
 
@@ -197,11 +197,12 @@ Feasibility tier. Mirrors the `scale:` field on the experiment page.
 | edge | downstream | evidence-strength | key-citation |
 |---|---|---|---|
 | ECM-crosslinks | → [[altered-intercellular-communication]] | strong | ECM stiffness disrupts mechanotransduction (YAP/TAZ pathway) in fibroblasts, satellite cells, HSC niche |
-| ECM-crosslinks | → [[chronic-inflammation]] | moderate | RAGE engagement → NF-κB; positive-feedback amplification via RAGE upregulation; [[rage]] |
+| ECM-crosslinks | → [[chronic-inflammation]] | weak-moderate | AGE-modified matrix can contribute RAGE/inflammatory signaling, but this is separable from its mechanical crosslink effect |
+| [[carboxymethyl-lysine]] | → [[chronic-inflammation]] | moderate | Protein-bound CML is a noncrosslink RAGE ligand → NF-κB; positive-feedback amplification via RAGE upregulation; [[rage]] |
 | ECM-crosslinks | → [[arterial-stiffening]] | strong | PWV correlates with skin autofluorescence; arterial collagen glucosepane drives intrinsic wall stiffness independent of vasomotor tone |
 | ECM-crosslinks | → [[stem-cell-exhaustion]] | weak-moderate | Substrate stiffness alters fibroblast/satellite cell/MSC fate decisions (Engler 2006 mechanotransduction precedent); aged-niche stiffness → niche-dysfunction |
 
-**Tractability:** `low`. No clinically-deployable AGE breaker exists. Alagebrium failed Phase 3 BENEFICIAL (Hartog 2011, peak VO₂ p=0.06). Yang 2003 critique (model α-dicarbonyl crosslinks ≠ real-tissue Maillard crosslinks) is unresolved. Revel Pharmaceuticals had a glucosepane-enzyme reproducibility setback (industry-watcher reporting, unverified primary). Tier 3 defense (mature-crosslink cleavage) is genuinely empty across all of biology — no mammalian, fungal, bacterial, or archaeal enzyme cleaves glucosepane or pentosidine.
+**Tractability:** `low`. No clinically deployable AGE breaker exists. Alagebrium failed Phase 3 BENEFICIAL (Hartog 2011, peak VO₂ p=0.06). Yang 2003 critique (model α-dicarbonyl crosslinks ≠ real-tissue Maillard crosslinks) is unresolved. [[cmlase]] now provides a high-quality biochemical/ex-vivo probe for mature protein-bound CML repair, but because CML is not a crosslink this does not raise the `ECM-crosslinks` node's tractability or justify a simulator intervention. Tier 3 defense remains empty: no demonstrated enzyme cleaves glucosepane or pentosidine.
 
 **Resolving experiments** *(proposed; not yet run):*
 - AGE-breaker LC-MS replication — does any current "AGE breaker" cleave glucosepane in aged human cadaver tissue?

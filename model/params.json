@@ -7,8 +7,8 @@
     ],
     "dt": 1,
     "couple": 1,
-    "note": "Illustrative parameter layer for aging-simulator v0.3. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC-WONDER-2022 SEX-SPECIFIC competing hazards (no sex scalar). NOT verified facts; sensitivity-exploration only.",
-    "edgesNote": "UNIFIED 2026-06-11: MODEL.edges is the single source of truth (kind: coupling|mediator|cause|augment|frailty). Engine partitions via edgesByKind(); driver edges derive from stateNodes rate.terms, terminal from node role. Counts: coupling 38 mediator 9 cause 21 augment 1 frailty 10."
+    "note": "Illustrative parameter layer for aging-simulator v0.5. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC WONDER D76 2019 sex-specific competing hazards (no sex scalar or live frailty multiplier). NOT verified facts; sensitivity-exploration only.",
+    "edgesNote": "MODEL.edges is the single source of truth. Engine partitions live edges via edgesByKind(); driver edges derive from stateNodes rate.terms and terminal edges from node roles. Counts: coupling 38, mediator 10, cause 23, augment 2, frailty 0, structural stub 48 (121 total)."
   },
   "strengthToGain": {
     "strong": 0.2,
@@ -25,7 +25,7 @@
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
       "lifestyleMult": 1,
-      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (they live in the separate 'falls' terminal cause W00-W19, NOT lifestyle-scaled — a future external-injury merge would fold them back under one umbrella while keeping this non-fall component lifestyle-scaled; see PROJECT-NOTES § frailty).",
+      "note": "Non-biological parallel channel: (unintentional injury minus falls)+suicide+homicide, per-year by age and sex; CDC WONDER D76 2019. Does not cascade. lifestyleMult scales it (average 1.0). Male rates are about 3x female rates in young adults. Falls are modeled separately as the W00-W19 terminal cause and are not lifestyle-scaled.",
       "byAge": {
         "male": [
           [
@@ -122,7 +122,7 @@
           "female": 0.049566865
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). cardiovascular: all circulatory I00-I99 (incl I26-I28 once — fixes pilot double-count) + K55 mesenteric",
-        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction — vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862→80.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71–89; anchor-point hazard invariant to 1e-9; not an arithmetic error). Downgraded from seeder-claimed 'anchored' to 'calibrated' because SWAP-TO-2022 is an open #gap (consistent with all other D76 2019 causes in the model). Year note: existing-band Rmax/burden on 2022 data; net-new on 2019 data; residual base on 2022; SWAP-TO-2022 pending. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
+        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction — vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862→80.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71–89; anchor-point hazard invariant to 1e-9; not an arithmetic error). Calibrated rather than anchored because the band is a modeled aggregation. Year note: the full band and residual were subsequently harmonized to D76 2019. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
       },
       "cancer": {
         "node": "cancer",
@@ -139,7 +139,7 @@
           "female": 0.031549709
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). neurodegeneration: dementia G30/G31/F01/F03 + Parkinson/movement G20-G25 + atrophies/ALS G10-G14",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded Parkinson/movement (G20,G21,G23,G24,G25) and systemic atrophies (G10,G11,G12,G14) into neurodegeneration band. G13 confirmed invalid in D76. Net-new rates: D76 2019 per sex x ten-year age (B_1=D76.V5, O_aar=aar_none, F_D76.V2=individual codes). Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h (exact; total hazard invariant at every anchor). Male net-new rates/100k: {20:0.1, 30:0.2, 40:0.8, 50:2.9, 60:9.0, 70:36.4, 80:157.7, 90:346.2}. Female: {20:0.0, 30:0.2, 40:0.5, 50:1.8, 60:5.8, 70:20.4, 80:73.3, 90:160.9}. #gap: G13 excluded (invalid in D76); SWAP-TO-2022 pending."
+        "provenance": "calibrated. Op A batched 2026-06-11: folded Parkinson/movement (G20,G21,G23,G24,G25) and systemic atrophies (G10,G11,G12,G14) into neurodegeneration band. G13 confirmed invalid in D76. Net-new rates: D76 2019 per sex x ten-year age (B_1=D76.V5, O_aar=aar_none, F_D76.V2=individual codes). Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h (exact; total hazard invariant at every anchor). Male net-new rates/100k: {20:0.1, 30:0.2, 40:0.8, 50:2.9, 60:9.0, 70:36.4, 80:157.7, 90:346.2}. Female: {20:0.0, 30:0.2, 40:0.5, 50:1.8, 60:5.8, 70:20.4, 80:73.3, 90:160.9}. #gap: G13 excluded (invalid in D76); 2019 pre-COVID baseline retained."
       },
       "infection": {
         "node": "immunosenescence",
@@ -148,7 +148,7 @@
           "female": 0.004463553
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). infection: influenza/pneumonia J09-J18 + sepsis A40-A41 + HIV B20-B24 + intestinal A00-A09",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded HIV (B20-B24) and intestinal infectious (A00-A09, incl. C.difficile) into infection band. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h. Male net-new rates/100k: {20:0.2, 30:1.7, 40:2.4, 50:5.0, 60:7.5, 70:8.4, 80:15.1, 90:35.9}. Female: {20:0.0, 30:0.6, 40:1.3, 50:2.2, 60:3.5, 70:6.0, 80:13.5, 90:39.2}. Note: female age-20 suppressed (<10 deaths); treated as 0. #gap: SWAP-TO-2022 pending."
+        "provenance": "calibrated. Op A batched 2026-06-11: folded HIV (B20-B24) and intestinal infectious (A00-A09, incl. C.difficile) into infection band. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h. Male net-new rates/100k: {20:0.2, 30:1.7, 40:2.4, 50:5.0, 60:7.5, 70:8.4, 80:15.1, 90:35.9}. Female: {20:0.0, 30:0.6, 40:1.3, 50:2.2, 60:3.5, 70:6.0, 80:13.5, 90:39.2}. Note: female age-20 suppressed (<10 deaths); treated as 0. #gap: 2019 pre-COVID baseline retained."
       },
       "diabetes": {
         "node": "diabetes",
@@ -156,7 +156,7 @@
           "male": 0.003191,
           "female": 0.002261
         },
-        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "copd": {
         "node": "copd",
@@ -164,7 +164,7 @@
           "male": 0.007382,
           "female": 0.006072
         },
-        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "ckd": {
         "node": "ckd",
@@ -172,7 +172,7 @@
           "male": 0.003162,
           "female": 0.002142
         },
-        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "liver": {
         "node": "liver",
@@ -180,8 +180,8 @@
           "male": 0.000384,
           "female": 0.00023
         },
-        "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: SWAP-TO-2022 pending."
+        "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; 2019 pre-COVID baseline retained",
+        "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: 2019 pre-COVID baseline retained."
       },
       "falls": {
         "node": "falls-mortality",
@@ -189,7 +189,7 @@
           "male": 0.003112,
           "female": 0.002569
         },
-        "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). SWAP-TO-2022 pending. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
+        "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). 2019 pre-COVID baseline retained. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
         "provenance": "calibrated"
       },
       "residual": {
@@ -202,7 +202,7 @@
         "provenance": "calibrated. Exact refactor of the former mortality.residual channel; Rmax=residTable(90) per sex; B_res=h/(1+h) per integer age 20-130. Invariance-proven: max|delta-hazard|<1e-14 both sexes vs pre-conversion baseline."
       }
     },
-    "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
+    "note": "v0.5: each named cause carries per-sex curves and Rmax; residual and extrinsic are also per sex, all harmonized to CDC WONDER D76 2019. Female cardiovascular-onset delay and male external excess emerge from data, not a scalar. The former global frailty multiplier is disabled.",
     "oldAgeTail": {
       "rate": 0,
       "fromAge": 90,
@@ -1340,7 +1340,7 @@
       "label": "Falls (external injury)",
       "layer": "phenotype",
       "tractability": "moderate",
-      "provenance": "calibrated. Op A split 2026-06-11: E40-E46 malnutrition removed from the falls bucket; falls cause is now W00-W19 only. CDC WONDER D76 2019 W00-W19 (individual codes W00-W19) per sex x ten-year age. RmaxPerYear = 85+ band rate (311.2/100k M, 256.9/100k F). Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. Malnutrition mass (E40-E46, 2019 net rates: M 81.5/100k @85+, F 102.4/100k @85+) rebucketed into dense residual via engine-based recompute (residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual) at every integer age 20-130). sarcopenia→falls frailty edge (β 0.6366, Yeung 2019) unchanged. #gap: external-injury merge deferred; SWAP-TO-2022 pending; R54 senility + J69 aspiration stay in residual.",
+      "provenance": "calibrated. Op A split 2026-06-11: E40-E46 malnutrition removed from the falls bucket; falls cause is now W00-W19 only. CDC WONDER D76 2019 W00-W19 (individual codes W00-W19) per sex x ten-year age. RmaxPerYear = 85+ band rate (311.2/100k M, 256.9/100k F). Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. Malnutrition mass (E40-E46, 2019 net rates: M 81.5/100k @85+, F 102.4/100k @85+) rebucketed into dense residual via engine-based recompute (residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual) at every integer age 20-130). leanMassIndex→falls mediator edge is the current muscle-risk route. #gap: external-injury merge deferred; 2019 pre-COVID baseline retained; R54 senility + J69 aspiration stay in residual.",
       "role": "mortality-cause",
       "mortalityCause": "falls",
       "curve": {
@@ -1454,7 +1454,7 @@
       "label": "Residual aging (unmodeled)",
       "layer": "phenotype",
       "tractability": "low",
-      "provenance": "calibrated. v0.4 reserve-depletion refactor of the residual channel (2026-06-15): exact conversion of the per-year residTable into odds-link form Rmax*B/(1-B), with B=h/(1+h) at every integer age 20-130, Rmax=residTable(90). Reconstruction error <1e-15; B@90=0.5; B@130<0.971; baseline LE invariant to <1e-14 max-hazard deviation. Residual is definitionally driverless (the unmodeled remainder). Ships calibrated (not anchored: inherited residual has precision and provenance gaps, SWAP-TO-2022 pending). #gap: no upstream driver edges by construction; SWAP-TO-2022 pending.",
+      "provenance": "calibrated. v0.4 reserve-depletion refactor of the residual channel (2026-06-15): exact conversion of the per-year residTable into odds-link form Rmax*B/(1-B), with B=h/(1+h) at every integer age 20-130, Rmax=residTable(90). Reconstruction error <1e-15; B@90=0.5; B@130<0.971; baseline LE invariant to <1e-14 max-hazard deviation. Residual is definitionally driverless (the unmodeled remainder). Ships calibrated (not anchored: inherited residual has precision and provenance gaps, 2019 pre-COVID baseline retained). #gap: no upstream driver edges by construction; 2019 pre-COVID baseline retained.",
       "role": "mortality-cause",
       "mortalityCause": "residual",
       "citation": "CDC WONDER 2019 D76 residual (all-cause minus modeled causes minus extrinsic)",
@@ -3557,6 +3557,10 @@
         "id": "LDL",
         "label": "LDL cholesterol",
         "unit": "mg/dL",
+        "range": [
+          20,
+          400
+        ],
         "sd": 35,
         "baseline": {
           "male": [
@@ -3626,6 +3630,10 @@
         "id": "systolicBP",
         "label": "Systolic blood pressure",
         "unit": "mmHg",
+        "range": [
+          90,
+          220
+        ],
         "sd": 16,
         "baseline": {
           "male": [
@@ -3695,6 +3703,10 @@
         "id": "BMI",
         "label": "Body mass index",
         "unit": "kg/m^2",
+        "range": [
+          14,
+          50
+        ],
         "sd": 6,
         "baseline": {
           "male": [
@@ -3764,6 +3776,10 @@
         "id": "HbA1c",
         "label": "Glycated hemoglobin",
         "unit": "%",
+        "range": [
+          4,
+          14
+        ],
         "sd": 0.6,
         "baseline": {
           "male": [
@@ -3793,6 +3809,10 @@
         "id": "restingHR",
         "label": "Resting heart rate",
         "unit": "bpm",
+        "range": [
+          40,
+          110
+        ],
         "sd": 10,
         "baseline": {
           "male": [
@@ -3822,6 +3842,10 @@
         "id": "leanMassIndex",
         "label": "Appendicular lean mass index",
         "unit": "kg/m^2",
+        "range": [
+          3,
+          13
+        ],
         "sd": 1.1,
         "baseline": {
           "male": [
@@ -3997,7 +4021,8 @@
     "constants": {
       "heightRefM": 1.7,
       "weightAsymptoteFraction": 0.55,
-      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
+      "weightHalfLifeYears": 1,
+      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized. weightHalfLifeYears: a first-order approximation with a 1-year half-life, reaching 50% after 1 year and 87.5% after 3; Hall et al. 2011 motivates a delayed multi-year response and gives the approximate rule of thumb ~50% at 1 year and ~95% at 3 years (Lancet, doi:10.1016/S0140-6736(11)60812-X)."
     },
     "stiffnessToSBP": {
       "betaPerUnit": {

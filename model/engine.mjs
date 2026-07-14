@@ -1,12 +1,10 @@
-// engine.mjs — canonical v0.3 aging-simulator model engine.
+// engine.mjs — canonical aging-simulator model engine (current parameter set: v0.5).
 //
 // Pure ESM, NO DOM, NO globals, NO external deps. This is the single
-// source-of-truth reimplementation of the math that currently lives
-// embedded in viz/aging-simulator.html. The HTML app will be refactored
-// to consume this module in a follow-up; until then the two carry
-// identical math and model/test.mjs pins the v0.3 regression targets.
+// source of truth for the math embedded into viz/aging-simulator.html by
+// build-app.mjs. model/test.mjs pins the current regression targets.
 //
-// The MODEL object (18 nodes / 38 edges, v0.3) is produced from
+// The MODEL object is produced from
 // frameworks/causal-graph-parameters.md by build-params.mjs → params.json.
 // That .md file is the source of truth for the parameters.
 
@@ -911,7 +909,7 @@ function _resolveUnitConv(med, unit) {
 export function buildBundleContext(MODEL) {
   const B = MODEL.bLayer || {};
   const meds = Object.create(null);                              // null-proto: safe lookup with untrusted bundle keys
-  for (const m of B.mediators || []) meds[m.id] = { unit: m.unit };
+  for (const m of B.mediators || []) meds[m.id] = { unit: m.unit, range: Array.isArray(m.range) ? m.range : null };
   const inputs = Object.create(null);
   for (const inp of B.exogenousInputs || []) {
     if (inp.unwired) continue;                                   // deferred placeholder (e.g. raw cig/day) — not a wired channel
@@ -1005,7 +1003,11 @@ export function parseHistoryBundle(input, ctx) {
   if (b.sex != null) { if (b.sex === "male" || b.sex === "female") sex = b.sex; else return abort(`sex must be "male" | "female" if present`); }
   // optional currentAge — restores "now" when there is no birthDate to derive it from (else birthDate wins, app-side)
   let currentAge = null;
-  if (b.currentAge != null) { if (Number.isFinite(b.currentAge)) currentAge = b.currentAge; else return abort(`currentAge must be a number if present`); }
+  if (b.currentAge != null) {
+    if (!Number.isFinite(b.currentAge)) return abort(`currentAge must be a number if present`);
+    if (b.currentAge < ctx.AGE0 || b.currentAge > ctx.AGE1) return abort(`currentAge must be within [${ctx.AGE0},${ctx.AGE1}]`);
+    currentAge = b.currentAge;
+  }
   // count NESTED entries (one exposure/operator can carry many changes/dates) + the 0–2 events emitted per treatment + raw events[]
   const total = _bundleArr(b.measurements).length
     + _bundleArr(b.treatments).length * 2
@@ -1045,6 +1047,8 @@ export function parseHistoryBundle(input, ctx) {
     const age = toAge(mz.date, w); if (age == null) return;
     const cval = conv.apply(mz.value);
     if (!Number.isFinite(cval)) return err(w, `converted value is not finite (unit-conversion overflow?)`);
+    const range = ctx.meds[med].range;
+    if (range && (cval < range[0] || cval > range[1])) return err(w, `converted ${med} value ${cval} outside supported range [${range}] ${ctx.meds[med].unit}`);
     if (age > ctx.AGE1 || age < ctx.AGE0) report.warnings.push(`${w}: age ${age.toFixed(1)} outside [${ctx.AGE0},${ctx.AGE1}] — will clamp`);
     events.push({ channel: "biomarker:" + med, age, value: cval, _date: mz.date });
     report.loaded.measurements++;
@@ -1076,7 +1080,10 @@ export function parseHistoryBundle(input, ctx) {
       const w2 = `${w}.changes[${j}]`;
       const age = toAge(c && c.date, w2); if (age == null) return;
       if (spec.categorical) { if (!spec.enum.includes(c.value)) return err(w2, `${_q(c.value)} not in {${spec.enum.join("|")}}`); }
-      else { if (!Number.isFinite(c.value)) return err(w2, `value is not a finite number`); if (spec.range && (c.value < spec.range[0] || c.value > spec.range[1])) report.warnings.push(`${w2}: ${c.value} outside model range [${spec.range}]`); }
+      else {
+        if (!Number.isFinite(c.value)) return err(w2, `value is not a finite number`);
+        if (spec.range && (c.value < spec.range[0] || c.value > spec.range[1])) return err(w2, `${c.value} outside supported range [${spec.range}]`);
+      }
       events.push({ channel: "input:" + e.id, age, value: c.value, _date: c.date }); n++;
     });
     if (n) report.loaded.exposures++;
@@ -1156,11 +1163,18 @@ export function parseHistoryBundle(input, ctx) {
       const o = { channel: ev.channel, ages };
       if (scenario) o.scenario = scenario;
       events.push(o);
-    } else {   // step/point channels: input / treatment / lifestyle / biomarker — need a finite age + value
+    } else {   // step/point channels: input / treatment / lifestyle / biomarker — need a finite age + in-domain value
       if (!Number.isFinite(ev.age)) return err(w, `age must be a finite number`);
       const spec = kind === "input" ? ctx.inputs[id] : null;
       if (spec && spec.categorical) { if (!spec.enum.includes(ev.value)) return err(w, `${_q(ev.value)} not in {${spec.enum.join("|")}}`); }
-      else if (!Number.isFinite(ev.value)) return err(w, `value must be a finite number`);
+      else {
+        if (!Number.isFinite(ev.value)) return err(w, `value must be a finite number`);
+        const range = kind === "input" ? spec && spec.range
+          : kind === "treatment" ? [0, 1]
+          : kind === "lifestyle" ? [0, Infinity]
+          : ctx.meds[id].range;
+        if (range && (ev.value < range[0] || ev.value > range[1])) return err(w, `value ${ev.value} outside supported range [${range}]`);
+      }
       events.push({ channel: ev.channel, age: ev.age, value: ev.value });
     }
     report.loaded.events++;
@@ -1229,7 +1243,7 @@ function exerciseScale(deviationMin) {
   return f > 1.5 ? 1.5 : f < -1 ? -1 : f;
 }
 
-// Dynamic caloric-balance→weight (Hall 2013): the static 7700 kcal/kg rule
+// Equilibrium caloric-balance→weight target (Hall et al. 2011): the static 7700 kcal/kg rule
 // overstates long-run weight change by ~40–50%; only ~weightAsymptoteFraction
 // of it is realized. Returns Δkg for a sustained daily energy-balance offset.
 function weightDynamicKg(calBalancePerDay, asymptoteFraction) {
@@ -1237,6 +1251,21 @@ function weightDynamicKg(calBalancePerDay, asymptoteFraction) {
   // Static ~1 yr accumulation, damped to the realized long-run asymptote.
   const staticKg = (calBalancePerDay * 365) / STATIC_KCAL_PER_KG;
   return staticKg * asymptoteFraction;
+}
+
+// A sustained energy-balance step approaches its equilibrium weight shift slowly: Hall et al.
+// 2011 motivates a delayed multi-year response (~50% at one year, ~95% at three as a rule of thumb).
+// The implemented first-order approximation uses a one-year half-life (50%/87.5%, respectively).
+// This resolves a target-shift lane into a lagged realized lane. The initial target is treated as already established at AGE0, preserving
+// scalar/flat-profile backward compatibility; later changes affect the NEXT annual grid point.
+function laggedEquilibriumLane(targets, DT, halfLifeYears = 1) {
+  if (!targets.length) return [];
+  const halfLife = Number.isFinite(halfLifeYears) && halfLifeYears > 0 ? halfLifeYears : 1;
+  const alpha = 1 - Math.exp(-Math.LN2 * DT / halfLife);
+  const out = new Array(targets.length);
+  out[0] = targets[0];
+  for (let k = 1; k < targets.length; k++) out[k] = out[k - 1] + alpha * (targets[k - 1] - out[k - 1]);
+  return out;
 }
 
 // Apply a single mediator edge: returns the additive contribution to the
@@ -1404,9 +1433,9 @@ function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputLanes, popMe
 // primary activity→mortality path. Activity is deliberately NOT additionally
 // routed activity→cardiovascular as a separate edge.
 
-// ΔMETs from a piecewise-linear metMap [[inputVal, METs], ...] ascending.
-function metsFromActivity(metMap, value) {
-  return interp(metMap, value);
+// ΔMETs from the documented piecewise-linear metMap [[inputVal, METs], ...] ascending.
+export function activityMetsFromMap(metMap, value) {
+  return linearProfile(metMap, value);
 }
 
 // Compute one Stage-3a all-cause (whole-bracket) edge multiplier. Age-invariant.
@@ -1415,7 +1444,7 @@ function allcauseEdgeMult(e, inputLanes, popMean, k) {
     case "activityFitness": {
       const lane = inputLanes[e.input];
       const xv = (lane && lane[k] !== undefined) ? lane[k] : popMean[e.input]; // default ⇒ popMean ⇒ ΔMETs 0
-      const dMets = metsFromActivity(e.metMap, xv);
+      const dMets = activityMetsFromMap(e.metMap, xv);
       return Math.exp(e.betaPerMet * dMets);
     }
     case "uShape": {
@@ -1576,6 +1605,14 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
     const curve = med.baseline[sex];
     const edges = edgesByMed[med.id] || [];
     const txs = txByMed[med.id] || [];
+    // Stateful mediator-edge lanes. A caloric-balance change sets a NEW equilibrium BMI target;
+    // it must not teleport the person to that equilibrium in the same year. Resolve the target
+    // through Hall's ~1-year half-life once, then read the realized shift in the per-age map below.
+    const dynamicEdgeLane = new Map();
+    for (const e of edges) if (e.form === "weightDynamic") {
+      const targets = AGES.map((age, k) => applyMediatorEdge(e, lanes, popMean[e.from], baselineByMed[med.id][k], K, {}, k));
+      dynamicEdgeLane.set(e, laggedEquilibriumLane(targets, DT, K.weightHalfLifeYears));
+    }
     out[med.id] = AGES.map((age, k) => {
       const baselineVal = baselineByMed[med.id][k];
       // Assemble upstream-mediator deviations for this age (only sources already
@@ -1586,7 +1623,9 @@ export function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = 
       }
       let v = baselineVal;
       for (const e of edges) {
-        v += applyMediatorEdge(e, lanes, popMean[e.from], baselineVal, K, medCtx, k);
+        v += dynamicEdgeLane.has(e)
+          ? dynamicEdgeLane.get(e)[k]
+          : applyMediatorEdge(e, lanes, popMean[e.from], baselineVal, K, medCtx, k);
       }
       for (const eff of txs) {
         v = applyTreatment(eff, v, txDoseLane[eff.txId][k]);

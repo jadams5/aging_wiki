@@ -6,9 +6,9 @@ key-cell-types: ["[[microglia]]", "[[neurons]]", "[[astrocytes]]", "[[oligodendr
 key-aging-phenotypes: ["[[alzheimers-disease]]", "[[parkinsons-disease]]", "[[neurodegeneration]]"]
 related-hallmarks: ["[[loss-of-proteostasis]]", "[[chronic-inflammation]]", "[[disabled-macroautophagy]]", "[[mitochondrial-dysfunction]]", "[[stem-cell-exhaustion]]"]
 verified: true
-verified-date: 2026-05-04
+verified-date: 2026-07-11
 verified-by: claude
-verified-scope: "Wikilink targets confirmed; Hara 2006 DOI corrected (ncb1889→nature04724); Komatsu 2006 DOI corrected (nature04724→nature04723) and Cre driver corrected (CaMKII-Cre→Nestin-Cre) against PDF; Bouzid 2023 DOI corrected (s41591-023-02305-8→s41591-023-02397-2), OR corrected (0.69–0.73→0.64), n corrected (412,691→5,730) against neurodegeneration page verified claims; Azevedo 2009 (not_oa) unverifiable — neuron count claim (~86 billion) carried from prior extraction; canonical-database identity fields not applicable (tissue stub)."
+verified-scope: "Wikilink targets confirmed; Hara 2006 DOI and Komatsu 2006 DOI/Cre driver corrected against full text; Bouzid 2023 DOI, odds ratio, and n corrected against verified neurodegeneration claims. Azevedo 2009 remains unavailable for full-text verification. Kress 2014 aging/AQP4 numerics and causal limits were propagated from its verified extraction on 2026-07-11. Thapaliya 2026 ME/CFS and Mossige 2026 DTI-ALPS claims were checked against full text on 2026-07-11."
 ---
 
 # Brain
@@ -91,7 +91,11 @@ The CHIP-neurodegeneration connection: Bouzid et al. 2023 found that somatic mut
 
 ### Glymphatic clearance decline
 
-The glymphatic system — a perivascular cerebrospinal fluid circulation driven by aquaporin-4 (AQP4) water channels on astrocyte end-feet — clears brain metabolic waste including Aβ, predominantly during sleep. Glymphatic flow declines with age, correlating with increased Aβ accumulation. Sleep disruption in aging accelerates this deficit. #gap/unsourced — quantitative glymphatic flux data in aged humans are limited; most mechanistic evidence is murine. Page planned: [[glymphatic-system]] (implicit stub).
+The [[glymphatic-system]] is a proposed perivascular CSF–interstitial-fluid transport and solute-clearance process associated with astrocytic [[aquaporin-4|AQP4]]. In Kress et al., old mice (18 months in the main Results; 18–20 months in the abstract) had reduced CSF-tracer penetration, 40% lower clearance of intraparenchymally injected amyloid-β1–40, 27% lower penetrating-arteriole wall pulsatility, and reduced perivascular AQP4 polarization relative to young mice.[^kress2014] These parallel phenotypes do not establish which change was causal, and the study measured neither cognition nor chronic amyloid accumulation. Healthy longitudinal human aging data using direct tracers are lacking. #gap/needs-human-replication
+
+Sleep changes CSF influx, vascular/CSF oscillations, and tracer disappearance, but those endpoints are not interchangeable: the direction of net parenchymal clearance during sleep remains actively contested. The canonical process page separates rodent tracer evidence, human hydrodynamics, invasive human tracer studies, and indirect imaging proxies.
+
+A 2026 cross-sectional ME/CFS study adds a human disease association, not an aging trajectory: 31 adults with ME/CFS had a lower bilateral DTI-ALPS index than 27 healthy controls (1.44 ± 0.086 vs 1.51 ± 0.11; raw p=0.014, p-FDR=0.028), and the index correlated with single-item sleep-disturbance and concentration ratings. The separate WHODAS cognition score, fatigue, direct between-group asymmetry test, and several other symptom associations were null.[^thapaliya2026-alps] This should be labeled an altered [[methods/dti-alps|DTI-ALPS]] index rather than demonstrated glymphatic clearance failure: direct comparison against intrathecal contrast-enhanced MRI found limited correspondence and no 48-hour tracer-dynamics association.[^mossige2026-alps] The study measured neither waste accumulation nor neuroinflammation and does not show that ME/CFS accelerates brain aging. #gap/needs-replication
 
 ### BBB permeability increase
 
@@ -134,7 +138,7 @@ Category-level page covering shared mechanisms across AD, PD, ALS, HD, FTD, and 
 The following interventions have evidence for brain-health benefit in aging, though effect sizes in humans and mechanisms vary:
 
 - **Exercise** — most robustly supported; increases BDNF; promotes adult hippocampal neurogenesis in rodents; associated with reduced dementia risk in observational studies. See [[interventions/lifestyle/exercise]] (planned stub).
-- **Sleep** — glymphatic Aβ clearance is sleep-dependent; sleep disruption accelerates Aβ accumulation in rodent models and human PET studies. #gap/unsourced
+- **Sleep** — treat diagnosed sleep disorders for established benefits; sleep-linked brain-fluid dynamics are well supported, but glymphatic mediation of neurodegeneration risk and increased net endogenous-solute clearance remain unproven. See [[glymphatic-system]] and [[interventions/lifestyle/sleep|sleep]].
 - **Dietary patterns** (Mediterranean, MIND diet) — observational associations with reduced cognitive decline; RCT evidence limited. #gap/needs-human-replication
 - **Cognitive engagement** — cognitive reserve hypothesis; observational evidence; mechanism unclear. #gap/no-mechanism
 - **Rapamycin** (mTOR inhibition) — extends rodent lifespan and improves cognitive function in aged mice; no human CNS trial data. See [[rapamycin]] (verified-partial), [[mtor]] (verified-partial).
@@ -160,7 +164,7 @@ The following interventions have evidence for brain-health benefit in aging, tho
 - `#gap/needs-human-replication` — most mechanistic aging data (autophagy-necessity, microglial state transitions, glymphatic decline) are from mouse models; human equivalents are largely post-mortem or indirect
 - `#gap/unsourced` — cortical thinning rate, BBB permeability aging trajectory, astrocyte A1/A2 prevalence, human adult neurogenesis magnitude — all need primary sources
 - `#gap/contradictory-evidence` — human adult hippocampal neurogenesis (Boldrini 2018 vs Sorrells 2018 opposing conclusions); astrocyte A1/A2 classification utility
-- `#stub` — this page is an anchor tissue stub; many subsections will deepen as [[neurons]], [[astrocytes]], [[oligodendrocytes]], [[neural-stem-cells]], [[glymphatic-system]] are seeded
+- `#stub` — this page is an anchor tissue stub; several subsections will deepen as [[neurons]], [[astrocytes]], [[oligodendrocytes]], and [[neural-stem-cells]] are expanded
 
 ---
 
@@ -173,6 +177,7 @@ The following interventions have evidence for brain-health benefit in aging, tho
 - [[loss-of-proteostasis]], [[disabled-macroautophagy]], [[chronic-inflammation]], [[mitochondrial-dysfunction]], [[stem-cell-exhaustion]] — hallmark pages
 - [[atg5]], [[atg7]] (verified-partial) — neuronal-autophagy-necessity studies
 - [[mtor]] (verified-partial) — suppresses autophagy; rapamycin extends CNS healthspan in mice
+- [[glymphatic-system]] — perivascular brain-fluid transport, aging evidence, sleep controversy, and measurement hierarchy
 - [[interventions/lifestyle/exercise]] — most-supported brain-aging intervention (stub planned)
 - [[spinal-cord]] (implicit stub)
 
@@ -189,3 +194,9 @@ The following interventions have evidence for brain-health benefit in aging, tho
 [^bouzid2023]: doi:10.1038/s41591-023-02397-2 · Bouzid H et al. · observational (meta-analysis) · Nature Medicine 2023;29(7):1662-1670 · n=5,730 total (1,362 AD; 4,368 controls) · CHIP meta-analysis OR=0.64 (protective) vs AD dementia, P=3.8×10^-5 · documented on [[neurodegeneration]] page; see that page for full verified claims
 
 [^remesal2025]: [[remesal-2025-ftl1-brain-cognitive-aging]] · in-vivo + in-vitro · *Nature Aging* 2025;5(10):1957-1969 · DOI 10.1038/s43587-025-00940-z · model: C57BL/6J mice young (2-3 mo) + aged (18-24 mo); primary E17 hippocampal neurons · randomized + blinded · all quantitative claims (n's, P-values) sourced from full PDF read on [[ftl1]] and [[remesal-2025-ftl1-brain-cognitive-aging]] pages · OA CC-BY 4.0
+
+[^kress2014]: [[studies/kress-2014-glymphatic-aging]] · experiment-specific n=4–20/group · in-vivo · model: young, middle-aged, and old C57BL/6 mice · old mice had 40% lower injected amyloid-β clearance, 27% lower penetrating-arteriole pulsatility, and reduced perivascular AQP4 polarization · doi:10.1002/ana.24271
+
+[^thapaliya2026-alps]: [[studies/thapaliya-2026-me-cfs-dti-alps]] · n=58 analyzed (31 ME/CFS, 27 healthy controls; 61 enrolled) · cross-sectional · model: adults with physician-diagnosed ME/CFS vs healthy controls · lower bilateral DTI-ALPS index with disease-specific single-item sleep/concentration correlations; WHODAS cognition, fatigue, and direct between-group asymmetry test null · doi:10.3389/fnins.2026.1875420 · PMID 42403482
+
+[^mossige2026-alps]: [[methods/dti-alps]] · Mossige I et al. · n=56 · prospective-observational secondary analysis · model: humans undergoing work-up for cerebrospinal-fluid disorders · limited DTI-ALPS correspondence with intrathecal gadobutrol-enhanced MRI; no 48-hour tracer-dynamics association · doi:10.1148/radiol.252070 · PMID 41631990

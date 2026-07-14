@@ -4,7 +4,7 @@ aliases: [integumentary system, skin system]
 key-organs: []
 key-tissues: ["[[skin]]", "[[dermis]]", "[[epidermis]]"]
 key-cell-types: ["[[keratinocytes]]", "[[melanocytes]]", "[[melanocyte-stem-cells]]", "[[langerhans-cells]]", "[[dermal-fibroblasts]]"]
-key-aging-phenotypes: ["[[skin-aging]]", "[[androgenetic-alopecia]]", "[[hair-greying]]", "[[cherry-angioma]]"]
+key-aging-phenotypes: ["[[skin-aging]]", "[[androgenetic-alopecia]]", "[[hair-greying]]", "[[cherry-angioma]]", "[[erythema]]", "[[rosacea]]", "[[telangiectasia]]"]
 related-hallmarks: ["[[cellular-senescence]]", "[[loss-of-proteostasis]]", "[[stem-cell-exhaustion]]"]
 parent-system: null
 ---

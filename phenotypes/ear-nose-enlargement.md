@@ -117,7 +117,7 @@ Most cases of auricular and nasal enlargement with age are physiological and req
 
 - **Accelerated or asymmetric changes**: connective tissue diseases (Ehlers-Danlos syndrome — hypermobility type; Marfan syndrome) can produce ear lobe elongation and nasal cartilage laxity disproportionate to age. Distinguish by family history, systemic features (joint hypermobility, lens dislocation, aortic root dilation).
 - **Acromegaly**: GH/IGF-1 excess produces soft-tissue and bony facial enlargement including nasal enlargement, coarsening of facial features, prognathism. Onset typically in 4th–5th decade; distinguished by IGF-1 levels and pituitary imaging.
-- **Rhinophyma**: bulbous nasal skin enlargement from sebaceous gland hypertrophy, primarily on the nasal tip and ala; associated with rosacea; distinct from the tip droop/ptosis of physiological aging.
+- **Rhinophyma**: bulbous nasal skin enlargement from sebaceous gland hypertrophy, primarily on the nasal tip and ala; the phymatous subtype of [[rosacea]]; distinct from the tip droop/ptosis of physiological aging.
 - **Chronic ear pulling or piercing stretch**: mechanical stretching of the ear lobe, distinct from age-related gravitational elongation.
 - **Relapsing polychondritis**: episodic inflammatory cartilage destruction that can deform nasal and auricular cartilages; distinguished by acute episodes, serology, systemic involvement.
 

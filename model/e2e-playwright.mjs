@@ -3,12 +3,10 @@
 // Complements model/test.mjs (engine math) by exercising the rendered app in Chromium:
 // catches render/wiring bugs the Node Proxy-stub harness can't (FIXED-MISTAKE #4 class).
 //
-// Playwright is NOT a repo dependency (the engine stays dep-free). To run, make `playwright`
-// resolvable and point CHROME_PATH at a system Chrome (avoids downloading a browser):
-//   1. install Playwright somewhere ESM can resolve it (e.g. a scratch dir with a
-//      `node_modules` symlink to a `playwright` install, then run this file from there), OR
-//      `npm i -D playwright` in a throwaway dir.
-//   2. CHROME_PATH=/usr/bin/google-chrome-stable node model/e2e-playwright.mjs [htmlPathOrUrl]
+// Playwright is a pinned model/ dev dependency; the model engine itself remains dependency-free.
+// From a clean checkout: `npm ci --prefix model`, then point CHROME_PATH at a system Chrome
+// (avoids downloading a bundled browser):
+//   CHROME_PATH=/usr/bin/google-chrome-stable npm --prefix model run test:e2e -- [htmlPathOrUrl]
 //      (omit CHROME_PATH to use Playwright's own browser after `npx playwright install chromium`)
 // Exits 0 if all browser checks pass, 1 otherwise. Optional argv[2] overrides the HTML path.
 
@@ -195,6 +193,37 @@ await valInput.fill("3"); await valInput.dispatchEvent("change");
 await settle();
 const leUIrisk = await le();
 check("add-bar+editor: lifestyle ×3 via real UI lowers LE", leUIrisk < leBase - 0.5, `${leUIrisk} vs ${leBase}`);
+await clearTimeline();
+
+// 13c. Domain checks live on the real editor path too: an invalid treatment dose must not
+// enter state, and adversarial schedule values must be rejected without generating a huge loop.
+await page.selectOption("#historyAddBar select >> nth=0", "treatment");
+await settle();
+await page.selectOption("#historyAddBar select >> nth=1", "treatment:statin");
+await page.locator("#historyAddBar button").click();
+await settle();
+const doseInput = page.locator('#historyEditor input[data-k="value"]');
+await doseInput.fill("10"); await doseInput.dispatchEvent("change");
+await settle();
+check("editor rejects treatment dose >1 and preserves prior value",
+  await page.evaluate(() => state.timeline.events.find(e => e.channel === "treatment:statin")?.value === 1));
+await clearTimeline();
+
+await page.selectOption("#historyAddBar select >> nth=0", "treatment");
+await settle();
+await page.selectOption("#historyAddBar select >> nth=1", "operator:dq-one-off");
+await page.locator("#historyAddBar button").click();
+await settle();
+const everyInput = page.locator('#historyEditor input[data-k="doseEvery"]');
+await everyInput.fill("0.000001"); await everyInput.dispatchEvent("change");
+await settle();
+check("operator editor rejects sub-grid repeat interval",
+  await page.evaluate(() => state.timeline.events.find(e => e.channel === "operator:dq-one-off")?.ages.length === 1));
+const untilInput = page.locator('#historyEditor input[data-k="doseUntil"]');
+await untilInput.fill("1000000000"); await untilInput.dispatchEvent("change");
+await settle();
+check("operator editor rejects until-age beyond model horizon",
+  await page.evaluate(() => state.timeline.events.find(e => e.channel === "operator:dq-one-off")?.ages.every(a => a >= 20 && a <= 200)));
 await clearTimeline();
 
 // 14. M7 NEW: graph→timeline jump button — select a node, click jump, lands on timeline w/ a freeze event.

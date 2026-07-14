@@ -126,7 +126,7 @@ The long lifetime of neurons, combined with high secretory and synaptic protein 
 - **Mutant huntingtin (polyQ)** — striatal medium spiny neurons → Huntington's disease
 - **Tau (FTLD-tau)** — frontotemporal lobar degeneration, Pick's disease, PSP, CBD
 
-The common thread is failure of clearance pathways — autophagy, the proteasome, and glymphatic clearance — allowing normally soluble proteins to nucleate into toxic oligomers and fibrils. Cross-reference: [[loss-of-proteostasis]], [[autophagy]].
+The common thread is failure of proteostasis and clearance pathways—including autophagy, the proteasome, blood–brain-barrier transport, phagocytosis, and the proposed [[glymphatic-system]]—which can favor the persistence of aggregation-prone proteins. The causal share attributable to any one route varies by protein and disease. Cross-reference: [[loss-of-proteostasis]], [[autophagy]].
 
 ### 6. Neuronal senescence (contested)
 
@@ -161,7 +161,7 @@ Free-radical scavengers, mitochondria-targeted antioxidants, and anti-excitotoxi
 
 ### Proteostasis enhancement
 
-Autophagy induction (rapamycin, spermidine, trehalose), chaperone overexpression, and glymphatic clearance enhancement (sleep, aquaporin-4 modulation) represent mechanistically rational strategies for reducing aggregate burden. Cross-reference: [[autophagy]], [[mtor]]. Evidence in model organisms is strong; human efficacy data in neurodegeneration is limited #gap/needs-human-replication.
+Autophagy induction (rapamycin, spermidine, trehalose) and chaperone modulation are mechanistically rational strategies for reducing aggregate burden. Preserving physiological sleep and testing AQP4/vascular mechanisms are separate [[glymphatic-system|glymphatic]] hypotheses, but no intervention is validated to improve neurodegenerative outcomes by selectively increasing glymphatic clearance. Cross-reference: [[autophagy]], [[mtor]], [[interventions/lifestyle/sleep|sleep]]. #gap/needs-human-replication
 
 ### Senolytics in neurons
 
@@ -179,7 +179,7 @@ Dopaminergic neuron replacement for Parkinson's disease via iPSC-derived DA neur
 | [[mitochondrial-dysfunction]] | High ATP demand; axon terminal bioenergetic failure; ROS accumulation; mtDNA damage |
 | [[genomic-instability]] | Post-mitotic accumulation of somatic SNVs (~23/year); DSBs with limited HR repair access |
 | [[cellular-senescence]] | Contested; p21+/SA-betagal+ neurons in aged brain; SASP may drive neuroinflammation |
-| [[chronic-inflammation]] | Downstream of both neuronal SASP and microglial activation; amplified by glymphatic failure |
+| [[chronic-inflammation]] | Downstream of both neuronal SASP and microglial activation; its bidirectional relationship with altered [[glymphatic-system|brain-fluid transport]] remains incompletely resolved |
 | [[disabled-macroautophagy]] | Autophagy flux decline with age impairs aggregate clearance; mitophagy decline contributes |
 
 ## Limitations and gaps

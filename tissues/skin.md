@@ -13,6 +13,9 @@ key-aging-phenotypes:
   - "[[hair-greying]]"
   - "[[androgenetic-alopecia]]"
   - "[[cherry-angioma]]"
+  - "[[erythema]]"
+  - "[[rosacea]]"
+  - "[[telangiectasia]]"
 related-hallmarks:
   - "[[cellular-senescence]]"
   - "[[epigenetic-alterations]]"

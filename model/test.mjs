@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp, solveOffsets, compileTimeline, parseHistoryBundle, buildBundleContext, canonicalizeHistoryEvents } from "./engine.mjs";
+import { simulate, lifeExpectancy, mediators, edgesByKind, resolveProfile, interp, solveOffsets, compileTimeline, parseHistoryBundle, buildBundleContext, canonicalizeHistoryEvents, activityMetsFromMap } from "./engine.mjs";
 import { validateGraph } from "./validate-graph.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -738,6 +738,14 @@ str("GLP-1: no live CV residual (double-count removed)", String(!MODEL.bLayer.tr
   str("validator: catches duplicate live frailty target", String(inject({ kind: "frailty", from: "sarcopenia", to: "cardiovascular", beta: 0.5 }, { kind: "frailty", from: "clonal-hematopoiesis", to: "cardiovascular", beta: 0.3 }) > 0), "true");
   str("validator: catches malformed cause form (missing slope/threshold/cap)", String(inject({ kind: "cause", from: "HbA1c", to: "cancer", form: "mediatorThresholdRamp", med: "HbA1c", beta: 0 }) > 0), "true");
   str("validator: catches unknown endpoint", String(inject({ kind: "coupling", from: "NOPE", to: "cancer", strength: "weak" }) > 0), "true");
+  const badBeta = JSON.parse(JSON.stringify(MODEL));
+  badBeta.edges.find((e) => e.kind === "cause" && Object.hasOwn(e, "beta")).beta = "not-a-number";
+  str("validator: rejects a non-numeric live cause beta",
+    String(validateGraph(badBeta).errors.some((e) => e.includes("finite number"))), "true");
+  const badRmax = JSON.parse(JSON.stringify(MODEL));
+  badRmax.mortality.causes.cardiovascular.RmaxPerYear.male = NaN;
+  str("validator: rejects a non-finite mortality Rmax",
+    String(validateGraph(badRmax).errors.some((e) => e.includes("RmaxPerYear"))), "true");
   const badPreset = JSON.parse(JSON.stringify(MODEL));
   badPreset.bLayer.operatorPresets[0].killFractionScenarios.central = 1.2;
   str("validator: catches out-of-range operator-preset kill fraction",
@@ -1065,6 +1073,23 @@ num("M1: LE scalar==flat profile (alcohol)",
   simulate(MODEL, { sex: "male", inputs: { alcohol: 6 } }).LE
   - simulate(MODEL, { sex: "male", inputs: { alcohol: { byAge: [[AGE0, 6], [130, 6]], mode: "step" } } }).LE, 0, 1e-12);
 
+// The activity risk map is explicitly piecewise-linear. At 375 min/week, halfway
+// between the 300→1.2 and 450→1.4 anchors, the mapped increment must be 1.3 METs.
+num("M1: activity metMap uses piecewise-linear interpolation",
+  activityMetsFromMap([[0, -1.5], [150, 0], [300, 1.2], [450, 1.4]], 375), 1.3, 1e-12);
+
+// A later calorie-balance step changes the equilibrium BMI target immediately but
+// realized BMI follows with a one-year half-life. It must not teleport at the knot.
+{
+  const base = mediators(MODEL, { sex: "male" }).BMI;
+  const eq = mediators(MODEL, { sex: "male", inputs: { calorieBalance: -500 } }).BMI;
+  const step = mediators(MODEL, { sex: "male", inputs: { calorieBalance: { byAge: [[40, -500]], mode: "step" } } }).BMI;
+  const dev = (lane, age) => lane[m1idx(age)] - base[m1idx(age)];
+  num("M1: calorie-balance step has no instantaneous BMI jump at its knot", dev(step, 40), 0, 1e-12);
+  num("M1: calorie-balance BMI shift reaches 50% after one year", dev(step, 41), 0.5 * dev(eq, 41), 1e-12);
+  num("M1: calorie-balance BMI shift reaches 87.5% after three years", dev(step, 43), 0.875 * dev(eq, 43), 1e-12);
+}
+
 // (2) ZOH step: value held until the NEXT entry; hard cut takes effect AT its age (half-open); before the
 // first entry → popDefault.
 const stepLane = resolveProfile({ byAge: [[20, 3], [38, 0]], mode: "step" }, M1_AGES, 99);
@@ -1390,6 +1415,12 @@ num("M7: lifestyle scalar 3 == constant profile ×3 (LE byte-identical)",
   str("M4: treatment dose>1 rejected",
     String(P({ treatments: [{ id: "statin", start: "2015-01-01", dose: 1.5 }] }).report.errors.length === 1), "true");
 
+  str("M4: measurement outside canonical mediator range rejected",
+    String(P({ measurements: [{ med: "LDL", date: "2020-01-01", value: -100, unit: "mg/dL" }] }).report.errors.length === 1), "true");
+
+  str("M4: exposure outside canonical input range rejected",
+    String(P({ exposures: [{ id: "calorieBalance", changes: [{ date: "2020-01-01", value: 5000 }] }] }).report.errors.length === 1), "true");
+
   str("M4: node-freeze date → window",
     JSON.stringify(P({ nodeInterventions: [{ node: "cellular-senescence", start: "2040-01-01", end: null, efficacy: 0.3 }] })
       .events.map((e) => ({ c: e.channel, s: e.startAge, e: e.endAge, eff: e.efficacy }))),
@@ -1410,6 +1441,9 @@ num("M7: lifestyle scalar 3 == constant profile ×3 (LE byte-identical)",
 
   str("M4: bad bundleVersion aborts (state untouched)",
     String(parseHistoryBundle({ bundleVersion: 2, birthDate: BD }, CTX).report.aborted), "true");
+
+  str("M4: currentAge outside the model horizon aborts",
+    String(parseHistoryBundle({ bundleVersion: 1, currentAge: 500 }, CTX).report.aborted), "true");
 
   str("M4: invalid JSON aborts", String(parseHistoryBundle("{not valid", CTX).report.aborted), "true");
 
@@ -1516,6 +1550,12 @@ num("M7: lifestyle scalar 3 == constant profile ×3 (LE byte-identical)",
   const rBad = parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "lifestyle:typo", age: 30, value: 3 }, { channel: "intervention:cellular-senescence", startAge: 50, efficacy: 9 }] }, CTX);
   str("M7: events[] rejects unknown channel + out-of-range efficacy (2 errors, 0 events)",
     String(rBad.report.errors.length === 2 && rBad.events.length === 0), "true");
+  str("M7: events[] rejects treatment dose outside [0,1]",
+    String(parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "treatment:statin", age: 40, value: 1.5 }] }, CTX).report.errors.length === 1), "true");
+  str("M7: events[] rejects biomarker outside canonical range",
+    String(parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "biomarker:LDL", age: 40, value: -100 }] }, CTX).report.errors.length === 1), "true");
+  str("M7: events[] rejects exposure outside canonical range",
+    String(parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "input:calorieBalance", age: 40, value: 5000 }] }, CTX).report.errors.length === 1), "true");
   // native operator hardening (Codex ckpt5): malformed scenario + non-finite ages are rejected, not coerced/dropped
   str("M7: events[] native operator with non-object scenario rejected",
     String(parseHistoryBundle({ bundleVersion: 1, events: [{ channel: "operator:dq-one-off", ages: [60], scenario: "x" }] }, CTX).report.errors.length === 1), "true");

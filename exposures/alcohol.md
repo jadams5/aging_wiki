@@ -27,6 +27,9 @@ downstream-phenotypes:
   - "[[phenotypes/atherosclerosis]]"
   - "[[phenotypes/neurodegeneration]]"
   - "[[phenotypes/masld]]"
+  - "[[phenotypes/telangiectasia]]"
+  - "[[phenotypes/rosacea]]"
+  - "[[phenotypes/erythema]]"
 human-evidence-level: strong
 reversibility: "Partial and time-dependent. Liver: hepatic steatosis reverses within weeks of abstinence; fibrosis reversal takes months to years and may be incomplete at cirrhotic stage. Cancer risk: head/neck cancer risk approaches never-drinker levels over ~20 years of abstinence; colorectal and breast cancer risk declines more modestly. Blood pressure normalizes within weeks of cessation or large reduction. Epigenetic aging acceleration: partly reversible with sustained abstinence; pace unclear. #gap/long-term-unknown for neurodegeneration reversal."
 mendelian-randomization: yes   # ADH1B rs1229984 (pan-ethnic); ALDH2 rs671 (East Asian populations)
@@ -135,6 +138,7 @@ The dose-response evidence collectively supports the conclusion that **reducing 
 - **Breast cancer risk**: declines modestly with cessation; does not fully normalize.
 - **Epigenetic aging**: partly reversible; magnitude and duration unclear. #gap/long-term-unknown.
 - **Liver cirrhosis**: fibrosis can regress (especially early-stage) with abstinence; established cirrhosis may arrest but structural scarring is largely irreversible.
+- **Cutaneous facial vascular damage**: the acute drinking flush resolves on cessation, but the *structural* sequelae of chronic heavy use largely persist — fixed facial [[phenotypes/telangiectasia|telangiectasia]] and background [[phenotypes/erythema|erythema]] remain and require device treatment (laser/IPL), and rhinophyma (phymatous [[phenotypes/rosacea|rosacea]]) is permanent/surgical. Cirrhosis-associated spider naevi and palmar erythema may regress only if hepatic function recovers. Sourced detail on the linked pages.
 
 ## Extrapolation summary
 

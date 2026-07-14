@@ -160,7 +160,7 @@ The composite aging-skin susceptibility model:
 1. Aged skin: thinner epidermis, reduced barrier lipids (ceramides, free fatty acids), higher transepidermal water loss
 2. Immunosenescence: reduced Th17 tone, decreased Langerhans cell density and function
 3. *Malassezia* leverage: even commensal-level *Malassezia* can trigger disproportionate inflammatory responses through breached barrier → IL-1α → cytokine cascade
-4. Clinical result: SD, chronic facial erythema, pruritus disproportionate to fungal burden
+4. Clinical result: SD, chronic facial [[erythema]], pruritus disproportionate to fungal burden
 
 This model is primarily synthesized from the mechanistic literature (Xu 2007, Sparber 2019, Sowell 2022); no single study directly tests the full causal chain in aging humans. #gap/no-mechanism
 

@@ -97,7 +97,7 @@ Framework-level summary of the evidence nodes. **Do not re-read claims from here
 
 | Evidence node | Verification status | Page |
 |---|---|---|
-| Baker 2011 (INK-ATTAC genetic clearance, healthspan) | unverified — PDF not in archive (download failed) | [[hallmarks/cellular-senescence]] |
+| Baker 2011 (INK-ATTAC genetic clearance, healthspan) | verified 2026-06-30 (PMC3468323) | [[studies/baker-2011-ink-attac]] |
 | Baker 2016 (INK-ATTAC, natural aging, lifespan) | verified — PDF in archive | [[hallmarks/cellular-senescence]] |
 | Zhu 2015 (SCAP concept, D+Q, preadipocyte + HUVEC) | verified (senolytics page) | [[interventions/pharmacological/senolytics]] |
 | Zhu 2016 (navitoclax senolytic, IMR90 triple BCL-2 requirement) | verified (senolytics page) | [[interventions/pharmacological/senolytics]] |
@@ -172,7 +172,7 @@ Crosswalk entry in [[hallmarks-of-aging]] table: `Cellular senescence → [[sens
 
 [^he2020]: [[studies/he-2020-protac-navitoclax]] · doi:10.1038/s41467-020-15838-0 · in-vivo · model: aged mice · PDF in archive · not independently verified on this page — see [[navitoclax]]
 
-[^baker2011]: [[studies/baker-2011-ink-attac-clearance]] · doi:10.1038/nature10600 · in-vivo · model: BubR1-progeroid INK-ATTAC transgenic mice · PDF not in archive (download failed) · carried from [[hallmarks/cellular-senescence]] verification notes
+[^baker2011]: [[studies/baker-2011-ink-attac]] (verified 2026-06-30) · doi:10.1038/nature10600 · PMID 22048312 · PMC3468323 · in-vivo · model: BubR1-progeroid INK-ATTAC transgenic mice (n=6 female/group primary arm) · clearance of p16^INK4a^+ cells delays sarcopenia, lipodystrophy, cataracts
 
 [^baker2016]: [[studies/baker-2016-ink-attac-lifespan]] · doi:10.1038/nature16932 · in-vivo · model: naturally aged INK-ATTAC mice · PDF in archive · verified on [[hallmarks/cellular-senescence]]
 

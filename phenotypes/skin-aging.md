@@ -29,6 +29,7 @@ The progressive, multi-mechanism deterioration of skin structure and function wi
 | **Wrinkles (rhytides)** | MMP-driven collagen fragmentation → reduced mechanical support | Thinned dermis; disrupted collagen bundle architecture | Fine lines (superficial, papillary dermis) and deep furrows (reticular dermis) |
 | **Skin thinness** | Reduced epidermal turnover + dermal fibroblast atrophy | Flattened rete ridges; reduced epidermal layers; sparse dermal fibroblasts | Fragile, translucent skin; easy bruising (senile purpura); delayed wound healing |
 | **Solar lentigines** | Focal melanocyte proliferation + SCF paracrine signalling from UV-activated epidermal keratinocytes (membrane-bound SCF, 3.9-fold mRNA increase) [^hattori2004]; ET-1/ET_B cascade acts synergistically | Elongated rete ridges at lentigo borders; increased melanocyte number in lesion basal layer; not melanocyte hypertrophy | Flat, sharply demarcated brown macules on sun-exposed skin; "liver spots" / "age spots" |
+| **Erythema / telangiectasia** | Cumulative UV degrades perivascular dermal collagen → vessel dilation + fixed ectasia; angiogenic SASP milieu | Dilated dermal venules/capillaries; reduced perivascular collagen support | Persistent facial/neck/chest redness and visible vessels; poikiloderma of Civatte. See [[erythema]], [[telangiectasia]], [[rosacea]] |
 
 ---
 

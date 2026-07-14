@@ -50,20 +50,21 @@ B_i(age)  = clamp( T_i(age) + Δ_i(age), 0, 1 )
 - A frozen upstream node now shifts each downstream deviation by only ≈ `gain × (upstream deviation)` — **bounded**, scaling **smoothly** and monotonically with intervention efficacy. Feedback loops are resolved by the matrix inverse rather than by unbounded time-integration.
 - `couple` — global coupling scalar (default 1.0; exposed as a sensitivity knob).
 
-**Mortality — sex-specific competing hazards (v0.3).** Replaced the single Gompertz-with-relative-risk term with a **cause-specific competing-hazards** model calibrated to **CDC WONDER 2022 sex-specific** age×cause rates. Every quantity is now per-sex — there is **no sex scalar / fudge factor** (the v0.2 `sexMult` was deleted, per user direction to avoid invented multipliers where data exists):
+**Mortality — sex-specific competing hazards (current v0.5).** The model uses **CDC WONDER D76 2019 sex-specific** age×cause rates. The 2019 pre-COVID year is used consistently across named causes, residual, and extrinsic mortality; there is no sex scalar or global frailty multiplier:
 
 ```
-h_sex(age) = E_sex(age)·lifestyle                                                    (extrinsic / behavioural)
-           + frailtyMult(age) · [ Σ_c Rmax_{c,sex} · B_{node(c),sex}(age)  +  Residual_sex(age) ]   (intrinsic)
-frailtyMult(age) = exp( β_frail · ( B_sarcopenia(age) − T_sarcopenia(age) ) )
-S(age) = exp( − Σ_{20..age} h · dt ) ;   life-expectancy = 20 + Σ_{20..100} S · dt
+h_sex(age) = E_sex(age)·lifestyle
+           + allcauseMult(age) · [ Σ_c Rmax_{c,sex} · odds(B_{node(c),sex}(age)) · causeMult_c(age)
+                                  + Residual_sex(age) ]
+odds(B) = B / (1 − B)
+S(age) = exp( − Σ h·dt ) ; life-expectancy = 20 + Σ S·dt + closed-form tail
 ```
 
-- **Causes** `c ∈ {cardiovascular, cancer, neurodegeneration, infection}` each map to a phenotype node whose baseline curve `T_node(c),sex` is the *normalised per-sex* CDC cause-mortality curve; `Rmax_{c,sex}` (per-sex age-90 rate) reconstitutes the absolute hazard, so at baseline `Rmax·T = ` the sex-specific CDC cause rate exactly.
-- **Residual_sex(age)** = `all-cause_sex − Σ modeled causes_sex − extrinsic_sex` (CDC WONDER 2022) — the long tail (COPD, diabetes, kidney, liver, falls, …). Guarantees baseline total = empirical **sex-specific** all-cause mortality.
-- **Frailty** (`sarcopenia` node) is NOT a cause line — an ICD-absent *amplifier*, modelled as a global multiplier on the intrinsic bracket. `frailtyMult = 1` at baseline. (Sex-specific frailty β is a candidate refinement; currently shared.)
+- **Named causes** are cardiovascular, cancer, neurodegeneration, infection, diabetes, COPD, CKD, liver disease, and falls. Each maps to a cause node; `Rmax` and its reserve-depletion curve reconstruct the sex-specific CDC hazard.
+- **Residual_sex(age)** = `all-cause_sex − Σ named causes_sex − extrinsic_sex` using the same 2019 pull.
+- **Frailty multiplier retired.** Sarcopenia is display-only. Muscle-related mortality is routed through the measurable lean-mass-index mediator to falls and infection.
 - **Extrinsic** `E_sex(age)·lifestyle` — the parallel, non-cascading accident/violence channel, now per-sex (males ≈ 3× females in young adulthood, which is most of the young-adult male LE deficit).
-- **Emergent sex structure (no scalar):** the **female cardiovascular-onset delay** (~10 yr at midlife: female CVD rate @60 ≈ male @50) and the male external-cause excess now fall straight out of the data. Baseline LE ≈ **75.3 M / 80.4 F** (genuine 2022 sex-specific values from age 20; 2022 was a high-mortality year).
+- **Emergent sex structure (no scalar):** the female cardiovascular-onset delay and male external-cause excess fall straight out of the data. Baseline LE from age 20 is ≈ **77.459 M / 82.118 F**.
 
 Because every cause carries an absolute, CDC-calibrated hazard, the **per-age decomposition is meaningful for the average human with no intervention**: at each age the largest contributor among `{extrinsic, cardiovascular, cancer, neurodegeneration, infection, residual}` is the "limiting factor," reproducing the real accidents→cancer→cardiovascular crossover (per sex). Interventions reduce a cause's *absolute* slice (`ΔLE` in years). *(This is still architecture **A** — baked-in baseline curves; the graph is inert until perturbed. See § Target architecture for the generative-B plan.)*
 
@@ -77,7 +78,7 @@ Because every cause carries an absolute, CDC-calibrated hazard, the **per-age de
 | `exponential` | `A·(exp(r·x) − 1)` | `A, r` |
 | `sigmoid` | `L / (1 + exp(−k·(age − mid)))` | `L, k, mid` |
 | `ushaped` | `t0 + amp·((age − mid)/scale)²` | `t0, amp, mid, scale` |
-| `table` | piecewise-linear interpolation of `byAge` points (clamped to endpoints) | `byAge: [[age,value],…]` |
+| `table` | monotone cubic (Fritsch–Carlson PCHIP) interpolation of `byAge` points, clamped to endpoints | `byAge: [[age,value],…]` |
 
 All outputs clamped to [0,1]. The four mortality-cause phenotype nodes (atherosclerosis, cancer, neurodegeneration, immunosenescence) use `table` curves whose points are the **normalised CDC age-specific cause-mortality rates** — so the node's burden trajectory *is* the empirical cause curve. The hallmark/driver nodes use the parametric forms. `ushaped` is reserved for biphasic markers (some endocrine trajectories); v0.2 does not yet use it.
 
@@ -89,7 +90,7 @@ Layers follow [[frameworks/hallmark-causality-graph]]: `tier1` proximal damage, 
 
 Curve directions/shapes tagged `anchored` have a literature basis for their *shape and direction* (cited inline; magnitudes still illustrative and pending the verification pass — see § Refinement). `ordinal-default` curves are placeholders shaped only to be monotone and plausible.
 
-Sex differences: on the **burden/driver** nodes, only the two with established direction are encoded (female longer telomeres → lower starting burden; female slower epigenetic aging, since males age faster per Horvath 2016). On the **mortality** side, sex is a single flat `sexMult` scalar (CDC cause rates are sex-combined) — see § Mortality parameters. The female cardiovascular-onset delay is therefore NOT represented in v0.2 (it needs sex-specific cause curves — a v1 refinement).
+The table below records the original v0.2/v0.3 node inventory and is retained as design history. The canonical JSON and `model/PROJECT-NOTES.md` describe the current v0.5 inventory and mortality routing.
 
 | node | layer | tractability | form | provenance | shape basis |
 |---|---|---|---|---|---|
@@ -133,24 +134,28 @@ Phenotype edges added beyond the hallmark-to-hallmark set (all traceable to the 
 
 ## Mortality parameters
 
-v0.3 uses **sex-specific cause-specific competing hazards** calibrated to **CDC WONDER 2022** age×sex×cause rates — no Gompertz, **no sex scalar**. `Rmax` is per-sex; the residual and external channels are per-sex tables; `β_frail` and the coupling gains remain the only illustrative pieces.
+Current v0.5 uses sex-specific cause-specific competing hazards calibrated consistently to **CDC WONDER D76 2019** age×sex×cause rates — no Gompertz, sex scalar, or live frailty multiplier.
 
 **v0.4 (2026-06-09) — burden-driven old-age escalation.** Each named cause's absolute hazard is now an **odds link** `Rmax_{c,sex} · B/(1−B)` (was the linear `Rmax · B`), where the cause-node burden table stores a **reserve-depletion** fraction in `[0,1)` that asymptotes toward 1 (`B = 0.5` at age 90; the >90 anchors `E/(1+E)`, `E = exp(0.0866·(age−90))`). This is algebraically identical to the v0.3 `Rmax·B·oldAgeTail` at population-baseline (`B_reserve = h/(1+h)` where `h` was the v0.3 normalized rate; baseline LE reproduced to ±0.01, M 75.82 / F 80.89) — but the >90 escalation now lives in the *intervention-reachable* burden state instead of an age-keyed factor, so interventions that slow burden accumulation bend the old-age mortality curve. `Rmax` is preserved exactly (no renormalization). `mortality.oldAgeTail` is deprecated (`rate: 0`); the residual remainder keeps its escalation baked into its own age table — the one intentionally age-keyed term, as it has no burden node to attach to.
 
-**v0.4.1 (2026-06-09) — residual decomposed into named CDC causes.** The residual is split into four additional named cause nodes — **diabetes** (E10–E14), **COPD** (J40–J47), **CKD** (N00–N07/N17–N19/N25–N27), and **liver/cirrhosis** (K70/K73–K74) — so the model now carries 8 named causes + residual + extrinsic (22 nodes). Rates are CDC WONDER **D76, 2019** (crude rate by sex × ten-year age; the WONDER API is blocked for the 2022 single-race dataset D158, so 2019 is a documented proxy — `SWAP-TO-2022` flagged on each cause). The split is **LE-invariant** (re-buckets mortality out of the residual; baseline M 75.81 / F 80.89 unchanged). Monotonic causes (diabetes/COPD/CKD) use the same reserve transform + Gompertz tail as the original four; **liver is non-monotonic** (peaks midlife, declines at old age) so it uses a peak-anchored Rmax and declining >90 anchors (no Gompertz tail). Residual-proxy behavioural edges were retargeted to the new nodes (smoking→COPD, alcohol→liver, PM2.5→COPD) + smoking→diabetes/CKD added. Caveat: this dropped current-smoker ΔLE to a conservative ~−3.7 yr (the v0.4 ~−8 was inflated by applying COPD's smoking RR to the whole residual); restoring the literature ~10 yr needs a whole-bracket `smoking→allcause` edge — see PROJECT-NOTES §8b.
+**v0.4.1 onward — residual decomposed and year-harmonized.** Diabetes, COPD, CKD, liver/cirrhosis, and later falls were split from the residual into named cause nodes. On 2026-06-11 every mortality band was repulled from CDC WONDER D76 **2019**, and residual was recomputed from that same all-cause table. The current calibration therefore uses 2019 deliberately as a pre-COVID baseline, not as a temporary proxy for 2022.
 
 | param | male | female | provenance |
 |---|---|---|---|
-| `Rmax` cardiovascular /yr | 0.054702 | 0.045587 | anchored (CDC WONDER heart+stroke @85+, by sex) |
-| `Rmax` cancer /yr | 0.021700 | 0.012493 | anchored (CDC malignant neoplasms @85+, by sex) |
-| `Rmax` neurodegeneration /yr | 0.022789 | 0.030981 | anchored (CDC dementia-combined @85+; female higher) |
-| `Rmax` infection /yr | 0.004823 | 0.003393 | anchored (CDC flu/pneumonia+sepsis @85+, by sex) |
-| residual(age) | table (per-sex) | table (per-sex) | anchored (all-cause − modeled − extrinsic, CDC WONDER 2022) |
+| `Rmax` cardiovascular /yr | 0.055434 | 0.049567 | anchored (CDC WONDER D76 2019, by sex) |
+| `Rmax` cancer /yr | 0.020983 | 0.012746 | anchored (CDC WONDER D76 2019, by sex) |
+| `Rmax` neurodegeneration /yr | 0.024921 | 0.031550 | anchored (CDC WONDER D76 2019, by sex) |
+| `Rmax` infection /yr | 0.005472 | 0.004464 | anchored (CDC WONDER D76 2019, by sex) |
+| `Rmax` diabetes /yr | 0.003191 | 0.002261 | anchored (CDC WONDER D76 2019, by sex) |
+| `Rmax` COPD /yr | 0.007382 | 0.006072 | anchored (CDC WONDER D76 2019, by sex) |
+| `Rmax` CKD /yr | 0.003162 | 0.002142 | anchored (CDC WONDER D76 2019, by sex) |
+| `Rmax` liver /yr | 0.000384 | 0.000230 | anchored (CDC WONDER D76 2019, by sex) |
+| `Rmax` falls /yr | 0.003112 | 0.002569 | anchored (CDC WONDER D76 2019, by sex) |
+| residual(age) | table (per-sex) | table (per-sex) | anchored (2019 all-cause − named causes − extrinsic) |
 | extrinsic E(age) | table (per-sex) | table (per-sex) | anchored (CDC WONDER non-falls accidents+suicide+homicide; male ≈ 3× female young-adult) |
-| β_frail (sarcopenia multiplier) | 0.6 | 0.6 | anchored-direction (frailty-index → all-cause HR 1.83, Kojima 2018 → ln≈0.60); sex-shared (refinement candidate) |
 | lifestyle multiplier | 1.0 | 1.0 | user knob (sedentary ~0.3 ↔ high-risk ~10); scales E only |
 
-Baseline reproduction is exact by construction *and per-sex*: at baseline `B_node = T_node,sex`, `frailtyMult = 1`, so `Σ Rmax·T + Residual + E = ` the sex-specific CDC all-cause mortality → **LE-from-20 ≈ 75.3 M / 80.4 F** (genuine 2022 values; high-mortality year). The female cardiovascular-onset delay and male external excess **emerge from the data**, not a multiplier.
+Baseline reproduction is exact by construction and per sex: the named causes, residual, and extrinsic channel sum to the 2019 all-cause mortality anchor → **LE from age 20 ≈ 77.459 M / 82.118 F**. The female cardiovascular-onset delay and male external excess emerge from data, not a multiplier.
 
 **Cancer node edges** (added with the cancer phenotype): `genomic-instability → cancer` (strong — Armitage-Doll multistage accumulation of somatic mutations is the canonical mechanism), `epigenetic-alterations → cancer` (moderate), `chronic-inflammation → cancer` (moderate — tumour-promoting inflammation), `immunosenescence → cancer` (moderate — loss of immunosurveillance). Cellular senescence is deliberately NOT wired to cancer here: its net effect is antagonistic (tumour-suppressive via growth arrest vs. tumour-promoting via SASP), and the model only carries promoting edges — see [[frameworks/cancer-aging-tradeoffs]].
 
@@ -174,8 +179,8 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     ],
     "dt": 1,
     "couple": 1,
-    "note": "Illustrative parameter layer for aging-simulator v0.3. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC-WONDER-2022 SEX-SPECIFIC competing hazards (no sex scalar). NOT verified facts; sensitivity-exploration only.",
-    "edgesNote": "UNIFIED 2026-06-11: MODEL.edges is the single source of truth (kind: coupling|mediator|cause|augment|frailty). Engine partitions via edgesByKind(); driver edges derive from stateNodes rate.terms, terminal from node role. Counts: coupling 38 mediator 9 cause 21 augment 1 frailty 10."
+    "note": "Illustrative parameter layer for aging-simulator v0.5. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC WONDER D76 2019 sex-specific competing hazards (no sex scalar or live frailty multiplier). NOT verified facts; sensitivity-exploration only.",
+    "edgesNote": "MODEL.edges is the single source of truth. Engine partitions live edges via edgesByKind(); driver edges derive from stateNodes rate.terms and terminal edges from node roles. Counts: coupling 38, mediator 10, cause 23, augment 2, frailty 0, structural stub 48 (121 total)."
   },
   "strengthToGain": {
     "strong": 0.2,
@@ -192,7 +197,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
       "lifestyleMult": 1,
-      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (they live in the separate 'falls' terminal cause W00-W19, NOT lifestyle-scaled — a future external-injury merge would fold them back under one umbrella while keeping this non-fall component lifestyle-scaled; see PROJECT-NOTES § frailty).",
+      "note": "Non-biological parallel channel: (unintentional injury minus falls)+suicide+homicide, per-year by age and sex; CDC WONDER D76 2019. Does not cascade. lifestyleMult scales it (average 1.0). Male rates are about 3x female rates in young adults. Falls are modeled separately as the W00-W19 terminal cause and are not lifestyle-scaled.",
       "byAge": {
         "male": [
           [
@@ -289,7 +294,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "female": 0.049566865
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). cardiovascular: all circulatory I00-I99 (incl I26-I28 once — fixes pilot double-count) + K55 mesenteric",
-        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction — vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862→80.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71–89; anchor-point hazard invariant to 1e-9; not an arithmetic error). Downgraded from seeder-claimed 'anchored' to 'calibrated' because SWAP-TO-2022 is an open #gap (consistent with all other D76 2019 causes in the model). Year note: existing-band Rmax/burden on 2022 data; net-new on 2019 data; residual base on 2022; SWAP-TO-2022 pending. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
+        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction — vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862→80.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71–89; anchor-point hazard invariant to 1e-9; not an arithmetic error). Calibrated rather than anchored because the band is a modeled aggregation. Year note: the full band and residual were subsequently harmonized to D76 2019. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
       },
       "cancer": {
         "node": "cancer",
@@ -306,7 +311,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "female": 0.031549709
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). neurodegeneration: dementia G30/G31/F01/F03 + Parkinson/movement G20-G25 + atrophies/ALS G10-G14",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded Parkinson/movement (G20,G21,G23,G24,G25) and systemic atrophies (G10,G11,G12,G14) into neurodegeneration band. G13 confirmed invalid in D76. Net-new rates: D76 2019 per sex x ten-year age (B_1=D76.V5, O_aar=aar_none, F_D76.V2=individual codes). Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h (exact; total hazard invariant at every anchor). Male net-new rates/100k: {20:0.1, 30:0.2, 40:0.8, 50:2.9, 60:9.0, 70:36.4, 80:157.7, 90:346.2}. Female: {20:0.0, 30:0.2, 40:0.5, 50:1.8, 60:5.8, 70:20.4, 80:73.3, 90:160.9}. #gap: G13 excluded (invalid in D76); SWAP-TO-2022 pending."
+        "provenance": "calibrated. Op A batched 2026-06-11: folded Parkinson/movement (G20,G21,G23,G24,G25) and systemic atrophies (G10,G11,G12,G14) into neurodegeneration band. G13 confirmed invalid in D76. Net-new rates: D76 2019 per sex x ten-year age (B_1=D76.V5, O_aar=aar_none, F_D76.V2=individual codes). Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h (exact; total hazard invariant at every anchor). Male net-new rates/100k: {20:0.1, 30:0.2, 40:0.8, 50:2.9, 60:9.0, 70:36.4, 80:157.7, 90:346.2}. Female: {20:0.0, 30:0.2, 40:0.5, 50:1.8, 60:5.8, 70:20.4, 80:73.3, 90:160.9}. #gap: G13 excluded (invalid in D76); 2019 pre-COVID baseline retained."
       },
       "infection": {
         "node": "immunosenescence",
@@ -315,7 +320,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "female": 0.004463553
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). infection: influenza/pneumonia J09-J18 + sepsis A40-A41 + HIV B20-B24 + intestinal A00-A09",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded HIV (B20-B24) and intestinal infectious (A00-A09, incl. C.difficile) into infection band. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h. Male net-new rates/100k: {20:0.2, 30:1.7, 40:2.4, 50:5.0, 60:7.5, 70:8.4, 80:15.1, 90:35.9}. Female: {20:0.0, 30:0.6, 40:1.3, 50:2.2, 60:3.5, 70:6.0, 80:13.5, 90:39.2}. Note: female age-20 suppressed (<10 deaths); treated as 0. #gap: SWAP-TO-2022 pending."
+        "provenance": "calibrated. Op A batched 2026-06-11: folded HIV (B20-B24) and intestinal infectious (A00-A09, incl. C.difficile) into infection band. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h. Male net-new rates/100k: {20:0.2, 30:1.7, 40:2.4, 50:5.0, 60:7.5, 70:8.4, 80:15.1, 90:35.9}. Female: {20:0.0, 30:0.6, 40:1.3, 50:2.2, 60:3.5, 70:6.0, 80:13.5, 90:39.2}. Note: female age-20 suppressed (<10 deaths); treated as 0. #gap: 2019 pre-COVID baseline retained."
       },
       "diabetes": {
         "node": "diabetes",
@@ -323,7 +328,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "male": 0.003191,
           "female": 0.002261
         },
-        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "copd": {
         "node": "copd",
@@ -331,7 +336,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "male": 0.007382,
           "female": 0.006072
         },
-        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "ckd": {
         "node": "ckd",
@@ -339,7 +344,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "male": 0.003162,
           "female": 0.002142
         },
-        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "liver": {
         "node": "liver",
@@ -347,8 +352,8 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "male": 0.000384,
           "female": 0.00023
         },
-        "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: SWAP-TO-2022 pending."
+        "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; 2019 pre-COVID baseline retained",
+        "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: 2019 pre-COVID baseline retained."
       },
       "falls": {
         "node": "falls-mortality",
@@ -356,7 +361,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
           "male": 0.003112,
           "female": 0.002569
         },
-        "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). SWAP-TO-2022 pending. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
+        "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). 2019 pre-COVID baseline retained. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
         "provenance": "calibrated"
       },
       "residual": {
@@ -369,7 +374,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "provenance": "calibrated. Exact refactor of the former mortality.residual channel; Rmax=residTable(90) per sex; B_res=h/(1+h) per integer age 20-130. Invariance-proven: max|delta-hazard|<1e-14 both sexes vs pre-conversion baseline."
       }
     },
-    "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
+    "note": "v0.5: each named cause carries per-sex curves and Rmax; residual and extrinsic are also per sex, all harmonized to CDC WONDER D76 2019. Female cardiovascular-onset delay and male external excess emerge from data, not a scalar. The former global frailty multiplier is disabled.",
     "oldAgeTail": {
       "rate": 0,
       "fromAge": 90,
@@ -1507,7 +1512,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       "label": "Falls (external injury)",
       "layer": "phenotype",
       "tractability": "moderate",
-      "provenance": "calibrated. Op A split 2026-06-11: E40-E46 malnutrition removed from the falls bucket; falls cause is now W00-W19 only. CDC WONDER D76 2019 W00-W19 (individual codes W00-W19) per sex x ten-year age. RmaxPerYear = 85+ band rate (311.2/100k M, 256.9/100k F). Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. Malnutrition mass (E40-E46, 2019 net rates: M 81.5/100k @85+, F 102.4/100k @85+) rebucketed into dense residual via engine-based recompute (residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual) at every integer age 20-130). sarcopenia→falls frailty edge (β 0.6366, Yeung 2019) unchanged. #gap: external-injury merge deferred; SWAP-TO-2022 pending; R54 senility + J69 aspiration stay in residual.",
+      "provenance": "calibrated. Op A split 2026-06-11: E40-E46 malnutrition removed from the falls bucket; falls cause is now W00-W19 only. CDC WONDER D76 2019 W00-W19 (individual codes W00-W19) per sex x ten-year age. RmaxPerYear = 85+ band rate (311.2/100k M, 256.9/100k F). Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. Malnutrition mass (E40-E46, 2019 net rates: M 81.5/100k @85+, F 102.4/100k @85+) rebucketed into dense residual via engine-based recompute (residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual) at every integer age 20-130). leanMassIndex→falls mediator edge is the current muscle-risk route. #gap: external-injury merge deferred; 2019 pre-COVID baseline retained; R54 senility + J69 aspiration stay in residual.",
       "role": "mortality-cause",
       "mortalityCause": "falls",
       "curve": {
@@ -1621,7 +1626,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
       "label": "Residual aging (unmodeled)",
       "layer": "phenotype",
       "tractability": "low",
-      "provenance": "calibrated. v0.4 reserve-depletion refactor of the residual channel (2026-06-15): exact conversion of the per-year residTable into odds-link form Rmax*B/(1-B), with B=h/(1+h) at every integer age 20-130, Rmax=residTable(90). Reconstruction error <1e-15; B@90=0.5; B@130<0.971; baseline LE invariant to <1e-14 max-hazard deviation. Residual is definitionally driverless (the unmodeled remainder). Ships calibrated (not anchored: inherited residual has precision and provenance gaps, SWAP-TO-2022 pending). #gap: no upstream driver edges by construction; SWAP-TO-2022 pending.",
+      "provenance": "calibrated. v0.4 reserve-depletion refactor of the residual channel (2026-06-15): exact conversion of the per-year residTable into odds-link form Rmax*B/(1-B), with B=h/(1+h) at every integer age 20-130, Rmax=residTable(90). Reconstruction error <1e-15; B@90=0.5; B@130<0.971; baseline LE invariant to <1e-14 max-hazard deviation. Residual is definitionally driverless (the unmodeled remainder). Ships calibrated (not anchored: inherited residual has precision and provenance gaps, 2019 pre-COVID baseline retained). #gap: no upstream driver edges by construction; 2019 pre-COVID baseline retained.",
       "role": "mortality-cause",
       "mortalityCause": "residual",
       "citation": "CDC WONDER 2019 D76 residual (all-cause minus modeled causes minus extrinsic)",
@@ -3724,6 +3729,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "id": "LDL",
         "label": "LDL cholesterol",
         "unit": "mg/dL",
+        "range": [20, 400],
         "sd": 35,
         "baseline": {
           "male": [
@@ -3793,6 +3799,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "id": "systolicBP",
         "label": "Systolic blood pressure",
         "unit": "mmHg",
+        "range": [90, 220],
         "sd": 16,
         "baseline": {
           "male": [
@@ -3862,6 +3869,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "id": "BMI",
         "label": "Body mass index",
         "unit": "kg/m^2",
+        "range": [14, 50],
         "sd": 6,
         "baseline": {
           "male": [
@@ -3931,6 +3939,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "id": "HbA1c",
         "label": "Glycated hemoglobin",
         "unit": "%",
+        "range": [4, 14],
         "sd": 0.6,
         "baseline": {
           "male": [
@@ -3960,6 +3969,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "id": "restingHR",
         "label": "Resting heart rate",
         "unit": "bpm",
+        "range": [40, 110],
         "sd": 10,
         "baseline": {
           "male": [
@@ -3989,6 +3999,7 @@ Real cause-of-death data forced this addition: external causes (unintentional in
         "id": "leanMassIndex",
         "label": "Appendicular lean mass index",
         "unit": "kg/m^2",
+        "range": [3, 13],
         "sd": 1.1,
         "baseline": {
           "male": [
@@ -4132,7 +4143,8 @@ Real cause-of-death data forced this addition: external causes (unintentional in
     "constants": {
       "heightRefM": 1.7,
       "weightAsymptoteFraction": 0.55,
-      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
+      "weightHalfLifeYears": 1,
+      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized. weightHalfLifeYears: a first-order approximation with a 1-year half-life, reaching 50% after 1 year and 87.5% after 3; Hall et al. 2011 motivates a delayed multi-year response and gives the approximate rule of thumb ~50% at 1 year and ~95% at 3 years (Lancet, doi:10.1016/S0140-6736(11)60812-X)."
     },
     "stiffnessToSBP": {
       "betaPerUnit": {
@@ -4325,7 +4337,7 @@ Shapes/directions tagged `anchored` or `anchored-direction` above rest on these 
 - **Clonal hematopoiesis — steep rise >70:** Jaiswal S et al., *NEJM* 2014, 371:2488–2498, doi:10.1056/NEJMoa1408617 (9.5% @70–79 → 18.4% @90+). Genovese G et al., *NEJM* 2014, 371:2477–2487, doi:10.1056/NEJMoa1409405.
 - **Cancer — power-law (∝ age^≈5):** Armitage P & Doll R, "The age distribution of cancer and a multi-stage theory of carcinogenesis," *Br J Cancer* 1954, 8(1):1–12. Age-specific mortality rates: CDC NVSR Vol. 74 No. 4, "Deaths: Final Data for 2022" (2025), Table 8 (8.0/100k @25–34 → 1,573.5 @85+; computed slope k≈5 over age 30→70). SEER Cancer Stat Facts (median age at cancer death ≈ 73).
 - **Extrinsic / external-cause mortality + accident hump:** CDC NVSR Vol. 74 No. 4 (2025) Table 8 (age-specific external-cause rates, 2022); CDC NVSR Vol. 73 No. 10, "Deaths: Leading Causes for 2022" (2024) (leading-cause shares by age band). Young-adult hump structure + cause-substitution (motor-vehicle → overdose/suicide/homicide): Remund A, Camarda CG, Riffe T, "A cause-of-death decomposition of young adult excess mortality," *Demography* 2018, 55(3):957–978, doi:10.1007/s13524-018-0680-9.
-- **Sex-specific cause mortality rates (v0.3 calibration):** CDC WONDER, Underlying Cause of Death 2018–2024 Single Race (dataset D158), queried by sex × ten-year age group × cause, data year 2022. Per-sex `Rmax`, normalised cause curves, residual, and external channel all derive from this. Confirms female cardiovascular-onset delay (~10 yr midlife: female CVD @60 ≈ male @50) and ~3× male external-cause excess in young adults. Suppressed cells (<10 deaths; dementia at young ages) treated as ≈0.
+- **Sex-specific cause mortality rates:** the current calibration is CDC WONDER Underlying Cause of Death D76, data year 2019, queried by sex × ten-year age group × cause. Per-sex `Rmax`, normalized cause curves, residual, and external channel all use that same year. The earlier v0.3 D158/2022 calibration was replaced during the 2026-06-11 year-harmonization pass.
 - **Cause-specific mortality rates (sex-combined cross-check):** CDC/NCHS, *National Vital Statistics Reports* Vol. 74 No. 4, "Deaths: Final Data for 2022" (2025), Table 8 (age-specific rates per 100,000 by cause). Used for cardiovascular (heart I00-09,I11,I13,I20-51 + stroke I60-69), dementia-combined (F01/F03/G30/G31 — the G30 Alzheimer line alone undercounts dementia mortality ~2.4×), influenza/pneumonia (J09-18) + sepsis (A40-41), all-cause totals (for the residual), and the `Rmax` per-cause age-90 anchors. Rate-based rank-1 crossover (heart overtakes cancer) confirmed at the 75–84 band.
 - **Gompertz–Makeham (extrinsic = age-independent term):** Gavrilov LA & Gavrilova NS, reliability-theory / compensation-effect literature (Makeham term illustrative range 0–0.01/yr; epoch-dependent, trending toward 0 in modern low-mortality populations). US-2022 empirical background floor ≈ 1.5×10⁻⁴/yr (age-10 all-cause trough, NVSR 74-04 Table 8).
 - **Mortality — Gompertz MRDT ≈ 8 yr, male excess:** Gompertz–Makeham law; reviewed in Gavrilov & Gavrilova reliability-theory literature (textbook consensus; not single-paper-anchored).

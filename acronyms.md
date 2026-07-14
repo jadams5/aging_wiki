@@ -35,6 +35,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **ApoB** — Apolipoprotein B (LDL/VLDL structural protein; one-per-particle, basis of atherogenic-particle count)
 - **AP-1** — Activator Protein 1 (Jun/Fos transcription factor complex; UV/MMP and collagen-aging axis)
 - **APOE** — Apolipoprotein E
+- **AQP4** — Aquaporin-4 (astrocytic water channel implicated in perivascular brain-fluid transport) → [[aquaporin-4]]
 - **ARE** — Antioxidant Response Element (NRF2 target sequence)
 - **ATG** — Autophagy-related (protein family prefix; e.g., ATG7)
 - **ATM** — Ataxia-Telangiectasia Mutated (kinase, DNA damage)
@@ -92,6 +93,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **CR** — Caloric Restriction → [[caloric-restriction]]
 - **Crossref** — DOI-registry metadata API
 - **CRP** — C-Reactive Protein
+- **CSF** — Cerebrospinal Fluid
 - **CSME** — Clinically Significant Macular Edema
 - **CV** — Coefficient of Variation (statistical: SD/mean; CGM-trace variability metric — % CV <36 = stable glucose). Also Cardiovascular in clinical contexts — disambiguate from surrounding text.
 - **CVD** — Cardiovascular Disease
@@ -116,6 +118,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **DOI** — Digital Object Identifier
 - **DOMS** — Delayed-Onset Muscle Soreness (24–72h post-eccentric-loading; resolved across successive sessions via the repeated-bout effect / RBE)
 - **DRP1** — Dynamin-Related Protein 1 (mitochondrial fission)
+- **DTI-ALPS** — Diffusion Tensor Imaging Analysis Along the Perivascular Space → [[methods/dti-alps]]
 - **DRT** — Drometrizole Trisiloxane (UV filter; also "Mexoryl XL") → [[drometrizole-trisiloxane]]
 - **DSB** — Double-Strand Break (DNA)
 
@@ -224,6 +227,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **IRB** — Institutional Review Board
 - **IRF** — Interferon Regulatory Factor
 - **ISR** — Integrated Stress Response
+- **ISF** — Interstitial Fluid
 - **ITP** — NIA Interventions Testing Program (mouse lifespan testing)
 
 ## J
@@ -260,6 +264,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **MAVS** — Mitochondrial Antiviral Signaling protein
 - **MBBT** — Methylene Bis-Benzotriazolyl Tetramethylbutylphenol (bisoctrizole; UV filter; also "Tinosorb M") → [[bisoctrizole]]
 - **MD** — Molecular Dynamics (atomistic simulation of molecular motion)
+- **ME/CFS** — Myalgic Encephalomyelitis/Chronic Fatigue Syndrome
 - **MEK** — MAPK/ERK Kinase (MAP2K1/MAP2K2; activates ERK1/2; trametinib target)
 - **MG** — Methylglyoxal
 - **MG-H1** — Methylglyoxal-derived Hydroimidazolone 1 (arginine-derived AGE adduct)
@@ -314,6 +319,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **NLRP3** — NLR-family Pyrin domain containing 3 (inflammasome)
 - **NMN** — Nicotinamide Mononucleotide (NAD⁺ precursor) → [[nmn]]
 - **NNK** — Degenerate codon encoding all 20 amino acids with reduced stop-codon burden (directed-evolution saturation mutagenesis)
+- **NREM** — Non-Rapid-Eye-Movement sleep
 - **NS** — Not Significant (statistical result)
 - **NP** — Nanoparticle (drug-delivery vehicle; e.g., dual-PRR-agonist NPs in immuno-oncology)
 - **NR** — Nicotinamide Riboside (NAD⁺ precursor) → [[nr]]
@@ -354,6 +360,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **PLLA** — Poly-(L)-Lactic Acid (semicrystalline polylactide biostimulator, e.g. Sculptra) → [[biostimulatory-fillers]]
 - **PN** — Polynucleotide(s) (high-molecular-weight DNA-fragment biostimulator; overlaps PDRN) → [[pdrn]]
 - **PRP** — Platelet-Rich Plasma (autologous blood-derived regenerative injectable)
+- **PVS** — Perivascular Space
 - **PGC-1α** — PPARγ Coactivator 1α (mitobiogenesis master regulator)
 - **PI3K** — Phosphoinositide 3-Kinase
 - **PINK1** — PTEN-Induced Kinase 1 (mitophagy)
@@ -454,6 +461,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **TIR** — Time In Range (CGM metric: % of readings within 70–140 mg/dL for non-diabetic context; primary glycemic-quality indicator)
 - **TIMP** — Tissue Inhibitor of Metalloproteinases
 - **TLR** — Toll-Like Receptor
+- **TMA** — Tetramethylammonium (iontophoresis probe used to estimate extracellular-space volume and tortuosity)
 - **TMAO** — Trimethylamine N-Oxide
 - **TNF** — Tumor Necrosis Factor (TNF-α)
 - **TP53** — Tumor Protein p53 gene

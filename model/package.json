@@ -1,0 +1,14 @@
+{
+  "name": "aging-wiki-simulator-model",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build-params.mjs && node build-app.mjs",
+    "test": "node test.mjs",
+    "test:e2e": "node e2e-playwright.mjs",
+    "validate": "node validate-graph.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.61.0"
+  }
+}

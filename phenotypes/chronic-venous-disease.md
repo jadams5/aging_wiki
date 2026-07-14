@@ -23,7 +23,7 @@ The disease is graded by the **CEAP classification** (Clinical–Etiology–Anat
 | CEAP class | Clinical finding |
 |---|---|
 | **C0** | No visible/palpable venous disease |
-| **C1** | Telangiectasias or reticular veins (spider veins) |
+| **C1** | [[telangiectasia\|Telangiectasias]] or reticular veins (spider veins) |
 | **C2** | Varicose veins (the bulging, ropey, ≥3 mm subcutaneous veins) |
 | **C3** | Oedema |
 | **C4** | Skin changes — pigmentation/eczema (C4a), lipodermatosclerosis/atrophie blanche (C4b) |

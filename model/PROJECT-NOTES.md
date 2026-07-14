@@ -6,8 +6,9 @@
 > — this file is the *operational* overview: how the pieces fit, how to build/test,
 > the mistakes already fixed (don't repeat them), current state, and the roadmap.
 >
-> **Status:** working interactive tool. Engine **131/131** tests green + **22/22**
-> Playwright browser checks. **Graph/viz overhauled 2026-06-10:** the graph panel is now
+> **Status:** working interactive tool. Run `npm test --prefix model` and
+> `npm run test:e2e --prefix model` for the current numerical and browser check counts.
+> **Graph/viz overhauled 2026-06-10:** the graph panel is now
 > a UNIFIED causal DAG across all layers (inputs→mediators↔state→hallmarks→causes→mortality,
 > 42 nodes / 76 edges) with edge-category styling, greyed disabled/unlinked nodes (planned
 > work), hover focus/ego mode, live edge weighting (red=raising risk / green=lowering), and
@@ -58,12 +59,11 @@ model/
   params.json       ← generated FROM the .md json block (do not hand-edit).
   build-params.mjs  ← extracts the .md ```json block → params.json.
   build-app.mjs     ← inlines engine.mjs + params.json INTO the html (between markers).
-  test.mjs          ← 129 regression tests. `node model/test.mjs` MUST stay green.
+  test.mjs          ← numerical + structural regression suite. `node model/test.mjs` MUST stay green.
   cli.mjs           ← le / sweep / validate / fit(stub).
-  e2e-playwright.mjs← REAL-browser (Chromium) smoke + interaction test of the rendered app
-                     (23 checks: render, sex toggle, lab anchors, anchor-disable, infodot
-                     tooltip, resting-HR→stiffness→LE, senolytic intervention). Run per its
-                     header. Catches render/wiring bugs the Node Proxy-stub can't.
+  package.json      ← pinned browser-test dependency + reproducible npm scripts.
+  e2e-playwright.mjs← REAL-browser (Chromium) smoke + interaction test of the rendered app.
+                     Run per its header. Catches render/wiring bugs the Node suite cannot.
   README.md         ← one-paragraph pointer.
 viz/aging-simulator.html  ← the app. RENDER layer (UI/CSS/SVG) + an INJECTED engine.
 ```
@@ -91,22 +91,22 @@ sim files; never `git add -A` (the repo has unrelated user changes).
 
 Four layers, all unified by ONE discipline: **everything acts on deviations from
 the population average, so at population-average inputs every deviation is 0,
-every multiplier is 1, and the model reproduces the empirical CDC baseline exactly
-(75.82 / 80.89).** This invariant is the load-bearing guard — *every change must
+every multiplier is 1, and the model reproduces the empirical CDC 2019 baseline exactly
+(77.459 M / 82.118 F).** This invariant is the load-bearing guard — *every change must
 preserve it*, and `test.mjs` pins it.
 
-1. **Latent hallmark nodes** (22 nodes / 38 edges today — the 18 inherited from the
-   *verified* `frameworks/causal-graph-data.md` + the 4 v0.4.1 named cause nodes).
+1. **Latent hallmark/cause nodes** (24 nodes; 38 live coupling edges today).
    Burden `B_i = clamp(T_i + Δ_i)`.
    `T_i` = baseline curve (parametric for hallmarks; **table** = normalized CDC
    curve for the 4 cause nodes). `Δ_i` = deviation from interventions, propagated
    by a **bounded fixed-point**: `Δ = (I − couple·G)⁻¹·p`, `p` = primary deviation
    from a node's own freeze. (Spectral radius of couple·G ≈ 0.10 → stable.)
 
-2. **Competing-hazards mortality** (per-sex, CDC-WONDER-2022 calibrated):
+2. **Competing-hazards mortality** (per-sex, CDC WONDER D76 2019 calibrated):
    `h(age) = E_sex(age)·lifestyle + Σ_c (cause hazards) + residual`, each cause =
    `Rmax_{c,sex}·B_node(c)` × Π(deviation multipliers), the whole intrinsic bracket
-   × allcause multipliers (fitness, BMI J-curve) and × **cause-specific frailty**.
+   × all-cause multipliers (fitness, BMI J-curve). The former global frailty multiplier is disabled;
+   lean mass reaches falls/infection through explicit mediator edges.
    At baseline all = CDC → empirical LE.
 
 3. **Endogenous mediators** (B-layer): exogenous inputs → emergent mediator
@@ -432,16 +432,13 @@ already exceeds a threshold (HbA1c >5.7 at 60+) so the multiplier is 1 at baseli
 
 ### 8a. Residual decomposition — CDC-backed causes
 
-> **STATUS (v0.4.1, 2026-06-09): Tier-A DONE** — diabetes, COPD, CKD, liver are
-> implemented as named cause nodes (CDC WONDER D76 2019 rates; LE-invariant split).
-> Tier-B (Parkinson→extend neuro; hypertensive/aneurysm→fold into CVD) still pending.
-> **Data caveat:** rates are **2019** (the WONDER API is blocked for the 2022 D158
-> dataset — only legacy D76 ≤2020 is API-accessible; confirmed empirically). Each new
-> cause's `cdc:` field carries a `SWAP-TO-2022` marker. See §8b for the 2022 swap +
-> the smoking-realism + per-cause-frailty follow-ups.
+> **CURRENT STATUS:** all mortality bands, residual, and extrinsic mortality are
+> harmonized to CDC WONDER D76 **2019** as the deliberate pre-COVID baseline.
+> Diabetes, COPD, CKD, liver, and falls are named causes; cardiovascular includes
+> the reviewed vascular remainder. Older `SWAP-TO-2022` notes below are historical.
 
-The current residual = `all-cause_sex(age) − Σ(4 modeled causes) − extrinsic`
-(CDC WONDER 2022, per sex). It is the only intentionally age-keyed mortality term
+The current residual = `2019 all-cause_sex(age) − Σ(named causes) − extrinsic`.
+It is the only intentionally age-keyed mortality term
 left after v0.4 — the honest "we haven't modeled this mechanism" bucket. The agreed
 plan is to **shrink it by splitting out named, CDC-backed causes** one at a time,
 each becoming a graph node that flows through the v0.4 odds link automatically. We
@@ -454,7 +451,7 @@ enumeration so each is turnkey.
 suicide + homicide`.
 
 **Per-cause implementation recipe (same for every row):** (1) pull the cause's
-CDC WONDER 2022 per-sex age curve (the `cdc:` code string is the WONDER query);
+CDC WONDER D76 2019 per-sex age curve (the `cdc:` code string is the WONDER query);
 (2) `Rmax_{c,sex}` = the curve's 85+/age-90 anchor rate; (3) burden table =
 reserve transform `B' = h/(1+h)` of `h = CDC_rate/Rmax` at each anchor, then the
 shared >90 reserve anchors `[90,0.5] [100,0.7039] [110,0.8497] [120,0.9307]
@@ -493,9 +490,8 @@ BMI→liver and HbA1c→liver edges are a *distinct endpoint* from BMI/HbA1c→C
 so not a double-count, but anchor them to liver-specific RRs.
 
 **Stays in residual (the irreducible / non-mechanistic remainder — keep age-keyed):**
-COVID-19 `U07.1` (pandemic-transient, inflates the 2022 residual vs other years;
-optionally route a fraction through immunosenescence later); elderly falls `W00–W19`
-(already captured via the sarcopenia frailty multiplier); ill-defined `R00–R99`,
+COVID-19 `U07.1` is absent from the chosen pre-COVID 2019 calibration; elderly falls
+`W00–W19` are now a named cause driven by lean mass. Ill-defined `R00–R99`,
 iatrogenic, nutritional, and the long tail of small causes. This is the honest
 "unmodeled mechanism" bucket — it SHOULD remain age-keyed rather than be given
 invented upstream edges (see §6 FIXED-MISTAKES discussion and the "unknown node"
@@ -516,19 +512,14 @@ into CVD). Each is one node + reserve table + recomputed residual + 1–3 anchor
 edges; the v0.4 odds-link + reserve machinery needs no change. After each, re-run
 `build-params → build-app → test` and re-baseline the freeze-ΔLE targets (the LE
 *invariant* must hold: recomputing residual keeps baseline total = empirical
-all-cause, so M 75.82 / F 80.89 should not move).
+all-cause, so the current 77.459 M / 82.118 F anchor should not move).
 
 ### 8b. Follow-ups opened by the v0.4.1 decomposition
 
-1. **Swap 2019 → 2022 rates.** The four new cause tables use CDC WONDER **D76 2019**
-   because the API rejects the 2022 single-race dataset (D158) — only legacy D76
-   (≤2020) is API-accessible (D158/D176 both return a generic group-by rejection;
-   D76 works). Liver & diabetes ran ~15–30% higher by 2022, so the split currently
-   under-counts those. To swap: pull D158 2022 from the WONDER **web UI** (group by
-   gender × ten-year age, per cause), re-run the reserve transform, recompute the
-   residual. Marked `SWAP-TO-2022` in each cause's `cdc:` field. *(Working harvester
-   for D76: the gender×age group-by + crude-rate recipe is in the git history of this
-   session; D158 needs the web UI.)*
+1. **Mortality-year decision (resolved).** The model deliberately retains CDC WONDER
+   **D76 2019** as a consistent pre-COVID baseline. Every named cause, residual, and
+   extrinsic channel was harmonized to that year on 2026-06-11; the former plan to
+   mix or swap selected bands to 2022 is superseded.
 
 2. **Smoking realism (IMPORTANT).** v0.4.1 dropped current-smoker ΔLE from ~-8 (v0.4)
    to **~-3.7** — and the -8 was an *artifact* (COPD's smoking RR 6× applied to the

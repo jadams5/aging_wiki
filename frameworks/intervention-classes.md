@@ -1965,6 +1965,29 @@ WHERE contains(mechanisms, "age-crosslink-cleavage")
 
 ---
 
+### age-adduct-deglycation
+
+**Added:** 2026-07-14 — first compound page: [[molecules/compounds/cmlase]]
+
+**Definition:** Direct enzymatic removal of an established, chemically stable, **monovalent** advanced glycation end-product (AGE) adduct from a protein residue, regenerating the native amino acid. The canonical first example is CMLase oxidation of [[carboxymethyl-lysine]] (CML) back to lysine. This is damage repair rather than upstream suppression of glycation flux.
+
+**Canonical value in use:** `age-adduct-deglycation`
+
+**Class boundary:** This class is deliberately separate from `age-crosslink-cleavage`. CML modifies one lysine and does not bridge two residues or protein chains; removing CML therefore does not demonstrate cleavage of [[glucosepane]], [[pentosidine]], or another extracellular-matrix crosslink. It is also distinct from `antioxidant` / carbonyl trapping, which prevents new AGE formation without repairing an existing adduct.
+
+**Hallmarks primarily targeted:** [[chronic-inflammation]] and [[altered-intercellular-communication]] through removal of AGE ligands that can engage [[rage|RAGE]]; [[loss-of-proteostasis]] as the broader protein-damage-repair mapping. Functional reversal of those downstream hallmarks must be demonstrated rather than inferred from chemical target engagement alone.
+
+**Translation-gap note:** `preclinical-only`. The founding CMLase paper demonstrated biochemical and ex-vivo human-tissue target engagement, not delivery into a living organ, functional rescue, safety, or in-vivo efficacy.
+
+**Constituent intervention pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "age-adduct-deglycation")
+```
+
+---
+
 ### mps-stimulation / anabolic-protein-support
 
 **Added:** 2026-05-20 — first intervention page: [[interventions/lifestyle/protein-intake]]
@@ -2298,6 +2321,88 @@ LIST FROM "molecules/compounds" OR "interventions"
 WHERE contains(mechanisms, "dietary-sodium-restriction")
   OR contains(mechanisms, "potassium-repletion")
   OR contains(mechanisms, "blood-pressure-modulation")
+```
+
+---
+
+### selective-photothermolysis / vascular-ablation
+
+**Added:** 2026-06-27 — first intervention page: [[interventions/procedural/vascular-laser]]
+
+**Definition:** Physical destruction of ectatic or neoplastic dermal blood vessels by delivering **wavelength-selective pulsed light energy** that is preferentially absorbed by the **oxyhemoglobin** chromophore inside the vessel lumen, converting light to heat within the blood column and thermally coagulating the vessel wall while leaving the surrounding dermis thermally spared. The mechanistic framework is Anderson & Parrish's **selective photothermolysis** (Science 1983): choose a wavelength at or near an oxyhemoglobin absorption peak (principal peaks at ~418, 542, and 577 nm; secondary absorption extending to ~600 nm and to 1064 nm in deeper vessels), deliver it in a **pulse duration shorter than the thermal relaxation time (TRT)** of the target vessel (TRT scales with vessel diameter squared — ~1 ms for a 100 µm vessel, ~10 ms for a 300 µm vessel), so that heat is generated within and retained inside the target rather than diffusing outward to non-target tissue. This is fundamentally different from `controlled-wounding-collagen-stimulation` / `fractional-photothermolysis` (which use non-selective photothermal tissue injury for neocollagenesis): vascular photothermolysis *intentionally targets a specific chromophore and vessel structure*, with collagen stimulation as a possible incidental bystander effect, not the primary mechanism.
+
+**Two canonical mechanism values (always use together):**
+- **`selective-photothermolysis`** — the physical chromophore-targeting principle (Anderson & Parrish 1983); applies whenever wavelength is matched to an absorption peak of a target chromophore (oxyhemoglobin for vascular; melanin for pigment lesions). List this value for any vascular laser or light modality using wavelength-selective pulse delivery.
+- **`vascular-ablation`** — the structural consequence: thermal destruction of the ectatic vessel wall, triggering intravenous thrombosis and fibrotic obliteration, permanently removing the dilated vessel from the dermis. Distinct from `angiogenesis-inhibition` (which suppresses new vessel formation via VEGF/VEGFR signaling) and from `sclerotherapy` (chemical endothelial injury, not photothermolysis).
+
+**Sub-modality distinction: IPL vs. laser.** Intense pulsed light (IPL) uses broadband 500–1200 nm filtered light, not a single coherent wavelength. It achieves selective photothermolysis of oxyhemoglobin (and melanin simultaneously) by filtering to exclude the shortest UV and infrared bands. IPL's primary vascular indication is poikiloderma of Civatte (simultaneous telangiectasia + dyspigmentation treatment) and diffuse facial erythema; its non-coherent broadband output makes it simultaneously a vascular photothermolysis and a pigment-chromophore-selective device. List `selective-photothermolysis` for IPL vascular applications.
+
+**Scope note — what is NOT in this class:**
+- `fractional-photothermolysis` (`controlled-wounding-collagen-stimulation` sub-value): ablative/non-ablative fractional lasers (CO2, Er:YAG, 1550 nm, 1927 nm) use bulk water as the chromophore; they create arrays of non-selective thermal injury for wound-healing neocollagenesis — the target is tissue architecture, not oxyhemoglobin.
+- `sclerotherapy` — chemical injection of a sclerosant into the vessel lumen; produces endothelial injury via direct chemical contact, not photothermolysis; a distinct intervention modality (see [[phenotypes/chronic-venous-disease]] for evidence; no separate class page yet).
+- Photodynamic therapy (PDT) — uses photosensitizer uptake + activation; the chromophore is exogenous rather than endogenous oxyhemoglobin.
+
+**Canonical values in use:** `selective-photothermolysis`, `vascular-ablation`
+
+**Hallmarks primarily targeted:** [[cellular-senescence]] (ectatic facial vessels are a downstream manifestation of senescent-fibroblast SASP — the vascular phenotype of [[cellular-senescence]] in photoaged dermis); [[chronic-inflammation]] (rosacea-associated telangiectasia arises in the context of innate immune dysregulation — [[chronic-inflammation]] — and laser/IPL ablation of the structural vascular lesion does not modulate the upstream senescent-cell or inflammatory burden). **Critical framing note:** the intervention targets the vascular *structural consequence* of these hallmarks, not the underlying hallmark mechanisms themselves. It is symptomatic/structural treatment, not a geroprotective hallmark-modulating intervention. See [[interventions/procedural/vascular-laser]] § Hallmark mapping for explicit framing.
+
+**Constituent intervention pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "selective-photothermolysis")
+  OR contains(mechanisms, "vascular-ablation")
+```
+
+---
+
+### alpha-adrenergic-agonism / vasoconstrictor
+
+**Added:** 2026-06-27 — first compound page: [[molecules/compounds/oxymetazoline]]
+
+**Definition:** Agonism of alpha-adrenergic receptors (α1-subtype, α2-subtype, or both) on vascular smooth muscle cells, producing receptor-mediated vasoconstriction via Gq-coupled (α1) or Gi-coupled (α2) signal transduction. In the topical cutaneous context, this reduces blood flow through superficial dermal arterioles and venules, transiently lowering skin redness. The mechanism is hemodynamic — not immunological — and reverses as the agonist is cleared. Distinct from: alpha-adrenergic *antagonists* (antihypertensive doxazosin/terazosin); the `selective-photothermolysis` / `vascular-ablation` class (which permanently destroys ectatic vessels); and anti-inflammatory agents (which address the cathelicidin/KLK-5 upstream cascade of rosacea).
+
+**Sub-class: `alpha-1-agonism`** — preferential α1-adrenergic agonism (Gq / IP3 / DAG → intracellular Ca²⁺ release → smooth muscle contraction). The canonical topical cutaneous agent is oxymetazoline 1% cream (Rhofade; FDA-approved 2017 for rosacea erythema). Also: intranasal oxymetazoline 0.05% (nasal decongestant), phenylephrine (ophthalmic, nasal, systemic vasopressor).
+
+**Sub-class: `alpha-2-agonism`** — preferential α2-adrenergic agonism (Gi → ↓adenylyl cyclase → ↓cAMP → smooth muscle contraction; also presynaptic autoreceptor-mediated norepinephrine suppression). Canonical topical cutaneous agent for rosacea: brimonidine 0.33% gel (compound page pending — #gap/stub). Also: apraclonidine and brimonidine for intraocular pressure (glaucoma); clonidine systemically (antihypertensive).
+
+**Canonical values in use:** `vasoconstrictor`, `alpha-adrenergic-agonism`, `alpha-1-agonism`, `alpha-2-agonism`
+
+**Hallmarks mapping note:** Cutaneous vasoconstriction is a symptomatic mechanism targeting the vascular output of inflammatory rosacea without engaging the upstream cathelicidin/KLK-5 cascade or [[cellular-senescence]] SASP. Map to [[chronic-inflammation]] to reflect the rosacea disease context — the compound does not mechanistically suppress inflammation but is used exclusively for the erythema of an inflammatory condition.
+
+**Hallmarks primarily targeted:** [[chronic-inflammation]] (contextual — addresses the erythema symptom of inflammatory rosacea; not mechanistically anti-inflammatory)
+
+**Constituent compound pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "vasoconstrictor")
+  OR contains(mechanisms, "alpha-adrenergic-agonism")
+  OR contains(mechanisms, "alpha-1-agonism")
+  OR contains(mechanisms, "alpha-2-agonism")
+```
+
+---
+
+### h1-antihistamine
+
+**Added:** 2026-06-30 — first compound page: [[molecules/compounds/meclizine]]
+
+**Definition:** Competitive antagonists of the H1 histamine receptor (HRH1), a Gq-coupled GPCR expressed on smooth muscle, endothelium, and CNS neurons. First-generation (sedating) agents — including meclizine and diphenhydramine — cross the blood-brain barrier and additionally antagonise muscarinic and alpha-adrenergic receptors, accounting for both their vestibular antiemetic effects and sedation. Second-generation agents (cetirizine, loratadine, fexofenadine) have restricted CNS penetration. First-generation members have additional anticholinergic activity that may be relevant to the aging safety profile (increased fall risk, anticholinergic cognitive burden in older adults).
+
+**Aging relevance:** Histamine is a pro-inflammatory mediator released by mast cells and basophils; H1 antagonism reduces histamine-driven acute/chronic inflammatory signalling. Whether this contributes to healthspan via [[chronic-inflammation]] reduction is speculative and untested at the population level. The primary motivation for cataloguing this class is the NIA ITP longevity signal for meclizine (Harrison 2024 — 8% male median lifespan extension in UM-HET3 mice at p=0.03), which does not appear to operate through H1 receptor signalling per se; the longevity mechanism is unknown (#gap/no-mechanism). The class is therefore catalogued here to enable Dataview querying of antihistamine compounds that appear in longevity repurposing programs, not to assert H1 antagonism as a validated longevity mechanism.
+
+**Safety class note:** First-generation H1 antihistamines carry central anticholinergic burden — specifically problematic for chronic use in aging populations (falls, impaired cognition, urinary retention). Second-generation members lack this limitation but have not been tested for longevity outcomes.
+
+**Canonical values in use:** `h1-antihistamine`
+
+**Hallmarks primarily targeted:** [[chronic-inflammation]] (speculative — histamine-driven inflammatory signalling)
+
+**Constituent compounds (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "h1-antihistamine")
 ```
 
 ---

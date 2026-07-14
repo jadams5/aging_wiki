@@ -24,7 +24,9 @@ const CAUSE_TARGETS = new Set([...CAUSE_KEYS, "allcause"]);
 const INTENDED_KINDS = new Set(["coupling", "mediator", "cause", "augment", "frailty", "driver"]);
 const EVIDENCE = new Set(["strong", "moderate", "weak", "disputed"]);
 
-// required fields per form (absent ⇒ NaN at runtime). Only forms that appear on edges.
+// Required fields per form. Presence alone is not enough: a string-valued beta passes
+// JavaScript multiplication but poisons the hazard with NaN, so numeric fields are checked
+// separately below. Only forms that appear on live edges are listed here.
 const CAUSE_FORM_REQ = {
   mediatorLogLinear: ["med", "beta"],
   mediatorThresholdRamp: ["med", "slope", "threshold", "cap"],
@@ -45,6 +47,50 @@ const MED_FORM_REQ = {
 };
 
 const has = (e, f) => e[f] !== undefined && e[f] !== null;
+const finite = (v) => typeof v === "number" && Number.isFinite(v);
+const finiteMap = (v, keys) => !!v && typeof v === "object" && !Array.isArray(v)
+  && keys.every((k) => finite(v[k]));
+const finitePair = (v) => Array.isArray(v) && v.length === 2 && v.every(finite);
+
+function requireFinite(errors, at, e, fields) {
+  for (const f of fields) if (has(e, f) && !finite(e[f])) errors.push(`${at}: ${f} must be a finite number, got ${JSON.stringify(e[f])}`);
+}
+
+function validateCauseForm(errors, at, e) {
+  switch (e.form) {
+    case "mediatorLogLinear":
+      requireFinite(errors, at, e, ["beta"]);
+      if (e.betaAgeMod) {
+        requireFinite(errors, at + " betaAgeMod", e.betaAgeMod, ["refAge", "halfPer"]);
+        if (finite(e.betaAgeMod.halfPer) && e.betaAgeMod.halfPer <= 0) errors.push(`${at}: betaAgeMod.halfPer must be > 0`);
+      }
+      break;
+    case "mediatorThresholdRamp": requireFinite(errors, at, e, ["slope", "threshold", "cap"]); break;
+    case "bmiThresholdRatio": requireFinite(errors, at, e, ["beta"]); break;
+    case "directLogLinear": requireFinite(errors, at, e, ["beta"]); break;
+    case "directHinge": requireFinite(errors, at, e, ["slope", "knee"]); break;
+    case "smokingCategorical":
+      if (!finiteMap(e.rr, ["never", "former", "current"])) errors.push(`${at}: rr must contain finite never/former/current values`);
+      break;
+    case "activityFitness":
+      requireFinite(errors, at, e, ["betaPerMet"]);
+      if (!Array.isArray(e.metMap) || e.metMap.length < 2 || !e.metMap.every(finitePair)) errors.push(`${at}: metMap must be an array of at least two finite [x,y] pairs`);
+      break;
+    case "uShape":
+    case "ushaped":
+      if (!(finite(e.nadir) || finitePair(e.nadir))) errors.push(`${at}: nadir must be a finite number or finite [low,high] pair`);
+      if (!(finite(e.beta) || finiteMap(e.beta, ["low", "high"]))) errors.push(`${at}: beta must be finite or contain finite low/high arms`);
+      if (has(e, "power") && !finite(e.power)) errors.push(`${at}: power must be a finite number`);
+      break;
+    case "bmiJcurve": requireFinite(errors, at, e, ["betaUpper", "betaLower"]); break;
+    case "nodeLogLinear": requireFinite(errors, at, e, ["beta"]); break;
+  }
+}
+
+function validateMediatorForm(errors, at, e) {
+  // Every currently supported mediator form is coefficient-driven.
+  requireFinite(errors, at, e, ["coeff"]);
+}
 
 export function validateGraph(MODEL) {
   const errors = [], warnings = [];
@@ -95,14 +141,18 @@ export function validateGraph(MODEL) {
         if (!nodes.has(e.from)) errors.push(`${at}: coupling from unknown: ${e.from}`);
         if (!nodes.has(e.to)) errors.push(`${at}: coupling to unknown: ${e.to}`);
         if (!(e.strength in MODEL.strengthToGain)) errors.push(`${at}: coupling strength invalid: ${e.strength}`);
+        else if (!finite(MODEL.strengthToGain[e.strength])) errors.push(`${at}: strengthToGain.${e.strength} must be a finite number`);
         break;
       case "mediator": {
         src = e.from; dst = e.to;
         if (!anySource(e.from)) errors.push(`${at}: mediator from unknown: ${e.from}`);
         if (!mediators.has(e.to)) errors.push(`${at}: mediator to not a mediator: ${e.to}`);
         const req = MED_FORM_REQ[e.form];
-        if (!req) warnings.push(`${at}: unrecognized mediator form: ${e.form}`);
-        else req.forEach((f) => { if (!has(e, f)) errors.push(`${at}: mediator form ${e.form} missing ${f}`); });
+        if (!req) errors.push(`${at}: unrecognized mediator form: ${e.form}`);
+        else {
+          req.forEach((f) => { if (!has(e, f)) errors.push(`${at}: mediator form ${e.form} missing ${f}`); });
+          validateMediatorForm(errors, at, e);
+        }
         break;
       }
       case "cause": {
@@ -110,8 +160,11 @@ export function validateGraph(MODEL) {
         if (!anySource(src)) errors.push(`${at}: cause source unknown: ${src}`);
         if (!CAUSE_TARGETS.has(e.to)) errors.push(`${at}: cause target invalid: ${e.to}`);
         const req = CAUSE_FORM_REQ[e.form];
-        if (!req) warnings.push(`${at}: unrecognized cause form: ${e.form}`);
-        else req.forEach((f) => { if (!has(e, f)) errors.push(`${at}: cause form ${e.form} missing ${f}`); });
+        if (!req) errors.push(`${at}: unrecognized cause form: ${e.form}`);
+        else {
+          req.forEach((f) => { if (!has(e, f)) errors.push(`${at}: cause form ${e.form} missing ${f}`); });
+          validateCauseForm(errors, at, e);
+        }
         break;
       }
       case "augment":
@@ -119,12 +172,14 @@ export function validateGraph(MODEL) {
         if (!states.has(e.fromState)) errors.push(`${at}: augment fromState not a state node: ${e.fromState}`);
         if (!mediators.has(e.mediator)) errors.push(`${at}: augment mediator unknown: ${e.mediator}`);
         if (!has(e, "coeff")) errors.push(`${at}: augment missing coeff`);
+        else if (!(finite(e.coeff) || finiteMap(e.coeff, ["male", "female"]))) errors.push(`${at}: augment coeff must be finite or contain finite male/female values`);
         break;
       case "frailty":
         src = e.from; dst = e.to;
         if (!nodes.has(e.from)) errors.push(`${at}: frailty from unknown: ${e.from}`);
         if (!CAUSE_TARGETS.has(e.to)) errors.push(`${at}: frailty target invalid: ${e.to}`);
         if (!has(e, "beta")) errors.push(`${at}: frailty missing beta`);
+        else if (!finite(e.beta)) errors.push(`${at}: frailty beta must be a finite number`);
         if (liveFrailtyTarget.has(e.to)) errors.push(`${at}: DUPLICATE live frailty target ${e.to} (also from ${liveFrailtyTarget.get(e.to)}) — betaByCause keys by target, so the later edge SILENTLY OVERWRITES the earlier. The engine supports ONE frailty source per cause; merge or extend the engine first.`);
         else liveFrailtyTarget.set(e.to, e.from);
         break;
@@ -142,6 +197,14 @@ export function validateGraph(MODEL) {
     const [ik, src, dst] = key.split("|");
     if (liveKey.has(`${ik}|${src}|${dst}`)) warnings.push(`edge[${i}] stub duplicates a LIVE ${ik} edge ${src}→${dst} — remove the stub (already populated)`);
   });
+
+  // Mortality registry validation: a typo here bypasses edge validation and crashes/NaNs
+  // in the odds-link loop even when every graph edge is structurally valid.
+  for (const [cause, c] of Object.entries((MODEL.mortality && MODEL.mortality.causes) || {})) {
+    const at = `mortality.causes.${cause}`;
+    if (!nodes.has(c.node)) errors.push(`${at}: node unknown: ${c.node}`);
+    if (!finiteMap(c.RmaxPerYear, ["male", "female"])) errors.push(`${at}: RmaxPerYear must contain finite male/female values`);
+  }
 
   // Operator presets are user-facing intervention scenarios. Malformed values otherwise
   // degrade silently to an inert or misleading operator at runtime.

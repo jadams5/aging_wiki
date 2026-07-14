@@ -13,9 +13,9 @@ key-aging-phenotypes: ["[[neuroinflammation]]", "[[cognitive-decline]]"]
 typical-niche: "Tile entire CNS with non-overlapping territories; perivascular endfeet contact vasculature; perisynaptic processes contact synapses"
 niche-signaling: []
 verified: true
-verified-date: 2026-05-06
+verified-date: 2026-07-11
 verified-by: claude
-verified-scope: "Clarke 2018 (PNAS) and Bhat 2012 (PLoS ONE) PDFs verified end-to-end; Iliff 2012 (Sci Transl Med) PDF verified end-to-end; Sofroniew 2014 (Neuron) PDF verified for gliosis-continuum framing (pages 1-10 read). Khakh 2015 and Liddelow 2017 not locally verifiable (DOI lookup failed; #gap/no-fulltext-access noted on footnotes). Xie 2013 (sleep/glymphatic 60% figure) not locally verifiable — claim correctly re-attributed away from Iliff 2012 with gap tag. Escartin 2021 consensus verified via PubMed abstract."
+verified-scope: "Clarke 2018 and Bhat 2012 checked end-to-end; Iliff 2012 checked end-to-end; Sofroniew 2014 checked for gliosis-continuum framing. Xie 2013 glymphatic claims were corrected against the verified study extraction on 2026-07-11, and Kress 2014 aging/AQP4 claims were propagated from its verified full-text extraction. Khakh 2015 and Liddelow 2017 remain blocked by full-text access; Escartin 2021 consensus was checked against its PubMed abstract."
 ---
 
 
@@ -50,7 +50,7 @@ Astrocyte perivascular endfeet wrap ~99% of the brain vasculature and express hi
 
 ### Glymphatic waste clearance
 
-CSF enters the brain parenchyma along periarterial spaces and exchanges with interstitial fluid in a process dependent on AQP4-mediated trans-endfeet water flux. This glymphatic flow drives bulk clearance of metabolic waste including amyloid-β (Aβ) and tau; deletion of Aqp4 reduces interstitial solute clearance by ~70% [^iliff2012]. Glymphatic flow is sleep-dependent — the interstitial space expands ~60% during sleep, which is proposed to drive the nocturnal surge in Aβ clearance [^xie2013]. Cross-link: [[sleep]].
+Astrocytic endfeet and their polarized [[aquaporin-4|AQP4]] water channels participate in [[glymphatic-system|perivascular CSF–interstitial-fluid transport]]. In mice, Aqp4 deletion reduced movement of intracisternal tracers and slowed clearance of intraparenchymally injected solutes, although the magnitude, transport mode, and interpretation of knockout effects remain contested.[^iliff2012] Xie et al. found that cortical extracellular-space fraction was 14.1% while awake versus 23.4% during natural sleep—a 9.3-percentage-point, approximately 66% relative increase—and that injected amyloid-β1–40 cleared approximately twofold faster during sleep.[^xie2013] These young-mouse findings do not establish that sleep increases net endogenous-protein clearance in humans; later experiments disagree about net parenchymal efflux. See [[glymphatic-system]] and [[interventions/lifestyle/sleep|sleep]] for the endpoint-specific evidence. #gap/contradictory-evidence #gap/needs-human-replication
 
 [^iliff2012]: [[studies/iliff-2012-paravascular-csf-clearance]] · n=4–6 mice per time point (two-photon imaging); n=4 per time point (radiotracer clearance); 8–12 wk male C57BL/6 mice · in-vivo + ex-vivo · model: C57BL/6 mouse; Aqp4-null vs WT comparison; key finding: ~70% reduction in interstitial solute clearance in Aqp4-null · doi:10.1126/scitranslmed.3003748
 
@@ -99,9 +99,7 @@ Clarke et al. 2018 (*PNAS*) profiled astrocyte transcriptomes by TRAP-RNAseq acr
 
 ### AQP4 polarization loss and glymphatic impairment
 
-AQP4 is highly polarized to perivascular endfeet in young brain; with aging, this polarization is progressively lost, with AQP4 redistributing to the astrocyte soma and stellate processes. Loss of endfoot AQP4 concentration impairs the bulk-flow driving force for glymphatic clearance. This is proposed to underlie the age-associated accumulation of Aβ and tau in brain interstitium, compounding defects in microglial phagocytic clearance. The AQP4 depolarization phenotype has been described in rodent aging models; direct human evidence is limited to post-mortem immunostaining studies. #gap/needs-human-replication
-
-Cross-link: [[sleep]] — glymphatic flux is sleep-dependent; age-related sleep disruption and AQP4 depolarization are proposed to act synergistically in Aβ accumulation.
+In Kress et al.'s old mice, perivascular AQP4 polarization was broadly reduced despite no regional change in total AQP4 immunofluorescence; the same study reported reduced tracer penetration, 40% lower clearance of injected amyloid-β1–40, and 27% lower penetrating-arteriole wall pulsatility relative to young mice.[^kress2014] These parallel age-associated phenotypes did not establish that AQP4 relocalization or weaker pulsatility caused the clearance deficit, and the study did not test humans, cognition, or chronic protein accumulation. #gap/needs-human-replication
 
 ### Astrocyte senescence
 
@@ -143,7 +141,7 @@ Preclinical strategies to restore endfoot-AQP4 localization (e.g., restoring agr
 
 ### Glymphatic enhancement via sleep
 
-Optimizing sleep architecture (especially slow-wave sleep, which drives the largest interstitial space expansion) is the only validated strategy to enhance glymphatic clearance. See [[sleep]] and interventions/lifestyle/ pages for evidence. Pharmacological glymphatic enhancement is at early preclinical stage.
+Treating sleep disorders is clinically appropriate for established sleep and health benefits, but no intervention is validated to improve aging outcomes specifically by enhancing glymphatic clearance. Natural sleep changes CSF influx, extracellular-space estimates, vascular oscillations, and injected-solute disappearance in mice; whether it increases net endogenous-protein clearance in humans remains unresolved. See [[glymphatic-system]] and [[interventions/lifestyle/sleep|sleep]]. #gap/contradictory-evidence
 
 ### Blocking microglial–astrocyte A1-induction signal
 
@@ -164,7 +162,8 @@ Triple blockade of IL-1α + TNF + C1q (the Liddelow 2017 inducers) prevents A1 a
 - [[neurons]] — primary target of astrocyte support and neurotoxic A1 activity; R24c sibling
 - [[oligodendrocytes]] — white-matter glia; fibrous astrocytes are immediate neighbors; R24c sibling
 - [[neural-stem-cells]] — SVZ B1 astrocytes as adult neurogenic stem cells (R23a)
-- [[sleep]] — glymphatic flux; AQP4; R23c page
+- [[glymphatic-system]] — canonical process page for AQP4, transport modes, aging, sleep-state evidence, and measurement limits
+- [[sleep]] — arousal-state and circadian regulation of brain-fluid dynamics
 - [[chronic-inflammation]] — hallmark page; astrocyte SASP contribution
 - [[altered-intercellular-communication]] — hallmark page; astrocyte-neuron-microglia triad
 - [[cellular-senescence]] — hallmark page; p16^INK4a+ senescent astrocytes
@@ -175,7 +174,8 @@ Triple blockade of IL-1α + TNF + C1q (the Liddelow 2017 inducers) prevents A1 a
 
 [^khakh2015]: [[studies/khakh-2015-astrocyte-diversity]] · review · model: mouse + human · doi:10.1038/nn.4043 · #gap/no-fulltext-access (download failed — green OA, PMC candidate URL empty)
 [^iliff2012]: [[studies/iliff-2012-paravascular-csf-clearance]] · n=4–6 mice per time point (two-photon imaging); n=4 per time point (radiotracer clearance); 8–12 wk male C57BL/6 mice · in-vivo + ex-vivo · model: C57BL/6 mouse; Aqp4-null vs WT; key finding: ~70% reduction in interstitial solute clearance in Aqp4-null · doi:10.1126/scitranslmed.3003748
-[^xie2013]: [[studies/xie-2013-sleep-glymphatic-clearance]] · in-vivo · model: mouse · key finding: interstitial space expands ~60% during sleep vs wakefulness; glymphatic Aβ clearance enhanced during sleep · doi:10.1126/science.1241224 · #gap/no-fulltext-access — not yet downloaded
+[^xie2013]: [[studies/xie-2013-sleep-glymphatic-clearance]] · n=77 in the terminal clearance cohort (25 awake, 29 naturally sleeping, 23 anesthetized; 3–6/time point) · in-vivo · model: male C57BL/6 mice, 10–12 weeks · 14.1% awake versus 23.4% sleeping extracellular-space fraction; approximately twofold faster clearance of injected amyloid-β1–40 during sleep · doi:10.1126/science.1241224
+[^kress2014]: [[studies/kress-2014-glymphatic-aging]] · experiment-specific n=4–20/group · in-vivo · model: young, middle-aged, and old C57BL/6 mice · old mice had 40% lower injected amyloid-β clearance, 27% lower penetrating-arteriole pulsatility, and reduced perivascular AQP4 polarization · doi:10.1002/ana.24271
 [^sofroniew2014]: [[studies/sofroniew-2014-reactive-gliosis-review]] · review · model: mouse + human · doi:10.1016/j.neuron.2013.12.034
 [^liddelow2017]: [[studies/liddelow-2017-neurotoxic-reactive-astrocytes]] · in-vivo + in-vitro · model: C57BL/6 mouse; post-mortem human brain · doi:10.1038/nature21029 · #gap/no-fulltext-access (download failed — green OA URL yielded no candidate PDFs)
 [^clarke2018]: [[studies/clarke-2018-aging-astrocyte-reactivity]] · n=3 mice per age group (triplicate; n=2 at 9.5 mo); ages P7, P32, 10 wk, 9.5 mo, 2 yr; primary comparison adult (10 wk) vs. aged (2 yr) · TRAP-RNAseq + in situ hybridization · model: C57BL/6J · doi:10.1073/pnas.1800165115

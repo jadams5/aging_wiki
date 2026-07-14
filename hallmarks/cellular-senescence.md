@@ -38,6 +38,8 @@ Senescent cells accumulate in virtually every aged tissue. Experimental clearanc
 
 **Detecting senescent cells in tissue (SenNet 2024 consensus):** because no single marker is specific and senescent cells are rare in vivo, the SenNet Biomarkers Working Group recommends **tissue-specific multi-marker panels** — combining molecular senescence signatures, morphological features, and circulating markers — for detecting senescent cells, based on a literature analysis across **14 mouse/human tissues** [^suryadevara2024]. A curated 703-entry biomarker table (marker × tissue × cell × context × organism × hallmark, each with a PMID) accompanies it — snapshot at [[sources/sennet-biomarkers]].
 
+**A reagent-level confound compounds the standardization gap (2026).** Beyond the "no universal marker" problem, the *most-used* marker — p16INK4a by immunohistochemistry — has a widespread antibody-specificity failure: a 2026 research-integrity analysis (S. David) found that across the senescence literature, the large majority of papers using certain catalog antibodies were detecting the unrelated actin-cytoskeleton protein **p16-ARC (ARPC5)**, not p16INK4a. This down-weights much of the *correlative* p16-IHC accumulation literature, while leaving the **antibody-independent** evidence intact — genetic reporters (INK-ATTAC, p16-3MR), *Cdkn2a* qPCR (e.g. [^krishnamurthy2004cs]), and transcriptomic signatures. See [[methods/p16-immunodetection]] for the methodological detail and evidence-weight rules. #gap/needs-replication (David analysis not yet peer-reviewed).
+
 **SENS correspondence:** ApoptoSENS — the senescent cell type that should be removed by targeted induction of apoptosis. Senolytics implement this strategy pharmacologically.
 
 ---

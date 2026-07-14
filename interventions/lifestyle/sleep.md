@@ -12,16 +12,16 @@ safety-profile: well-established
 translation-gap: "human-evidence-strong for associative biology; phase-3-rct-needed for sleep-as-longevity-intervention with hard endpoints"
 next-experiment: "RCT of structured sleep-extension intervention (CBT-i + light hygiene + chronotype-aligned schedule) in middle-aged short-sleepers (<6 hr/night) with DunedinPACE as primary endpoint over 18 months; secondary endpoints inflammation (CRP/IL-6), amyloid-PET, and frailty index"
 clinical-trials-active: null
-literature-checked-through: 2026-05-08
+literature-checked-through: 2026-07-11
 verified: true
-verified-date: 2026-05-08
+verified-date: 2026-07-11
 verified-by: claude
-verified-scope: "Iliff 2012, Mander 2017, Cappuccio 2010, Yin 2017 verified against primary-source PDFs; Carroll 2015 partially verified via publisher abstract (PDF download failed, bronze OA); Xie 2013 attribution confirmed correct per R26b context but PDF unavailable (download failed, no OA copy) — quantitative claims from Xie 2013 should be re-verified if PDF becomes accessible. R34 recency refresh (2026-05-08): Diao 2025 Dongfeng-Tongji cohort (DunedinPACE mediates 6.2% of sleep-mortality association), Wu 2025 UK Biobank MR (n=442,664; threshold nonlinear sleep→aging biomarker), and Zhang 2026 sleep-trait MVMR (napping → +1.08 GrimAge) integrated via PubMed abstracts."
+verified-scope: "Iliff 2012, Mander 2017, Cappuccio 2010, and Yin 2017 were checked against primary full text; Carroll 2015 was checked against the publisher abstract. Xie 2013 numerics and nulls were corrected against the verified full-text study extraction on 2026-07-11. The glymphatic synthesis now incorporates the Miao 2024 result/correction and 2025 dispute plus Hauglund 2025, with endpoint-specific qualifiers propagated from the verified glymphatic process page. The 2025–2026 biological-age evidence remains abstract-level as previously documented. Thapaliya 2026 and Mossige 2026 DTI-ALPS claims were checked against full text on 2026-07-11."
 ---
 
 # Sleep (duration, quality, timing)
 
-Sleep is the most universal biological-reset process in mammals, yet it is routinely shortened and degraded in modern populations. In the context of aging biology, sleep is both a **diagnostic window** (poor sleep quality is an early and sensitive marker of neurodegeneration and systemic inflammaging) and an **interventionally tractable target** — structured behavioral interventions (CBT-i, light hygiene, chronotype alignment, CPAP for obstructive apnea) demonstrably improve sleep architecture, inflammatory markers, and emerging biological-age signals. Lifespan extension from improved sleep has not been demonstrated in a controlled trial, but the mechanistic case — glymphatic clearance of neurotoxic waste, suppression of HPA-axis-driven cortisol, overnight immune reset — is among the strongest in aging biology.
+Sleep is the most universal biological-reset process in mammals, yet it is routinely shortened and degraded in modern populations. In the context of aging biology, sleep is both a **diagnostic window** (poor sleep quality is an early and sensitive marker of neurodegeneration and systemic inflammaging) and an **interventionally tractable target** — structured behavioral interventions (CBT-i, light hygiene, chronotype alignment, CPAP for obstructive apnea) demonstrably improve sleep architecture and established clinical outcomes. Lifespan extension from improved sleep has not been demonstrated in a controlled trial. Proposed aging mechanisms include state-dependent brain-fluid transport, HPA-axis regulation, and immune modulation, but their contributions to long-term human outcomes are not established.
 
 ## Sleep architecture
 
@@ -31,7 +31,7 @@ Normal adult sleep cycles through approximately five 90-minute ultradian cycles 
 |---|---|---|---|
 | N1 | Light NREM | ~5% | Transition; brief arousal threshold |
 | N2 | Core NREM | ~45–50% | Memory consolidation onset; sleep spindles; K-complexes |
-| N3 | Slow-wave sleep (SWS), deep NREM | ~15–20% in young adults | Declarative memory; glymphatic clearance; GH secretion |
+| N3 | Slow-wave sleep (SWS), deep NREM | ~15–20% in young adults | Declarative memory; state-dependent brain-fluid dynamics; GH secretion |
 | REM | REM sleep | ~20–25% | Emotional memory; synaptic plasticity; procedural consolidation |
 
 **Distribution shifts across the night:** SWS predominates in the first half of the night (deep restorative sleep is front-loaded); REM predominates in the second half. Truncating sleep from the end disproportionately removes REM; from the beginning (delayed bedtime) disproportionately removes SWS.
@@ -48,17 +48,21 @@ Sleep architecture deteriorates measurably from the third decade onward [^mander
 
 These changes are not simply benign "normal aging" — they track strongly with cognitive performance, Alzheimer's risk, and systemic inflammation, and some are partially reversible with exercise or sleep hygiene intervention.
 
-## Glymphatic clearance — sleep's proteostasis function
+## Glymphatic transport — a contested proteostasis mechanism
 
-The glymphatic system (named by analogy with the lymphatic system) is an astrocyte-dependent paravascular network that clears metabolic waste from the brain interstitium during sleep [^iliff2012].
+The [[glymphatic-system]] is a proposed perivascular CSF–interstitial-fluid transport and solute-clearance process associated with astrocytic [[aquaporin-4|AQP4]]. Its stages—CSF influx, parenchymal exchange or redistribution, and net efflux—must be distinguished from one another and from downstream meningeal-lymphatic drainage.[^iliff2012]
 
-**Mechanism:** Cerebrospinal fluid (CSF) enters the brain parenchyma via the periarterial space and exchanges with interstitial fluid (ISF) across AQP4 (aquaporin-4) water channels located on astrocyte endfeet. This bulk flow convects solutes — including amyloid-beta (Aβ), tau, lactate, and other metabolic waste — to the perivenous space for drainage into deep cervical lymphatics and the dural sinuses.
+**Foundational mouse evidence:** Xie et al. measured a cortical extracellular-space fraction of 14.1% while awake versus 23.4% during natural sleep, a 9.3-percentage-point or approximately 66% relative increase. In a separate terminal cohort, injected amyloid-β1–40 cleared approximately twofold faster and inert inulin more than twofold faster during sleep than wakefulness.[^xie2013] Tortuosity was unchanged. These experiments used young male mice and acute exogenous tracers; they did not test endogenous protein production, chronic deposition, cognition, aging, or humans.
 
-**Sleep dependence:** Xie et al. 2013 measured real-time glymphatic tracer transport in mice and found a ~60% increase in interstitial space volume during sleep vs wakefulness, with dramatically accelerated Aβ clearance [^xie2013]. The expanded interstitial space in sleep reduces tortuosity and resistance to convective flow.
+**Why the conclusion is contested:** Miao et al. reported lower disappearance of an intraparenchymally injected small dye during sleep and three anesthetic states, despite unchanged local diffusion—the opposite direction from the canonical net-clearance model.[^miao2024] A 2025 Matters Arising and reply disputed the definition of clearance, modeling, sampling, and analysis without resolving the disagreement.[^miao-dispute] Meanwhile, Hauglund et al. found that norepinephrine-linked slow vasomotion drives CSF influx and a clearance readout during natural NREM sleep in mice, and that zolpidem suppresses the relevant oscillations.[^hauglund2025] Together, the evidence strongly supports sleep-state changes in brain-fluid dynamics; it does not justify treating tracer influx, oscillation amplitude, and net endogenous-solute removal as equivalent. #gap/contradictory-evidence
 
-**AQP4 and aging:** AQP4 polarization to astrocyte endfeet declines with age and is disrupted in Alzheimer's disease models. #gap/needs-human-replication — most glymphatic aging data are in rodents; direct in-vivo human glymphatic flow measurement is technically challenging (requires intrathecal tracers or MRI-based flow proxies).
+**Human boundary:** Human EEG–MRI studies show sleep-coupled CSF and vascular oscillations, and invasive tracer studies provide limited clearance evidence in selected clinical cohorts. No safe non-invasive test currently measures the complete pathway or demonstrates that increasing a glymphatic proxy improves cognition or slows neurodegeneration. DTI-ALPS is especially indirect; see [[methods/dti-alps]]. #gap/needs-human-replication
 
-**Implication for [[loss-of-proteostasis]]:** Chronic sleep restriction impairs glymphatic clearance, allowing Aβ and tau to accumulate in the interstitium — creating a potential sleep-deprivation → neurodegeneration feedforward loop. See [[alzheimers-disease]] for the Aβ sleep connection.
+### DTI-ALPS in ME/CFS: preliminary human association
+
+Thapaliya et al. 2026 compared 31 adults with myalgic encephalomyelitis/chronic fatigue syndrome (ME/CFS) with 27 healthy controls. The bilateral diffusion tensor imaging along the perivascular space (DTI-ALPS) index was lower in ME/CFS (1.44 ± 0.086 vs 1.51 ± 0.11; raw p=0.014, FDR-adjusted p=0.028), with a right-hemisphere group difference but no left-hemisphere difference and no significant between-group asymmetry difference. Among the 29 cases with symptom-item data, the bilateral index correlated with single-item self-reported sleep disturbance (r=−0.47, p=0.013) and impaired concentration (r=−0.43, p=0.026); fatigue and the separate WHODAS cognition score were among the null associations.[^thapaliya2026-alps]
+
+This is disease-specific, cross-sectional evidence—not a sleep intervention or an aging study. DTI-ALPS measures local periventricular directional diffusivity, not waste clearance directly; a separate n=56 comparison with intrathecal contrast-enhanced MRI found limited correspondence and no association with 48-hour tracer dynamics. The defensible interpretation is therefore a lower ALPS index associated with two self-reported symptoms, not demonstrated glymphatic failure or a causal sleep→clearance→cognition pathway.[^mossige2026-alps] See [[methods/dti-alps]] for the method-level evidence rubric. #gap/needs-replication
 
 ## Sleep and inflammation — the HPA/NF-kB axis
 
@@ -90,7 +94,7 @@ Both meta-analyses report **relative risk (RR)**, not odds ratios. Long sleep (>
 SWS serves multiple restorative functions that are directly relevant to aging [^mander2017]:
 
 1. **Memory consolidation:** SWS-specific hippocampal replay consolidates declarative memories. SWS loss with age impairs overnight hippocampal-to-cortical memory transfer.
-2. **Glymphatic clearance:** As above — SWS is the peak window for glymphatic flow.
+2. **Brain-fluid dynamics:** NREM slow waves, vascular-volume changes, and CSF oscillations are coupled in humans; whether SWS maximizes net endogenous-solute clearance remains unresolved.
 3. **Growth hormone (GH) secretion:** The dominant GH pulse of the 24-hour cycle occurs in early-night SWS; GH decline with age is partly attributable to SWS loss.
 4. **Sleep spindle-SWS coupling:** Mander et al. (from Walker lab) showed that prefrontal cortical thinning with age impairs NREM slow-oscillation generation, uncoupling slow waves and sleep spindles and predicting overnight memory retention failure — a mechanism connecting brain atrophy to functional cognitive decline via sleep [^mander2017].
 
@@ -155,7 +159,7 @@ The observational and Mendelian-randomization base for sleep × epigenetic clock
 
 ## Cross-organism extrapolation
 
-Most foundational sleep-aging biology (especially glymphatic clearance) is from rodent models. Translation to humans is supported by the conservation of AQP4-expressing astrocytes and the paravascular anatomy, but direct human glymphatic flow quantification remains technically limited.
+Most foundational sleep-linked glymphatic biology is from rodent models. Humans share AQP4-expressing astrocytes and perivascular anatomy and show sleep-coupled CSF/hemodynamic oscillations, but direct quantification of net endogenous-solute clearance remains technically limited.
 
 | Dimension | Status | Notes |
 |---|---|---|
@@ -167,7 +171,8 @@ Most foundational sleep-aging biology (especially glymphatic clearance) is from 
 
 - **Causal vs correlational sleep-mortality relationship:** Long sleep is likely partly explained by reverse causality (illness → more sleep). Short sleep's causal contribution to mortality vs confounding by lifestyle (shift work, stress) is not fully resolved. #gap/contradictory-evidence
 - **Optimal sleep duration varies by individual:** U-shaped curve pooled across populations; individual optima may differ by genetics (e.g., BHLHE41 "short-sleeper" variants), age, and health status. #gap/dose-response-unclear
-- **Glymphatic clearance in humans:** Quantitative rates measured only indirectly; the "~60% increase in interstitial space volume during sleep" figure is from adult mouse studies (Xie et al. 2013, Nedergaard lab) and may not transfer quantitatively to humans [^xie2013]. #gap/needs-human-replication
+- **Glymphatic clearance in humans:** The Xie result was a young-mouse change from approximately 14% to 23% extracellular-space fraction (approximately 66% relative), not a 60-percentage-point human change. Net sleep-dependent clearance is contested even in mice, and human measurements remain indirect or invasive.[^xie2013][^miao2024] #gap/contradictory-evidence #gap/needs-human-replication
+- **DTI-ALPS is not direct clearance measurement:** A lower index can reflect white-matter geometry, crossing fibers, tract injury, ROI placement, or other local diffusion changes; require an orthogonal fluid-clearance measure before interpreting an ALPS association as impaired glymphatic clearance.[^mossige2026-alps]
 - **OSA + aging-clock causation:** Whether treating OSA with CPAP reverses epigenetic-age acceleration is unresolved. #gap/needs-replication
 - **Sleep as intervention vs marker:** Poor sleep may be downstream of other aging processes (neurodegeneration, chronic pain, nocturia) as much as upstream. Disentangling the direction is essential for intervention design.
 - **No head-to-head RCT:** CBT-i vs light therapy vs chronotype-alignment vs pharmacological sleep aid on aging-biology endpoints. #gap/needs-replication
@@ -175,11 +180,12 @@ Most foundational sleep-aging biology (especially glymphatic clearance) is from 
 ## Cross-references
 
 - [[chronic-inflammation]] — inflammatory hallmark; sleep deprivation activates TLR4/NF-kB in monocytes
-- [[loss-of-proteostasis]] — glymphatic Aβ/tau clearance is SWS-dependent
+- [[loss-of-proteostasis]] — proposed intersection with state-dependent brain solute transport
 - [[altered-intercellular-communication]] — circadian disruption impairs pulsatile intercellular signaling
 - [[mitochondrial-dysfunction]] — sleep deprivation acutely impairs mitochondrial respiratory efficiency; chronic short sleep linked to mitochondrial fragmentation #gap/unsourced
 - [[autophagy]] — SWS may be a window of elevated autophagic flux; evidence in rodents #gap/needs-human-replication
-- [[alzheimers-disease]] — glymphatic Aβ clearance connects sleep to AD risk
+- [[alzheimers-disease]] — sleep, amyloid-β kinetics, and neurodegeneration intersect, but glymphatic mediation is unproven
+- [[glymphatic-system]] — canonical endpoint-specific synthesis of influx, exchange, efflux, aging, and measurement limits
 - [[neurodegeneration]] — broader neurodegenerative risk; REM sleep behavior disorder precedes alpha-synucleinopathy
 - [[immunosenescence]] — sleep modulates NK cell activity and T-cell function with age
 - [[frailty]] — short and long sleep duration both associated with frailty risk; bidirectional relationship
@@ -193,7 +199,17 @@ Most foundational sleep-aging biology (especially glymphatic clearance) is from 
 
 [^iliff2012]: doi:10.1126/scitranslmed.3003748 · Iliff JJ, Wang M, Liao Y, et al. (Nedergaard lab) · *Science Translational Medicine* 2012;4(147):147ra111 · in-vivo (mouse) · model: adult C57BL/6 mice (8–12 weeks), Aqp4-null + NG2-DsRed + Tie2-GFP transgenics; 2-photon in-vivo microscopy + radiolabeled tracer clearance · discovered paravascular CSF-ISF bulk-flow exchange pathway (named "glymphatic system") dependent on AQP4 water channels on astrocyte endfeet; CSF enters via periarterial space, exits via perivenous drainage; Aqp4 knockout reduced interstitial solute ([³H]mannitol) clearance by ~70%; demonstrated Aβ clearance via this pathway, reduced ~55% in Aqp4-null mice · verified against full PDF
 
-[^xie2013]: doi:10.1126/science.1241224 · Xie L, Kang H, Xu Q, et al. (Nedergaard lab) · *Science* 2013 · in-vivo (mouse) · model: adult mice; real-time two-photon imaging with fluorescent tracers + EEG recording · sleep increased interstitial space by ~60% vs wakefulness; dramatically accelerated Aβ clearance; glymphatic flow ~2x higher during NREM sleep vs wakefulness · note: PDF download failed (no OA copy available in archive); ~60% figure and attribution confirmed correct per cross-reference with citing literature, but quantitative claims not independently verified against full PDF #gap/no-fulltext-access
+[^xie2013]: [[studies/xie-2013-sleep-glymphatic-clearance]] · n=77 in the terminal clearance cohort (25 awake, 29 naturally sleeping, 23 anesthetized; 3–6/time point) · in-vivo · model: male C57BL/6 mice, 10–12 weeks · 14.1% awake versus 23.4% sleeping extracellular-space fraction; approximately twofold faster clearance of injected amyloid-β1–40 during sleep; tortuosity null · doi:10.1126/science.1241224
+
+[^miao2024]: doi:10.1038/s41593-024-01638-y · in-vivo · model: male mice · intraparenchymal small-dye photometry and histology reported lower net dye disappearance during sleep and three anesthetic states; source-data correction doi:10.1038/s41593-024-01698-0
+
+[^miao-dispute]: doi:10.1038/s41593-025-01897-3 · 2025 Matters Arising challenging the Miao clearance definition, model, sampling, and statistics · authors' reply: doi:10.1038/s41593-025-01898-2
+
+[^hauglund2025]: doi:10.1016/j.cell.2024.11.027 · in-vivo multimodal recording and perturbation · model: freely sleeping mice · linked norepinephrine oscillations, slow vasomotion, CSF influx, and clearance; zolpidem suppressed the measured dynamics
+
+[^thapaliya2026-alps]: [[studies/thapaliya-2026-me-cfs-dti-alps]] · n=58 analyzed (31 ME/CFS, 27 healthy controls; 61 enrolled) · cross-sectional · model: adults with physician-diagnosed ME/CFS vs healthy controls · bilateral DTI-ALPS 1.44 ± 0.086 vs 1.51 ± 0.11 (raw p=0.014; p-FDR=0.028); symptom correlations used single self-report items; WHODAS cognition and fatigue associations null · doi:10.3389/fnins.2026.1875420 · PMID 42403482
+
+[^mossige2026-alps]: [[methods/dti-alps]] · Mossige I et al. · n=56 · prospective-observational secondary analysis · model: humans undergoing work-up for cerebrospinal-fluid disorders · DTI-ALPS had limited correspondence with intrathecal gadobutrol-enhanced MRI and no 48-hour tracer-dynamics association; authors favored local white-matter integrity over brain-wide clearance as the index interpretation · doi:10.1148/radiol.252070 · PMID 41631990
 
 [^mander2017]: doi:10.1016/j.neuron.2017.02.004 · Mander BA, Winer JR, Walker MP · *Neuron* 2017 · review · model: human aging cohort studies + translational review · comprehensive review of SWS/SWA decline with aging: ~75–80% reduction in frontal SWA amplitude in older vs young adults (Figure 1B); spindle density and amplitude decline with age, largest in frontal regions; prefrontal cortical gray matter atrophy predicts severity of SWA impairment; slow-oscillation/spindle uncoupling with age predicts overnight hippocampal-neocortical memory consolidation failure; reviews "do older adults need less sleep?" debate — concludes impaired sleep-generating capacity rather than reduced need
 

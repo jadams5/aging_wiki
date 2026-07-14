@@ -249,7 +249,7 @@
           <button data-sex="female">Female</button>
         </span>
         <label for="ageTop" style="display:block; font-size:11px; color:var(--muted); margin:7px 0 3px;">Age</label>
-        <input type="number" id="ageTop" min="20" max="100" step="1" value="40" style="width:62px; font-size:13px; padding:3px 5px; border:1px solid var(--line); border-radius:5px;">
+        <input type="number" id="ageTop" min="20" max="200" step="1" value="40" style="width:62px; font-size:13px; padding:3px 5px; border:1px solid var(--line); border-radius:5px;">
       </div>
       <div style="flex:1;">
         <span class="le-big" id="leVal">&mdash;</span>
@@ -392,15 +392,13 @@
    (below the END marker) consumes simulate(MODEL, opts) from this block.
    ====================================================================== */
 /* ---- canonical engine (model/engine.mjs, export/import stripped) ---- */
-// engine.mjs — canonical v0.3 aging-simulator model engine.
+// engine.mjs — canonical aging-simulator model engine (current parameter set: v0.5).
 //
 // Pure ESM, NO DOM, NO globals, NO external deps. This is the single
-// source-of-truth reimplementation of the math that currently lives
-// embedded in viz/aging-simulator.html. The HTML app will be refactored
-// to consume this module in a follow-up; until then the two carry
-// identical math and model/test.mjs pins the v0.3 regression targets.
+// source of truth for the math embedded into viz/aging-simulator.html by
+// build-app.mjs. model/test.mjs pins the current regression targets.
 //
-// The MODEL object (18 nodes / 38 edges, v0.3) is produced from
+// The MODEL object is produced from
 // frameworks/causal-graph-parameters.md by build-params.mjs → params.json.
 // That .md file is the source of truth for the parameters.
 
@@ -1305,7 +1303,7 @@ function _resolveUnitConv(med, unit) {
 function buildBundleContext(MODEL) {
   const B = MODEL.bLayer || {};
   const meds = Object.create(null);                              // null-proto: safe lookup with untrusted bundle keys
-  for (const m of B.mediators || []) meds[m.id] = { unit: m.unit };
+  for (const m of B.mediators || []) meds[m.id] = { unit: m.unit, range: Array.isArray(m.range) ? m.range : null };
   const inputs = Object.create(null);
   for (const inp of B.exogenousInputs || []) {
     if (inp.unwired) continue;                                   // deferred placeholder (e.g. raw cig/day) — not a wired channel
@@ -1399,7 +1397,11 @@ function parseHistoryBundle(input, ctx) {
   if (b.sex != null) { if (b.sex === "male" || b.sex === "female") sex = b.sex; else return abort(`sex must be "male" | "female" if present`); }
   // optional currentAge — restores "now" when there is no birthDate to derive it from (else birthDate wins, app-side)
   let currentAge = null;
-  if (b.currentAge != null) { if (Number.isFinite(b.currentAge)) currentAge = b.currentAge; else return abort(`currentAge must be a number if present`); }
+  if (b.currentAge != null) {
+    if (!Number.isFinite(b.currentAge)) return abort(`currentAge must be a number if present`);
+    if (b.currentAge < ctx.AGE0 || b.currentAge > ctx.AGE1) return abort(`currentAge must be within [${ctx.AGE0},${ctx.AGE1}]`);
+    currentAge = b.currentAge;
+  }
   // count NESTED entries (one exposure/operator can carry many changes/dates) + the 0–2 events emitted per treatment + raw events[]
   const total = _bundleArr(b.measurements).length
     + _bundleArr(b.treatments).length * 2
@@ -1439,6 +1441,8 @@ function parseHistoryBundle(input, ctx) {
     const age = toAge(mz.date, w); if (age == null) return;
     const cval = conv.apply(mz.value);
     if (!Number.isFinite(cval)) return err(w, `converted value is not finite (unit-conversion overflow?)`);
+    const range = ctx.meds[med].range;
+    if (range && (cval < range[0] || cval > range[1])) return err(w, `converted ${med} value ${cval} outside supported range [${range}] ${ctx.meds[med].unit}`);
     if (age > ctx.AGE1 || age < ctx.AGE0) report.warnings.push(`${w}: age ${age.toFixed(1)} outside [${ctx.AGE0},${ctx.AGE1}] — will clamp`);
     events.push({ channel: "biomarker:" + med, age, value: cval, _date: mz.date });
     report.loaded.measurements++;
@@ -1470,7 +1474,10 @@ function parseHistoryBundle(input, ctx) {
       const w2 = `${w}.changes[${j}]`;
       const age = toAge(c && c.date, w2); if (age == null) return;
       if (spec.categorical) { if (!spec.enum.includes(c.value)) return err(w2, `${_q(c.value)} not in {${spec.enum.join("|")}}`); }
-      else { if (!Number.isFinite(c.value)) return err(w2, `value is not a finite number`); if (spec.range && (c.value < spec.range[0] || c.value > spec.range[1])) report.warnings.push(`${w2}: ${c.value} outside model range [${spec.range}]`); }
+      else {
+        if (!Number.isFinite(c.value)) return err(w2, `value is not a finite number`);
+        if (spec.range && (c.value < spec.range[0] || c.value > spec.range[1])) return err(w2, `${c.value} outside supported range [${spec.range}]`);
+      }
       events.push({ channel: "input:" + e.id, age, value: c.value, _date: c.date }); n++;
     });
     if (n) report.loaded.exposures++;
@@ -1550,11 +1557,18 @@ function parseHistoryBundle(input, ctx) {
       const o = { channel: ev.channel, ages };
       if (scenario) o.scenario = scenario;
       events.push(o);
-    } else {   // step/point channels: input / treatment / lifestyle / biomarker — need a finite age + value
+    } else {   // step/point channels: input / treatment / lifestyle / biomarker — need a finite age + in-domain value
       if (!Number.isFinite(ev.age)) return err(w, `age must be a finite number`);
       const spec = kind === "input" ? ctx.inputs[id] : null;
       if (spec && spec.categorical) { if (!spec.enum.includes(ev.value)) return err(w, `${_q(ev.value)} not in {${spec.enum.join("|")}}`); }
-      else if (!Number.isFinite(ev.value)) return err(w, `value must be a finite number`);
+      else {
+        if (!Number.isFinite(ev.value)) return err(w, `value must be a finite number`);
+        const range = kind === "input" ? spec && spec.range
+          : kind === "treatment" ? [0, 1]
+          : kind === "lifestyle" ? [0, Infinity]
+          : ctx.meds[id].range;
+        if (range && (ev.value < range[0] || ev.value > range[1])) return err(w, `value ${ev.value} outside supported range [${range}]`);
+      }
       events.push({ channel: ev.channel, age: ev.age, value: ev.value });
     }
     report.loaded.events++;
@@ -1623,7 +1637,7 @@ function exerciseScale(deviationMin) {
   return f > 1.5 ? 1.5 : f < -1 ? -1 : f;
 }
 
-// Dynamic caloric-balance→weight (Hall 2013): the static 7700 kcal/kg rule
+// Equilibrium caloric-balance→weight target (Hall et al. 2011): the static 7700 kcal/kg rule
 // overstates long-run weight change by ~40–50%; only ~weightAsymptoteFraction
 // of it is realized. Returns Δkg for a sustained daily energy-balance offset.
 function weightDynamicKg(calBalancePerDay, asymptoteFraction) {
@@ -1631,6 +1645,21 @@ function weightDynamicKg(calBalancePerDay, asymptoteFraction) {
   // Static ~1 yr accumulation, damped to the realized long-run asymptote.
   const staticKg = (calBalancePerDay * 365) / STATIC_KCAL_PER_KG;
   return staticKg * asymptoteFraction;
+}
+
+// A sustained energy-balance step approaches its equilibrium weight shift slowly: Hall et al.
+// 2011 motivates a delayed multi-year response (~50% at one year, ~95% at three as a rule of thumb).
+// The implemented first-order approximation uses a one-year half-life (50%/87.5%, respectively).
+// This resolves a target-shift lane into a lagged realized lane. The initial target is treated as already established at AGE0, preserving
+// scalar/flat-profile backward compatibility; later changes affect the NEXT annual grid point.
+function laggedEquilibriumLane(targets, DT, halfLifeYears = 1) {
+  if (!targets.length) return [];
+  const halfLife = Number.isFinite(halfLifeYears) && halfLifeYears > 0 ? halfLifeYears : 1;
+  const alpha = 1 - Math.exp(-Math.LN2 * DT / halfLife);
+  const out = new Array(targets.length);
+  out[0] = targets[0];
+  for (let k = 1; k < targets.length; k++) out[k] = out[k - 1] + alpha * (targets[k - 1] - out[k - 1]);
+  return out;
 }
 
 // Apply a single mediator edge: returns the additive contribution to the
@@ -1798,9 +1827,9 @@ function causeEdgeMult(e, k, age, sex, medValues, medBaseline, inputLanes, popMe
 // primary activity→mortality path. Activity is deliberately NOT additionally
 // routed activity→cardiovascular as a separate edge.
 
-// ΔMETs from a piecewise-linear metMap [[inputVal, METs], ...] ascending.
-function metsFromActivity(metMap, value) {
-  return interp(metMap, value);
+// ΔMETs from the documented piecewise-linear metMap [[inputVal, METs], ...] ascending.
+function activityMetsFromMap(metMap, value) {
+  return linearProfile(metMap, value);
 }
 
 // Compute one Stage-3a all-cause (whole-bracket) edge multiplier. Age-invariant.
@@ -1809,7 +1838,7 @@ function allcauseEdgeMult(e, inputLanes, popMean, k) {
     case "activityFitness": {
       const lane = inputLanes[e.input];
       const xv = (lane && lane[k] !== undefined) ? lane[k] : popMean[e.input]; // default ⇒ popMean ⇒ ΔMETs 0
-      const dMets = metsFromActivity(e.metMap, xv);
+      const dMets = activityMetsFromMap(e.metMap, xv);
       return Math.exp(e.betaPerMet * dMets);
     }
     case "uShape": {
@@ -1970,6 +1999,14 @@ function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nod
     const curve = med.baseline[sex];
     const edges = edgesByMed[med.id] || [];
     const txs = txByMed[med.id] || [];
+    // Stateful mediator-edge lanes. A caloric-balance change sets a NEW equilibrium BMI target;
+    // it must not teleport the person to that equilibrium in the same year. Resolve the target
+    // through Hall's ~1-year half-life once, then read the realized shift in the per-age map below.
+    const dynamicEdgeLane = new Map();
+    for (const e of edges) if (e.form === "weightDynamic") {
+      const targets = AGES.map((age, k) => applyMediatorEdge(e, lanes, popMean[e.from], baselineByMed[med.id][k], K, {}, k));
+      dynamicEdgeLane.set(e, laggedEquilibriumLane(targets, DT, K.weightHalfLifeYears));
+    }
     out[med.id] = AGES.map((age, k) => {
       const baselineVal = baselineByMed[med.id][k];
       // Assemble upstream-mediator deviations for this age (only sources already
@@ -1980,7 +2017,9 @@ function mediators(MODEL, { sex, inputs = {}, treatments = {}, offsets = {}, nod
       }
       let v = baselineVal;
       for (const e of edges) {
-        v += applyMediatorEdge(e, lanes, popMean[e.from], baselineVal, K, medCtx, k);
+        v += dynamicEdgeLane.has(e)
+          ? dynamicEdgeLane.get(e)[k]
+          : applyMediatorEdge(e, lanes, popMean[e.from], baselineVal, K, medCtx, k);
       }
       for (const eff of txs) {
         v = applyTreatment(eff, v, txDoseLane[eff.txId][k]);
@@ -2223,8 +2262,8 @@ const MODEL = {
     ],
     "dt": 1,
     "couple": 1,
-    "note": "Illustrative parameter layer for aging-simulator v0.3. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC-WONDER-2022 SEX-SPECIFIC competing hazards (no sex scalar). NOT verified facts; sensitivity-exploration only.",
-    "edgesNote": "UNIFIED 2026-06-11: MODEL.edges is the single source of truth (kind: coupling|mediator|cause|augment|frailty). Engine partitions via edgesByKind(); driver edges derive from stateNodes rate.terms, terminal from node role. Counts: coupling 38 mediator 9 cause 21 augment 1 frailty 10."
+    "note": "Illustrative parameter layer for aging-simulator v0.5. Structure from causal-graph-data.md (verified). Coupling = bounded fixed point. Mortality = CDC WONDER D76 2019 sex-specific competing hazards (no sex scalar or live frailty multiplier). NOT verified facts; sensitivity-exploration only.",
+    "edgesNote": "MODEL.edges is the single source of truth. Engine partitions live edges via edgesByKind(); driver edges derive from stateNodes rate.terms and terminal edges from node roles. Counts: coupling 38, mediator 10, cause 23, augment 2, frailty 0, structural stub 48 (121 total)."
   },
   "strengthToGain": {
     "strong": 0.2,
@@ -2241,7 +2280,7 @@ const MODEL = {
     "model": "competing-hazards-sexspecific",
     "extrinsic": {
       "lifestyleMult": 1,
-      "note": "Non-biological parallel channel: (unintentional injury − falls)+suicide+homicide, per-year by age & SEX; CDC WONDER 2022. Does NOT cascade. lifestyleMult scales it (sedentary~0.3, average 1.0, high-risk~10). Male ~3x female in young adults. Elderly falls excluded (they live in the separate 'falls' terminal cause W00-W19, NOT lifestyle-scaled — a future external-injury merge would fold them back under one umbrella while keeping this non-fall component lifestyle-scaled; see PROJECT-NOTES § frailty).",
+      "note": "Non-biological parallel channel: (unintentional injury minus falls)+suicide+homicide, per-year by age and sex; CDC WONDER D76 2019. Does not cascade. lifestyleMult scales it (average 1.0). Male rates are about 3x female rates in young adults. Falls are modeled separately as the W00-W19 terminal cause and are not lifestyle-scaled.",
       "byAge": {
         "male": [
           [
@@ -2338,7 +2377,7 @@ const MODEL = {
           "female": 0.049566865
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). cardiovascular: all circulatory I00-I99 (incl I26-I28 once — fixes pilot double-count) + K55 mesenteric",
-        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction — vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862→80.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71–89; anchor-point hazard invariant to 1e-9; not an arithmetic error). Downgraded from seeder-claimed 'anchored' to 'calibrated' because SWAP-TO-2022 is an open #gap (consistent with all other D76 2019 causes in the model). Year note: existing-band Rmax/burden on 2022 data; net-new on 2019 data; residual base on 2022; SWAP-TO-2022 pending. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
+        "provenance": "calibrated. Op A 2026-06-11: folded circulatory remainder into cardiovascular band; validated 2026-06-11 by graph-node-validator (independent CDC WONDER D76 2019 re-pull; all rates confirmed; Rmax arithmetic exact; burden table verified at all 10 anchor ages; residual reduction verified; excluded codes I75/I76/I96-I98 confirmed invalid in D76 v2). Net-new codes: I10/I12/I15 (hypertensive, excl I11/I13 already in band), I26-28 (pulmonary heart/embolism), I70-74/I77-78 (arteries incl aortic aneurysm I71), I80-89 (veins/lymphatic), K55 (mesenteric infarction — vascular mechanism, digestive ICD chapter), I95/I99 (other circ). Method: new_CV_hazard = old_CV_hazard + net_new_hazard (2019 D76 rates); new_Rmax = new_CV_hazard at age 90; burden = inverse-odds-link; residual -= net_new_hazard (exact subtraction; TOTAL HAZARD INVARIANT at every anchor age). Female LE drift 80.862→80.84 confirmed as legitimate PCHIP interpolation artifact (athero burden table has 75/85 intermediate anchors; residual table has decade-only anchors; between-anchor PCHIP shapes diverge, net +0.022 yr survival-weighted leak at ages 71–89; anchor-point hazard invariant to 1e-9; not an arithmetic error). Calibrated rather than anchored because the band is a modeled aggregation. Year note: the full band and residual were subsequently harmonized to D76 2019. #gap: I75/I76/I96-I98 excluded (confirmed invalid in D76 v2 by validator re-pull)."
       },
       "cancer": {
         "node": "cancer",
@@ -2355,7 +2394,7 @@ const MODEL = {
           "female": 0.031549709
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). neurodegeneration: dementia G30/G31/F01/F03 + Parkinson/movement G20-G25 + atrophies/ALS G10-G14",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded Parkinson/movement (G20,G21,G23,G24,G25) and systemic atrophies (G10,G11,G12,G14) into neurodegeneration band. G13 confirmed invalid in D76. Net-new rates: D76 2019 per sex x ten-year age (B_1=D76.V5, O_aar=aar_none, F_D76.V2=individual codes). Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h (exact; total hazard invariant at every anchor). Male net-new rates/100k: {20:0.1, 30:0.2, 40:0.8, 50:2.9, 60:9.0, 70:36.4, 80:157.7, 90:346.2}. Female: {20:0.0, 30:0.2, 40:0.5, 50:1.8, 60:5.8, 70:20.4, 80:73.3, 90:160.9}. #gap: G13 excluded (invalid in D76); SWAP-TO-2022 pending."
+        "provenance": "calibrated. Op A batched 2026-06-11: folded Parkinson/movement (G20,G21,G23,G24,G25) and systemic atrophies (G10,G11,G12,G14) into neurodegeneration band. G13 confirmed invalid in D76. Net-new rates: D76 2019 per sex x ten-year age (B_1=D76.V5, O_aar=aar_none, F_D76.V2=individual codes). Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h (exact; total hazard invariant at every anchor). Male net-new rates/100k: {20:0.1, 30:0.2, 40:0.8, 50:2.9, 60:9.0, 70:36.4, 80:157.7, 90:346.2}. Female: {20:0.0, 30:0.2, 40:0.5, 50:1.8, 60:5.8, 70:20.4, 80:73.3, 90:160.9}. #gap: G13 excluded (invalid in D76); 2019 pre-COVID baseline retained."
       },
       "infection": {
         "node": "immunosenescence",
@@ -2364,7 +2403,7 @@ const MODEL = {
           "female": 0.004463553
         },
         "cdc": "HARMONIZED 2019 (CDC WONDER D76, per sex × ten-year age). infection: influenza/pneumonia J09-J18 + sepsis A40-A41 + HIV B20-B24 + intestinal A00-A09",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded HIV (B20-B24) and intestinal infectious (A00-A09, incl. C.difficile) into infection band. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h. Male net-new rates/100k: {20:0.2, 30:1.7, 40:2.4, 50:5.0, 60:7.5, 70:8.4, 80:15.1, 90:35.9}. Female: {20:0.0, 30:0.6, 40:1.3, 50:2.2, 60:3.5, 70:6.0, 80:13.5, 90:39.2}. Note: female age-20 suppressed (<10 deaths); treated as 0. #gap: SWAP-TO-2022 pending."
+        "provenance": "calibrated. Op A batched 2026-06-11: folded HIV (B20-B24) and intestinal infectious (A00-A09, incl. C.difficile) into infection band. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link; residual -= nn_h. Male net-new rates/100k: {20:0.2, 30:1.7, 40:2.4, 50:5.0, 60:7.5, 70:8.4, 80:15.1, 90:35.9}. Female: {20:0.0, 30:0.6, 40:1.3, 50:2.2, 60:3.5, 70:6.0, 80:13.5, 90:39.2}. Note: female age-20 suppressed (<10 deaths); treated as 0. #gap: 2019 pre-COVID baseline retained."
       },
       "diabetes": {
         "node": "diabetes",
@@ -2372,7 +2411,7 @@ const MODEL = {
           "male": 0.003191,
           "female": 0.002261
         },
-        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "E10-E14, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "copd": {
         "node": "copd",
@@ -2380,7 +2419,7 @@ const MODEL = {
           "male": 0.007382,
           "female": 0.006072
         },
-        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "J40-J47, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "ckd": {
         "node": "ckd",
@@ -2388,7 +2427,7 @@ const MODEL = {
           "male": 0.003162,
           "female": 0.002142
         },
-        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) — SWAP-TO-2022"
+        "cdc": "N00-N07,N17-N19,N25-N27, CDC WONDER D76 2019 (API; 2022 D158 API-blocked) (deliberate pre-COVID baseline)"
       },
       "liver": {
         "node": "liver",
@@ -2396,8 +2435,8 @@ const MODEL = {
           "male": 0.000384,
           "female": 0.00023
         },
-        "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; SWAP-TO-2022 pending",
-        "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: SWAP-TO-2022 pending."
+        "cdc": "K70,K73,K74 [2019] + viral-hepatitis B15,B16,B17,B18,B19; non-monotonic (peaks midlife); net-new from CDC WONDER D76 2019 per sex x ten-year age; 2019 pre-COVID baseline retained",
+        "provenance": "calibrated. Op A batched 2026-06-11: folded viral hepatitis (B15-B19) into liver band. Non-monotonic: liver-hep also peaks at 60-70 then declines. Hazard-space recompute: old_band_h + nn_h → new_Rmax = new_band_h(90); burden = inverse-odds-link. >90 anchors: flat at B=0.5 (new_Rmax = new_band_h(90) = old_flat_h(90) + nn_liver_90, so >90 burden = 0.5). Male net-new rates/100k: {30:0.1, 40:0.6, 50:2.0, 60:5.6, 70:5.8, 80:2.4, 90:2.0}. Female: {30:0.1, 40:0.3, 50:1.1, 60:2.6, 70:2.3, 80:1.9, 90:2.0}. Note: age-20 suppressed for both sexes; treated as 0. #gap: 2019 pre-COVID baseline retained."
       },
       "falls": {
         "node": "falls-mortality",
@@ -2405,7 +2444,7 @@ const MODEL = {
           "male": 0.003112,
           "female": 0.002569
         },
-        "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). SWAP-TO-2022 pending. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
+        "cdc": "W00-W19 (falls only; ICD codes W00-W19 individually). CDC WONDER D76 2019 per sex x ten-year age. E40-E46 malnutrition REBUCKETED into residual 2026-06-11 (net rates at 85+: M 81.5/100k, F 102.4/100k; removed from this cause; mass absorbed by dense residual recompute). 2019 pre-COVID baseline retained. #gap: external-injury merge deferred; R54 senility + J69 aspiration stay in residual.",
         "provenance": "calibrated"
       },
       "residual": {
@@ -2418,7 +2457,7 @@ const MODEL = {
         "provenance": "calibrated. Exact refactor of the former mortality.residual channel; Rmax=residTable(90) per sex; B_res=h/(1+h) per integer age 20-130. Invariance-proven: max|delta-hazard|<1e-14 both sexes vs pre-conversion baseline."
       }
     },
-    "note": "v0.3: sexMult REMOVED. Each cause carries per-sex curves + per-sex Rmax; residual & extrinsic per-sex. Female cardiovascular-onset delay (~10yr midlife) and 3x male external excess now EMERGE from CDC WONDER data, not a scalar.",
+    "note": "v0.5: each named cause carries per-sex curves and Rmax; residual and extrinsic are also per sex, all harmonized to CDC WONDER D76 2019. Female cardiovascular-onset delay and male external excess emerge from data, not a scalar. The former global frailty multiplier is disabled.",
     "oldAgeTail": {
       "rate": 0,
       "fromAge": 90,
@@ -3556,7 +3595,7 @@ const MODEL = {
       "label": "Falls (external injury)",
       "layer": "phenotype",
       "tractability": "moderate",
-      "provenance": "calibrated. Op A split 2026-06-11: E40-E46 malnutrition removed from the falls bucket; falls cause is now W00-W19 only. CDC WONDER D76 2019 W00-W19 (individual codes W00-W19) per sex x ten-year age. RmaxPerYear = 85+ band rate (311.2/100k M, 256.9/100k F). Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. Malnutrition mass (E40-E46, 2019 net rates: M 81.5/100k @85+, F 102.4/100k @85+) rebucketed into dense residual via engine-based recompute (residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual) at every integer age 20-130). sarcopenia→falls frailty edge (β 0.6366, Yeung 2019) unchanged. #gap: external-injury merge deferred; SWAP-TO-2022 pending; R54 senility + J69 aspiration stay in residual.",
+      "provenance": "calibrated. Op A split 2026-06-11: E40-E46 malnutrition removed from the falls bucket; falls cause is now W00-W19 only. CDC WONDER D76 2019 W00-W19 (individual codes W00-W19) per sex x ten-year age. RmaxPerYear = 85+ band rate (311.2/100k M, 256.9/100k F). Reserve transform B'=h/(1+h), h=rate/Rmax; >90 shared Gompertz tail anchors. Malnutrition mass (E40-E46, 2019 net rates: M 81.5/100k @85+, F 102.4/100k @85+) rebucketed into dense residual via engine-based recompute (residual_new(k) = preSim.hazard[k] - (postSim.hazard[k] - postSim.decomposition[k].parts.residual) at every integer age 20-130). leanMassIndex→falls mediator edge is the current muscle-risk route. #gap: external-injury merge deferred; 2019 pre-COVID baseline retained; R54 senility + J69 aspiration stay in residual.",
       "role": "mortality-cause",
       "mortalityCause": "falls",
       "curve": {
@@ -3670,7 +3709,7 @@ const MODEL = {
       "label": "Residual aging (unmodeled)",
       "layer": "phenotype",
       "tractability": "low",
-      "provenance": "calibrated. v0.4 reserve-depletion refactor of the residual channel (2026-06-15): exact conversion of the per-year residTable into odds-link form Rmax*B/(1-B), with B=h/(1+h) at every integer age 20-130, Rmax=residTable(90). Reconstruction error <1e-15; B@90=0.5; B@130<0.971; baseline LE invariant to <1e-14 max-hazard deviation. Residual is definitionally driverless (the unmodeled remainder). Ships calibrated (not anchored: inherited residual has precision and provenance gaps, SWAP-TO-2022 pending). #gap: no upstream driver edges by construction; SWAP-TO-2022 pending.",
+      "provenance": "calibrated. v0.4 reserve-depletion refactor of the residual channel (2026-06-15): exact conversion of the per-year residTable into odds-link form Rmax*B/(1-B), with B=h/(1+h) at every integer age 20-130, Rmax=residTable(90). Reconstruction error <1e-15; B@90=0.5; B@130<0.971; baseline LE invariant to <1e-14 max-hazard deviation. Residual is definitionally driverless (the unmodeled remainder). Ships calibrated (not anchored: inherited residual has precision and provenance gaps, 2019 pre-COVID baseline retained). #gap: no upstream driver edges by construction; 2019 pre-COVID baseline retained.",
       "role": "mortality-cause",
       "mortalityCause": "residual",
       "citation": "CDC WONDER 2019 D76 residual (all-cause minus modeled causes minus extrinsic)",
@@ -5773,6 +5812,10 @@ const MODEL = {
         "id": "LDL",
         "label": "LDL cholesterol",
         "unit": "mg/dL",
+        "range": [
+          20,
+          400
+        ],
         "sd": 35,
         "baseline": {
           "male": [
@@ -5842,6 +5885,10 @@ const MODEL = {
         "id": "systolicBP",
         "label": "Systolic blood pressure",
         "unit": "mmHg",
+        "range": [
+          90,
+          220
+        ],
         "sd": 16,
         "baseline": {
           "male": [
@@ -5911,6 +5958,10 @@ const MODEL = {
         "id": "BMI",
         "label": "Body mass index",
         "unit": "kg/m^2",
+        "range": [
+          14,
+          50
+        ],
         "sd": 6,
         "baseline": {
           "male": [
@@ -5980,6 +6031,10 @@ const MODEL = {
         "id": "HbA1c",
         "label": "Glycated hemoglobin",
         "unit": "%",
+        "range": [
+          4,
+          14
+        ],
         "sd": 0.6,
         "baseline": {
           "male": [
@@ -6009,6 +6064,10 @@ const MODEL = {
         "id": "restingHR",
         "label": "Resting heart rate",
         "unit": "bpm",
+        "range": [
+          40,
+          110
+        ],
         "sd": 10,
         "baseline": {
           "male": [
@@ -6038,6 +6097,10 @@ const MODEL = {
         "id": "leanMassIndex",
         "label": "Appendicular lean mass index",
         "unit": "kg/m^2",
+        "range": [
+          3,
+          13
+        ],
         "sd": 1.1,
         "baseline": {
           "male": [
@@ -6213,7 +6276,8 @@ const MODEL = {
     "constants": {
       "heightRefM": 1.7,
       "weightAsymptoteFraction": 0.55,
-      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized (Hall 2013 ~40-50% overstatement -> ~0.55 realized)."
+      "weightHalfLifeYears": 1,
+      "note": "heightRefM: reference height (m) to convert dynamic weight change to BMI (ΔBMI = Δkg / h^2). weightAsymptoteFraction: long-run fraction of the static-3500-rule weight change actually realized. weightHalfLifeYears: a first-order approximation with a 1-year half-life, reaching 50% after 1 year and 87.5% after 3; Hall et al. 2011 motivates a delayed multi-year response and gives the approximate rule of thumb ~50% at 1 year and ~95% at 3 years (Lancet, doi:10.1016/S0140-6736(11)60812-X)."
     },
     "stiffnessToSBP": {
       "betaPerUnit": {
@@ -6504,7 +6568,7 @@ console.assert(
 
 /* ============================ Derived constants ========================== */
 const AGE0 = MODEL.meta.ageRange[0];      // 20
-const AGE1 = MODEL.meta.ageRange[1];      // 100
+const AGE1 = MODEL.meta.ageRange[1];      // 200
 const DT   = MODEL.meta.dt;               // 1
 const AGES = [];
 for (let a = AGE0; a <= AGE1; a += DT) AGES.push(a);
@@ -6513,11 +6577,11 @@ const N_AGE = AGES.length;
 // Dynamic x-axis max for the four time-charts (survival / mediators /
 // cause-of-death / burden). renderAll() recomputes this each render from the
 // CURRENT scenario's survival curve so life-extending interventions visibly
-// extend the plotted age window. Data still spans AGE0..AGE1 (20..130); this
+// extend the plotted age window. Data spans the full configured AGE0..AGE1 range; this
 // only changes the display window. Defaults to AGE1 until first computed.
 let X_MAX = AGE1;
 // Largest age where survival > 0.5%, rounded UP to nearest 5, clamped to
-// [100, AGE1]. Never shrinks below 100, never exceeds the model's max (130).
+// [100, AGE1]. Never shrinks below 100 or exceeds the configured model horizon.
 function computeXMax(sim){
   let lastAge = AGE0;
   if (sim && sim.survival){
@@ -7395,7 +7459,7 @@ function nodeComputeHtml(id){
     if(f==="alcoholThreshold")return `0 up to 2/day, then ${c}·(${e.from}−2)/4  [threshold]`;
     if(f==="exerciseScaled"||f==="exerciseHbA1c")return `${c}·clamp(Δ${e.from}/150)  [full effect at +150 min/wk vs sedentary]`;
     if(f==="fiberSaturating")return `${c}·(fiberSat(${e.from})−fiberSat(popMean))  [saturates above popMean+10]`;
-    if(f==="weightDynamic")return `Δkg(${e.from})/heightRef²  [Hall-2013 dynamic weight→BMI]`;
+    if(f==="weightDynamic")return `lagged equilibrium Δkg(${e.from})/heightRef²  [Hall-2011 dynamic weight→BMI]`;
     return `${f}(${e.from}) ${c}`; };
   const ac = c => typeof c==="object"?num(c.male):num(c);
   // per-edge source trace — lets you follow an edge from this panel back to the source data:
@@ -8048,12 +8112,12 @@ function histChannelMeta(ch){
   // `unit:` carries the channel's measurement unit (what the old B-layer sliders/labels showed) so the editor +
   // add-bar can label the value field. smokingStatus is categorical (no numeric unit). Treatments are a 0–1 dose
   // fraction; the extrinsic-risk lifestyle channel is a ×multiplier (1 = population average).
-  if (kind === "input" && EXO_BY_ID[id])                                   return { group:"exposure", kind, id, label: EXO_BY_ID[id].label, color:"#5a6b7b", unit: id === "smokingStatus" ? null : EXO_BY_ID[id].unit };
-  if (kind === "lifestyle" && id === "extrinsic")                          return { group:"exposure", kind, id, label:"Lifestyle / extrinsic risk", color:"#5a6b7b", unit: "×" };   // M7: the former extrinsic-risk slider, now a time-varying exposure (×mult on accidents/suicide/homicide; non-cascading)
-  if (kind === "treatment" && ((typeof B !== "undefined" && B.treatments) || []).some(t => t.id === id)) { const t = B.treatments.find(x => x.id === id); return { group:"treatment", kind, id, label: (t && t.label) || id, color:"#2e86c1", unit: "dose 0–1" }; }
+  if (kind === "input" && EXO_BY_ID[id])                                   return { group:"exposure", kind, id, label: EXO_BY_ID[id].label, color:"#5a6b7b", unit: id === "smokingStatus" ? null : EXO_BY_ID[id].unit, range: EXO_BY_ID[id].range || null };
+  if (kind === "lifestyle" && id === "extrinsic")                          return { group:"exposure", kind, id, label:"Lifestyle / extrinsic risk", color:"#5a6b7b", unit: "×", range:[0, Infinity] };   // M7: the former extrinsic-risk slider, now a time-varying exposure (×mult on accidents/suicide/homicide; non-cascading)
+  if (kind === "treatment" && ((typeof B !== "undefined" && B.treatments) || []).some(t => t.id === id)) { const t = B.treatments.find(x => x.id === id); return { group:"treatment", kind, id, label: (t && t.label) || id, color:"#2e86c1", unit: "dose 0–1", range:[0,1] }; }
   if (kind === "intervention" && NODE_BY_ID[id])                           return { group:"intervention", kind, id, label: NODE_BY_ID[id].label, color:"#7d3c98", unit: null };
   if (kind === "operator" && OPERATOR_PRESETS.some(p => p.id === id))       { const p = OPERATOR_PRESETS.find(x => x.id === id); return { group:"intervention", kind, id, label: p.label, color:"#af7ac5", unit: null }; }
-  if (kind === "biomarker" && LAB_FIELDS.some(f => f.med === id))           return { group:"biomarker", kind, id, label: LAB_LABEL_BY_MED[id] || id, color: MED_COLOR[id] || "#888", range: MED_SCALE[id] || { lo: 0, hi: 1 }, unit: LAB_UNIT_BY_MED[id] || null };
+  if (kind === "biomarker" && LAB_FIELDS.some(f => f.med === id))           { const f = LAB_FIELDS.find(x => x.med === id); return { group:"biomarker", kind, id, label: LAB_LABEL_BY_MED[id] || id, color: MED_COLOR[id] || "#888", range: (MED_BY_ID[id] && MED_BY_ID[id].range) || [f.min,f.max], plotRange: MED_SCALE[id] || { lo: 0, hi: 1 }, unit: LAB_UNIT_BY_MED[id] || null }; }
   return { group:"other", kind, id, label: ch, color:"#888", unit: null };
 }
 function histEventAge(ev){
@@ -8158,7 +8222,7 @@ function renderHistoryTimeline(sim){
           }
         });
       } else if (meta.group === "biomarker") {
-        let lo = meta.range.lo, hi = meta.range.hi;
+        let lo = meta.plotRange.lo, hi = meta.plotRange.hi;
         const lane = sim && sim.medValues && sim.medValues[meta.id];
         for (const v of evs.map(e => +e.value).filter(Number.isFinite)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
         if (lane) for (let a = AGE0; a <= xMax; a += 4) { const v = lane[Math.round(a - AGE0)]; if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } }
@@ -8215,7 +8279,7 @@ function addHistEventToChannel(channel, age){
 }
 function defaultHistValue(meta, age, sim){
   if (meta.id === "smokingStatus") return "current";
-  if (meta.group === "biomarker"){ const lane = sim && sim.medValues && sim.medValues[meta.id]; const v = lane ? lane[Math.round(age - AGE0)] : null; return v != null ? +(+v).toFixed(meta.id === "HbA1c" ? 1 : 0) : (meta.range.lo + meta.range.hi) / 2; }
+  if (meta.group === "biomarker"){ const lane = sim && sim.medValues && sim.medValues[meta.id]; const v = lane ? lane[Math.round(age - AGE0)] : null; return v != null ? +(+v).toFixed(meta.id === "HbA1c" ? 1 : 0) : (meta.range[0] + meta.range[1]) / 2; }
   if (meta.group === "treatment") return 1;
   if (meta.kind === "lifestyle"){   // extrinsic-risk multiplier: carry the prior value, else population baseline ×1.0
     const prior = state.timeline.events.filter(e => e.channel === ("lifestyle:" + meta.id) && e.age != null && e.age <= age).sort((a, b) => b.age - a.age)[0];
@@ -8235,13 +8299,13 @@ function syncHistoryEditor(){
   const ev = historySelectedId ? findHistEvent(historySelectedId) : null;
   if (!ev){ box.innerHTML = '<span style="color:var(--muted)">Click an event to edit it · click an empty lane to add to that channel · or use the “+ Add” bar above.</span>'; return; }
   const meta = histChannelMeta(ev.channel);
-  const numF = (label, key, val, step) => `<label style="white-space:nowrap">${label} <input type="number" data-k="${key}" value="${val == null ? "" : val}" step="${step}" style="width:72px"></label>`;
+  const numF = (label, key, val, step, min = null, max = null) => `<label style="white-space:nowrap">${label} <input type="number" data-k="${key}" value="${val == null ? "" : val}" step="${step}"${min == null ? "" : ` min="${min}"`}${max == null || !Number.isFinite(max) ? "" : ` max="${max}"`} style="width:72px"></label>`;
   // The (possibly long) channel/node name goes on its OWN line; the fields sit below in a flex-wrap row so a
   // long name like "Altered intercellular communication" can't push the inputs off the panel edge.
   let html = `<div style="margin-bottom:5px"><b style="color:${meta.color}">${meta.label}</b></div>`;
   let fields = "";
   if (meta.kind === "intervention"){
-    fields += numF("start age (yr)", "startAge", ev.startAge, 1) + numF("end age (yr, blank=ongoing)", "endAge", ev.endAge, 1) + numF("strength 0–1 (slow fraction)", "efficacy", ev.efficacy, 0.05);
+    fields += numF("start age (yr)", "startAge", ev.startAge, 1, AGE0, AGE1) + numF("end age (yr, blank=ongoing)", "endAge", ev.endAge, 1, AGE0, AGE1) + numF("strength 0–1 (slow fraction)", "efficacy", ev.efficacy, 0.05, 0, 1);
   } else if (meta.kind === "operator"){
     const preset = OPERATOR_PRESETS.find(p => p.id === meta.id) || {};
     const sc = ev.scenario || {};
@@ -8255,14 +8319,14 @@ function syncHistoryEditor(){
     const sFirst = ag.length ? ag[0] : "";
     const sEvery = ag.length >= 2 ? (ag[1] - ag[0]) : "";
     const sUntil = ag.length >= 2 ? ag[ag.length - 1] : "";
-    fields += numF("first dose (yr)", "doseFirst", sFirst, 1);
-    fields += `<label style="white-space:nowrap" title="Repeat interval. Blank = a single dose at first-dose age.">every (yr) <input type="number" data-k="doseEvery" value="${sEvery}" step="1" style="width:64px" placeholder="once"></label>`;
-    fields += `<label style="white-space:nowrap" title="Last dose age. Blank with an interval set = repeat to end of life.">until (yr) <input type="number" data-k="doseUntil" value="${sUntil}" step="1" style="width:64px" placeholder="—"></label>`;
+    fields += numF("first dose (yr)", "doseFirst", sFirst, 1, AGE0, AGE1);
+    fields += `<label style="white-space:nowrap" title="Repeat interval. Annual grid: minimum 1 year. Blank = a single dose.">every (yr) <input type="number" data-k="doseEvery" value="${sEvery}" min="${DT}" max="${AGE1-AGE0}" step="1" style="width:64px" placeholder="once"></label>`;
+    fields += `<label style="white-space:nowrap" title="Last dose age. Blank with an interval set = repeat to end of life.">until (yr) <input type="number" data-k="doseUntil" value="${sUntil}" min="${AGE0}" max="${AGE1}" step="1" style="width:64px" placeholder="—"></label>`;
     fields += `<label style="white-space:nowrap" title="Generated from first/every/until — or edit directly for an irregular schedule.">dosing ages <input type="text" data-k="ages" value="${ag.join(",")}" style="width:110px" placeholder="60,61"></label>`;
     if (killKeys.length) fields += `<label style="white-space:nowrap">kill <select data-k="killScenario">${killKeys.map(kk => `<option value="${kk}"${kk === curKill ? " selected" : ""}>${kk} (${Math.round(preset.killFractionScenarios[kk] * 100)}%)</option>`).join("")}</select></label>`;
     if (rbKeys.length) fields += `<label style="white-space:nowrap">rebound &frac12;-life <select data-k="reboundScenario">${rbKeys.map(rk => `<option value="${rk}"${rk === curRb ? " selected" : ""}>${rk} (${preset.reboundHalfLifeScenariosYears[rk]}y)</option>`).join("")}</select></label>`;
   } else if (meta.id === "smokingStatus"){
-    fields += numF("age (yr)", "age", ev.age, 1) + `<label style="white-space:nowrap">status <select data-k="value"><option ${ev.value === "never" ? "selected" : ""}>never</option><option ${ev.value === "former" ? "selected" : ""}>former</option><option ${ev.value === "current" ? "selected" : ""}>current</option></select></label>`;
+    fields += numF("age (yr)", "age", ev.age, 1, AGE0, AGE1) + `<label style="white-space:nowrap">status <select data-k="value"><option ${ev.value === "never" ? "selected" : ""}>never</option><option ${ev.value === "former" ? "selected" : ""}>former</option><option ${ev.value === "current" ? "selected" : ""}>current</option></select></label>`;
   } else {
     // value-field label carries the channel's UNIT (what the old sliders showed): "value (min/week MVPA)",
     // "measured (mg/dL)", "dose (dose 0–1)", or the extrinsic-risk × multiplier.
@@ -8270,7 +8334,7 @@ function syncHistoryEditor(){
     if (meta.kind === "lifestyle") valLabel = "× extrinsic risk (1 = pop. avg)";
     else { const base = meta.group === "biomarker" ? "measured" : (meta.group === "treatment" ? "dose" : "value"); valLabel = meta.unit ? `${base} (${meta.unit})` : base; }
     const valStep = (meta.group === "treatment" || meta.kind === "lifestyle") ? 0.1 : 1;
-    fields += numF("age (yr)", "age", ev.age, 1) + numF(valLabel, "value", ev.value, valStep);
+    fields += numF("age (yr)", "age", ev.age, 1, AGE0, AGE1) + numF(valLabel, "value", ev.value, valStep, meta.range && meta.range[0], meta.range && meta.range[1]);
   }
   fields += `<button data-act="del" style="cursor:pointer">Delete</button>`;
   html += `<div style="display:flex; flex-wrap:wrap; gap:5px 12px; align-items:center;">${fields}</div>`;
@@ -8299,6 +8363,18 @@ function commitEditorField(id, inp){
     const nums = tokens.map(s => +s);
     if (tokens.length && nums.every(Number.isFinite)) ev.ages = Array.from(new Set(nums.map(clampAge))).sort((a, b) => a - b);
   } else if (k === "doseFirst" || k === "doseEvery" || k === "doseUntil") {
+    const n = raw.trim() === "" ? null : +raw;
+    const bad = !Number.isFinite(n) && n !== null;
+    const outside = k === "doseEvery" ? (n !== null && (n < DT || n > AGE1 - AGE0))
+      : (n !== null && (n < AGE0 || n > AGE1));
+    if (bad || outside) {
+      inp.setCustomValidity(k === "doseEvery"
+        ? `Repeat interval must be blank or in [${DT}, ${AGE1 - AGE0}] years.`
+        : `Dose age must be blank or in [${AGE0}, ${AGE1}].`);
+      inp.reportValidity();
+      return;
+    }
+    inp.setCustomValidity("");
     regenSchedule(ev);   // first/every/until → regenerate ages[]
   } else if (k === "endAge") {
     if (raw.trim() === "") ev.endAge = null;
@@ -8309,7 +8385,19 @@ function commitEditorField(id, inp){
     ev.scenario = Object.assign({}, ev.scenario); ev.scenario[k] = raw;   // {killScenario, reboundScenario}
   } else if (k === "value") {
     if (meta.id === "smokingStatus") ev.value = raw;
-    else { const n = +raw; if (Number.isFinite(n)) ev.value = (meta.group === "treatment" || meta.kind === "lifestyle") ? Math.max(0, n) : n; }   // dose / extrinsic-mult ≥ 0; keep prior on garbage
+    else {
+      const n = +raw;
+      if (Number.isFinite(n)) {
+        const range = meta.range;
+        if (range && (n < range[0] || n > range[1])) {
+          inp.setCustomValidity(`Enter a value in [${range[0]}, ${Number.isFinite(range[1]) ? range[1] : "∞"}].`);
+          inp.reportValidity();
+          return;
+        }
+        inp.setCustomValidity("");
+        ev.value = n;
+      }
+    }
   } else if (k === "age" || k === "startAge") {
     const n = +raw; if (Number.isFinite(n)) { ev[k] = clampAge(n); if (k === "age") mergeHistCollision(ev); if (k === "startAge") fixHistWindow(ev); }
   }
@@ -8329,13 +8417,20 @@ function fixHistWindow(ev){
 function regenSchedule(ev){
   const box = document.getElementById("historyEditor"); if (!box) return;
   const rd = (k) => { const el = box.querySelector(`[data-k="${k}"]`); if (!el || el.value.trim() === "") return null; const v = +el.value; return Number.isFinite(v) ? v : null; };
-  const first = rd("doseFirst");
-  if (first == null) return;                       // need a first-dose age; keep the prior schedule
-  const every = rd("doseEvery"), until = rd("doseUntil");
+  const firstRaw = rd("doseFirst");
+  if (firstRaw == null) return;                    // need a first-dose age; keep the prior schedule
+  const every = rd("doseEvery"), untilRaw = rd("doseUntil");
+  const first = clampAge(firstRaw);
   const ages = [];
-  if (every != null && every > 0) {
-    const end = (until != null && until > first) ? until : AGE1;   // open interval ⇒ to end of life
-    for (let a = first; a <= end + 1e-9; a += every) ages.push(clampAge(a));
+  if (every != null && every >= DT) {
+    const end = untilRaw == null ? AGE1 : clampAge(untilRaw);
+    if (end <= first) { ages.push(first); }
+    else {
+      // Annual-grid schedules cannot contain more than one unique dose per model age. Bound the
+      // loop independently as a final defense against malformed DOM/scripted values.
+      const maxDoses = Math.ceil((AGE1 - AGE0) / DT) + 1;
+      for (let a = first, n = 0; a <= end + 1e-9 && n < maxDoses; a += every, n++) ages.push(clampAge(a));
+    }
   } else {
     ages.push(clampAge(first));                     // single dose
   }
@@ -8554,8 +8649,8 @@ function renderAll(){
   // Display caps: the engine's closed-form tail (§3G) makes LE a TRUE life expectancy even when survival runs
   // far past the array horizon — which can reach centuries (accident-limited) or ∞ (all modeled mortality
   // zeroed). Past ~999 the number is false precision ("only accidents/residual left", not biology), so cap.
-  const fmtLE = (x) => !Number.isFinite(x) ? "∞" : x > 999 ? "999+" : x.toFixed(1);
-  const fmtDelta = (d) => !Number.isFinite(d) ? (d > 0 ? "+∞" : "−∞")
+  const fmtLE = (x) => Number.isNaN(x) ? "model error" : !Number.isFinite(x) ? "∞" : x > 999 ? "999+" : x.toFixed(1);
+  const fmtDelta = (d) => Number.isNaN(d) ? "model error" : !Number.isFinite(d) ? (d > 0 ? "+∞" : "−∞")
                         : Math.abs(d) > 999 ? (d > 0 ? "+999+" : "−999+")
                         : (d >= 0 ? "+" : "") + d.toFixed(1);
 
@@ -8570,7 +8665,10 @@ function renderAll(){
 
   // leDelta = the "everything else" effect (interventions / lifestyle / lab anchors) vs the all-default baseline.
   const dEl = document.getElementById("leDelta");
-  if (Number.isFinite(everythingElse) && Math.abs(everythingElse) < 0.05){
+  if (Number.isNaN(everythingElse)) {
+    dEl.textContent = "model error — check inputs"; dEl.className = "le-delta neg";
+    console.error("aging simulator produced NaN life expectancy", { sim, opts });
+  } else if (Number.isFinite(everythingElse) && Math.abs(everythingElse) < 0.05){
     dEl.textContent = "(baseline)"; dEl.className = "le-delta zero";
   } else {
     dEl.textContent = fmtDelta(everythingElse) + " yrs vs baseline";
@@ -8601,7 +8699,7 @@ const LEGEND_TIPS = {
   burden: "<b>Hallmark burden (tier-N)</b> &mdash; a latent, normalized [0,1] reserve-depletion / damage fraction (0 = pristine, 1 = exhausted). B&#7522; = clamp(T&#7522; + &Delta;&#7522;): T = the node's baseline age-curve, &Delta; = deviation from interventions propagated through the coupling matrix as a bounded fixed point. Mostly <i>latent</i> / not directly measurable. Tier = depth in the causal cascade (tier-1 most proximal).",
   phenotype: "<b>Pathology / cause node</b> &mdash; a latent [0,1] reserve-depletion burden whose T baseline comes from a CDC cause-of-death table; maps to death via cause_hazard = Rmax&middot;B&middot;&Pi;(multipliers).",
   driver: "<b>Driver phenotype</b> &mdash; an aging phenotype that sits UPSTREAM of a terminal cause and drives it (sarcopenia &rarr; falls; clonal-hematopoiesis &rarr; atherosclerosis), rather than being a cause of death itself. Same latent [0,1] reserve form as a pathology node, but routed to the intermediate column &mdash; shown a lighter purple to distinguish it from the deep-purple terminal cause nodes.",
-  mortality: "<b>Mortality sink</b> &mdash; the terminal node; a sex-specific competing-hazards sum over the cause nodes (CDC WONDER 2022).",
+  mortality: "<b>Mortality sink</b> &mdash; the terminal node; a sex-specific competing-hazards sum over cause nodes, residual, and extrinsic mortality (CDC WONDER D76 2019).",
   tractHigh: "<b>High clinical tractability</b> &mdash; a clinical drug or validated probe already engages this node for an aging-relevant indication. Drawn as a thick solid node border.",
   tractMod: "<b>Moderate tractability</b> &mdash; a high-quality chemical probe or early-clinical agent exists, but no aging-validated modulator yet. Medium-weight solid border.",
   tractLow: "<b>Low tractability</b> &mdash; predicted-druggable at best, or no usable modulator for an aging indication. Thin dashed border."
@@ -8662,9 +8760,10 @@ function buildLegend(){
   const html =
     "Border weight/style = clinical tractability; fill color = biological layer. " +
     "<code>ordinal-default</code> parameters are illustrative only. " +
-    "Mortality is a sex-specific competing-hazards sum (CDC WONDER 2022 per-sex causes + residual + extrinsic; no sex scalar &mdash; " +
+    "Mortality is a sex-specific competing-hazards sum (CDC WONDER D76 2019 per-sex causes + residual + extrinsic; no sex scalar &mdash; " +
     "female CVD-onset delay &amp; male external excess emerge from data), amplified by a " +
-    "sarcopenia frailty multiplier; clonal-hematopoiesis is a driver with no own death line. " +
+    "set of explicit mediator/cause multipliers; the former global sarcopenia/frailty multiplier is disabled. " +
+    "Lean mass reaches falls and infection through explicit mediator edges; clonal hematopoiesis is a driver with no own death line. " +
     "The extrinsic channel (accidents / lifestyle) is non-cascading and scaled by the Lifestyle / extrinsic-risk exposure on the timeline.";
   info.addEventListener("mousemove", (ev) => showTip(ev.clientX, ev.clientY, html));
   info.addEventListener("mouseleave", hideTip);
@@ -8682,12 +8781,14 @@ document.querySelectorAll("#sexSeg button").forEach(btn => {
 });
 
 const ageTopEl = document.getElementById("ageTop");
-if (ageTopEl) ageTopEl.addEventListener("input", () => {
+if (ageTopEl) { ageTopEl.min = AGE0; ageTopEl.max = AGE1; ageTopEl.addEventListener("input", () => {
   const v = +ageTopEl.value;
   if (!isFinite(v)) return;
+  if (v < AGE0 || v > AGE1) { ageTopEl.setCustomValidity(`Age must be in [${AGE0}, ${AGE1}].`); ageTopEl.reportValidity(); return; }
+  ageTopEl.setCustomValidity("");
   state.currentAge = v;            // syncAgeFields() (in the readout) keeps the field in step with state
   renderAll();
-});
+}); }
 
 document.querySelectorAll("#codModeSeg button").forEach(btn => {
   btn.addEventListener("click", () => {

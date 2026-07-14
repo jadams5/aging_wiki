@@ -23,14 +23,14 @@ key-limitations:
   - "Free vs protein-bound vs crosslink AGEs distinction is often conflated in downstream citation; plasma AGE measurements should not be assumed equivalent to ECM-crosslink burden"
   - "Lower limit of detection varies sharply by AGE (pentosidine easiest — intrinsically fluorescent; CML most established; glucosepane / MODIC most demanding)"
 evidence-weight-implication: "Gold-standard quantitative method for tissue AGE burden; values are reliable when reported by experienced labs (Monnier, Spiegel, Voziyan) with isotope-dilution standards. Treat with caution when method details are sparse, when reference standards are not specified, or when the AGE in question is a fragile crosslink."
-literature-checked-through: 2026-05-20
+literature-checked-through: 2026-07-14
 verified: false
 verified-date: null
 verified-by: null
 verified-scope:
 ---
 
-> ⚠️ Auto-extracted by Claude on 2026-05-20 — pilot R46 page; not yet anchored against a specific Current Protocols chapter. Methodological details summarize general practice in the AGE literature (Monnier lab + Spiegel lab + collaborators) rather than a single canonical protocol. Verify before relying on specific procedural parameters; defer to cited Sell 2005, Genuth 2015, Voziyan 2026 for primary-source quantitative claims.
+> ⚠️ Auto-extracted by Claude on 2026-05-20 — pilot R46 page; not yet anchored against a specific Current Protocols chapter. Methodological details summarize general practice in the AGE literature rather than a single canonical protocol. The Trabosh 2026 assay-comparison example was checked against the full paper and source data; verify the older procedural parameters before relying on them.
 
 # LC-MS/MS Quantification of AGEs in Acid-Hydrolyzed Collagen
 
@@ -108,6 +108,7 @@ Units of clinical-cohort papers should be checked carefully — Sell 2005 report
   Studies measuring "skin AGE" by mass spec almost always target the crosslink + protein-bound non-crosslink categories; plasma AGE measurements target the free + soluble-protein-bound categories. These are NOT interchangeable.
 - **Per-triple-helix mol% > 100% surprise** — first-time readers of Sell 2005 are often confused by glucosepane reaching >120 mol% of triple-helical collagen modification in diabetes; this reflects multiple crosslinks per triple-helix, not a measurement error.
 - **Inter-lab comparability** — has historically been poor for crosslink AGEs; readers should weight tightest the labs with longest track records (Monnier lab in particular has produced the bulk of the foundational glucosepane data).
+- **Antibody readout is not interchangeable with bulk MS.** In the CMLase study, hydrolysis/LC-MS/MS found about 45% lower total lens CML while ELISA on the same single-donor preparation reported about 78% lower signal.[^trabosh2026] The authors attribute the difference to preferential enzyme access to surface-exposed, antibody-detectable CML. The example shows why ELISA/IHC percentage changes should not be substituted for total chemical burden.
 
 ---
 
@@ -120,6 +121,7 @@ When reading an AGE-quantification study cited in this wiki:
 3. **Check hydrolysis conditions for fragile crosslinks.** For glucosepane and MODIC specifically, 6 N HCl 110°C may underestimate; enzymatic hydrolysis or milder acid conditions are sometimes preferred. If the method section is silent, weight quantitative claims more loosely.
 4. **Use SAF only as a non-specific all-AGE proxy.** [[skin-autofluorescence-age-reader]] measures *fluorescent* AGEs (primarily pentosidine + non-specific Maillard fluorophores); glucosepane is non-fluorescent and is NOT detected by SAF. Citing SAF as a glucosepane proxy is an error — flag this in any wiki page that does so.
 5. **Per-site occupancy ≠ tissue-level concentration.** Voziyan 2026's 24.9%-of-lysine-modified site is at a specific collagen position; this does not mean 24.9% of all lysines in the tissue are modified.
+6. **Require orthogonal assays for apparent repair.** A falling antibody signal may reflect epitope accessibility or selective repair of exposed sites. Bulk hydrolysis/MS establishes total burden; peptide-level MS establishes site coverage; neither alone demonstrates restored protein or tissue function.
 
 ---
 
@@ -163,3 +165,9 @@ Maintained as a running list; lint pass should regenerate periodically.
 ## Verification log
 
 **2026-05-20 — initial seed (claude):** Pilot R46 methods page. Content drafted from general field knowledge + Sell 2005, Voziyan 2026, Dammann 2012, Streeter 2020, Li 2025 method-section content visible in their abstracts and the wiki's existing footnotes on [[glucosepane]]. Not yet anchored against Current Protocols. Specific procedural parameters (6N HCl 110°C 18h; MRM transition m/z 429→324 for glucosepane) are general field practice; primary sources should be verified before relying on these as exact specifications. `verified: false`; flagged for full verification pass when Current Protocols sourcing completes.
+
+**2026-07-14 — CMLase assay-discordance example (codex):** Trabosh 2026 main paper and deposited source data checked. Added the single-donor lens contrast between bulk hydrolysis/LC-MS/MS (~45% paper-reported reduction) and ELISA (~78%), plus the inference that antibody and bulk-chemical endpoints are complementary rather than interchangeable. Page remains `verified: false` because the original methods overview still lacks its protocol anchor.
+
+## Footnotes
+
+[^trabosh2026]: [[studies/trabosh-2026-cmlase-deglycation]] · doi:10.1038/s41467-026-75141-2 · ex-vivo human lens from one 64-year-old donor · paper reports 45% lower total CML by hydrolysis/LC-MS/MS and 78% lower ELISA signal after 5 µM CMLase overnight; deposited means imply ~47% and ~77% · no donor-level inference · peer-reviewed

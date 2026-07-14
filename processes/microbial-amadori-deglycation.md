@@ -8,17 +8,17 @@ selective-variants: []
 druggability-tier: 3
 caused-by: []
 causes: []
-literature-checked-through: 2026-05-20
+literature-checked-through: 2026-07-14
 verified: true
-verified-date: 2026-05-20
+verified-date: 2026-07-14
 verified-by: claude
-verified-scope: "Delanghe 2024 (PMID:38732004): key quantitative claims confirmed via two independent PubMed abstract queries — p=0.001 autofluorescence reduction; 45±21% drusen reduction; substrate scope fructosyl-Lys/CML/CEL/imidazolone; agmatine released; glucosepane/pentosidine not tested (confirmed absent from abstract). n-values per experiment and full mechanistic details not confirmed (full PDF not read). Hirokawa 2003: substrate classification corrected from 'free amino acid-specific vs peptide-permissive' to 'alpha-glycated (Class A) vs epsilon-glycated (Class B)' per abstract. Jeong 2002: added 5-intron structure and veA requirement from abstract. All three Hirokawa/Jeong papers verified at abstract level only (#gap/no-fulltext-access). Full PDFs pending download. 2026-05-20 extension verified against full PDF: De Decker 2023 (doi:10.3390/ijms24108981) — corrected glycating agent from 'glyceraldehyde' to 'glycolaldehyde dimer' in the caveats text (paper uses 'glycolaldehyde (GA)' throughout; 'glyceraldehyde' was a seeder error); added statistical significance (p<0.0001) and AF wavelengths (370/390–700 nm) to footnote."
+verified-scope: "Delanghe 2024 (PMCID:PMC11083825): full text read 2026-07-14; retinal autofluorescence/drusen endpoints confirmed, but mature-adduct substrate claims downgraded because UHPLC-HRMS used free amino-acid/sugar mixtures rather than intact peptides/proteins. Trabosh 2026 main PDF + supplement read end-to-end 2026-07-14; engineered glycine-oxidase-derived CMLase treated as a distinct mature-adduct repair route. Hirokawa 2003: substrate classification corrected from 'free amino acid-specific vs peptide-permissive' to 'alpha-glycated (Class A) vs epsilon-glycated (Class B)' per abstract. Jeong 2002: added 5-intron structure and veA requirement from abstract. All three Hirokawa/Jeong papers verified at abstract level only (#gap/no-fulltext-access). 2026-05-20 extension verified against full PDF: De Decker 2023 (doi:10.3390/ijms24108981) — corrected glycating agent from 'glyceraldehyde' to 'glycolaldehyde dimer'; added statistical significance and AF wavelengths."
 ---
 
 
 # Microbial Amadori Deglycation (Amadoriase / FAOX / FAOD)
 
-Amadoriase — also called fructosyl-amino-acid oxidase (FAOX), fructosyl amino oxidase (FAOD), or fructosyl peptide oxidase (FPOX) — is a class of **FAD-dependent flavoenzymes** found in soil fungi and bacteria that catalyze oxidative cleavage of fructosyl-amino-acid bonds (Amadori products). The reaction releases glucosone + the free amino acid + H₂O₂. These enzymes have been used commercially in **HbA1c diagnostics** for decades and represent, alongside mammalian [[fn3k]], the only known enzymatic routes for deglycation — defined here as reversal of early-Maillard Amadori products.
+Amadoriase — also called fructosyl-amino-acid oxidase (FAOX), fructosyl amino oxidase (FAOD), or fructosyl peptide oxidase (FPOX) — is a class of **FAD-dependent flavoenzymes** found in soil fungi and bacteria that catalyze oxidative cleavage of fructosyl-amino-acid bonds (Amadori products). The reaction releases glucosone + the free amino acid + H₂O₂. These enzymes have been used commercially in **HbA1c diagnostics** for decades and, alongside mammalian [[fn3k]], are the canonical enzymatic routes for reversing early-Maillard Amadori products. Engineered [[cmlase]] now supplies a distinct route for repair of the mature monovalent AGE adduct CML.
 
 Unlike [[fn3k]] (phosphorylative, intracellular, vertebrate), FAOX/FAOD enzymes are oxidative, extracellular-compatible (secreted or surface-associated in soil organisms), and have substrate scope that may extend beyond simple fructosyl-lysine to include some mature (non-crosslink) AGE adducts, per Delanghe et al. 2024 (see below). They constitute **Tier 2** of the natural AGE-defense framework alongside FN3K — see [[advanced-glycation-end-products]] § "Three-tier natural defense framework."
 
@@ -59,9 +59,9 @@ For the HbA1c assay, the key substrate is **fructosyl-valine** (N-terminal Val o
 - Protein-bound fructosyl-lysine: accessible after prior protease treatment for most enzymes; Class A enzymes act on α-N-terminal substrates without protease pre-treatment
 - Mature AGEs (CML, CEL, imidazolone, glucosepane, pentosidine): historically considered NOT substrates — but see Delanghe 2024 below.
 
-## Verhoekx 2024 / Delanghe 2024 — expanded substrate scope in AMD
+## Delanghe 2024 — suggestive expanded substrate scope in AMD
 
-Delanghe et al. 2024 (*Int J Mol Sci*) is the highest-impact recent paper in this area and substantially expands the known substrate scope of FAOD [^delanghe2024]. The key findings from the abstract (full PDF verification pending):
+Delanghe et al. 2024 (*Int J Mol Sci*) tested FAOD in glycated retinal material and in simple amino-acid/sugar reaction mixtures.[^delanghe2024]
 
 **Model systems:** (a) glycolaldehyde-glycated porcine retinas (ex vivo); (b) human AMD retinal sections (ex vivo).
 
@@ -69,15 +69,21 @@ Delanghe et al. 2024 (*Int J Mol Sci*) is the highest-impact recent paper in thi
 - AGE autofluorescence reduced by FAOD treatment in glycolaldehyde-treated porcine retinas (p = 0.001).
 - Drusen surface area reduced to 45 ± 21% of control in human AMD retinal sections following FAOD treatment.
 
-**Substrate scope finding:** Mass spectrometry revealed FAOD cleaves a broader substrate panel than previously established, including **fructosyl-lysine, CML (carboxymethyllysine), CEL (carboxyethyllysine), and imidazolone** — adducts beyond simple Amadori products. This is the first report of a natural enzyme acting on CML and CEL in tissue.
+**Substrate-scope signal:** In a separate experiment, the authors incubated free lysine or arginine with glucose or fructose for one week, treated the mixtures with FAOD or FN3K, and used untargeted UHPLC-HRMS. Features assigned to **fructosyl-lysine, CML, CEL, and imidazolone** disappeared more strongly after FAOD. This is evidence that FAOD perturbs those assigned small-molecule products, but it is not a direct demonstration of CML removal from an intact peptide or protein, native-lysine restoration, or CML-specific retinal repair.
 
 **Agmatine release:** The authors observed release of agmatine (4-aminobutyl-guanidine) during FAOD treatment, suggesting guanidino-bond cleavage in addition to N-glycoside hydrolysis — a mechanistically unexpected finding.
 
-**Absence of glucosepane/pentosidine data:** The paper did not report FAOD activity against glucosepane or pentosidine. **CML and CEL are monovalent lysine/arginine modifications — NOT bifunctional crosslinks.** The mature crosslinks (glucosepane, pentosidine) remain without any known natural enzyme capable of cleavage as of 2026-05-20.
+**Absence of glucosepane/pentosidine data:** The paper did not report FAOD activity against glucosepane or pentosidine. **CML and CEL are monovalent modifications — not bifunctional crosslinks.** The mature crosslinks remain without a demonstrated enzymatic cleavage route as of 2026-07-14.
 
-**Interpretation for the field:** The Delanghe 2024 result is significant because it establishes that a natural enzyme can act on at least some mature (non-Amadori) AGE adducts. However, it does not close the glucosepane/pentosidine gap — the adducts it acts on are non-crosslinking single-site modifications. The clinical translation of FAOD for AMD is speculative but represents the first ex-vivo human-tissue evidence for enzymatic AGE reduction in a disease-relevant context.
+**Interpretation for the field:** The retinal results support ex-vivo reduction of bulk glycation-associated optical/pathology readouts, while the mixture experiment motivates targeted mechanistic replication. It should not be cited as established protein-bound CML deglycation or as independent replication of CMLase. The clinical translation of FAOD for AMD remains speculative.
 
-#gap/needs-replication — Delanghe 2024 (PMID:38732004) key quantitative claims (p=0.001 autofluorescence reduction; 45±21% drusen surface area reduction; substrate scope fructosyl-Lys/CML/CEL/imidazolone; agmatine release; glucosepane/pentosidine not tested) confirmed via two independent PubMed abstract queries. Sample sizes (n values) for individual experiments not reported in abstract. Full PDF not read; n values and additional methodological details remain to be confirmed. Single-study; no independent replication of the expanded substrate scope.
+#gap/needs-replication — Targeted isotope-dilution MS with authentic standards, intact CML peptides/proteins, product accounting, and native-lysine recovery is needed to validate the Delanghe substrate assignments and reaction mechanism.
+
+## Engineered CMLase — mature-adduct repair, not classical amadoriase
+
+Trabosh et al. 2026 engineered [[cmlase|CMLase (CrGO-897)]] from a *Calidithermus roseus* glycine oxidase rather than from the classical FAOX/FAOD family.[^trabosh2026] The enzyme directly converts protein-bound CML back to lysine and produced concordant H₂O₂/glyoxylate signals. Proteomics showed lower CML at 30/33 mapped CML-BSA sites; hydrolysis/LC-MS/MS showed 45% lower endogenous CML in a single 64-year-old human lens, with corroborating single-donor aorta and skin immunohistochemistry.
+
+This is the more direct mature-adduct result: it uses intact modified proteins, maps site-specific repair, demonstrates restored lysine, and extends to naturally accumulated human-tissue CML. It does not show that native FAOD enzymes share this activity, and it does not cleave a crosslink. The mechanistic taxonomy is therefore `age-adduct-deglycation`, distinct from both classical Amadori reversal and `age-crosslink-cleavage`.
 
 | Dimension | Status |
 |---|---|
@@ -93,7 +99,7 @@ FAOD has been commercially deployed in HbA1c assays for >20 years. Engineered va
 
 De Decker et al. 2023 (*Int J Mol Sci*; PMID 37240327) demonstrated that **combining FAOD with the mammalian deglycating enzyme FN3K achieved ~43% autofluorescence reduction in glycolaldehyde-damaged human skin specimens** — outperforming FAOD monotherapy (33%), FN3K monotherapy (31%), and the positive control aminoguanidine (28%) [^dedecker2023faod]. This is the **first published combination-therapy precedent** for FAOD and FN3K acting synergistically in human tissue.
 
-The additive effect is mechanistically consistent: FAOD operates preferentially on extracellular and surface-accessible glycated amino groups (including CML and CEL per Delanghe 2024), while FN3K acts on intracellular fructosyl-lysine substrates in the tissue. Because the two enzymes attack non-overlapping substrate pools via different mechanisms (oxidation vs. phosphorylation), combined application covers a broader fraction of total skin glycation burden without competition.
+The additive optical effect is compatible with FAOD and FN3K acting on different accessible glycated species through oxidation versus phosphorylation, but the study did not chemically resolve those substrate pools. In particular, the result cannot be assigned to protein-bound CML/CEL removal on the basis of the Delanghe mixture experiment. Combined application covered a larger fraction of the autofluorescent signal, not a demonstrated set of non-overlapping molecular targets.
 
 **Caveats:** The study used an acute glycolaldehyde dimer-induction model (25 mM, 3 h) in young skin (not chronic, physiologically glycated aged skin); combined FAOD + FN3K generates additive by-products (H₂O₂ + 3-deoxyglucosone); cytotoxicity of co-delivered by-products was not assessed. See [[studies/de-decker-2023-fn3k-faod-skin-combination]] for full design and findings.
 
@@ -109,14 +115,15 @@ The additive effect is mechanistically consistent: FAOD operates preferentially 
 
 ## Relation to Revel Pharmaceuticals / Spiegel-lab functional-metagenomics program
 
-Revel Pharmaceuticals' founding premise was that soil-metagenome-encoded enzymes capable of cleaving **mature glucosepane crosslinks** should exist in organisms that catabolize aged proteins as nutrient sources. FAOX/FAOD is the **known class** in this space — characterized as capable of Amadori-product deglycation and now (per Delanghe 2024) some non-crosslink mature AGE adducts. However, FAOX/FAOD does not close the glucosepane gap.
+Revel Pharmaceuticals' founding premise was that microbe-derived enzymes could be adapted to repair stable AGE damage. The peer-reviewed CMLase program validates that engineering strategy for a **monovalent mature AGE adduct**, not for glucosepane. Classical FAOX/FAOD remains an Amadori-product enzyme class with suggestive but unconfirmed activity against small-molecule CML/CEL assignments in Delanghe 2024. Neither result closes the glucosepane gap.
 
-If FAOD's expanded substrate scope (Delanghe 2024) is confirmed, it strengthens the broader hypothesis that fungal/bacterial flavoenzymes can have unexpectedly broad AGE-substrate scope — supporting the plausibility of Revel's metagenomics approach. But it does not constitute the glucosepane-cleaving enzyme the program sought. See [[age-crosslink-breakers]] § "Natural enzymatic AGE clearance — three-tier defense framework."
+CMLase strengthens the broader hypothesis that microbial flavoenzyme scaffolds can be evolved toward stable AGE substrates. It does not constitute a glucosepane-cleaving enzyme. See [[age-crosslink-breakers]] § "Natural enzymatic AGE clearance — three-tier defense framework."
 
 ## Limitations and gaps
 
 - **Glucosepane and pentosidine crosslinks remain without any known enzymatic cleavage route.** Tier 3 of the natural defense hierarchy is empty.
-- **Delanghe 2024 expanded substrate scope needs independent replication.** CML and CEL cleavage by FAOD is a single-laboratory finding; the mechanism of guanidino-bond cleavage (agmatine release) is unexpected and requires mechanistic follow-up.
+- **Delanghe 2024 expanded substrate scope needs targeted replication.** CML/CEL ion disappearance came from untargeted analysis of free amino-acid/sugar mixtures, not intact protein repair; the unexpected agmatine result also requires product-balanced mechanistic follow-up.
+- **CMLase needs living-tissue validation.** Single-donor homogenate and thin-section target engagement does not establish delivery, safety, durability, or functional rescue in an intact animal.
 - **Therapeutic deployment faces H₂O₂ toxicity, immunogenicity, and ECM penetration barriers** — each representing an engineering challenge without validated solutions as of 2026.
 - **No in-vivo animal efficacy data for any therapeutic application of FAOD** have been published. AMD is a promising target (intraocular access; drusen as accessible deposits), but the Delanghe 2024 evidence is ex-vivo sections only.
 - **Soil-ecology context:** Soil microbes likely catabolize AGE-containing proteins primarily through broad-specificity proteases fragmenting the protein backbone near crosslinks, not through crosslink-specific enzyme chemistry. The functional diversity of AGE-targeting microbial enzymes may be greater than currently characterized. #gap/no-mechanism for full enzyme diversity.
@@ -129,7 +136,8 @@ If FAOD's expanded substrate scope (Delanghe 2024) is confirmed, it strengthens 
 - [[advanced-glycation-end-products]] — upstream process; three-tier defense framework
 - [[glucosepane]] — principal mature ECM crosslink; NOT cleaved by FAOX/FAOD (as of 2026)
 - [[pentosidine]] — secondary fluorescent crosslink; NOT reported to be cleaved by FAOX/FAOD
-- [[carboxymethyl-lysine]] — CML; reportedly cleaved by FAOD (Delanghe 2024, abstract only)
+- [[carboxymethyl-lysine]] — CML; monovalent mature AGE adduct
+- [[cmlase]] — engineered glycine-oxidase-derived CML repair enzyme
 - [[age-crosslink-breakers]] — intervention class; pharmacological context
 
 ## Footnotes
@@ -140,4 +148,6 @@ If FAOD's expanded substrate scope (Delanghe 2024) is confirmed, it strengthens 
 
 [^hirokawa2004]: doi:10.1016/j.femsle.2004.04.027 · Hirokawa K, Nakamura K, Kajiyama N · *FEMS Microbiol Lett* 2004;235(1):157–62 · PMID:15158276 · in-vitro · *Eupenicillium terrenum* FPOX; high specificity toward α-glycated fructosyl-Val-His; clinical HbA1c measurement application · abstract-level via PubMed #gap/no-fulltext-access
 
-[^delanghe2024]: doi:10.3390/ijms25094779 · Delanghe JR, Diana Di Mavungu J, Beerens K, Himpe JJ, Bostan N, Speeckaert MM, Vrielinck H, Vral A, Van Den Broeke C, Huizing M, Van Aken E · *Int J Mol Sci* 2024;25(9):4779 · PMID:38732004 · ex-vivo · model: glycolaldehyde-glycated porcine retinas + human AMD retinal sections · AGE autofluorescence reduced (p=0.001 in porcine model); drusen surface area reduced to 45 ± 21% of control in human AMD sections; substrate scope included fructosyl-lysine, CML, CEL, imidazolone (by MS); agmatine released (guanidino-bond cleavage); glucosepane and pentosidine cleavage NOT reported · archive: OA gold (MDPI); download pending (PMID:38732004) · **abstract-only verification; full PDF required for quantitative claim confirmation** #gap/no-fulltext-access
+[^delanghe2024]: doi:10.3390/ijms25094779 · Delanghe JR et al. · *Int J Mol Sci* 2024;25(9):4779 · PMID:38732004 · PMCID:PMC11083825 · ex-vivo retina + in-vitro free amino-acid/sugar mixtures · porcine-retina autofluorescence −43 ± 4% (p=0.001); human drusen surface reduced to 45 ± 21% (p<0.005); untargeted UHPLC-HRMS reported disappearance of ions assigned to fructosyl-lysine/CML/CEL/imidazolone after FAOD, without intact-protein repair or direct lysine-restoration evidence · full PMC text verified 2026-07-14
+
+[^trabosh2026]: [[studies/trabosh-2026-cmlase-deglycation]] · doi:10.1038/s41467-026-75141-2 · in-vitro + ex-vivo human tissue · seven human donors across figures, but headline older lens/aorta/skin outcomes each use one donor and technical/spatial subsamples · engineered CMLase restored lysine from protein-bound CML · no treatment-comparison p-values (secondary B-factor correlation p=0.0343); no living-mammalian or functional test · peer-reviewed

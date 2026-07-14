@@ -114,7 +114,7 @@ Zhang et al. 2019 (*Immunity*) demonstrated that aging progressively depletes th
 Cathelicidin has a dual-edged role in the context of [[chronic-inflammation]]:
 
 - **Insufficient cathelicidin** — impaired pathogen clearance → increased infection → secondary inflammatory cascades → inflammaging amplification
-- **Excess LL-37** — released cathelicidin is a DAMP (damage-associated molecular pattern) capable of activating NLRP3 inflammasome and TLR9 via self-DNA complexes; rosacea and psoriasis involve pathological cathelicidin overactivation driving sterile inflammation. In aging, the more prevalent concern is *insufficient* cathelicidin rather than excess.
+- **Excess LL-37** — released cathelicidin is a DAMP (damage-associated molecular pattern) capable of activating NLRP3 inflammasome and TLR9 via self-DNA complexes; [[rosacea]] and psoriasis involve pathological cathelicidin overactivation driving sterile inflammation (in rosacea, elevated kallikrein-5 abnormally processes cathelicidin into pro-inflammatory LL-37 fragments — the central innate-immune axis of facial [[erythema]]). In aging, the more prevalent concern is *insufficient* cathelicidin rather than excess.
 
 The [[nlrp3-inflammasome]] and [[lps-tlr4-nfkb]] pathway pages carry the downstream inflammatory details.
 

@@ -38,6 +38,7 @@ The system is conventionally divided into the **central nervous system** (brain 
 ## Key molecular axes
 
 - Proteostasis & aggregation: [[loss-of-proteostasis]], [[autophagy]], tau, [[dkk1]] (Wnt/synapse)
+- Brain-fluid transport: [[glymphatic-system]] — perivascular influx/exchange/efflux, aging evidence, and proxy-method limits
 - Neuroinflammation: [[microglia]], [[chronic-inflammation]]
 - Autonomic / neuro-immune: the [[pathways/cholinergic-anti-inflammatory-pathway]] (efferent vagus → splenic [[molecules/proteins/chrna7|α7nAChR]] → NF-κB suppression) is the principal peripheral circuit by which the nervous system restrains inflammaging; [[biomarkers/heart-rate-variability-biomarker|heart-rate variability]] is its non-invasive functional readout, and both vagal tone and HRV decline with age
 

@@ -1,0 +1,41 @@
+name: Simulator checks
+
+on:
+  pull_request:
+    paths:
+      - "frameworks/causal-graph-parameters.md"
+      - "model/**"
+      - "viz/aging-simulator.html"
+      - ".github/workflows/simulator-checks.yml"
+  push:
+    branches: [main]
+    paths:
+      - "frameworks/causal-graph-parameters.md"
+      - "model/**"
+      - "viz/aging-simulator.html"
+      - ".github/workflows/simulator-checks.yml"
+
+jobs:
+  simulator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: model/package-lock.json
+      - name: Install simulator test dependency
+        run: npm ci --prefix model
+      - name: Validate graph
+        run: npm --prefix model run validate
+      - name: Run engine regressions
+        run: npm --prefix model test
+      - name: Verify generated artifacts are current
+        run: |
+          npm --prefix model run build
+          git diff --exit-code -- model/params.json viz/aging-simulator.html
+      - name: Run browser interactions
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: npm --prefix model run test:e2e

@@ -258,6 +258,7 @@ For the full intervention pipeline and biology of transient reprogramming, see [
 
 **Phenotypes:**
 - [[masld]] · [[liver-fibrosis]] · [[age-related-cholestasis]] · [[hepatocellular-carcinoma]]
+- **Cutaneous signs of chronic liver disease** — spider naevi and palmar erythema (hyperestrogenemia from impaired hepatic estradiol clearance) are documented on [[telangiectasia]] § *Hepatic spider naevi*; relevant to chronic [[exposures/alcohol|alcohol]]-driven cirrhosis
 
 **Interventions:**
 - [[in-vivo-partial-reprogramming-therapy]] · [[rapamycin]] · [[molecules/compounds/nmn]] · [[molecules/compounds/nr]] · [[molecules/compounds/dasatinib]] · [[molecules/compounds/quercetin]] · [[molecules/compounds/fisetin]]
