@@ -38,18 +38,18 @@ The cluster is defined by a regulatory event: the FDA **Pharmacy Compounding Adv
 
 | Compound | Class (mechanism) | Endogenous? | Aging-relevant claim | Strongest evidence | `human-evidence-level` |
 |---|---|---|---|---|---|
-| [[../../molecules/compounds/bpc-157\|BPC-157]] | tissue-repair-peptide | derived from gastric BPC | tendon/ligament/GI healing | preclinical + small human pilots (n<30 prospective) | limited |
-| [[../../molecules/compounds/tb-500\|TB-500]] | actin-regulatory-peptide (Tβ4 fragment) | fragment of endogenous TMSB4X | wound healing / angiogenesis | preclinical only; active metabolite Ac-LKKTE per Rahaman 2024 | preclinical-only |
-| [[../../molecules/compounds/ghk-cu\|GHK-Cu]] | extracellular-matrix-remodeling | endogenous (plasma decline iconically cited but primary source = Pickart 1973 PhD thesis) | collagen/elastin synthesis; wound healing | strong topical clinical; injectable preclinical | limited (topical only) |
-| [[../../molecules/compounds/epitalon\|Epitalon]] | telomerase-activation (claimed) | synthetic AEDG; **distinct from epithalamin (bovine extract)** | telomere lengthening; longevity (claim) | Khavinson cohorts used **epithalamin extract**, not synthetic epitalon | limited |
-| [[../../molecules/compounds/mots-c\|MOTS-c]] | exercise-mimetic / mitohormesis-inducer | endogenous (mtDNA 12S rRNA-encoded) | mitochondrial-aging + metabolic | Lee 2015 Cell Metab + Reynolds 2021 Nat Commun (n=10 humans) | preclinical-only |
-| [[../../molecules/compounds/dsip\|DSIP]] | sleep-promoting-neuropeptide / HPA-axis-modulator | endogenous (rabbit thalamic isolation; human status partial) | sleep efficiency / latency | Schoenenberger 1977 PNAS + small 1980s-90s sleep RCTs | limited |
-| [[../../molecules/compounds/dihexa\|Dihexa]] | growth-factor-receptor-agonism / HGF-mimetic (RETRACTED PRIMARY) | synthetic peptidomimetic | synaptogenesis / cognition | McCoy 2013 surviving primary; **Benoist 2014 mechanism paper RETRACTED**; BDNF and donepezil comparison claims **absent from any surviving primary** | none |
-| [[../../molecules/compounds/mk-677\|MK-677]] (ibutamoren) | growth-hormone-secretagogue / ghrelin-receptor-agonist | non-peptide small molecule | sarcopenia / sleep / lean-mass | multiple Phase 2/3 trials; **Adunsky 2011 terminated early for CHF safety signal** | strong (with safety caveats) |
-| [[../../molecules/compounds/melanotan-ii\|Melanotan II]] | melanocortin-receptor-agonist | synthetic α-MSH analog | tanning / appetite | Dorr 1996 Phase I (n=3); illicit-use case-series for AEs | limited |
-| [[../../molecules/compounds/kpv\|KPV]] | antimicrobial-peptide / anti-inflammatory (α-MSH 11-13) | endogenous α-MSH C-terminal fragment | gut inflammation / colitis | Dalmasso 2008 Gastroenterology; Laroui 2010 nanoparticle delivery | preclinical-only |
-| [[../../molecules/compounds/semax\|Semax]] | neurotrophin-induction / neuroprotective-peptide | synthetic ACTH(4-7) analog | stroke recovery / cognition | Russian prescription drug; **22% infarct-volume reduction claim unverifiable** in English literature | limited |
-| [[../../molecules/compounds/ll-37\|LL-37]] | antimicrobial-peptide / membrane-permeabilization | endogenous (CAMP gene → hCAP-18 → LL-37 by PR3 cleavage) | innate-immunity decline; wound healing | Sørensen 2001 mechanism + Miranda 2023 DFU RCT (n=25, granulation only — wound area NOT significant) | limited |
+| [[bpc-157\|BPC-157]] | tissue-repair-peptide | derived from gastric BPC | tendon/ligament/GI healing | preclinical + small human pilots (n<30 prospective) | limited |
+| [[tb-500\|TB-500]] | actin-regulatory-peptide (Tβ4 fragment) | fragment of endogenous TMSB4X | wound healing / angiogenesis | preclinical only; active metabolite Ac-LKKTE per Rahaman 2024 | preclinical-only |
+| [[ghk-cu\|GHK-Cu]] | extracellular-matrix-remodeling | endogenous (plasma decline iconically cited but primary source = Pickart 1973 PhD thesis) | collagen/elastin synthesis; wound healing | strong topical clinical; injectable preclinical | limited (topical only) |
+| [[epitalon\|Epitalon]] | telomerase-activation (claimed) | synthetic AEDG; **distinct from epithalamin (bovine extract)** | telomere lengthening; longevity (claim) | Khavinson cohorts used **epithalamin extract**, not synthetic epitalon | limited |
+| [[mots-c\|MOTS-c]] | exercise-mimetic / mitohormesis-inducer | endogenous (mtDNA 12S rRNA-encoded) | mitochondrial-aging + metabolic | Lee 2015 Cell Metab + Reynolds 2021 Nat Commun (n=10 humans) | preclinical-only |
+| [[dsip\|DSIP]] | sleep-promoting-neuropeptide / HPA-axis-modulator | endogenous (rabbit thalamic isolation; human status partial) | sleep efficiency / latency | Schoenenberger 1977 PNAS + small 1980s-90s sleep RCTs | limited |
+| [[dihexa\|Dihexa]] | growth-factor-receptor-agonism / HGF-mimetic (RETRACTED PRIMARY) | synthetic peptidomimetic | synaptogenesis / cognition | McCoy 2013 surviving primary; **Benoist 2014 mechanism paper RETRACTED**; BDNF and donepezil comparison claims **absent from any surviving primary** | none |
+| [[mk-677\|MK-677]] (ibutamoren) | growth-hormone-secretagogue / ghrelin-receptor-agonist | non-peptide small molecule | sarcopenia / sleep / lean-mass | multiple Phase 2/3 trials; **Adunsky 2011 terminated early for CHF safety signal** | strong (with safety caveats) |
+| [[melanotan-ii\|Melanotan II]] | melanocortin-receptor-agonist | synthetic α-MSH analog | tanning / appetite | Dorr 1996 Phase I (n=3); illicit-use case-series for AEs | limited |
+| [[kpv\|KPV]] | antimicrobial-peptide / anti-inflammatory (α-MSH 11-13) | endogenous α-MSH C-terminal fragment | gut inflammation / colitis | Dalmasso 2008 Gastroenterology; Laroui 2010 nanoparticle delivery | preclinical-only |
+| [[semax\|Semax]] | neurotrophin-induction / neuroprotective-peptide | synthetic ACTH(4-7) analog | stroke recovery / cognition | Russian prescription drug; **22% infarct-volume reduction claim unverifiable** in English literature | limited |
+| [[ll-37\|LL-37]] | antimicrobial-peptide / membrane-permeabilization | endogenous (CAMP gene → hCAP-18 → LL-37 by PR3 cleavage) | innate-immunity decline; wound healing | Sørensen 2001 mechanism + Miranda 2023 DFU RCT (n=25, granulation only — wound area NOT significant) | limited |
 
 ---
 
@@ -138,10 +138,10 @@ The wiki does not endorse or discourage any of these substances. The compound pa
 
 ## See also
 
-- [[../../frameworks/intervention-classes]] — mechanism-class registry; new R36 classes added: `tissue-repair-peptide`, `actin-regulatory-peptide`, `extracellular-matrix-remodeling`, `exercise-mimetic / mitohormesis-inducer`, `sleep-promoting-neuropeptide / HPA-axis-modulation`, `growth-factor-receptor-agonism / HGF-mimetic`, `growth-hormone-secretagogue / ghrelin-receptor-agonist`, `melanocortin-receptor-agonist`, `antimicrobial-peptide / membrane-permeabilization`, `neurotrophin-induction / neuroprotective-peptide`
-- [[../../molecules/proteins/camp]] — CAMP gene / hCAP-18 protein page (parent of LL-37 compound)
-- [[../../sops/finding-druggability]] — Open Targets workflow used to populate `druggability-tier:` on individual compound pages
-- [[../../sops/integrating-clinical-trials]] — ClinicalTrials.gov v2 API workflow used for `clinical-trials-active:` counts
+- [[intervention-classes]] — mechanism-class registry; new R36 classes added: `tissue-repair-peptide`, `actin-regulatory-peptide`, `extracellular-matrix-remodeling`, `exercise-mimetic / mitohormesis-inducer`, `sleep-promoting-neuropeptide / HPA-axis-modulation`, `growth-factor-receptor-agonism / HGF-mimetic`, `growth-hormone-secretagogue / ghrelin-receptor-agonist`, `melanocortin-receptor-agonist`, `antimicrobial-peptide / membrane-permeabilization`, `neurotrophin-induction / neuroprotective-peptide`
+- [[camp]] — CAMP gene / hCAP-18 protein page (parent of LL-37 compound)
+- [[finding-druggability]] — Open Targets workflow used to populate `druggability-tier:` on individual compound pages
+- [[integrating-clinical-trials]] — ClinicalTrials.gov v2 API workflow used for `clinical-trials-active:` counts
 
 ---
 

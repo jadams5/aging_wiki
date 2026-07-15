@@ -71,7 +71,7 @@ The canonical mechanistic feature of FPR2 is **ligand-specific receptor conforma
 
 Cooray et al. 2013 (PNAS) demonstrated that **annexin A1 preferentially activates FPR2 homodimers** signaling through p38 MAPK → MK2 → HSP27 → IL-10 production, while SAA does not promote ALX homodimerization (it decreases the ALX homodimer BRET signal) and instead drives pro-inflammatory outputs through a distinct conformational state, with FPR1/ALX heterodimers mediating pro-apoptotic JNK pathway activation [^cooray2013]. IL-10 production by AnxA1 was confirmed in primary human monocytes and in vivo in C57BL/6 mice (i.p. injection of 1 µg AnxA1); the effect was absent in Alx-Fpr2/3 KO mice. This structural basis for biased agonism is clinically relevant because the ratio of pro-resolving to pro-inflammatory FPR2 ligands — rather than receptor expression alone — determines tissue inflammatory tone.
 
-Cross-links: [[../compounds/ll-37]] · [[../proteins/camp]] (LL-37 / CAMP protein) are documented FPR2 ligands; their interaction with FPR2 is context-sensitive and may vary by tissue and local concentration.
+Cross-links: [[ll-37]] · [[camp]] (LL-37 / CAMP protein) are documented FPR2 ligands; their interaction with FPR2 is context-sensitive and may vary by tissue and local concentration.
 
 ## Role in aging and inflammaging
 
@@ -131,8 +131,8 @@ Note on LXA4/FPR2 controversy: Hanson et al. (2013, *Biochemical Pharmacology*) 
 
 ## Key interactors and ligands
 
-- [[../proteins/camp]] (LL-37) — endogenous antimicrobial peptide ligand; context-dependent pro- or anti-inflammatory via FPR2
-- [[../compounds/ll-37]] — LL-37 compound page
+- [[camp]] (LL-37) — endogenous antimicrobial peptide ligand; context-dependent pro- or anti-inflammatory via FPR2
+- [[ll-37]] — LL-37 compound page
 - Annexin A1 (ANXA1) — endogenous glucocorticoid-regulated pro-resolving ligand; activates FPR2 homodimers → IL-10
 - Serum amyloid A (SAA) — acute-phase DAMP; pro-inflammatory FPR2 agonist
 - Resolvin D1 (RvD1) — omega-3 metabolite; potent pro-resolving FPR2 agonist; structural basis for selectivity elucidated by molecular dynamics [^nunes2023]

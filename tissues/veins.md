@@ -81,7 +81,7 @@ The two valve systems share a developmental origin and several failure mechanism
 
 **The genetic bridge.** This is the most striking correlation: the varicose-veins GWAS identifies 30 independent loci, several of which implicate machinery central to *cardiac* valve and connective-tissue biology — **PPP3R1** (calcineurin B regulatory subunit, i.e. the NFATc1/calcineurin valve-development axis), **PIEZO1** (a mechanosensor near the 16q24 locus), and **CASZ1** (strongest association; a cardiac-development/blood-pressure locus on chr1) are confirmed GWAS hits. **FBN2** (fibrillin-2, the Marfan-spectrum connective-tissue machinery) appears in eQTL analysis of the PIEZO1-region lead SNP rs2911463 as a regulated downstream gene — it is an eQTL association, not itself an independent GWAS locus.[^fukayaval] Connective-tissue disorders hit both beds — **FBN1** (fibrillin-1) mutations in Marfan predict mitral valve prolapse,[^kuhne2013] while **FOXC2** governs venous valves. And remarkably, **PROX1 — the canonical venous/lymphatic valve transcription factor — also protects against myxomatous heart-valve degeneration** by restraining PDGF-B,[^ho2023] a direct molecular thread tying the two valve systems together. A *clinical co-occurrence* of varicose veins and mitral valve prolapse is mechanistically plausible from this shared connective-tissue/calcineurin biology but is **not cleanly established epidemiologically**. #gap/needs-replication
 
-For the engineering counterpart — can these valves be repaired or replaced? — see [[../interventions/procedural/venous-valve-reconstruction]].
+For the engineering counterpart — can these valves be repaired or replaced? — see [[venous-valve-reconstruction]].
 
 ## Clinically important veins (lower limb)
 

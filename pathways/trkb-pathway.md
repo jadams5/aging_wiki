@@ -5,9 +5,9 @@ kegg: hsa04722
 reactome: R-HSA-9006115
 wikipathways: null
 key-nodes:
-  - "[[../molecules/proteins/ntrk2|NTRK2 (TrkB)]]"
-  - "[[../molecules/proteins/bdnf]]"
-  - "[[../molecules/proteins/creb|CREB]]"
+  - "[[ntrk2|NTRK2 (TrkB)]]"
+  - "[[bdnf]]"
+  - "[[creb|CREB]]"
   - "[[ras-mapk|MAPK-ERK1/2]]"
   - "[[pi3k-akt-pathway|PI3K-AKT]]"
 upstream:
@@ -17,19 +17,19 @@ downstream:
   - "[[ltp-induction]]"
   - "[[hippocampal-neurogenesis]]"
 hallmarks:
-  - "[[../hallmarks/loss-of-proteostasis]]"
-  - "[[../hallmarks/altered-intercellular-communication]]"
-  - "[[../hallmarks/stem-cell-exhaustion]]"
+  - "[[loss-of-proteostasis]]"
+  - "[[altered-intercellular-communication]]"
+  - "[[stem-cell-exhaustion]]"
 sens-categories: []
 druggability-tier: 2
 caused-by:
   - "[[neurotrophin-signaling]]"
-  - "[[../molecules/proteins/bdnf]]"
+  - "[[bdnf]]"
 causes:
   - "[[synaptic-plasticity]]"
   - "[[ltp-induction]]"
   - "[[hippocampal-neurogenesis]]"
-  - "[[../processes/autophagy]]"
+  - "[[autophagy]]"
 verified: true
 verified-date: 2026-05-09
 verified-by: claude
@@ -40,7 +40,7 @@ verified-scope: "Jang 2010 (doi:10.1073/pnas.0913572107) and Reichardt 2006 (doi
 
 # TrkB receptor pathway (BDNF-NTRK2 signaling)
 
-The **TrkB pathway** (BDNF → NTRK2/TrkB → MAPK/PI3K/PLC-γ → CREB) is the dominant neurotrophin-signaling axis for aging-relevant brain biology. It mediates synaptic plasticity, adult hippocampal neurogenesis, cognitive resilience, and neuronal survival. Activation depends on [[../molecules/proteins/bdnf|BDNF]] or NT-4/5 binding to the full-length TrkB receptor (TrkB.FL), triggering autophosphorylation and recruitment of three parallel effector arms. A key aging vulnerability is the isoform shift from signaling-competent TrkB.FL toward the dominant-negative truncated isoform TrkB.T1, which blunts BDNF responsiveness in the aged brain. This page covers the TrkB sub-pathway specifically; for pan-neurotrophin biology (TrkA/B/C + p75NTR + NGF/NT-3/NT-4/5), see [[neurotrophin-signaling]].
+The **TrkB pathway** (BDNF → NTRK2/TrkB → MAPK/PI3K/PLC-γ → CREB) is the dominant neurotrophin-signaling axis for aging-relevant brain biology. It mediates synaptic plasticity, adult hippocampal neurogenesis, cognitive resilience, and neuronal survival. Activation depends on [[bdnf|BDNF]] or NT-4/5 binding to the full-length TrkB receptor (TrkB.FL), triggering autophosphorylation and recruitment of three parallel effector arms. A key aging vulnerability is the isoform shift from signaling-competent TrkB.FL toward the dominant-negative truncated isoform TrkB.T1, which blunts BDNF responsiveness in the aged brain. This page covers the TrkB sub-pathway specifically; for pan-neurotrophin biology (TrkA/B/C + p75NTR + NGF/NT-3/NT-4/5), see [[neurotrophin-signaling]].
 
 > **Naming note:** `[[trkb-pathway]]` is the canonical wikilink for this page. The NTRK2 kinase as an individual protein page (when seeded) will live at `molecules/proteins/ntrk2.md` to avoid ambiguity, as established by the pathway/protein naming convention in CLAUDE.md.
 
@@ -154,8 +154,8 @@ Postmortem cortex from AD patients shows reduced TrkB.FL protein relative to age
 **Druggability-tier: 2.** No FDA-approved TrkB agonist exists for any aging-related indication. 7,8-DHF and LM22A-4 are high-quality preclinical probes; their aging-context clinical stage is preclinical. Full drug-level data lives on the individual compound pages.
 
 **Cross-references:**
-- [[../molecules/compounds/semax]] — claims BDNF→TrkB axis activation per Russian primary literature; mechanism partially overlapping
-- [[../molecules/compounds/dihexa]] — **does NOT primarily signal via TrkB**; earlier reports of c-Met-linked mechanism are in the literature; verify current consensus on [[../molecules/compounds/dihexa]] page before drawing mechanistic parallels to TrkB
+- [[semax]] — claims BDNF→TrkB axis activation per Russian primary literature; mechanism partially overlapping
+- [[dihexa]] — **does NOT primarily signal via TrkB**; earlier reports of c-Met-linked mechanism are in the literature; verify current consensus on [[dihexa]] page before drawing mechanistic parallels to TrkB
 
 ---
 

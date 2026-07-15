@@ -14,7 +14,7 @@ issue: 18
 pages: 8217-8228
 organism: homo-sapiens
 n-subjects: 19
-intervention: ["[[../molecules/compounds/flavan-3-ols]]"]
+intervention: ["[[flavan-3-ols]]"]
 hallmarks-tested: []
 human-evidence: true
 peer-reviewed: true
@@ -42,7 +42,7 @@ A controlled, single-blinded, crossover study in healthy men found that blending
 
 ## Background and rationale
 
-[[../molecules/compounds/flavan-3-ols|Flavan-3-ols]] (catechins, epicatechins, and their oligomers — the procyanidins) are dietary bioactives found in cocoa, tea, berries, apples, and grapes, associated with cardiovascular, metabolic, and cognitive health benefits mediated partly through [[../hallmarks/chronic-inflammation|anti-inflammatory]] effects and eNOS/nitric oxide pathway modulation. Smoothies are a widely promoted vehicle for increasing fruit and vegetable intake, but many common smoothie ingredients (particularly bananas) contain high levels of **polyphenol oxidase (PPO)**, an enzyme that oxidises polyphenol substrates — including catechins and epicatechins — to ortho-quinones, which polymerise and are poorly absorbed. Whether this enzymatic degradation is relevant at normal blending conditions, and whether physical separation until ingestion can bypass it, was the central question this study addressed.
+[[flavan-3-ols|Flavan-3-ols]] (catechins, epicatechins, and their oligomers — the procyanidins) are dietary bioactives found in cocoa, tea, berries, apples, and grapes, associated with cardiovascular, metabolic, and cognitive health benefits mediated partly through [[chronic-inflammation|anti-inflammatory]] effects and eNOS/nitric oxide pathway modulation. Smoothies are a widely promoted vehicle for increasing fruit and vegetable intake, but many common smoothie ingredients (particularly bananas) contain high levels of **polyphenol oxidase (PPO)**, an enzyme that oxidises polyphenol substrates — including catechins and epicatechins — to ortho-quinones, which polymerise and are poorly absorbed. Whether this enzymatic degradation is relevant at normal blending conditions, and whether physical separation until ingestion can bypass it, was the central question this study addressed.
 
 ---
 
@@ -129,7 +129,7 @@ Banana PPO activity was ~204-fold higher than blueberry, confirming the extreme 
 3. **Berry smoothies are a low-PPO alternative.** Mixed-berry smoothies preserved capsule-equivalent bioavailability, making them a suitable base when flavan-3-ol delivery is the goal.
 4. **Heat denaturation of PPO** (e.g., briefly heating banana before blending, or using frozen banana where enzymatic activity may be reduced) is a potential mitigation, though this was not directly tested in this study. PPO is sensitive to temperatures >70°C. #gap/needs-replication — heat-denaturation mitigation not tested in this study.
 
-**Relevance to the Mediterranean diet polyphenol-delivery question:** The [[../interventions/dietary/mediterranean-diet|Mediterranean diet]] achieves much of its cardiovascular benefit through high polyphenol intake from multiple sources (olive oil polyphenols, red wine/grape-derived procyanidins, cocoa, berries, tea). The food-matrix findings here imply that co-preparation method affects realized intake even when food selection is correct — a variable not typically controlled in observational diet studies.
+**Relevance to the Mediterranean diet polyphenol-delivery question:** The [[mediterranean-diet|Mediterranean diet]] achieves much of its cardiovascular benefit through high polyphenol intake from multiple sources (olive oil polyphenols, red wine/grape-derived procyanidins, cocoa, berries, tea). The food-matrix findings here imply that co-preparation method affects realized intake even when food selection is correct — a variable not typically controlled in observational diet studies.
 
 ---
 
@@ -150,7 +150,7 @@ Banana PPO activity was ~204-fold higher than blueberry, confirming the extreme 
 - **Single acute dose:** No chronic intake measured. Whether habitual banana + flavan-3-ol co-consumption over weeks causes equivalent bioavailability impairment or triggers adaptive gut responses (e.g., microbiome-mediated flavan-3-ol ring-fission metabolism) is unknown. #gap/long-term-unknown
 - **Bioavailability endpoint only:** No downstream biomarker endpoints measured (FMD, flow-mediated dilation; blood pressure; ICAM-1; eNOS activity). Whether the 84% Cmax reduction translates to a proportional reduction in functional outcomes is not established by this study.
 - **PPO activity of specific commercial products may vary.** Banana PPO activity varies with ripeness and variety; the study presumably used a standardised banana preparation, but real-world smoothie preparation will vary.
-- **[[../molecules/compounds/egcg|EGCG]] and gallated catechins** are also PPO substrates and are important flavan-3-ols in tea; whether they are equally or differentially degraded compared with epicatechin is not studied here (the study used (−)-epicatechin only as the model flavan-3-ol). The authors note PPO likely affected other flavan-3-ols present in the smoothies (procyanidins) but focused their quantification on SREMs. #gap/needs-replication — effect on gallated catechins and procyanidins not quantified in this study.
+- **[[egcg|EGCG]] and gallated catechins** are also PPO substrates and are important flavan-3-ols in tea; whether they are equally or differentially degraded compared with epicatechin is not studied here (the study used (−)-epicatechin only as the model flavan-3-ol). The authors note PPO likely affected other flavan-3-ols present in the smoothies (procyanidins) but focused their quantification on SREMs. #gap/needs-replication — effect on gallated catechins and procyanidins not quantified in this study.
 - **Industry-funded:** The study was funded by an unrestricted grant from Mars, Inc.; three co-authors (JO, HS, CKU) are employed by Mars, Inc. Results are biologically plausible and mechanism-consistent, but independent replication is warranted.
 
 ---
@@ -160,10 +160,10 @@ Banana PPO activity was ~204-fold higher than blueberry, confirming the extreme 
 This is the **primary controlled human evidence** for PPO-mediated impairment of dietary flavan-3-ol bioavailability (Phase 1 was a non-randomized controlled crossover; Phase 2 was randomized). The finding is directly actionable for smoothie preparation guidance. It is cited 17 times as of 2026-05-20 with a FWCI of 3.25 (99th citation percentile), indicating high relative impact within the food-polyphenol bioavailability field.
 
 This study is relevant to:
-- [[../molecules/compounds/flavan-3-ols]] — compound page (primary home for the class-level bioavailability discussion and food-matrix considerations)
-- [[../molecules/compounds/egcg]] — EGCG is a major flavan-3-ol in tea; PPO susceptibility of gallated catechins should be noted there
-- [[../interventions/dietary/mediterranean-diet]] — diet page; polyphenol delivery efficiency from food preparation method
-- [[../hallmarks/chronic-inflammation]] — chronic inflammation is a downstream target of flavan-3-ol bioactives; impaired delivery reduces anti-inflammatory benefit at target hallmark level
+- [[flavan-3-ols]] — compound page (primary home for the class-level bioavailability discussion and food-matrix considerations)
+- [[egcg]] — EGCG is a major flavan-3-ol in tea; PPO susceptibility of gallated catechins should be noted there
+- [[mediterranean-diet]] — diet page; polyphenol delivery efficiency from food preparation method
+- [[chronic-inflammation]] — chronic inflammation is a downstream target of flavan-3-ol bioactives; impaired delivery reduces anti-inflammatory benefit at target hallmark level
 
 ---
 
@@ -171,10 +171,10 @@ This study is relevant to:
 
 | Page | Relationship |
 |---|---|
-| [[../molecules/compounds/flavan-3-ols]] | Compound class page; this study is the primary human RCT anchor for food-matrix PPO effect |
-| [[../molecules/compounds/egcg]] | Key gallated flavan-3-ol in tea; PPO susceptibility context |
-| [[../interventions/dietary/mediterranean-diet]] | Dietary intervention page; food-preparation method affects polyphenol delivery |
-| [[../hallmarks/chronic-inflammation]] | Downstream hallmark targeted by flavan-3-ol bioactives |
+| [[flavan-3-ols]] | Compound class page; this study is the primary human RCT anchor for food-matrix PPO effect |
+| [[egcg]] | Key gallated flavan-3-ol in tea; PPO susceptibility context |
+| [[mediterranean-diet]] | Dietary intervention page; food-preparation method affects polyphenol delivery |
+| [[chronic-inflammation]] | Downstream hallmark targeted by flavan-3-ol bioactives |
 
 ---
 

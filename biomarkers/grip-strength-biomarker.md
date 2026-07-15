@@ -164,7 +164,7 @@ The EWGSOP2 identifies resistance training as the **primary intervention** for b
 
 ### Protein intake and dietary adequacy
 
-- Adequate dietary protein (≥1.0–1.2 g/kg body weight/day) supports HGS maintenance; protein supplementation alone in older adults with adequate baseline intake shows modest incremental benefit #gap/needs-replication. See [[../interventions/lifestyle/protein-intake]] for the full dose-recommendation evidence base.
+- Adequate dietary protein (≥1.0–1.2 g/kg body weight/day) supports HGS maintenance; protein supplementation alone in older adults with adequate baseline intake shows modest incremental benefit #gap/needs-replication. See [[protein-intake]] for the full dose-recommendation evidence base.
 - Leucine-rich proteins (whey, egg) may have superior anabolic signaling via mTORC1 compared to plant proteins; see [[pathways/mtor]] and [[hallmarks/deregulated-nutrient-sensing]]
 
 ### Creatine supplementation

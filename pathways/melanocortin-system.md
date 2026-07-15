@@ -5,12 +5,12 @@ kegg: null
 reactome: R-HSA-388601
 wikipathways: null
 key-nodes:
-  - "[[../molecules/proteins/pomc]]"
-  - "[[../molecules/proteins/alpha-msh]]"
-  - "[[../molecules/proteins/mc1r]]"
-  - "[[../molecules/proteins/mc4r]]"
-  - "[[../molecules/proteins/agrp]]"
-  - "[[../molecules/proteins/asip]]"
+  - "[[pomc]]"
+  - "[[alpha-msh]]"
+  - "[[mc1r]]"
+  - "[[mc4r]]"
+  - "[[agrp]]"
+  - "[[asip]]"
 upstream:
   - "[[hypothalamic-arcuate-circuit]]"
   - "[[hpa-axis]]"
@@ -34,9 +34,9 @@ verified-scope: "MOC-level verification: Reactome R-HSA-388601 confirmed as Defi
 
 # Melanocortin system
 
-The **melanocortin system** is a pleiotropic neuroendocrine signaling axis built on a single prohormone — [[../molecules/proteins/pomc|proopiomelanocortin]] (POMC) — whose tissue-specific post-translational processing generates at least six bioactive peptides: ACTH, alpha-MSH (alpha-melanocyte-stimulating hormone), beta-MSH, gamma-MSH, beta-endorphin, and beta-lipotropin. These peptides signal through five G-protein-coupled receptors (MC1R–MC5R) and are endogenously antagonized by two inverse agonists, AgRP and ASIP. The system coordinates a broad functional portfolio: skin pigmentation, adrenal cortisol secretion, energy homeostasis, appetite suppression, thermoregulation, and immunomodulation [^girardet2014] [^quarta2021].
+The **melanocortin system** is a pleiotropic neuroendocrine signaling axis built on a single prohormone — [[pomc|proopiomelanocortin]] (POMC) — whose tissue-specific post-translational processing generates at least six bioactive peptides: ACTH, alpha-MSH (alpha-melanocyte-stimulating hormone), beta-MSH, gamma-MSH, beta-endorphin, and beta-lipotropin. These peptides signal through five G-protein-coupled receptors (MC1R–MC5R) and are endogenously antagonized by two inverse agonists, AgRP and ASIP. The system coordinates a broad functional portfolio: skin pigmentation, adrenal cortisol secretion, energy homeostasis, appetite suppression, thermoregulation, and immunomodulation [^girardet2014] [^quarta2021].
 
-In the aging context, the melanocortin system is relevant across three intersecting domains: (1) the age-associated decline of hypothalamic POMC neuron tone, which contributes to anorexia of aging and sarcopenia via MC4R; (2) attenuated MC1R signalling in aged melanocytes, which impairs photoprotection and DNA-damage responses; (3) the anti-inflammatory potential of short POMC-derived peptides — particularly [[../compounds/kpv|KPV]] — at MC3R/MC4R and via receptor-independent NF-kB suppression. This page is a navigational MOC; quantitative claims live on the atomic entity pages linked below.
+In the aging context, the melanocortin system is relevant across three intersecting domains: (1) the age-associated decline of hypothalamic POMC neuron tone, which contributes to anorexia of aging and sarcopenia via MC4R; (2) attenuated MC1R signalling in aged melanocytes, which impairs photoprotection and DNA-damage responses; (3) the anti-inflammatory potential of short POMC-derived peptides — particularly [[kpv|KPV]] — at MC3R/MC4R and via receptor-independent NF-kB suppression. This page is a navigational MOC; quantitative claims live on the atomic entity pages linked below.
 
 ## System architecture
 
@@ -51,23 +51,23 @@ POMC (UniProt P01189; NCBI Gene 5443) is a 241-amino-acid precursor expressed pr
 | Skin (keratinocytes, melanocytes) | PC1 + PC2 | alpha-MSH (UV-induced) |
 | Immune cells | PC1 | alpha-MSH, ACTH |
 
-The C-terminal tripeptide of alpha-MSH (**KPV**, residues 11-13) retains anti-inflammatory activity and can act independently of canonical MC receptor binding — see [[../compounds/kpv]].
+The C-terminal tripeptide of alpha-MSH (**KPV**, residues 11-13) retains anti-inflammatory activity and can act independently of canonical MC receptor binding — see [[kpv]].
 
 ### Receptor inventory
 
 | Receptor | Gene | Agonist preference | Primary tissues | Aging relevance |
 |---|---|---|---|---|
-| **MC1R** | MC1R | alpha-MSH, ACTH | Melanocytes, NK cells, macrophages | Skin photoprotection; photoaging risk modifier; see [[../molecules/proteins/mc1r]] |
+| **MC1R** | MC1R | alpha-MSH, ACTH | Melanocytes, NK cells, macrophages | Skin photoprotection; photoaging risk modifier; see [[mc1r]] |
 | **MC2R** | MC2R | ACTH only | Adrenal cortex | Cortisol secretion; ACTH resistance may emerge with age; see [[mc2r]] (stub) |
 | **MC3R** | MC3R | alpha/beta/gamma-MSH, ACTH | Hypothalamus, gut, heart | Energy-sensing feedback; circadian metabolic coordination; anti-inflammatory; see [[mc3r]] (stub) |
-| **MC4R** | MC4R | alpha-MSH | Hypothalamic PVN, brainstem, spinal cord | Appetite suppression, sarcopenia, cardiometabolic regulation; see [[../molecules/proteins/mc4r]] |
+| **MC4R** | MC4R | alpha-MSH | Hypothalamic PVN, brainstem, spinal cord | Appetite suppression, sarcopenia, cardiometabolic regulation; see [[mc4r]] |
 | **MC5R** | MC5R | alpha-MSH | Exocrine glands, immune cells, skeletal muscle | Sebum secretion; immune modulation; see [[mc5r]] (stub) |
 
 ### Inverse agonists
 
 Two endogenous antagonists compete with MSH peptides at MC3R and MC4R and constitutively suppress signaling even in the absence of agonist:
 
-- **[[../molecules/proteins/agrp|AgRP]]** (Agouti-related protein) — expressed in ARC AgRP/NPY neurons, which tonically suppress appetite-inhibiting POMC neurons via GABAergic inputs; AgRP rises in energy deficit states, opposing alpha-MSH at MC3R and MC4R. #gap/needs-canonical-id — no AgRP protein page exists yet.
+- **[[agrp|AgRP]]** (Agouti-related protein) — expressed in ARC AgRP/NPY neurons, which tonically suppress appetite-inhibiting POMC neurons via GABAergic inputs; AgRP rises in energy deficit states, opposing alpha-MSH at MC3R and MC4R. #gap/needs-canonical-id — no AgRP protein page exists yet.
 - **ASIP** (Agouti signaling protein) — expressed in skin and adipose; primary antagonist at MC1R in peripheral tissues, regulating pigmentation switch between eumelanin (brown/black) and phaeomelanin (red/yellow). #gap/needs-canonical-id — no ASIP protein page exists yet.
 
 ## Signaling mechanism
@@ -76,7 +76,7 @@ All five MC receptors couple primarily to Gs, elevating intracellular cAMP via a
 
 - Elevated cAMP activates PKA, which phosphorylates CREB and drives transcriptional programs dependent on receptor and cell type (MITF in melanocytes via MC1R; MC4R-mediated suppression of feeding-circuit neuropeptides in PVN neurons).
 - MC3R and MC4R also recruit beta-arrestin for internalization and receptor desensitization.
-- KPV and select alpha-MSH fragments can suppress NF-kB and MAPK activity via receptor-independent mechanisms — see [[nf-kb]] and [[../compounds/kpv]].
+- KPV and select alpha-MSH fragments can suppress NF-kB and MAPK activity via receptor-independent mechanisms — see [[nf-kb]] and [[kpv]].
 
 ## Aging-context summary
 
@@ -85,17 +85,17 @@ All five MC receptors couple primarily to Gs, elevating intracellular cAMP via a
 Hypothalamic ARC POMC neuron number and activity decline progressively with age in rodent models [^quarta2021]. Reduced alpha-MSH tone at MC4R in the paraventricular nucleus (PVN) contributes to:
 
 - **Anorexia of aging** — paradoxically, older individuals often develop voluntary food restriction (distinct from energy malnutrition) partly attributable to blunted appetite-regulation signaling feedback.
-- **Sarcopenia** — MC4R signaling regulates skeletal muscle protein catabolism; reduced MC4R activation correlates with the accelerated muscle wasting seen in aging. See [[../molecules/proteins/mc4r]] for quantitative data and citations.
+- **Sarcopenia** — MC4R signaling regulates skeletal muscle protein catabolism; reduced MC4R activation correlates with the accelerated muscle wasting seen in aging. See [[mc4r]] for quantitative data and citations.
 
 The POMC neuron decline intersects with the [[deregulated-nutrient-sensing]] hallmark and connects upstream to [[insulin-igf1]] (leptin/insulin signals converge on POMC neuron activity).
 
 ### 2. Photoaging and MC1R
 
-UV radiation induces alpha-MSH production by keratinocytes, which signals via [[../molecules/proteins/mc1r|MC1R]] on neighboring melanocytes to upregulate eumelanin synthesis (photoprotection). Loss-of-function MC1R variants (common in fair-skinned populations) blunt this response, increasing UV-induced DNA damage and melanoma risk. Age-related decline in melanocyte number and MC1R density compounds this. See [[../molecules/proteins/mc1r]] for variant data and citations.
+UV radiation induces alpha-MSH production by keratinocytes, which signals via [[mc1r|MC1R]] on neighboring melanocytes to upregulate eumelanin synthesis (photoprotection). Loss-of-function MC1R variants (common in fair-skinned populations) blunt this response, increasing UV-induced DNA damage and melanoma risk. Age-related decline in melanocyte number and MC1R density compounds this. See [[mc1r]] for variant data and citations.
 
 ### 3. Anti-inflammatory role via MC3R/MC4R and KPV
 
-Alpha-MSH and its derivatives suppress inflammatory cytokines (IL-1beta, TNF-alpha, IL-6) through MC3R and MC4R in macrophages and hypothalamic microglia. This anti-inflammatory arm connects the melanocortin system to the [[chronic-inflammation]] and [[altered-intercellular-communication]] hallmarks. The tripeptide KPV retains these effects with improved bioavailability — see [[../compounds/kpv]] for mechanistic detail and citation to primary sources.
+Alpha-MSH and its derivatives suppress inflammatory cytokines (IL-1beta, TNF-alpha, IL-6) through MC3R and MC4R in macrophages and hypothalamic microglia. This anti-inflammatory arm connects the melanocortin system to the [[chronic-inflammation]] and [[altered-intercellular-communication]] hallmarks. The tripeptide KPV retains these effects with improved bioavailability — see [[kpv]] for mechanistic detail and citation to primary sources.
 
 ### 4. HPA axis intersection
 
@@ -109,9 +109,9 @@ This system is druggable at tier 1 — multiple clinical-stage agents exist targ
 |---|---|---|---|---|
 | Afamelanotide (Scenesse) | MC1R agonist | Erythropoietic protoporphyria (EPP); photoprotection | FDA-approved (EPP) | — (no wiki page yet) |
 | Setmelanotide (Imcivree) | MC4R agonist | Monogenic obesity (POMC/LEPR/PCSK1 deficiency) | FDA-approved | — (no wiki page yet) |
-| Melanotan II (MT-II) | MC1R/MC3R/MC4R/MC5R pan-agonist | Tanning; ED (investigational) | Preclinical/research-only | [[../compounds/melanotan-ii]] |
-| alpha-MSH / analogs | MC1R–MC5R | Inflammation, neuroprotection (investigational) | Preclinical | [[../molecules/proteins/alpha-msh]] |
-| KPV | MC3R/MC4R + receptor-independent | IBD, anti-inflammatory aging (investigational) | Preclinical | [[../compounds/kpv]] |
+| Melanotan II (MT-II) | MC1R/MC3R/MC4R/MC5R pan-agonist | Tanning; ED (investigational) | Preclinical/research-only | [[melanotan-ii]] |
+| alpha-MSH / analogs | MC1R–MC5R | Inflammation, neuroprotection (investigational) | Preclinical | [[alpha-msh]] |
+| KPV | MC3R/MC4R + receptor-independent | IBD, anti-inflammatory aging (investigational) | Preclinical | [[kpv]] |
 
 For aging-specific applications, no agent has completed a dedicated aging-indication trial targeting the melanocortin system as a whole. Afamelanotide's EPP indication and setmelanotide's monogenic-obesity indication do not constitute aging-indication trial coverage. #gap/needs-human-replication — aging-targeted MC agonist trials are absent.
 
@@ -130,16 +130,16 @@ Ligand selectivity across the five receptors varies substantially [^dores2016]:
 
 Atomic entity pages in this R35/R36 cluster:
 
-- [[../molecules/proteins/pomc]] — seeded 2026-05-09; full page available (unverified)
-- [[../molecules/proteins/alpha-msh]] — seeded 2026-05-09; full page available
-- [[../molecules/proteins/mc1r]] — seeded 2026-05-09; full page available
-- [[../molecules/proteins/mc4r]] — seeded 2026-05-09; full page available
-- [[../compounds/kpv]] — seeded; full page available
-- [[../compounds/melanotan-ii]] — seeded; full page available
+- [[pomc]] — seeded 2026-05-09; full page available (unverified)
+- [[alpha-msh]] — seeded 2026-05-09; full page available
+- [[mc1r]] — seeded 2026-05-09; full page available
+- [[mc4r]] — seeded 2026-05-09; full page available
+- [[kpv]] — seeded; full page available
+- [[melanotan-ii]] — seeded; full page available
 
 Implicit stubs surfaced by this page (not yet seeded):
-- [[../molecules/proteins/agrp]] — AgRP inverse agonist protein page
-- [[../molecules/proteins/asip]] — ASIP inverse agonist protein page
+- [[agrp]] — AgRP inverse agonist protein page
+- [[asip]] — ASIP inverse agonist protein page
 - [[mc2r]] — MC2R adrenal receptor stub
 - [[mc3r]] — MC3R energy/anti-inflammatory receptor stub
 - [[mc5r]] — MC5R exocrine/immune receptor stub

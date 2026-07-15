@@ -104,7 +104,7 @@ A 2025 Nature Communications study adds a visceral-organ dimension to MC3R biolo
 MC3R, like other melanocortin receptors, is expressed on immune cells and mediates anti-inflammatory effects of α-MSH and related peptides [^lonati2020]:
 
 - Macrophage MC3R activation suppresses pro-inflammatory responses; in a mouse peritonitis model, γ₂-MSH (acting via MC3R) reduced neutrophil migration and IL-1β in peritoneal lavage fluids [^lonati2020]. Broader TNF-α and IL-6 suppression by melanocortins (via PKA → IκBα stabilization → NF-κB inhibition) is primarily attributed to MC1R and the melanocortin system generally, with MC3R as one of several contributing receptors [^lonati2020]. MC3R-specific suppression of IL-12 is not directly demonstrated in this review. #gap/no-mechanism
-- The tripeptide **KPV** (C-terminal fragment of α-MSH) retains anti-inflammatory activity partly via MC3R and MC1R; see [[../compounds/kpv]] for mechanistic detail.
+- The tripeptide **KPV** (C-terminal fragment of α-MSH) retains anti-inflammatory activity partly via MC3R and MC1R; see [[kpv]] for mechanistic detail.
 - In the aging context, declining melanocortin tone as a contributor to [[chronic-inflammation]] (inflammaging) is an underexplored hypothesis. #gap/no-mechanism — whether age-related decline in POMC neuron activity reduces MC3R-mediated immune modulation has not been directly tested.
 
 ## MC3R in aging — synthesis

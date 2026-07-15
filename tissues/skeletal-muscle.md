@@ -135,7 +135,7 @@ Ranked by strength of evidence:
 | Intervention | Mechanism | Evidence level |
 |---|---|---|
 | **Resistance training** | Activates satellite cells; stimulates MPS via mTORC1; maintains Type II fiber CSA; restores neuromuscular junction | Strong (RCT evidence; even nonagenarians respond [^fiatarone1990]) |
-| **Protein intake (1.2–1.5 g/kg/day for older adults; 1.6–2.0 g/kg/day for RT-active adults; up to 2.4 g/kg/day during energy deficit)** | Overcomes anabolic resistance; leucine ≥2.5–3 g/meal stimulates mTORC1; whey protein preferred. See [[../interventions/lifestyle/protein-intake]] | Strong (Bauer 2013 PROT-AGE, Deutz 2014 ESPEN, Morton 2018 meta n=1,863, Longland 2016 deficit RCT, Jäger 2017 ISSN) |
+| **Protein intake (1.2–1.5 g/kg/day for older adults; 1.6–2.0 g/kg/day for RT-active adults; up to 2.4 g/kg/day during energy deficit)** | Overcomes anabolic resistance; leucine ≥2.5–3 g/meal stimulates mTORC1; whey protein preferred. See [[protein-intake]] | Strong (Bauer 2013 PROT-AGE, Deutz 2014 ESPEN, Morton 2018 meta n=1,863, Longland 2016 deficit RCT, Jäger 2017 ISSN) |
 | **Exercise + GLUT4 restoration** | AMPK-driven GLUT4 translocation independent of insulin | Strong — see [[glut4]], [[ampk]] |
 | **Vitamin D (if deficient)** | Supports neuromuscular function; VDR in satellite cells | Moderate (replete if deficient; benefit in non-deficient less clear) |
 | **Myostatin inhibitors (anti-GDF8 Abs)** | Remove inhibitory niche signal suppressing satellite cell activation | Phase 2/3 investigational — modest functional benefit; hard outcome data pending |

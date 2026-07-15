@@ -106,8 +106,8 @@ A 2026 umbrella review of 19 meta-analyses (~5.5 million participants) is consis
 
 ## Related pages
 
-- [[../lifestyle/protein-intake]] · [[../../molecules/compounds/vitamin-k2]] · [[../../molecules/compounds/folate]] · [[../../molecules/proteins/mthfr]]
-- Frameworks: [[../../frameworks/by-intervention-type]]
+- [[protein-intake]] · [[vitamin-k2]] · [[folate]] · [[mthfr]]
+- Frameworks: [[interventions-by-modality]]
 
 ---
 

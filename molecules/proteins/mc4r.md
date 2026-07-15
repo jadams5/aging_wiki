@@ -62,8 +62,8 @@ A secondary β-arrestin–mediated arm has been described and is therapeutically
 | γ-MSH | Weaker agonist (MC3R-preferring) | POMC cleavage |
 | ACTH (1-39) | Agonist | Pituitary corticotropes |
 | AgRP | Inverse agonist | Arcuate AgRP/NPY neurons |
-| Setmelanotide | Synthetic agonist (FDA-approved) | [[../compounds/setmelanotide]] (stub) |
-| [[../compounds/melanotan-ii\|Melanotan II]] | Synthetic pan-MC agonist (unapproved) | Non-selective; also MC1R/MC3R/MC5R |
+| Setmelanotide | Synthetic agonist (FDA-approved) | [[setmelanotide]] (stub) |
+| [[melanotan-ii\|Melanotan II]] | Synthetic pan-MC agonist (unapproved) | Non-selective; also MC1R/MC3R/MC5R |
 
 ## Expression and tissue distribution
 
@@ -96,7 +96,7 @@ Loss-of-function (LoF) MC4R mutations are the **most common cause of monogenic s
 
 ### Setmelanotide (Imcivree)
 
-Setmelanotide is a cyclic heptapeptide MC4R agonist (ring structure analogous to [[../compounds/melanotan-ii|Melanotan II]] but optimized for MC4R selectivity and β-arrestin engagement). FDA-approved November 25, 2020 (NDA213793 ORIG-1) for:
+Setmelanotide is a cyclic heptapeptide MC4R agonist (ring structure analogous to [[melanotan-ii|Melanotan II]] but optimized for MC4R selectivity and β-arrestin engagement). FDA-approved November 25, 2020 (NDA213793 ORIG-1) for:
 
 - POMC deficiency obesity
 - PCSK1 deficiency obesity
@@ -108,7 +108,7 @@ Expanded June 16, 2022 (SUPPL-1) to add:
 
 **Phase 3 evidence:** In open-label trials of POMC/LEPR-deficient patients, setmelanotide achieved ≥10% bodyweight loss in 80% of POMC-deficient and ~45% of LEPR-deficient participants [^clement2020]. #gap/no-fulltext-access — these figures could not be independently verified against the primary PDF (closed-access paper). In a randomized placebo-controlled trial of Bardet-Biedl syndrome and Alström syndrome (n=38 enrolled: 32 BBS + 6 Alström), 32.3% (95% CI 16.7–51.4%; p=0.0006) of patients ≥12 years in the full analysis set achieved ≥10% bodyweight reduction after 52 weeks on setmelanotide vs 0% on placebo — all responders had BBS [^haqq2022].
 
-**Safety:** Most common adverse effects are injection-site reactions, nausea, hyperpigmentation (on-target MC1R effect), and sexual adverse effects (spontaneous erection in males — same MC4R mechanism as [[../compounds/melanotan-ii|Melanotan II]]'s best-known property). Clinically important: **blood pressure elevation** from sympathetic MC4R activation. BP monitoring is required.
+**Safety:** Most common adverse effects are injection-site reactions, nausea, hyperpigmentation (on-target MC1R effect), and sexual adverse effects (spontaneous erection in males — same MC4R mechanism as [[melanotan-ii|Melanotan II]]'s best-known property). Clinically important: **blood pressure elevation** from sympathetic MC4R activation. BP monitoring is required.
 
 **Early proof-of-concept:** Collet et al. 2017 demonstrated setmelanotide was ~10–500-fold more potent than α-MSH at rescuing signaling by mutant MC4Rs in cell-based assays, and conducted a randomized double-blind placebo-controlled Phase 1b trial (28 days; n=6 MC4R-heterozygous carriers on setmelanotide, n=2 placebo; plus n=41 obese controls) showing significant weight loss in the MC4R-deficient arm (mean −3.48 kg, p<0.0001 vs baseline) without BP or HR elevation [^collet2017].
 
@@ -122,7 +122,7 @@ Expanded June 16, 2022 (SUPPL-1) to add:
 
 ### Anorexia of aging and cachexia
 
-Age-associated involuntary weight loss — the "anorexia of aging" — is a major contributor to [[../phenotypes/sarcopenia|sarcopenia]] and frailty. The melanocortin system may be involved:
+Age-associated involuntary weight loss — the "anorexia of aging" — is a major contributor to [[sarcopenia|sarcopenia]] and frailty. The melanocortin system may be involved:
 
 - POMC neuron activity in the arcuate nucleus, and thus α-MSH release to PVN MC4R, may be tonically elevated or dysregulated in aged rodents — potentially contributing to reduced appetite-drive restoration after fasting. The mechanism is not established in humans. #gap/needs-human-replication #gap/unsourced
 - Cancer cachexia and chronic-disease cachexia involve elevated melanocortin system tone; MC4R antagonists have been proposed as anti-cachexia agents, though none is FDA-approved.
@@ -158,7 +158,7 @@ MC4R links to the [[deregulated-nutrient-sensing]] hallmark as follows: the lept
 ## Limitations and gaps
 
 - **No MC4R wiki page for [[melanocortin-system]] pathway** — this pathway does not yet have an atomic page; linked as implicit stub.
-- **[[../compounds/setmelanotide]]** — no compound page yet; stub implied by link.
+- **[[setmelanotide]]** — no compound page yet; stub implied by link.
 - **[[camp-signaling]]** — no pathway page; implicit stub.
 - **Aging-specific data is almost entirely rodent** — the hypothesis that MC4R dysregulation contributes to anorexia of aging lacks human mechanistic validation. #gap/needs-human-replication
 - **MRAP2 interaction** needs a primary citation before the interactor claim can be confirmed. #gap/unsourced

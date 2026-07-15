@@ -5,11 +5,11 @@ kegg: null
 reactome: R-HSA-265301
 wikipathways: null
 key-nodes:
-  - "[[../molecules/proteins/pomc]]"
-  - "[[../molecules/proteins/pcsk1]]"
-  - "[[../molecules/proteins/pcsk2]]"
-  - "[[../molecules/proteins/cpe]]"
-  - "[[../molecules/proteins/pam]]"
+  - "[[pomc]]"
+  - "[[pcsk1]]"
+  - "[[pcsk2]]"
+  - "[[cpe]]"
+  - "[[pam]]"
 upstream:
   - "[[insulin-igf1]]"
   - "[[jak-stat-pathway]]"
@@ -31,7 +31,7 @@ verified-scope: "Joshi 1995 aging claim verified against PubMed full abstract (p
 
 # POMC processing pathway
 
-**Proopiomelanocortin (POMC)** is a 31 kDa precursor protein synthesized in the pituitary, hypothalamic arcuate nucleus, and peripheral tissues including skin keratinocytes. Its biological activity is entirely post-translational: a tissue-specific proteolytic cascade mediated by prohormone convertases **PC1/3** ([[../molecules/proteins/pcsk1|PCSK1]]) and **PC2** ([[../molecules/proteins/pcsk2|PCSK2]]) — together with carboxypeptidase E ([[../molecules/proteins/cpe|CPE]]) and the amidating enzyme PAM ([[../molecules/proteins/pam]]) — cleaves POMC into structurally distinct bioactive peptides. The identity and ratio of output peptides is determined entirely by which convertases are co-expressed, making this pathway one of the clearest biological examples of combinatorial post-translational logic. In aging, PC2 expression increases in hypothalamic arcuate POMC neurons, shifting the processing of β-endorphin toward shorter, functionally distinct isoforms; whether this also alters α-MSH production or energy homeostasis has not been directly demonstrated.
+**Proopiomelanocortin (POMC)** is a 31 kDa precursor protein synthesized in the pituitary, hypothalamic arcuate nucleus, and peripheral tissues including skin keratinocytes. Its biological activity is entirely post-translational: a tissue-specific proteolytic cascade mediated by prohormone convertases **PC1/3** ([[pcsk1|PCSK1]]) and **PC2** ([[pcsk2|PCSK2]]) — together with carboxypeptidase E ([[cpe|CPE]]) and the amidating enzyme PAM ([[pam]]) — cleaves POMC into structurally distinct bioactive peptides. The identity and ratio of output peptides is determined entirely by which convertases are co-expressed, making this pathway one of the clearest biological examples of combinatorial post-translational logic. In aging, PC2 expression increases in hypothalamic arcuate POMC neurons, shifting the processing of β-endorphin toward shorter, functionally distinct isoforms; whether this also alters α-MSH production or energy homeostasis has not been directly demonstrated.
 
 ## POMC gene and primary transcript
 
@@ -50,17 +50,17 @@ The single-exon coding region of the human *POMC* gene (chromosome 2p23.3) encod
 
 ### PC1/3 (PCSK1)
 
-[[../molecules/proteins/pcsk1|PC1/3]] (prohormone convertase subtilisin/kexin type 1) is the dominant first-stage convertase in anterior pituitary corticotrophs and in hypothalamic POMC neurons. It cleaves at a subset of dibasic sites with the consensus **Lys/Arg-Xn-Arg** [^seidah1994]. Key activities:
+[[pcsk1|PC1/3]] (prohormone convertase subtilisin/kexin type 1) is the dominant first-stage convertase in anterior pituitary corticotrophs and in hypothalamic POMC neurons. It cleaves at a subset of dibasic sites with the consensus **Lys/Arg-Xn-Arg** [^seidah1994]. Key activities:
 
 - Cleaves POMC → ACTH (1–39) + N-POMC + β-LPH in corticotrophs.
 - In arcuate neurons co-expressed with PC2, generates substrates that PC2 then further processes.
 - PC1/3 requires a mildly acidic pH (~5.5–6.5) — consistent with Golgi/secretory granule environment.
 
-PC1/3 loss-of-function mutations in humans (PCSK1) cause **severe early-onset obesity, malabsorptive diarrhea, and hypocortisolism** — establishing that PC1/3-dependent POMC processing is non-redundant for human energy homeostasis [^jackson1997]. The obesity phenotype is rescued by the melanocortin-4 receptor agonist **[[../molecules/compounds/setmelanotide|setmelanotide]]**, which bypasses the upstream processing failure to restore MC4R signaling directly [^gap/unsourced — clinical trials confirm setmelanotide in PCSK1 LoF; cite trial DOI when available].
+PC1/3 loss-of-function mutations in humans (PCSK1) cause **severe early-onset obesity, malabsorptive diarrhea, and hypocortisolism** — establishing that PC1/3-dependent POMC processing is non-redundant for human energy homeostasis [^jackson1997]. The obesity phenotype is rescued by the melanocortin-4 receptor agonist **[[setmelanotide|setmelanotide]]**, which bypasses the upstream processing failure to restore MC4R signaling directly [^gap/unsourced — clinical trials confirm setmelanotide in PCSK1 LoF; cite trial DOI when available].
 
 ### PC2 (PCSK2)
 
-[[../molecules/proteins/pcsk2|PC2]] cleaves at a broader range of dibasic sites, with preference for **Arg-Xn-Arg** and **Lys-Arg** motifs; it requires the neuroendocrine chaperone **7B2** (SCG5) for its own folding and export from the ER [^bicknell2008]. PC2 is co-expressed with PC1/3 in:
+[[pcsk2|PC2]] cleaves at a broader range of dibasic sites, with preference for **Arg-Xn-Arg** and **Lys-Arg** motifs; it requires the neuroendocrine chaperone **7B2** (SCG5) for its own folding and export from the ER [^bicknell2008]. PC2 is co-expressed with PC1/3 in:
 
 - Intermediate pituitary melanotrophs (prominent in rodents; atrophic/vestigial in adult humans).
 - Hypothalamic arcuate POMC neurons.
@@ -72,11 +72,11 @@ In tissues expressing both convertases, PC2 drives **second-stage cleavage** of 
 
 ### Carboxypeptidase E (CPE)
 
-After convertase cleavage, the C-terminal basic residues (Lys/Arg) left at the cleavage site are removed by [[../molecules/proteins/cpe|carboxypeptidase E]] (also called carboxypeptidase H). CPE is the principal carboxypeptidase in regulated secretory granules and is required for generating the des-basic forms of all POMC-derived peptides prior to amidation [^bicknell2008].
+After convertase cleavage, the C-terminal basic residues (Lys/Arg) left at the cleavage site are removed by [[cpe|carboxypeptidase E]] (also called carboxypeptidase H). CPE is the principal carboxypeptidase in regulated secretory granules and is required for generating the des-basic forms of all POMC-derived peptides prior to amidation [^bicknell2008].
 
 ### PAM — peptidylglycine α-amidating monooxygenase
 
-The C-terminal amide of **α-MSH** (Tyr-Ser-Met-Glu-His-Phe-Arg-Trp-Gly-Lys-Pro-Val-NH₂) is introduced by [[../molecules/proteins/pam|PAM]] (peptidylglycine α-amidating monooxygenase), a bifunctional copper/ascorbate-dependent enzyme. Amidation is required for full α-MSH bioactivity at MC1R–MC4R and for resistance to exopeptidase degradation [^bicknell2008].
+The C-terminal amide of **α-MSH** (Tyr-Ser-Met-Glu-His-Phe-Arg-Trp-Gly-Lys-Pro-Val-NH₂) is introduced by [[pam|PAM]] (peptidylglycine α-amidating monooxygenase), a bifunctional copper/ascorbate-dependent enzyme. Amidation is required for full α-MSH bioactivity at MC1R–MC4R and for resistance to exopeptidase degradation [^bicknell2008].
 
 ## Tissue-specific processing logic
 
@@ -125,7 +125,7 @@ Independent of convertase regulation, the number and transcriptional activity of
 
 **Druggability tier: 2** — PCSK1/PCSK2 are biochemically druggable serine proteases; no FDA-approved drug directly targets either convertase for an aging indication. The clinical evidence base for targeting this pathway in aging is limited to:
 
-1. **Setmelanotide** ([[../molecules/compounds/setmelanotide|setmelanotide]]): a cyclic peptide MC4R agonist approved (2020) for POMC deficiency, PCSK1 deficiency, and LEPR deficiency-associated obesity. It bypasses the upstream processing failure; it does not modulate convertase activity. Not an aging intervention.
+1. **Setmelanotide** ([[setmelanotide|setmelanotide]]): a cyclic peptide MC4R agonist approved (2020) for POMC deficiency, PCSK1 deficiency, and LEPR deficiency-associated obesity. It bypasses the upstream processing failure; it does not modulate convertase activity. Not an aging intervention.
 2. **CPE-knockout models**: CPE-deficient (fat/fat) mice are hyperphagic and severely obese; CPE is a compelling target but no clinical CPE modulator exists. #gap/unsourced — no PCSK1/PCSK2 small-molecule inhibitor in clinical use for any indication as of 2026.
 
 The aging-context druggability tier 2 reflects that high-quality tool compounds exist for the convertases (e.g., the fluorogenic substrate systems in Seidah's group), but no clinical-stage compound targets PC1/3 or PC2 directly in an aging context.
@@ -137,10 +137,10 @@ The aging-context druggability tier 2 reflects that high-quality tool compounds 
 | KEGG | null | No dedicated POMC-processing pathway entry; see hsa04080 (neuroactive ligand-receptor interaction) for product receptors #gap/needs-canonical-id |
 | Reactome | R-HSA-265301 (Corticotropin cleavage from POMC) | Reaction-level entry under R-HSA-209952 (Peptide hormone biosynthesis) → R-HSA-2980736 (Peptide hormone metabolism) → R-HSA-392499 (Metabolism of proteins). R-HSA-264876 is insulin processing, not POMC. No dedicated top-level POMC-processing pathway exists in Reactome; R-HSA-265301 is the closest confirmed entry. |
 | WikiPathways | null | No confirmed WikiPathways entry #gap/needs-canonical-id |
-| PCSK1 UniProt | P29120 (human) | PCSK1 protein page: [[../molecules/proteins/pcsk1]] (implicit stub) |
-| PCSK2 UniProt | P16519 (human) | PCSK2 protein page: [[../molecules/proteins/pcsk2]] (implicit stub) |
-| CPE UniProt | P16870 (human) | CPE protein page: [[../molecules/proteins/cpe]] (implicit stub) |
-| PAM UniProt | P19021 (human) | PAM protein page: [[../molecules/proteins/pam]] (implicit stub) |
+| PCSK1 UniProt | P29120 (human) | PCSK1 protein page: [[pcsk1]] (implicit stub) |
+| PCSK2 UniProt | P16519 (human) | PCSK2 protein page: [[pcsk2]] (implicit stub) |
+| CPE UniProt | P16870 (human) | CPE protein page: [[cpe]] (implicit stub) |
+| PAM UniProt | P19021 (human) | PAM protein page: [[pam]] (implicit stub) |
 
 ## Limitations and gaps
 
@@ -158,18 +158,18 @@ The aging-context druggability tier 2 reflects that high-quality tool compounds 
 
 ## Cross-references
 
-- [[../molecules/proteins/pomc]] — the precursor protein (wave 1 seed)
-- [[../molecules/proteins/alpha-msh]] — primary anorexigenic output (R35-Stage2 stub)
-- [[../molecules/compounds/setmelanotide]] — MC4R agonist bypassing POMC processing failure (wave 1)
-- [[../molecules/compounds/kpv]] — α-MSH(11-13) tripeptide fragment (R36 stub)
+- [[pomc]] — the precursor protein (wave 1 seed)
+- [[alpha-msh]] — primary anorexigenic output (R35-Stage2 stub)
+- [[setmelanotide]] — MC4R agonist bypassing POMC processing failure (wave 1)
+- [[kpv]] — α-MSH(11-13) tripeptide fragment (R36 stub)
 - [[melanocortin-system]] — downstream receptors and pharmacology
-- [[../molecules/proteins/mc4r]] — primary energy-balance receptor downstream of α-MSH (R35-Stage2)
+- [[mc4r]] — primary energy-balance receptor downstream of α-MSH (R35-Stage2)
 - [[insulin-igf1]] — upstream regulator of POMC neuron activity
 - [[deregulated-nutrient-sensing]] — hallmark context
-- [[../molecules/proteins/pcsk1]] — PC1/3 (implicit stub)
-- [[../molecules/proteins/pcsk2]] — PC2 (implicit stub)
-- [[../molecules/proteins/cpe]] — carboxypeptidase E (implicit stub)
-- [[../molecules/proteins/pam]] — PAM amidating enzyme (implicit stub)
+- [[pcsk1]] — PC1/3 (implicit stub)
+- [[pcsk2]] — PC2 (implicit stub)
+- [[cpe]] — carboxypeptidase E (implicit stub)
+- [[pam]] — PAM amidating enzyme (implicit stub)
 
 ## Footnotes
 

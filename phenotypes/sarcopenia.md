@@ -57,7 +57,7 @@ Sarcopenia is a multi-mechanism phenotype; no single pathway accounts for it. Ma
 - Aged muscle requires a higher dose of leucine / amino acids to maximally stimulate protein synthesis (the "leucine threshold" rises with age).
 - Reduced post-prandial muscle protein synthesis response.
 - Blunted [[mtor|mTORC1]] activation per unit anabolic stimulus.
-- Practical implication: protein RDA (0.8 g/kg/day) is **insufficient** for older adults — current consensus recommends 1.0–1.2 g/kg/day, more if frail. See [[../interventions/lifestyle/protein-intake]] for the canonical evidence base (Bauer 2013 PROT-AGE consensus + Deutz 2014 ESPEN guidelines).
+- Practical implication: protein RDA (0.8 g/kg/day) is **insufficient** for older adults — current consensus recommends 1.0–1.2 g/kg/day, more if frail. See [[protein-intake]] for the canonical evidence base (Bauer 2013 PROT-AGE consensus + Deutz 2014 ESPEN guidelines).
 
 ### Mitochondrial dysfunction in muscle
 
@@ -118,7 +118,7 @@ The single most effective intervention. Even nonagenarians (up to age 96) in nur
 
 ### Adequate protein + leucine
 
-See [[../interventions/lifestyle/protein-intake]] for the canonical evidence base; key points:
+See [[protein-intake]] for the canonical evidence base; key points:
 
 - Daily protein ≥ 1.0–1.2 g/kg (1.2–1.5 if frail or in recovery) — Bauer 2013 PROT-AGE + Deutz 2014 ESPEN consensus
 - Distribution matters — ~25–40 g per meal × 3–4 meals appears more effective than skewed intake (Mamerow 2014)

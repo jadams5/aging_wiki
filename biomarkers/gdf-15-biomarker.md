@@ -28,13 +28,13 @@ verified-scope: "Webber 2024 (preprint PDF), Chen 2026/Protein&Cell (peer-review
 
 # GDF-15 as an Aging Biomarker (Serum/Plasma)
 
-Serum GDF-15 (growth differentiation factor 15) is a single-analyte proteomic biomarker that rises monotonically with age and is among the most robustly validated predictors of all-cause mortality, frailty, physical decline, and dementia in elderly cohorts — consistently outperforming standard clinical risk factors in large prospective studies. This page covers the **clinical serum interpretation in aging cohorts**: reference ranges, mortality and frailty prediction, intervention-responsiveness, and current limitations. For receptor biology, upstream regulation, and molecular mechanism, see [[../molecules/proteins/gdf15]].
+Serum GDF-15 (growth differentiation factor 15) is a single-analyte proteomic biomarker that rises monotonically with age and is among the most robustly validated predictors of all-cause mortality, frailty, physical decline, and dementia in elderly cohorts — consistently outperforming standard clinical risk factors in large prospective studies. This page covers the **clinical serum interpretation in aging cohorts**: reference ranges, mortality and frailty prediction, intervention-responsiveness, and current limitations. For receptor biology, upstream regulation, and molecular mechanism, see [[gdf15]].
 
 GDF-15 is also one of seven plasma-protein DNAm surrogates embedded in the [[grimage-2019]] clock — its methylation-predicted level is one of the strongest individual contributors to that clock's mortality-predictive power.
 
 ## Identity
 
-- **Protein page:** [[../molecules/proteins/gdf15]] — gene biology, GFRAL receptor, UPRmt mechanism, metformin connection, therapeutic landscape
+- **Protein page:** [[gdf15]] — gene biology, GFRAL receptor, UPRmt mechanism, metformin connection, therapeutic landscape
 - **Canonical assay modality:** Serum or EDTA-plasma immunoassay (ELISA or electrochemiluminescence; Roche Elecsys GDF-15 assay widely used in cohort studies)
 - **Unit:** pg/mL (= ng/L; the two units are numerically equivalent)
 - **Pre-analytical considerations:** Stable in serum/plasma; freeze-thaw cycles affect some assays; fasting status modestly influences levels; hemolysis should be avoided. No strong circadian variation reported.
@@ -109,13 +109,13 @@ In mobility-limited older adults (n=429 BIOFRAIL study; mean age 79.6±6.2 years
 
 ## Mechanism Context
 
-GDF-15 does not drive mortality or frailty directly — it is a **systemic reporter of integrated stress** that rises in proportion to the burden of multiple hallmarks simultaneously. The upstream mechanisms are detailed in [[../molecules/proteins/gdf15]]; the clinical interpretation consequence is:
+GDF-15 does not drive mortality or frailty directly — it is a **systemic reporter of integrated stress** that rises in proportion to the burden of multiple hallmarks simultaneously. The upstream mechanisms are detailed in [[gdf15]]; the clinical interpretation consequence is:
 
 - GDF-15 elevation = weighted sum of [[mitochondrial-dysfunction]] (via UPRmt → ATF4 → GDF-15), [[cellular-senescence]] (SASP cytokine milieu activating NF-κB → GDF-15), and [[chronic-inflammation]] (NF-κB and HIF-1α transcription of GDF-15)
 - Because GDF-15 integrates multiple upstream stressors, it has high prognostic value but low specificity for any individual hallmark
 - Its appetite-suppressive effect (via brainstem GFRAL) means that **very high GDF-15 in frail elderly may actively worsen anorexia of aging** — making GDF-15 not purely a bystander biomarker but a potential active contributor to the sarcopenia-anorexia-cachexia spiral
 
-#gap/no-mechanism — whether reducing GDF-15 (via anti-GFRAL/anti-GDF-15 antibodies) in elderly individuals with elevated GDF-15 would improve functional outcomes is unknown. Trials exist for cancer cachexia (ponsegromab; see [[../molecules/proteins/gdf15]] for details) but not aging per se.
+#gap/no-mechanism — whether reducing GDF-15 (via anti-GFRAL/anti-GDF-15 antibodies) in elderly individuals with elevated GDF-15 would improve functional outcomes is unknown. Trials exist for cancer cachexia (ponsegromab; see [[gdf15]] for details) but not aging per se.
 
 ## Mendelian Randomization Status
 
@@ -129,7 +129,7 @@ MR evidence for GDF-15 → all-cause mortality specifically (independent of CVD 
 
 ### Metformin — paradoxical elevation
 
-Metformin at therapeutic doses elevates serum GDF-15, as established mechanistically in Coll et al. 2020 (intestinal GDF-15 induction; see [[../molecules/proteins/gdf15]] for full discussion). This creates a clinical interpretation challenge: **a patient on metformin who shows elevated GDF-15 does not have an elevated stress signal per se — the elevation is pharmacologically induced**. Kolnes 2026 confirmed that exercise-related GDF-15 research must be interpreted separately from metformin's drug effect [^kolnes2026note].
+Metformin at therapeutic doses elevates serum GDF-15, as established mechanistically in Coll et al. 2020 (intestinal GDF-15 induction; see [[gdf15]] for full discussion). This creates a clinical interpretation challenge: **a patient on metformin who shows elevated GDF-15 does not have an elevated stress signal per se — the elevation is pharmacologically induced**. Kolnes 2026 confirmed that exercise-related GDF-15 research must be interpreted separately from metformin's drug effect [^kolnes2026note].
 
 The metformin-induced GDF-15 elevation may actually be mechanistically beneficial (anorexigenic effect → weight reduction) rather than harmful. This dissociation undermines GDF-15 as an uncontrolled biomarker in populations on metformin.
 
@@ -197,11 +197,11 @@ Specificity for aging-related mitochondrial stress and senescence is **low** wit
 
 6. **Sex and menopausal status** — Males consistently have higher GDF-15 than age-matched females in most cohorts, though the gap narrows at older ages. Pregnancy dramatically elevates GDF-15 (placental production). Sex-specific reference ranges and aging trajectories require dedicated analysis. #gap/dose-response-unclear
 
-7. **Causal vs. bystander ambiguity** — Whether elevated GDF-15 drives worse outcomes (via anorexia, muscle wasting through GFRAL-dependent mechanisms) or is purely a bystander of upstream stress is unresolved. See [[../molecules/proteins/gdf15]] for the therapeutic landscape around this question.
+7. **Causal vs. bystander ambiguity** — Whether elevated GDF-15 drives worse outcomes (via anorexia, muscle wasting through GFRAL-dependent mechanisms) or is purely a bystander of upstream stress is unresolved. See [[gdf15]] for the therapeutic landscape around this question.
 
 ## Cross-references
 
-- [[../molecules/proteins/gdf15]] — protein biology, receptor, UPRmt mechanism, metformin connection, therapeutic landscape (anti-GDF-15 antibodies)
+- [[gdf15]] — protein biology, receptor, UPRmt mechanism, metformin connection, therapeutic landscape (anti-GDF-15 antibodies)
 - [[biomarkers/grimage-2019]] — GDF-15 DNAm surrogate is a component; mortality prediction architecture
 - [[biomarkers/lehallier-proteomic-clock-2019]] — GDF-15 in the 1,301-protein aging proteome
 - [[hallmarks/mitochondrial-dysfunction]] — upstream driver of GDF-15 via UPRmt → ATF4

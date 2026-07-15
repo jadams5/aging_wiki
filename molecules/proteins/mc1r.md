@@ -23,7 +23,7 @@ verified-scope: "Canonical IDs (UniProt Q01726, NCBI 4157, HGNC:6929, Ensembl EN
 
 # MC1R (melanocortin 1 receptor)
 
-MC1R is a Class A (rhodopsin-family) G-protein-coupled receptor expressed on melanocytes, keratinocytes, and immune cells. It is the canonical receptor for [[alpha-msh|α-MSH]] and ACTH, coupling via Gαs to adenylate cyclase → cAMP elevation → PKA activation → MITF-driven melanogenesis. Loss-of-function variants are the primary genetic determinant of red hair, fair skin, and impaired UV response, and confer a 2- to 4-fold elevated melanoma risk independent of pigmentation phenotype. MC1R is pharmaceutically targeted by afamelanotide (Scenesse, FDA-approved 2019 for erythropoietic protoporphyria) and by the unregulated analogue [[../compounds/melanotan-ii|Melanotan II]]. Aging relevance centers on photoaging, melanoma surveillance in older adults, and an emerging Parkinson's disease–pigmentation link.
+MC1R is a Class A (rhodopsin-family) G-protein-coupled receptor expressed on melanocytes, keratinocytes, and immune cells. It is the canonical receptor for [[alpha-msh|α-MSH]] and ACTH, coupling via Gαs to adenylate cyclase → cAMP elevation → PKA activation → MITF-driven melanogenesis. Loss-of-function variants are the primary genetic determinant of red hair, fair skin, and impaired UV response, and confer a 2- to 4-fold elevated melanoma risk independent of pigmentation phenotype. MC1R is pharmaceutically targeted by afamelanotide (Scenesse, FDA-approved 2019 for erythropoietic protoporphyria) and by the unregulated analogue [[melanotan-ii|Melanotan II]]. Aging relevance centers on photoaging, melanoma surveillance in older adults, and an emerging Parkinson's disease–pigmentation link.
 
 ## Identity
 
@@ -49,7 +49,7 @@ The ligand-binding pocket accommodates the His-Phe-Arg-Trp pharmacophore of α-M
 
 ## Signaling mechanism
 
-Upon α-MSH (or ACTH, or [[../compounds/melanotan-ii|Melanotan II]]) binding [^suzuki1996]:
+Upon α-MSH (or ACTH, or [[melanotan-ii|Melanotan II]]) binding [^suzuki1996]:
 
 1. **Gαs coupling** → adenylate cyclase activation → cAMP elevation
 2. **PKA activation** → phosphorylation of CREB → transcriptional induction of **MITF** (microphthalmia transcription factor)
@@ -58,7 +58,7 @@ Upon α-MSH (or ACTH, or [[../compounds/melanotan-ii|Melanotan II]]) binding [^s
 
 Negative regulators: MGRN1 (E3 ubiquitin ligase, displaces Gαs); OPN3 (inhibits cAMP response via competing GPCR signaling) [^rodriguez2014].
 
-**Ligand affinity hierarchy:** α-MSH ≈ ACTH >> β-MSH > γ-MSH [^suzuki1996]. The order of affinity and potency was determined by relative-affinity assays in primary human melanocyte cultures; specific Kd values were not reported in that study. #gap/dose-response-unclear [[../compounds/melanotan-ii|Melanotan II]] (cyclic synthetic) has affinity in the low-nanomolar range with higher receptor selectivity compared to the native linear peptide.
+**Ligand affinity hierarchy:** α-MSH ≈ ACTH >> β-MSH > γ-MSH [^suzuki1996]. The order of affinity and potency was determined by relative-affinity assays in primary human melanocyte cultures; specific Kd values were not reported in that study. #gap/dose-response-unclear [[melanotan-ii|Melanotan II]] (cyclic synthetic) has affinity in the low-nanomolar range with higher receptor selectivity compared to the native linear peptide.
 
 | Dimension | Status | Notes |
 |---|---|---|
@@ -116,7 +116,7 @@ Afamelanotide (Scenesse) increases eumelanin pigmentation in MC1R LOF individual
 
 ### Melanotan II (Ac-Nle-cyclo[Asp-His-D-Phe-Arg-Trp-Lys]-NH2)
 
-Unapproved cyclic synthetic analogue. Full-agonist at MC1R (and MC3R, MC4R, MC5R). Not aging-validated. See [[../compounds/melanotan-ii]] for full pharmacology and safety profile.
+Unapproved cyclic synthetic analogue. Full-agonist at MC1R (and MC3R, MC4R, MC5R). Not aging-validated. See [[melanotan-ii]] for full pharmacology and safety profile.
 
 ### ASIP (inverse agonist)
 

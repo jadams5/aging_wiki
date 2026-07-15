@@ -25,7 +25,7 @@ verified-scope: "Lee 2015, Reynolds 2021, Miller 2022, Zempo 2021 primary-source
 
 A 16-amino-acid peptide encoded by a short open reading frame embedded within the mitochondrial **12S rRNA** gene (MT-RNR1) — making it one of the only biologically active peptides translated from the mitochondrial genome [^lee2015]. MOTS-c functions as a circulating "mitokine": it is released from skeletal muscle in response to exercise and metabolic stress, declines in plasma with aging, and promotes insulin sensitivity primarily through AMPK activation via folate-cycle disruption. It is the best-characterised member of the **mitochondrial-derived peptide (MDP)** class [^miller2022jci].
 
-**Companion page:** [[../compounds/mots-c]] covers therapeutic delivery framing, preclinical intervention evidence, and clinical-stage assessment for exogenous MOTS-c administration. This page covers the endogenous biology: gene structure, expression regulation, aging trajectory, and population genetics.
+**Companion page:** [[mots-c]] covers therapeutic delivery framing, preclinical intervention evidence, and clinical-stage assessment for exogenous MOTS-c administration. This page covers the endogenous biology: gene structure, expression regulation, aging trajectory, and population genetics.
 
 ---
 
@@ -168,13 +168,13 @@ No post-translational modifications of endogenous MOTS-c are documented in UniPr
 - #gap/contradictory-evidence — Plasma MOTS-c declines with age, but skeletal muscle MOTS-c mRNA increases ~1.5-fold in older men [^dsouza2020]; compartment-specific regulation mechanism unknown.
 - #gap/contradictory-evidence — Earlier centenarian-enrichment claim (n=96) superseded by Zempo 2021 null finding (n=736). The claim that m.1382A>C associates with longevity should be treated as falsified in that population.
 - #gap/needs-canonical-id — No GenAge/HAGR entry for MT-RNR1 or MOTS-c as of 2026-05-09; no Ensembl ORF-level ID.
-- #gap/needs-human-replication — All interventional evidence for exogenous MOTS-c is rodent or in vitro; see [[../compounds/mots-c]] for clinical-stage assessment.
+- #gap/needs-human-replication — All interventional evidence for exogenous MOTS-c is rodent or in vitro; see [[mots-c]] for clinical-stage assessment.
 
 ---
 
 ## Cross-references
 
-- [[../compounds/mots-c]] — therapeutic delivery, preclinical intervention evidence, clinical-stage assessment (R36)
+- [[mots-c]] — therapeutic delivery, preclinical intervention evidence, clinical-stage assessment (R36)
 - [[ampk]] — primary downstream pathway; MOTS-c → AICAR → AMPK activation
 - [[mitochondrial-dysfunction]] — hallmark; MOTS-c expression reflects mtDNA transcriptional capacity
 - [[deregulated-nutrient-sensing]] — hallmark; MOTS-c → AMPK → nutrient-sensing normalisation

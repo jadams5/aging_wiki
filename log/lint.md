@@ -2,6 +2,12 @@
 
 Sub-file of [[log]] — see parent for index.
 
+## [2026-07-15] lint — relative wikilink portability sweep
+
+User-prompted follow-up after a broken GitHub Pages link on [[protein-intake]] exposed a deployment-base portability problem. Swept all public Markdown for live `../`-prefixed wikilinks and converted **259 links across 35 files** to canonical basename form, preserving display aliases. The historical inline-code example in `log/2026-06-14.md` was intentionally retained because it documents an earlier correction and is not rendered as a link.
+
+Target audit found no filename collisions. Sixty-two distinct target basenames resolve uniquely; 16 remaining unresolved basenames are pre-existing explicit/implicit stubs rather than regressions introduced by the sweep. Two stale targets were resolved to existing canonical pages: `jak-stat` → [[jak-stat-pathway]] and `by-intervention-type` → [[interventions-by-modality]]. Frontmatter validation, diff whitespace checks, and the public privacy/leak gate passed.
+
 ## [2026-06-02] lint — stale page-existence gap sweep
 
 User-prompted: many `#gap/needs-page`/`#gap/needs-stub`/`#gap/needs-*-page`/`#gap/needs-seeding`/`#gap/missing-page` markers were placed before the referenced page was seeded and are now stale. Swept the full page-existence gap family (excluding the append-only `log/` audit trail), cross-checked every referenced wikilink target against the live file inventory, and removed/rewrote the markers whose target now exists (resolving by basename, so links already pointed to the right file regardless of folder).
@@ -245,4 +251,3 @@ Breakdown by field:
 **No re-verification needed** — no `uniprot:` accession-level drift was found, so no aging-relevant claims tied to a now-deprecated accession need re-checking.
 
 **Pages with verified-scope notes mentioning unchecked canonical-DB fields:** atg101, bcl-w, bcl2l13, deptor, fip200, foxo4, ku70-ku80, mitofusins, myostatin all carried `verified-scope:` text saying "canonical-DB identity fields not independently re-checked" — this drift sweep IS that re-check. Verified-scope strings remain accurate after fixes (the unchecked-at-the-time scope is now checked-at-this-date). No edits to verified-scope descriptions needed; the next routine verifier pass can update those strings if desired.
-

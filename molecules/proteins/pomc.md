@@ -129,8 +129,8 @@ POMC itself is not directly drugged; intervention is at the level of its process
 |---|---|---|
 | Setmelanotide | MC4R agonist | FDA-approved (POMC-deficiency obesity, LEPR-deficiency obesity) |
 | Afamelanotide (Scenesse) | MC1R agonist; α-MSH analog | FDA-approved (erythropoietic protoporphyria) |
-| Melanotan II ([[../compounds/melanotan-ii]]) | Pan-MCR agonist; α-MSH analog | Research only; not approved |
-| KPV ([[../compounds/kpv]]) | Receptor-independent anti-inflammatory; α-MSH C-terminal tripeptide | Preclinical |
+| Melanotan II ([[melanotan-ii]]) | Pan-MCR agonist; α-MSH analog | Research only; not approved |
+| KPV ([[kpv]]) | Receptor-independent anti-inflammatory; α-MSH C-terminal tripeptide | Preclinical |
 | POMC gene therapy | AAV-POMC delivery to hypothalamus | Preclinical (monogenic obesity models) |
 
 **Druggability-tier 1 rationale:** Multiple clinically approved drugs engage the POMC-derived peptide axis (setmelanotide, afamelanotide). POMC gene therapy is in active preclinical development for monogenic POMC-deficiency obesity. The aging-context tractability is indirect — no approved drug targets POMC for an aging indication — but the melanocortin axis (POMC → α-MSH → MC4R) has tier-1 pharmacology via setmelanotide and the approved MC4R agonist programme.
@@ -148,9 +148,9 @@ POMC itself is not directly drugged; intervention is at the level of its process
 - [[mc4r]] — primary hypothalamic receptor for appetite suppression (R35-Stage2 wave 3)
 - [[agrp]] — endogenous MC3R/MC4R inverse agonist produced by adjacent arcuate neurons; competes with α-MSH #stub
 - [[alpha-msh]] — the 13-aa processed peptide product; full page at R35-Stage2
-- [[../compounds/kpv]] — α-MSH C-terminal tripeptide with receptor-independent anti-inflammatory activity (R36)
-- [[../compounds/melanotan-ii]] — synthetic α-MSH analog (R36)
-- [[../compounds/setmelanotide]] — MC4R agonist approved for POMC-deficiency obesity (forward queue)
+- [[kpv]] — α-MSH C-terminal tripeptide with receptor-independent anti-inflammatory activity (R36)
+- [[melanotan-ii]] — synthetic α-MSH analog (R36)
+- [[setmelanotide]] — MC4R agonist approved for POMC-deficiency obesity (forward queue)
 
 ## Limitations and gaps
 

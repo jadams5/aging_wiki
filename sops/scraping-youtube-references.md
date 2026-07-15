@@ -91,7 +91,7 @@ fine for identifying claims, never quoted verbatim as fact.
    when they will be cited more than once or carry a contested finding.
 4. **Cross-check against the presenter's framing.** Summary videos compress and editorialize;
    verify effect sizes and especially the *direction* of effects against the abstract/PDF
-   (see [[../CLAUDE|verification discipline]] and the abstract-sign-inversion caution).
+   (see [[CLAUDE|verification discipline]] and the abstract-sign-inversion caution).
 
 ## See also
 

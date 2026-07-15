@@ -21,7 +21,7 @@ verified-scope: "Maleti 2006 (J Vasc Surg, local PDF), Maleti 2023 (J Vasc Surg 
 
 # Venous valve reconstruction and artificial venous valves
 
-The attempt to **repair or replace an incompetent deep venous valve** to abolish reflux and lower ambulatory venous hypertension. The indication is **deep venous reflux — post-thrombotic syndrome (PTS) and advanced chronic venous insufficiency (CEAP C4b–C6)** — *not* cosmetic or superficial varicose veins, which are managed by ablation/sclerotherapy (see [[chronic-venous-disease]] § Interventions). This page is the engineering counterpart to the venous-valve biology on [[../../tissues/veins]].
+The attempt to **repair or replace an incompetent deep venous valve** to abolish reflux and lower ambulatory venous hypertension. The indication is **deep venous reflux — post-thrombotic syndrome (PTS) and advanced chronic venous insufficiency (CEAP C4b–C6)** — *not* cosmetic or superficial varicose veins, which are managed by ablation/sclerotherapy (see [[chronic-venous-disease]] § Interventions). This page is the engineering counterpart to the venous-valve biology on [[veins]].
 
 ## The core engineering problem — why it's so hard
 

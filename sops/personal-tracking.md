@@ -5,7 +5,7 @@ aliases: [personal tracking, what to track, tracking structure, monitoring desig
 
 # SOP: designing personal health tracking
 
-This SOP is the **device-agnostic guidance** for *what* applied-health data to track and *how* to structure it — for an individual whose health is being managed alongside this wiki. It is the reusable counterpart to the personal-application content described in [[../CLAUDE]] § *Protocols directory (personal application content)*.
+This SOP is the **device-agnostic guidance** for *what* applied-health data to track and *how* to structure it — for an individual whose health is being managed alongside this wiki. It is the reusable counterpart to the personal-application content described in [[CLAUDE]] § *Protocols directory (personal application content)*.
 
 **When to use it:**
 
@@ -15,7 +15,7 @@ This SOP is the **device-agnostic guidance** for *what* applied-health data to t
 
 **What this SOP is NOT:** it is not device- or vendor-specific. The structures below assume nothing about which wearable, lab vendor, or continuous-glucose monitor is used — those are pluggable `Source` values, never load-bearing. Hardware-specific sync mechanics belong in a per-individual operations manual inside that individual's private tracking area, not here.
 
-> **Privacy note.** This is a public SOP. It must stay generic: no individual's name, no per-person values, no links into any private personal-data tree. The personal-application content it describes lives in a **private** area (git-ignored from the public repo) — see [[../CLAUDE]] § *Privacy posture*. When you instantiate these patterns for a real person, the resulting pages and CSVs go in that private area, never in the public wiki.
+> **Privacy note.** This is a public SOP. It must stay generic: no individual's name, no per-person values, no links into any private personal-data tree. The personal-application content it describes lives in a **private** area (git-ignored from the public repo) — see [[CLAUDE]] § *Privacy posture*. When you instantiate these patterns for a real person, the resulting pages and CSVs go in that private area, never in the public wiki.
 
 ---
 
@@ -101,7 +101,7 @@ The review is the canonical home for cross-stream synthesis; the per-day logs st
 
 ## How this maps to the protocol page types
 
-When a private per-individual area *does* exist, these principles land in the page types defined in [[../CLAUDE]]:
+When a private per-individual area *does* exist, these principles land in the page types defined in [[CLAUDE]]:
 
 - Principles 1–3 → routing data between discrete event pages (`type: lab-panel`), the slowly-changing identity page (`type: person`), and continuous-stream CSVs.
 - Principles 2, 6, 7 → the `type: protocol` page's `monitoring-required:`, `review-cadence:`, and `stop-criteria:` frontmatter, plus its body monitoring table.
@@ -111,5 +111,5 @@ Until that area exists, this SOP *is* the guidance — apply the principles dire
 
 ## Related
 
-- [[../CLAUDE]] § *Protocols directory (personal application content)* — full page-type schemas and privacy posture
+- [[CLAUDE]] § *Protocols directory (personal application content)* — full page-type schemas and privacy posture
 - [[lint-pass]] — the public-repo privacy invariant that keeps personal data out of the research wiki

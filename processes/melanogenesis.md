@@ -2,14 +2,14 @@
 type: process
 aliases: [melanin synthesis, melanin biosynthesis, pigmentation pathway, eumelanogenesis, pheomelanogenesis]
 key-proteins:
-  - "[[../molecules/proteins/tyr]]"
-  - "[[../molecules/proteins/tyrp1]]"
-  - "[[../molecules/proteins/dct]]"
-  - "[[../molecules/proteins/mc1r]]"
-  - "[[../molecules/proteins/mitf]]"
+  - "[[tyr]]"
+  - "[[tyrp1]]"
+  - "[[dct]]"
+  - "[[mc1r]]"
+  - "[[mitf]]"
 pathways:
-  - "[[../pathways/melanocortin-system]]"
-  - "[[../pathways/camp-signaling]]"
+  - "[[melanocortin-system]]"
+  - "[[camp-signaling]]"
 hallmarks: []
 selective-variants: []
 druggability-tier: 2
@@ -165,21 +165,21 @@ UV → keratinocyte p53 → POMC transcription → α-MSH secretion → paracrin
 
 **Tier 2 rationale:** No FDA-approved drug targets melanogenesis for an aging indication. **Afamelanotide** (a synthetic α-MSH analogue) stimulates MC1R → cAMP → MITF axis to increase eumelanogenesis; it is FDA-approved for erythropoietic protoporphyria (EPP) and used off-label for photoprotection in fair-skinned individuals — not for aging per se. Topical depigmenting agents (hydroquinone, kojic acid, arbutin, niacinamide) are widely used for age spots but act peripherally (TYR inhibition or melanosome-transfer reduction); none have validated aging-pathway mechanisms. A high-quality MC1R/MITF probe exists (afamelanotide = NDP-alpha-MSH); the aging-application gap remains.
 
-Related compound and intervention pages: [[../molecules/compounds/melanotan-ii]], [[../molecules/compounds/setmelanotide]], [[../molecules/proteins/mc1r]], [[../molecules/proteins/alpha-msh]].
+Related compound and intervention pages: [[melanotan-ii]], [[setmelanotide]], [[mc1r]], [[alpha-msh]].
 
 ## Cross-references
 
-- [[../pathways/melanocortin-system]] — upstream MC1R/α-MSH signaling
-- [[../molecules/proteins/mc1r]] — G-protein-coupled receptor; key eumelanin/pheomelanin switch
-- [[../molecules/proteins/alpha-msh]] — paracrine activator derived from keratinocytes under UV
-- [[../molecules/proteins/tyr]] — tyrosinase; rate-limiting enzyme (implicit stub)
-- [[../molecules/proteins/tyrp1]] — DHICA oxidase; TYR stabilizer (implicit stub)
-- [[../molecules/proteins/dct]] — DOPAchrome tautomerase / TYRP2 (implicit stub)
-- [[../molecules/proteins/mitf]] — master melanogenic transcription factor (implicit stub)
-- [[../hallmarks/stem-cell-exhaustion]] — McSC pool exhaustion underlies follicular canities
-- [[../hallmarks/cellular-senescence]] — photoaged/potentially-senescent dermal fibroblasts implicated in age-spot melanocyte hyperactivity; fibroblast senescence connection is plausible but not confirmed as the exclusive mechanism in Kovacs 2010 #gap/no-fulltext-access
-- [[../molecules/compounds/melanotan-ii]] — synthetic α-MSH analogue; cross-reactivity → hyperpigmentation
-- [[../molecules/compounds/setmelanotide]] — MC4R-preferring agonist; hyperpigmentation side-effect via MC1R
+- [[melanocortin-system]] — upstream MC1R/α-MSH signaling
+- [[mc1r]] — G-protein-coupled receptor; key eumelanin/pheomelanin switch
+- [[alpha-msh]] — paracrine activator derived from keratinocytes under UV
+- [[tyr]] — tyrosinase; rate-limiting enzyme (implicit stub)
+- [[tyrp1]] — DHICA oxidase; TYR stabilizer (implicit stub)
+- [[dct]] — DOPAchrome tautomerase / TYRP2 (implicit stub)
+- [[mitf]] — master melanogenic transcription factor (implicit stub)
+- [[stem-cell-exhaustion]] — McSC pool exhaustion underlies follicular canities
+- [[cellular-senescence]] — photoaged/potentially-senescent dermal fibroblasts implicated in age-spot melanocyte hyperactivity; fibroblast senescence connection is plausible but not confirmed as the exclusive mechanism in Kovacs 2010 #gap/no-fulltext-access
+- [[melanotan-ii]] — synthetic α-MSH analogue; cross-reactivity → hyperpigmentation
+- [[setmelanotide]] — MC4R-preferring agonist; hyperpigmentation side-effect via MC1R
 
 ## Limitations and gaps
 

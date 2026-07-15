@@ -9,8 +9,8 @@ biologic: true
 molecular-formula: C49H68N18O9S2
 molecular-weight-da: 1117.3
 mechanisms: [melanocortin-receptor-agonism, mc4r-selective-agonism, appetite-suppression]
-targets: ["[[../proteins/mc4r]]", "[[../proteins/mc1r]]", "[[../proteins/mc3r]]"]
-hallmarks: ["[[../../hallmarks/deregulated-nutrient-sensing]]"]
+targets: ["[[mc4r]]", "[[mc1r]]", "[[mc3r]]"]
+hallmarks: ["[[deregulated-nutrient-sensing]]"]
 clinical-stage: fda-approved
 human-evidence-level: strong
 translation-gap: phase-3-rct-needed
@@ -25,7 +25,7 @@ verified-scope: "Collet 2017 (Mol Metab) verified against full local PDF — tri
 
 # Setmelanotide
 
-An FDA-approved synthetic cyclic octapeptide (8-amino-acid) analogue of [[../proteins/alpha-msh|alpha-melanocyte-stimulating hormone (α-MSH)]] with selective agonist activity at the [[../proteins/mc4r|melanocortin-4 receptor (MC4R)]]. Marketed as **Imcivree** (Rhythm Pharmaceuticals). Approved 2020 for monogenic obesity due to POMC, PCSK1, or LEPR deficiency; indication expanded 2022 to Bardet-Biedl Syndrome (BBS). **Aging-context relevance is speculative:** MC4R agonism for sarcopenia or cachexia in older adults has not been evaluated in clinical trials.
+An FDA-approved synthetic cyclic octapeptide (8-amino-acid) analogue of [[alpha-msh|alpha-melanocyte-stimulating hormone (α-MSH)]] with selective agonist activity at the [[mc4r|melanocortin-4 receptor (MC4R)]]. Marketed as **Imcivree** (Rhythm Pharmaceuticals). Approved 2020 for monogenic obesity due to POMC, PCSK1, or LEPR deficiency; indication expanded 2022 to Bardet-Biedl Syndrome (BBS). **Aging-context relevance is speculative:** MC4R agonism for sarcopenia or cachexia in older adults has not been evaluated in clinical trials.
 
 ## Identity
 
@@ -153,7 +153,7 @@ MC4R agonism could theoretically address two contexts in aging:
 
 - **Appetite suppression exacerbates sarcopenia risk:** In older adults with low caloric intake or pre-existing sarcopenia, further appetite suppression from MC4R agonism could worsen lean mass loss unless paired with supervised resistance training and protein supplementation. The compound's effect on lean-to-fat mass ratio in older adults is not established.
 - **Cardiovascular concern:** MC4R agonism raises blood pressure modestly. Older patients with hypertension or cardiovascular comorbidity represent a higher-risk population.
-- **MC4R agonism ≠ energy-sensing intervention:** Despite mechanistic adjacency to the POMC/leptin/MC4R nutrient-sensing axis (placed under `[[../../hallmarks/deregulated-nutrient-sensing]]`), setmelanotide does not directly modulate mTOR, AMPK, insulin signaling, or sirtuins. The hallmark assignment reflects the upstream pathway, not a demonstrated aging-biology effect.
+- **MC4R agonism ≠ energy-sensing intervention:** Despite mechanistic adjacency to the POMC/leptin/MC4R nutrient-sensing axis (placed under `[[deregulated-nutrient-sensing]]`), setmelanotide does not directly modulate mTOR, AMPK, insulin signaling, or sirtuins. The hallmark assignment reflects the upstream pathway, not a demonstrated aging-biology effect.
 - **No DrugAge entry:** No lifespan-extension data for setmelanotide or MC4R agonists in any model organism. #gap/needs-human-replication
 
 | Dimension | Status |
@@ -165,20 +165,20 @@ MC4R agonism could theoretically address two contexts in aging:
 ## Classification
 
 - **Mechanism class:** `melanocortin-receptor-agonism` (see `frameworks/intervention-classes.md` § melanocortin-receptor-agonist) — class already defined; no new class needed
-- **Hallmark target:** [[../../hallmarks/deregulated-nutrient-sensing]] (MC4R/POMC/leptin nutrient-sensing axis)
-- **Related intervention class:** [[../../interventions/pharmacological/peptide-therapeutics]]
+- **Hallmark target:** [[deregulated-nutrient-sensing]] (MC4R/POMC/leptin nutrient-sensing axis)
+- **Related intervention class:** [[peptide-therapeutics]]
 - **SENS category:** none directly applicable
 
 ## Cross-references
 
-- [[../proteins/mc4r]] — primary target; see R35-Stage2 page
-- [[../proteins/mc1r]] — cross-reactive receptor (hyperpigmentation mechanism)
-- [[../proteins/mc3r]] — partial cross-reactivity
-- [[../proteins/alpha-msh]] — endogenous parent peptide; see stub
-- [[../proteins/pomc]] — upstream precursor; deficiency is primary approved indication
-- [[../proteins/leptin]] — LEPR deficiency is the second approved indication context
-- [[../../phenotypes/sarcopenia]] — potential adverse interaction (appetite suppression in older adults); no beneficial evidence established
-- [[../../hallmarks/deregulated-nutrient-sensing]] — hallmark via MC4R/POMC axis
+- [[mc4r]] — primary target; see R35-Stage2 page
+- [[mc1r]] — cross-reactive receptor (hyperpigmentation mechanism)
+- [[mc3r]] — partial cross-reactivity
+- [[alpha-msh]] — endogenous parent peptide; see stub
+- [[pomc]] — upstream precursor; deficiency is primary approved indication
+- [[leptin]] — LEPR deficiency is the second approved indication context
+- [[sarcopenia]] — potential adverse interaction (appetite suppression in older adults); no beneficial evidence established
+- [[deregulated-nutrient-sensing]] — hallmark via MC4R/POMC axis
 
 ## Limitations and gaps
 

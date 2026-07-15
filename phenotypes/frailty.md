@@ -157,7 +157,7 @@ Resistance training is the most effective intervention for physical frailty. Eve
 
 ### Nutrition — protein adequacy and distribution
 
-- Daily protein ≥ 1.2–1.5 g/kg body weight for frail older adults (RDA of 0.8 g/kg is insufficient for this population — see [[sarcopenia]] for mechanistic rationale and [[../interventions/lifestyle/protein-intake]] for the full evidence base, including Bauer 2013 PROT-AGE + Deutz 2014 ESPEN consensus)
+- Daily protein ≥ 1.2–1.5 g/kg body weight for frail older adults (RDA of 0.8 g/kg is insufficient for this population — see [[sarcopenia]] for mechanistic rationale and [[protein-intake]] for the full evidence base, including Bauer 2013 PROT-AGE + Deutz 2014 ESPEN consensus)
 - Even distribution across meals (~30–40 g protein per meal) appears more effective than skewed intake
 - Leucine supplementation (~3 g/meal) helps overcome anabolic resistance
 - Vitamin D repletion (25-OH-D > 30 ng/mL) recommended when deficient; evidence for supplementation in non-deficient individuals is weaker

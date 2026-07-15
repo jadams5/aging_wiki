@@ -162,8 +162,8 @@ Intranasal BDNF bypasses the BBB via the olfactory/trigeminal nerve pathways. Pr
 The most validated and safest strategy to raise brain BDNF in humans. The Erickson 2011 RCT used 3 days/week of moderate-intensity aerobic walking (targeting 40 min/session; 60–75% heart rate reserve after week 7) for one year [^erickson2011]. No pharmacological intervention has matched the hippocampal structural benefit size documented for exercise in well-controlled human trials.
 
 ### Compounds that induce BDNF as a secondary mechanism
-- **[[../compounds/semax]]** — synthetic ACTH-fragment peptide; documented to raise hippocampal BDNF mRNA and protein in rodents (1.4-fold, single intranasal dose); BDNF elevation also demonstrated in human stroke patients (plasma BDNF) in Russian clinical trials. TrkB-upregulation is the primary documented molecular mechanism of Semax.
-- **[[../compounds/dihexa]]** — a synthetic peptidomimetic with procognitive effects in rodents. The "more potent than BDNF" framing circulated in secondary sources **has no surviving primary source**: confirmed absent from McCoy 2013 (the only intact non-retracted primary study, verified against full PDF); the claim most likely originates from the retracted Benoist 2014 paper. Dihexa does not replicate or mimic BDNF directly; its proposed c-Met/HGF mechanism is unconfirmed following retraction. Do not cite any comparative potency claim relative to BDNF for dihexa.
+- **[[semax]]** — synthetic ACTH-fragment peptide; documented to raise hippocampal BDNF mRNA and protein in rodents (1.4-fold, single intranasal dose); BDNF elevation also demonstrated in human stroke patients (plasma BDNF) in Russian clinical trials. TrkB-upregulation is the primary documented molecular mechanism of Semax.
+- **[[dihexa]]** — a synthetic peptidomimetic with procognitive effects in rodents. The "more potent than BDNF" framing circulated in secondary sources **has no surviving primary source**: confirmed absent from McCoy 2013 (the only intact non-retracted primary study, verified against full PDF); the claim most likely originates from the retracted Benoist 2014 paper. Dihexa does not replicate or mimic BDNF directly; its proposed c-Met/HGF mechanism is unconfirmed following retraction. Do not cite any comparative potency claim relative to BDNF for dihexa.
 
 ### BDNF-axis drugs in clinical development
 Open Targets Platform lists BDNF as a target with moderate disease-association evidence across neuropsychiatric and neurodegenerative indications. No BDNF agonist or TrkB small-molecule has achieved FDA approval. **Druggability tier 2 (aging context):** clinical-stage TrkB agonists exist (7,8-DHF in Phase 1/2 exploratory; LM22A-4 in preclinical) but no drug is validated for an aging-cognition indication. The aging-context tier (2) is lower than the maximum cross-indication druggability because the BDNF/TrkB field has not yet produced a Phase 3-ready clinical compound for cognitive aging.
@@ -221,8 +221,8 @@ Open Targets Platform lists BDNF as a target with moderate disease-association e
 - [[exercise]] — intervention page; exercise is the most validated BDNF inducer
 - [[pi3k-akt-pathway]] — downstream TrkB signalling arm
 - [[ras-mapk]] — downstream TrkB signalling arm (ERK1/2)
-- [[../compounds/semax]] — BDNF/TrkB-upregulation mechanism; human BDNF elevation data in stroke patients
-- [[../compounds/dihexa]] — "more potent than BDNF" claim has no surviving primary source; see Dihexa page for retracted-mechanism context
+- [[semax]] — BDNF/TrkB-upregulation mechanism; human BDNF elevation data in stroke patients
+- [[dihexa]] — "more potent than BDNF" claim has no surviving primary source; see Dihexa page for retracted-mechanism context
 
 ## Footnotes
 

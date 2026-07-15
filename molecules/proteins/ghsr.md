@@ -25,7 +25,7 @@ verified-scope: "Howard 1996 (cloning, isoforms, topology, coupling), Barzilai 2
 
 # GHSR (Growth Hormone Secretagogue Receptor)
 
-The ghrelin receptor (GHSR, GHS-R1a) is a class A GPCR expressed predominantly in the hypothalamus and pituitary that serves as the primary receptor for the hunger hormone ghrelin. It mediates pulsatile growth hormone (GH) release and appetite stimulation, and is the pharmacological target of [[../compounds/mk-677|MK-677 (ibutamoren)]]. GHSR sits at the intersection of the GH-IGF-1 axis, appetite regulation, and nutrient-sensing — all of which decline with age — making it a key receptor in the biology of [[sarcopenia]], anorexia of aging, and the contested longevity-paradox of GH stimulation.
+The ghrelin receptor (GHSR, GHS-R1a) is a class A GPCR expressed predominantly in the hypothalamus and pituitary that serves as the primary receptor for the hunger hormone ghrelin. It mediates pulsatile growth hormone (GH) release and appetite stimulation, and is the pharmacological target of [[mk-677|MK-677 (ibutamoren)]]. GHSR sits at the intersection of the GH-IGF-1 axis, appetite regulation, and nutrient-sensing — all of which decline with age — making it a key receptor in the biology of [[sarcopenia]], anorexia of aging, and the contested longevity-paradox of GH stimulation.
 
 ---
 
@@ -118,7 +118,7 @@ From approximately age 30, pulsatile GH release declines by ~14% per decade (som
 - Possible reduced GHSR-1a responsiveness at the pituitary level (direct receptor downregulation is debated; the predominant mechanism appears to be upstream hypothalamic)
 - Increased adiposity (which further blunts GH pulsatility via free fatty acid-mediated inhibition)
 
-The net consequence is secondary: decreased IGF-1, contributing to sarcopenia, adiposity, reduced bone density, and sleep-architecture deterioration. This positions GHSR-1a as a proximal drug target for pharmacological restoration of GH pulsatility — the rationale for [[../compounds/mk-677]].
+The net consequence is secondary: decreased IGF-1, contributing to sarcopenia, adiposity, reduced bone density, and sleep-architecture deterioration. This positions GHSR-1a as a proximal drug target for pharmacological restoration of GH pulsatility — the rationale for [[mk-677]].
 
 ### GHSR and anorexia of aging
 
@@ -133,7 +133,7 @@ Ghrelin/GHSR signaling intersects with skeletal muscle maintenance via two mecha
 
 ### The GH-IGF-1 longevity paradox
 
-GHSR-1a occupies a critical position in one of the central paradoxes of aging biology: interventions that reduce GH-IGF-1 signaling extend lifespan in model organisms, while short-term GH-axis stimulation partially reverses age-associated functional decline in humans. See [[../compounds/mk-677]] § Aging-relevance paradox for the full framing. Key points:
+GHSR-1a occupies a critical position in one of the central paradoxes of aging biology: interventions that reduce GH-IGF-1 signaling extend lifespan in model organisms, while short-term GH-axis stimulation partially reverses age-associated functional decline in humans. See [[mk-677]] § Aging-relevance paradox for the full framing. Key points:
 
 - Ames and Snell dwarf mice (GH-deficient) live substantially longer than WT controls [^barzilai2012]
 - Heterozygous *Igf1r* knockout mice have extended lifespan [^barzilai2012]
@@ -158,7 +158,7 @@ GHSR-1a occupies a critical position in one of the central paradoxes of aging bi
 
 | Compound | Route | Class | Aging indication |
 |---|---|---|---|
-| [[../compounds/mk-677]] (ibutamoren) | Oral | Non-peptide spiroindoline | Phase 2 (sarcopenia, frailty, fracture recovery) |
+| [[mk-677]] (ibutamoren) | Oral | Non-peptide spiroindoline | Phase 2 (sarcopenia, frailty, fracture recovery) |
 | GHRP-6 | Injection | Hexapeptide | Preclinical; research tool |
 | GHRP-2 | Injection | Hexapeptide | Preclinical; research tool |
 | Hexarelin | Injection | Hexapeptide; cardioprotective in animal models | Preclinical |
@@ -197,7 +197,7 @@ GHSR-1a constitutive activity is targetable by inverse agonists (reduce signalin
 
 ## Cross-references
 
-- **Parent compound page:** [[../compounds/mk-677]] — full human-trial evidence, pharmacokinetics, safety profile, and the aging-paradox framing
+- **Parent compound page:** [[mk-677]] — full human-trial evidence, pharmacokinetics, safety profile, and the aging-paradox framing
 - **Downstream pathway:** [[insulin-igf1]] — GH-IGF-1 signaling axis; GHSR-1a agonism feeds into this pathway
 - **Downstream pathway:** [[mtor]] — IGF-1 activates PI3K-AKT-mTOR; mTOR drives protein synthesis (anabolic arm) but also suppresses autophagy (longevity-antagonistic arm)
 - **Key hallmark:** [[deregulated-nutrient-sensing]] — the GH-IGF-1 axis is a canonical nutrient/anabolic-sensing pathway; GHSR sits at its apex

@@ -21,7 +21,7 @@ verified-scope: "Primary sources verified against PDF: Milman 2014 (Aging Cell),
 
 # Serum IGF-1 (Longevity / Aging Biomarker)
 
-Serum insulin-like growth factor 1 (IGF-1) is a single-analyte hormonal biomarker with strong associations with mortality, cancer risk, frailty, and longevity across multiple large aging cohorts. Unlike DNA methylation clocks, it is routinely measurable on standard clinical chemistry panels and falls within typical laboratory reference ranges requested for GH-axis assessment. Its utility in aging contexts is substantially complicated by a **U-shaped longevity relationship** — both very low and very high levels are associated with adverse outcomes, but the adverse poles differ by age group and outcome type. Interpreting a single IGF-1 result requires age, sex, and clinical context. Cross-links for molecular biology: [[../molecules/proteins/igf-1]] (protein page); [[../pathways/insulin-igf1]] (IIS pathway signaling).
+Serum insulin-like growth factor 1 (IGF-1) is a single-analyte hormonal biomarker with strong associations with mortality, cancer risk, frailty, and longevity across multiple large aging cohorts. Unlike DNA methylation clocks, it is routinely measurable on standard clinical chemistry panels and falls within typical laboratory reference ranges requested for GH-axis assessment. Its utility in aging contexts is substantially complicated by a **U-shaped longevity relationship** — both very low and very high levels are associated with adverse outcomes, but the adverse poles differ by age group and outcome type. Interpreting a single IGF-1 result requires age, sex, and clinical context. Cross-links for molecular biology: [[igf-1]] (protein page); [[insulin-igf1]] (IIS pathway signaling).
 
 ## Identity and Measurement
 
@@ -37,7 +37,7 @@ Serum insulin-like growth factor 1 (IGF-1) is a single-analyte hormonal biomarke
 
 The fundamental interpretive challenge for serum IGF-1 in aging is that two bodies of evidence point in opposite directions:
 
-**Animal model evidence (reduce IGF-1 = longer life):** Reduced insulin/IGF-1 signaling (IIS) extends lifespan in *C. elegans* (daf-2 mutant, up to +100% lifespan), *Drosophila* (InR/chico mutants, +85%), and multiple mouse models (Ames dwarf, Snell dwarf, *Igf1r*+/− [+26% median lifespan in females], FIRKO). This is one of the most phylogenetically conserved longevity findings in biology. See [[../pathways/insulin-igf1]] and [[../hallmarks/deregulated-nutrient-sensing]] for mechanistic detail.
+**Animal model evidence (reduce IGF-1 = longer life):** Reduced insulin/IGF-1 signaling (IIS) extends lifespan in *C. elegans* (daf-2 mutant, up to +100% lifespan), *Drosophila* (InR/chico mutants, +85%), and multiple mouse models (Ames dwarf, Snell dwarf, *Igf1r*+/− [+26% median lifespan in females], FIRKO). This is one of the most phylogenetically conserved longevity findings in biology. See [[insulin-igf1]] and [[deregulated-nutrient-sensing]] for mechanistic detail.
 
 **Human cohort evidence — the U-shape:** Low serum IGF-1 in elderly humans is consistently associated with *increased* all-cause mortality, frailty, and sarcopenia. This is not a contradiction of the animal data — it reflects the biology of the aging somatotropic axis and the frailty confound. The resolution lies in the distinction between **lifelong** low IIS (the animal intervention model) vs **acquired** low IGF-1 in late life (a marker of liver dysfunction, GH deficiency, malnutrition, and frailty). The U-shaped curve emerges because:
 
@@ -112,15 +112,15 @@ For aging-biomarker purposes, the literature is more mature for total serum IGF-
 
 **Protein restriction — primary driver of IGF-1 in humans (Fontana 2008, Aging Cell):** Reducing protein intake from ~1.67 to 0.95 g/kg/day in healthy adults reduced serum IGF-1 from 194 to 152 ng/mL (~22% decrease) over 3 weeks [^fontana2008]. Caloric restriction alone (without protein reduction) did not lower IGF-1. This has important implications: CR diets that maintain high protein intake (including many clinical CR trials) will not lower IGF-1. Note: Fontana 2016 cites this paper as "reducing protein intake from 1.6 to 0.95 g/kg/day" — minor discrepancy in starting value; PDF of Fontana 2008 unavailable for direct verification. #gap/needs-replication — sample sizes in Fontana 2008 were small; the protein restriction effect on IGF-1 needs confirmation in larger cohorts.
 
-**The Fontana 2008 finding creates a genuine tradeoff with the lean-mass-preservation rationale for higher protein intake (1.6–2.0 g/kg/day during energy deficit; Morton 2018 meta + Longland 2016 deficit RCT).** See [[../interventions/lifestyle/protein-intake]] § *Tradeoffs and competing-direction evidence* for the full framing — lean-mass preservation during deficit + sarcopenia-prevention favors higher protein, while pure-longevity-pathway-modulation (IGF-1 + mTORC1 suppression) favors lower protein. The choice is goal-dependent; the wiki does not take a position that one direction is uniformly correct.
+**The Fontana 2008 finding creates a genuine tradeoff with the lean-mass-preservation rationale for higher protein intake (1.6–2.0 g/kg/day during energy deficit; Morton 2018 meta + Longland 2016 deficit RCT).** See [[protein-intake]] § *Tradeoffs and competing-direction evidence* for the full framing — lean-mass preservation during deficit + sarcopenia-prevention favors higher protein, while pure-longevity-pathway-modulation (IGF-1 + mTORC1 suppression) favors lower protein. The choice is goal-dependent; the wiki does not take a position that one direction is uniformly correct.
 
 ### Rapamycin — indirect IGF-1 feedback elevation
 
-Rapamycin (mTORC1 inhibitor) creates a feedback loop that can paradoxically *increase* serum IGF-1 and insulin levels in some contexts. mTORC1 inhibition reduces S6K1 → reduces IRS-1 serine phosphorylation feedback inhibition → increases PI3K/AKT signaling upstream of mTORC1. Additionally, mTORC1 inhibition reduces GH receptor shedding, increasing GH sensitivity. The net clinical effect on serum IGF-1 in aging-relevant rapamycin doses is context-dependent and not definitively established in long-term human data. See [[../molecules/compounds/rapamycin]] for trial data. #gap/long-term-unknown
+Rapamycin (mTORC1 inhibitor) creates a feedback loop that can paradoxically *increase* serum IGF-1 and insulin levels in some contexts. mTORC1 inhibition reduces S6K1 → reduces IRS-1 serine phosphorylation feedback inhibition → increases PI3K/AKT signaling upstream of mTORC1. Additionally, mTORC1 inhibition reduces GH receptor shedding, increasing GH sensitivity. The net clinical effect on serum IGF-1 in aging-relevant rapamycin doses is context-dependent and not definitively established in long-term human data. See [[rapamycin]] for trial data. #gap/long-term-unknown
 
 ### MK-677 (ibutamoren) — raises IGF-1 to young-adult levels
 
-MK-677 (ghrelin receptor agonist, GH secretagogue) at 25 mg/day **raised serum IGF-1 from a mean of ~141 to ~265 µg/L** (~88% increase, restoring to young-adult reference range) in healthy elderly subjects (ages 64–81) over 4 weeks [^chapman1996]. A subsequent Phase IIb trial in elderly hip-fracture patients (n=~123, 25 mg/day) confirmed a 51.4 ng/mL increase in IGF-1 vs placebo, but the trial was terminated early due to congestive heart failure safety signals [^adunsky2011]. See [[../molecules/compounds/mk-677]] for full pharmacology. Elevated IGF-1 from MK-677 represents an anabolic context distinct from the constitutive low-IGF-1 longevity-associated state.
+MK-677 (ghrelin receptor agonist, GH secretagogue) at 25 mg/day **raised serum IGF-1 from a mean of ~141 to ~265 µg/L** (~88% increase, restoring to young-adult reference range) in healthy elderly subjects (ages 64–81) over 4 weeks [^chapman1996]. A subsequent Phase IIb trial in elderly hip-fracture patients (n=~123, 25 mg/day) confirmed a 51.4 ng/mL increase in IGF-1 vs placebo, but the trial was terminated early due to congestive heart failure safety signals [^adunsky2011]. See [[mk-677]] for full pharmacology. Elevated IGF-1 from MK-677 represents an anabolic context distinct from the constitutive low-IGF-1 longevity-associated state.
 
 ### Exercise — variable, muscle-specific effects
 
@@ -155,11 +155,11 @@ Serum IGF-1 is recommended as a **pre-intervention baseline** before initiating 
 1. **Rapamycin-IIS interaction:** mTORC1 inhibition interacts with the IGF-1/IRS-1 axis (via S6K1 serine phosphorylation feedback); baseline IGF-1 establishes the starting point of the GH/IGF-1 axis before modulation.
 2. **Anabolic monitoring:** Low-dose rapamycin's effects on muscle anabolism and insulin sensitivity are partly mediated through the somatotropic axis. Tracking IGF-1 longitudinally helps distinguish rapamycin-attributable changes from baseline variability.
 
-Suggested monitoring: baseline + 3-month + 12-month draws using the same laboratory. Flag if IGF-1 rises above age-adjusted upper tertile (potential mTORC1 inhibitor-driven GH feedback overshoot) or falls below lower quintile (potential frailty or hepatic signal requiring investigation). See also [[../molecules/compounds/rapamycin]] and [[../interventions/pharmacological/mtor-inhibitors]] for trial context.
+Suggested monitoring: baseline + 3-month + 12-month draws using the same laboratory. Flag if IGF-1 rises above age-adjusted upper tertile (potential mTORC1 inhibitor-driven GH feedback overshoot) or falls below lower quintile (potential frailty or hepatic signal requiring investigation). See also [[rapamycin]] and [[mtor-inhibitors]] for trial context.
 
 ## Hallmark Linkage
 
-Primary hallmark: [[../hallmarks/deregulated-nutrient-sensing]] — serum IGF-1 is the circulating effector of the growth hormone / somatotropic axis and the primary systemic indicator of IIS tone. Elevated mid-life IGF-1 reflects heightened nutrient-sensing anabolic drive; constitutively lowered IGF-1 characterizes longevity-extended model organisms and some centenarian families. Secondary relevance to [[../hallmarks/cellular-senescence]] (IGF-1 modulates SASP and senescence induction) and [[../hallmarks/loss-of-proteostasis]] (IGF-1/mTOR drives protein synthesis rate, relevant to proteostatic burden).
+Primary hallmark: [[deregulated-nutrient-sensing]] — serum IGF-1 is the circulating effector of the growth hormone / somatotropic axis and the primary systemic indicator of IIS tone. Elevated mid-life IGF-1 reflects heightened nutrient-sensing anabolic drive; constitutively lowered IGF-1 characterizes longevity-extended model organisms and some centenarian families. Secondary relevance to [[cellular-senescence]] (IGF-1 modulates SASP and senescence induction) and [[loss-of-proteostasis]] (IGF-1/mTOR drives protein synthesis rate, relevant to proteostatic burden).
 
 ## Limitations and Open Questions
 
@@ -175,14 +175,14 @@ Primary hallmark: [[../hallmarks/deregulated-nutrient-sensing]] — serum IGF-1 
 
 ## Cross-references
 
-- [[../molecules/proteins/igf-1]] — protein biology, structural domains, animal lifespan data, receptor interactions
-- [[../molecules/proteins/igf1r]] — IGF-1 receptor; longevity-associated loss-of-function variants
-- [[../pathways/insulin-igf1]] — IIS pathway signaling; cross-species conservation
-- [[../hallmarks/deregulated-nutrient-sensing]] — primary hallmark context
-- [[../molecules/compounds/rapamycin]] — mTOR inhibitor; interaction with IGF-1 axis
-- [[../molecules/compounds/mk-677]] — GH secretagogue; raises IGF-1 to young-adult levels; safety signals
-- [[../biomarkers/frailty-index]] — related clinical composite; shares low-IGF-1 / frailty overlap in elderly
-- [[../frameworks/biological-age-measurement]] — cross-biomarker comparison MOC
+- [[igf-1]] — protein biology, structural domains, animal lifespan data, receptor interactions
+- [[igf1r]] — IGF-1 receptor; longevity-associated loss-of-function variants
+- [[insulin-igf1]] — IIS pathway signaling; cross-species conservation
+- [[deregulated-nutrient-sensing]] — primary hallmark context
+- [[rapamycin]] — mTOR inhibitor; interaction with IGF-1 axis
+- [[mk-677]] — GH secretagogue; raises IGF-1 to young-adult levels; safety signals
+- [[frailty-index]] — related clinical composite; shares low-IGF-1 / frailty overlap in elderly
+- [[biological-age-measurement]] — cross-biomarker comparison MOC
 
 ## Footnotes
 

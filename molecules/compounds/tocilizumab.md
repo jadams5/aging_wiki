@@ -9,7 +9,7 @@ biologic: true
 molecular-formula: null
 molecular-weight-da: ~148000
 mechanisms: [il-6-receptor-antagonism, cytokine-blockade, anti-inflammatory]
-targets: ["[[../proteins/il-6r]]", "[[../proteins/il-6]]"]
+targets: ["[[il-6r]]", "[[il-6]]"]
 hallmarks: ["[[chronic-inflammation]]", "[[altered-intercellular-communication]]"]
 clinical-stage: fda-approved
 human-evidence-level: strong
@@ -48,7 +48,7 @@ Tocilizumab competitively binds both **soluble IL-6R (sIL-6R)** and **membrane-b
 
 Unlike anti-IL-6 antibodies (e.g., siltuximab), which neutralize the cytokine itself, tocilizumab blocks at the receptor level — it intercepts both locally produced and systemically circulating IL-6. This distinction matters for drug target modeling: anti-IL-6R blockade is complete (all IL-6 sources neutralized) but also removes physiological IL-6 signaling (liver acute-phase response, fever response).
 
-Downstream pathway suppression (via STAT3): CRP, SAA, hepcidin, and fibrinogen synthesis; also suppresses the IL-6-driven component of SASP amplification (IL-6 is both a SASP output and a paracrine SASP amplifier via STAT3) — see [[../processes/sasp]].
+Downstream pathway suppression (via STAT3): CRP, SAA, hepcidin, and fibrinogen synthesis; also suppresses the IL-6-driven component of SASP amplification (IL-6 is both a SASP output and a paracrine SASP amplifier via STAT3) — see [[sasp]].
 
 ### Pharmacokinetics
 
@@ -113,7 +113,7 @@ Note: GCA, sJIA/pJIA, and CRS are all conditions where IL-6 trans-signaling is t
 ### Mechanistic rationale
 
 IL-6 is:
-1. A primary [[../processes/sasp|SASP]] cytokine secreted by senescent cells; also an NF-κB-driven paracrine SASP amplifier.
+1. A primary [[sasp|SASP]] cytokine secreted by senescent cells; also an NF-κB-driven paracrine SASP amplifier.
 2. The defining biomarker of **inflammaging** — chronically elevated in healthy older adults independent of acute illness [^franceschi2000].
 3. Causally linked to cardiometabolic outcomes via Mendelian randomization: IL-6R genetic instruments (IL6R Asp358Ala variant) lower CRP and cardiovascular disease risk, demonstrating that IL-6 axis activity is causal, not merely associative [^cupido2022].
 4. A predictor of frailty incidence, functional decline, and mortality in longitudinal aging cohorts [^lu2023].
@@ -184,14 +184,14 @@ Despite being the most powerful clinical-grade IL-6 axis blocker, tocilizumab ha
 
 ## Cross-references
 
-- **Primary target:** [[../proteins/il-6r]] (implicit stub if absent)
-- **Cytokine ligand:** [[../proteins/il-6]]
-- **Aging biomarker context:** [[../../biomarkers/il-6-biomarker]]
-- **SASP mechanism:** [[../processes/sasp]]
+- **Primary target:** [[il-6r]] (implicit stub if absent)
+- **Cytokine ligand:** [[il-6]]
+- **Aging biomarker context:** [[il-6-biomarker]]
+- **SASP mechanism:** [[sasp]]
 - **Hallmarks:** [[chronic-inflammation]], [[altered-intercellular-communication]]
 - **Comparator drugs (IL-1β axis):** [[canakinumab]] (CANTOS anchor), [[anakinra]] (IL-1Ra)
-- **Intervention class context:** [[../../interventions/pharmacological/senomorphics]] (if it exists; IL-6R blockade is a high-potency senomorphic approach)
-- **Downstream pathway:** [[../../pathways/jak-stat]] (implicit stub if absent)
+- **Intervention class context:** [[senomorphics]] (if it exists; IL-6R blockade is a high-potency senomorphic approach)
+- **Downstream pathway:** [[jak-stat-pathway]]
 
 ## Limitations and gaps
 

@@ -12,7 +12,7 @@ sens-categories: []
 complex-subunits: []
 is-noncoding-rna: false
 druggability-tier: 1
-gtex-aging-correlation: "IL-6 is predominantly secreted under inflammatory conditions; basal mRNA is low in GTEx tissues and does not show a monotonic aging signature in bulk RNA-seq. Protein-level aging data (plasma proteomics) is more informative — see [[../../biomarkers/il-6-biomarker]]. #gap/needs-gtex-aging-correlation"
+gtex-aging-correlation: "IL-6 is predominantly secreted under inflammatory conditions; basal mRNA is low in GTEx tissues and does not show a monotonic aging signature in bulk RNA-seq. Protein-level aging data (plasma proteomics) is more informative — see [[il-6-biomarker]]. #gap/needs-gtex-aging-correlation"
 mr-causal-evidence: yes
 caused-by: ["[[cellular-senescence]]", "[[nf-kb]]"]
 causes: ["[[chronic-inflammation]]", "[[altered-intercellular-communication]]", "[[hepcidin]]"]
@@ -105,7 +105,7 @@ Negative regulators: **SOCS1/SOCS3** (JAK inhibitors induced by STAT3 as negativ
 
 ## IL-6 and aging: the inflammaging axis
 
-Chronic low-grade elevation of IL-6 is among the most consistently replicated biomarkers of aging across population cohorts [^franceschi2000]. Serum IL-6 rises approximately **2–4-fold** from early adulthood to age 80 in healthy individuals, and predicts all-cause mortality, disability, and frailty independently of chronological age. See [[../../biomarkers/il-6-biomarker]] for clinical-interpretation context.
+Chronic low-grade elevation of IL-6 is among the most consistently replicated biomarkers of aging across population cohorts [^franceschi2000]. Serum IL-6 rises approximately **2–4-fold** from early adulthood to age 80 in healthy individuals, and predicts all-cause mortality, disability, and frailty independently of chronological age. See [[il-6-biomarker]] for clinical-interpretation context.
 
 **Mechanistic contributions to age-related pathology:**
 
@@ -156,14 +156,14 @@ Therapeutic implication: **global IL-6 blockade** (tocilizumab/siltuximab) aboli
 
 ## Cross-links
 
-- **Biomarker page:** [[../../biomarkers/il-6-biomarker]] — clinical-interpretation context, aging cohort data, assay considerations
-- **Process pages:** [[../../processes/sasp]] — IL-6 as a central SASP component
-- **Pathway pages:** [[../../pathways/jak-stat-pathway]] — downstream JAK1/2/STAT3 signaling; [[../../pathways/nf-kb]] — upstream transcriptional induction of IL-6 in senescent cells and macrophages
-- **Hallmark pages:** [[../../hallmarks/chronic-inflammation]] · [[../../hallmarks/altered-intercellular-communication]] · [[../../hallmarks/cellular-senescence]]
+- **Biomarker page:** [[il-6-biomarker]] — clinical-interpretation context, aging cohort data, assay considerations
+- **Process pages:** [[sasp]] — IL-6 as a central SASP component
+- **Pathway pages:** [[jak-stat-pathway]] — downstream JAK1/2/STAT3 signaling; [[nf-kb]] — upstream transcriptional induction of IL-6 in senescent cells and macrophages
+- **Hallmark pages:** [[chronic-inflammation]] · [[altered-intercellular-communication]] · [[cellular-senescence]]
 
 ## Limitations and gaps
 
-- **GTEx aging correlation absent:** IL-6 is primarily regulated post-transcriptionally and at secretion level; bulk RNA-seq aging correlation is uninformative for this cytokine. Protein-level aging data is the relevant measure; see [[../../biomarkers/il-6-biomarker]]. #gap/needs-gtex-aging-correlation
+- **GTEx aging correlation absent:** IL-6 is primarily regulated post-transcriptionally and at secretion level; bulk RNA-seq aging correlation is uninformative for this cytokine. Protein-level aging data is the relevant measure; see [[il-6-biomarker]]. #gap/needs-gtex-aging-correlation
 - **Trans-presentation in aging:** Heink 2017 established the trans-presentation mode in TH17 priming, but its quantitative contribution to aging-specific inflammation relative to classical and trans-signaling modes is unknown. #gap/no-mechanism
 - **Selective trans-signaling inhibition in aging:** No aging-indication trial of olamkicept or any selective trans-signaling inhibitor exists. The mechanistic rationale is strong; human evidence gap remains. #gap/needs-human-replication
 - **Causal direction of SASP-IL-6 loop:** Whether IL-6 drives senescence accumulation (→ amplifies SASP) or only reflects it remains contested; interventional data (senolytics lowering IL-6) supports bidirectionality but causality requires further dissection. #gap/contradictory-evidence

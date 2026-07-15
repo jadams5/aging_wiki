@@ -24,7 +24,7 @@ verified-scope: "Dalmasso 2008, Catania 2010, Rinne 2013, Sasaki 2014 verified a
 
 # α-MSH (alpha-melanocyte-stimulating hormone)
 
-α-MSH is a 13-amino-acid peptide derived by post-translational cleavage of [[pomc|proopiomelanocortin]] (POMC). It signals through melanocortin receptors (MC1R–MC5R) to coordinate melanogenesis, appetite suppression, thermoregulation, and broad anti-inflammatory responses. In the aging context, α-MSH is most relevant as (1) the parent peptide for [[../compounds/kpv|KPV]] — its anti-inflammatory C-terminal tripeptide — and (2) the endogenous template for the synthetic analog [[../compounds/melanotan-ii|Melanotan II]]. POMC neuron tone in the hypothalamic arcuate nucleus declines with age, reducing α-MSH signalling to the melanocortin-4 receptor and contributing to age-associated energy dysregulation.
+α-MSH is a 13-amino-acid peptide derived by post-translational cleavage of [[pomc|proopiomelanocortin]] (POMC). It signals through melanocortin receptors (MC1R–MC5R) to coordinate melanogenesis, appetite suppression, thermoregulation, and broad anti-inflammatory responses. In the aging context, α-MSH is most relevant as (1) the parent peptide for [[kpv|KPV]] — its anti-inflammatory C-terminal tripeptide — and (2) the endogenous template for the synthetic analog [[melanotan-ii|Melanotan II]]. POMC neuron tone in the hypothalamic arcuate nucleus declines with age, reducing α-MSH signalling to the melanocortin-4 receptor and contributing to age-associated energy dysregulation.
 
 ## Identity
 
@@ -90,7 +90,7 @@ POMC neurons in the hypothalamic arcuate nucleus (ARC) project to the paraventri
 - **JAK/STAT:** JAK/STAT activation has been reported upon MC5R stimulation; SOCS3 induction by α-MSH (via STAT3) constitutes a negative-feedback anti-inflammatory mechanism
 - **Fever suppression:** acts in the brain's preoptic area (MC4R) to antagonise pyrogen-induced fever; reduces IL-1β and prostaglandin E₂ centrally
 
-These properties are preserved in C-terminal fragments — notably the tripeptide [[../compounds/kpv|KPV]] (Lys-Pro-Val, residues 11–13 of α-MSH) — that act independently of melanocortin receptor binding [^brzoska2010].
+These properties are preserved in C-terminal fragments — notably the tripeptide [[kpv|KPV]] (Lys-Pro-Val, residues 11–13 of α-MSH) — that act independently of melanocortin receptor binding [^brzoska2010].
 
 ### Thermoregulation
 
@@ -102,15 +102,15 @@ MC4R activation in the hypothalamus increases sympathetic outflow to brown adipo
 
 ## KPV: the receptor-independent anti-inflammatory fragment
 
-The C-terminal tripeptide **Lys-Pro-Val (KPV)** corresponds to α-MSH residues 11–13 and retains "almost all of the anti-inflammatory capacity of the full hormone" in cell and rodent models [^brzoska2010]. Critically, KPV's anti-inflammatory activity is **melanocortin-receptor-independent** — it does not measurably bind MC1R–MC5R at physiological concentrations; it enters intestinal epithelial cells via the PepT1 di/tripeptide transporter (SLC15A1) and directly inhibits NF-κB and MAP kinase from within the cell [^dalmasso2008]. See [[../compounds/kpv]] for full pharmacology.
+The C-terminal tripeptide **Lys-Pro-Val (KPV)** corresponds to α-MSH residues 11–13 and retains "almost all of the anti-inflammatory capacity of the full hormone" in cell and rodent models [^brzoska2010]. Critically, KPV's anti-inflammatory activity is **melanocortin-receptor-independent** — it does not measurably bind MC1R–MC5R at physiological concentrations; it enters intestinal epithelial cells via the PepT1 di/tripeptide transporter (SLC15A1) and directly inhibits NF-κB and MAP kinase from within the cell [^dalmasso2008]. See [[kpv]] for full pharmacology.
 
 ## Therapeutic analogs
 
 | Agent | Structure | FDA status | Mechanism |
 |---|---|---|---|
 | Afamelanotide (Scenesse) | Linear α-MSH analog: [Nle4,D-Phe7]-α-MSH | FDA-approved 2019 (EPP) | MC1R agonist; UV-independent melanogenesis |
-| [[../compounds/melanotan-ii\|Melanotan II]] | Cyclic: Ac-Nle-cyclo[Asp-His-D-Phe-Arg-Trp-Lys]-NH₂ | Not approved; investigational | Broad MCR agonist; tanning + appetite + erectile |
-| [[../compounds/kpv\|KPV]] | Tripeptide: H-Lys-Pro-Val-OH | Preclinical | Receptor-independent NF-κB inhibition |
+| [[melanotan-ii\|Melanotan II]] | Cyclic: Ac-Nle-cyclo[Asp-His-D-Phe-Arg-Trp-Lys]-NH₂ | Not approved; investigational | Broad MCR agonist; tanning + appetite + erectile |
+| [[kpv\|KPV]] | Tripeptide: H-Lys-Pro-Val-OH | Preclinical | Receptor-independent NF-κB inhibition |
 
 Afamelanotide is FDA-approved under the orphan-drug pathway for increasing pain-free light exposure in erythropoietic protoporphyria (EPP), with the primary mechanism being UV-independent skin darkening via MC1R that reduces the phototoxic threshold [^wu2021].
 
@@ -147,8 +147,8 @@ Although [[chronic-inflammation]] is a central aging hallmark (inflammaging), α
 ## Key interactors and related entities
 
 - [[pomc]] — parent precursor protein (implicit stub; no separate protein page yet)
-- [[../compounds/kpv]] — C-terminal tripeptide fragment; receptor-independent anti-inflammatory
-- [[../compounds/melanotan-ii]] — synthetic cyclic analog; broad MCR agonist; not approved
+- [[kpv]] — C-terminal tripeptide fragment; receptor-independent anti-inflammatory
+- [[melanotan-ii]] — synthetic cyclic analog; broad MCR agonist; not approved
 - [[mc1r]] — primary pigmentation receptor (implicit stub)
 - [[mc4r]] — appetite/energy receptor (implicit stub)
 - [[mc3r]] — anti-inflammatory + energy balance receptor (implicit stub)

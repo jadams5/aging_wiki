@@ -24,7 +24,7 @@ verified-scope: "Primary-source claims verified via PubMed abstracts (Wang 2004,
 
 # CAMP / hCAP-18 (Cathelicidin Antimicrobial Peptide)
 
-The CAMP gene encodes **hCAP-18** (human cationic antimicrobial protein, 18 kDa) — the sole human cathelicidin. hCAP-18 is a 170-amino-acid precursor stored in neutrophil secondary granules and constitutively expressed in epithelial tissues. Upon neutrophil exocytosis, extracellular cleavage by proteinase 3 releases the 37-amino-acid C-terminal peptide **LL-37**, the biologically active antimicrobial and immunomodulatory effector. CAMP gene expression is potently induced by 1,25(OH)₂D₃ (active vitamin D) through a vitamin D response element (VDRE) in the promoter — a link with major implications for aging because vitamin D sufficiency declines with age. For the therapeutic framing, dosing, and clinical-application evidence for the LL-37 peptide itself, see [[../compounds/ll-37]].
+The CAMP gene encodes **hCAP-18** (human cationic antimicrobial protein, 18 kDa) — the sole human cathelicidin. hCAP-18 is a 170-amino-acid precursor stored in neutrophil secondary granules and constitutively expressed in epithelial tissues. Upon neutrophil exocytosis, extracellular cleavage by proteinase 3 releases the 37-amino-acid C-terminal peptide **LL-37**, the biologically active antimicrobial and immunomodulatory effector. CAMP gene expression is potently induced by 1,25(OH)₂D₃ (active vitamin D) through a vitamin D response element (VDRE) in the promoter — a link with major implications for aging because vitamin D sufficiency declines with age. For the therapeutic framing, dosing, and clinical-application evidence for the LL-37 peptide itself, see [[ll-37]].
 
 ## Identity
 
@@ -90,7 +90,7 @@ The most mechanistically defined regulatory link is vitamin D induction via the 
 
 ## Functional roles in innate immunity
 
-hCAP-18 / LL-37 (via proteolytic release) participates in multiple arms of innate defense. Detailed immunomodulatory functions of the mature LL-37 peptide — including TLR signaling modulation, FPR2 chemotaxis, NLRP3 inflammasome modulation, and neutrophil extracellular trap (NET) formation — are documented on [[../compounds/ll-37]]. Key endogenous biology covered here:
+hCAP-18 / LL-37 (via proteolytic release) participates in multiple arms of innate defense. Detailed immunomodulatory functions of the mature LL-37 peptide — including TLR signaling modulation, FPR2 chemotaxis, NLRP3 inflammasome modulation, and neutrophil extracellular trap (NET) formation — are documented on [[ll-37]]. Key endogenous biology covered here:
 
 - **Neutrophil granule reservoir:** hCAP-18 is preformed and stored, enabling immediate release upon exocytosis — a first-wave response requiring no new transcription
 - **Antimicrobial barrier:** Surface secretion via sweat provides constitutive antimicrobial protection at skin and mucosal barriers
@@ -136,7 +136,7 @@ However, vitamin D supplementation trials in elderly populations have not consis
 - [[nf-kb]] — transcriptional co-activator of CAMP at some promoter configurations
 - [[jak-stat-pathway]] — cytokine signaling (IL-4, IL-13) can suppress CAMP in atopic dermatitis context
 - [[tgf-beta]] — TGF-β suppresses CAMP in aged dermis (Zhang 2019); TGF-β pathway page carries further detail
-- [[nlrp3-inflammasome]] — LL-37 (the cleaved product) can activate NLRP3; see [[../compounds/ll-37]]
+- [[nlrp3-inflammasome]] — LL-37 (the cleaved product) can activate NLRP3; see [[ll-37]]
 
 ## Druggability assessment
 
@@ -157,7 +157,7 @@ However, vitamin D supplementation trials in elderly populations have not consis
 
 ## Cross-references
 
-- [[../compounds/ll-37]] — LL-37 mature peptide; therapeutic framing, clinical evidence, dosing
+- [[ll-37]] — LL-37 mature peptide; therapeutic framing, clinical evidence, dosing
 - [[chronic-inflammation]] — hallmark; cathelicidin connects innate immunity dysregulation to inflammaging
 - [[disabled-adaptive-immunity]] — hallmark; cathelicidin decline contributes to impaired innate immune defense in aging
 - [[tgf-beta]] — upstream suppressor of cathelicidin in aged dermis (Zhang 2019)
