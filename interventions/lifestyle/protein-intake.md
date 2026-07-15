@@ -51,7 +51,7 @@ After a protein-containing meal, circulating essential amino acids (EAAs) — le
 2. Activated mTORC1 phosphorylates S6K1 (p70S6 kinase) and 4E-BP1, releasing 4E-BP1 inhibition of the cap-binding protein eIF4E and enabling ribosomal initiation of translational mRNAs encoding myosin, actin, and other contractile proteins.
 3. The result is a transient ~1–3 hour burst of myofibrillar protein synthesis (MPS) above basal rates.
 
-See [[../../pathways/mtor]] for the full mTORC1 pathway detail.
+See [[mtor]] for the full mTORC1 pathway detail.
 
 ### Anabolic resistance in aging
 
@@ -68,7 +68,7 @@ Underlying mechanisms for anabolic resistance include:
 - Impaired splanchnic extraction (the liver extracts a greater fraction of dietary amino acids in older adults)
 - Increased NF-κB/inflammatory signaling interfering with insulin and IGF-1 downstream signalling
 
-Cross-link: [[../../processes/replicative-senescence]] (myonuclei depletion context); [[../../hallmarks/stem-cell-exhaustion]] (satellite cell contribution to anabolic response is impaired in aged muscle).
+Cross-link: [[replicative-senescence]] (myonuclei depletion context); [[stem-cell-exhaustion]] (satellite cell contribution to anabolic response is impaired in aged muscle).
 
 ---
 
@@ -185,13 +185,13 @@ The protein intake decision for an aging individual involves a genuine tradeoff 
 
 ### Higher protein → elevated IGF-1 and mTORC1 signalling (longevity-pathway concern)
 
-Protein intake is the primary dietary driver of circulating IGF-1. Fontana et al. (2008, documented at [[../../biomarkers/igf-1-biomarker]]) showed that reducing protein from ~1.67 g/kg to ~0.95 g/kg dropped IGF-1 by ~22% over 3 weeks in calorie-restricted subjects, and only protein reduction (not caloric restriction per se) drove the IGF-1 decline. Elevated IGF-1 and chronic mTORC1 activation are the very targets that rapamycin and other longevity-pathway interventions attempt to suppress — see [[../../pathways/mtor]].
+Protein intake is the primary dietary driver of circulating IGF-1. Fontana et al. (2008, documented at [[igf-1-biomarker]]) showed that reducing protein from ~1.67 g/kg to ~0.95 g/kg dropped IGF-1 by ~22% over 3 weeks in calorie-restricted subjects, and only protein reduction (not caloric restriction per se) drove the IGF-1 decline. Elevated IGF-1 and chronic mTORC1 activation are the very targets that rapamycin and other longevity-pathway interventions attempt to suppress — see [[mtor]].
 
 This creates a direct tension:
 - **Lean-mass-preservation goal:** favours ≥1.6 g/kg/day (Morton 2018 plateau; Longland 2016 deficit data)
 - **Longevity-pathway-modulation goal:** favours lower protein (~0.8–1.0 g/kg/day) to reduce IGF-1 and allow mTOR suppression
 
-The wiki does not take a position on which goal should dominate — the right choice depends on the individual's age, sarcopenia risk, caloric deficit context, and whether they are simultaneously using mTOR-inhibiting interventions such as [[../../molecules/compounds/rapamycin]] or practicing [[caloric-restriction]].
+The wiki does not take a position on which goal should dominate — the right choice depends on the individual's age, sarcopenia risk, caloric deficit context, and whether they are simultaneously using mTOR-inhibiting interventions such as [[rapamycin]] or practicing [[caloric-restriction]].
 
 ### Levine 2014 — observational association of high protein with mortality (age-stratified, contested)
 
@@ -213,7 +213,7 @@ The Levine 2014 finding is frequently cited but should be weighted as **low-to-m
 
 ### Methionine restriction as an alternative framing
 
-[[../../interventions/lifestyle/methionine-restriction]] offers a conceptually cleaner way to reduce mTOR activation and IGF-1 without globally reducing protein: methionine is the primary dietary amino acid driving IIS/mTOR activation and cancer-protective effects of protein restriction in animal models. A methionine-restricted diet that preserves total EAA and leucine intake could theoretically preserve MPS while attenuating the longevity-pathway downside of high protein. This is untested in humans at scale. #gap/needs-human-replication
+[[methionine-restriction]] offers a conceptually cleaner way to reduce mTOR activation and IGF-1 without globally reducing protein: methionine is the primary dietary amino acid driving IIS/mTOR activation and cancer-protective effects of protein restriction in animal models. A methionine-restricted diet that preserves total EAA and leucine intake could theoretically preserve MPS while attenuating the longevity-pathway downside of high protein. This is untested in humans at scale. #gap/needs-human-replication
 
 ---
 
@@ -266,16 +266,16 @@ Recent small trials (PMID 41931963 — Biersteker 2026, frail older adults + res
 
 - [[sarcopenia]] — primary phenotype this intervention prevents/attenuates
 - [[frailty]] — downstream phenotype; protein adequacy is a key modifiable risk factor
-- [[../../tissues/skeletal-muscle]] — the tissue whose proteostasis this intervention directly supports
-- [[../../hallmarks/stem-cell-exhaustion]] — satellite cell activation is part of the protein-adequate MPS response
-- [[../../hallmarks/loss-of-proteostasis]] — muscle protein turnover balance; protein intake counteracts net protein breakdown
-- [[../../pathways/mtor]] — the primary anabolic signalling pathway activated by leucine/EAA
-- [[../../biomarkers/igf-1-biomarker]] — IGF-1 elevation is the tradeoff signal for high protein intake (Fontana 2008 documented there)
-- [[../../biomarkers/grip-strength-biomarker]] — grip strength is a validated functional readout of lean mass and sarcopenia risk
-- [[../../interventions/lifestyle/caloric-restriction]] — the opposing dietary strategy on the mTOR/IGF-1 axis
-- [[../../interventions/lifestyle/methionine-restriction]] — a more selective approach to reducing mTOR signalling without reducing total protein
-- [[../../interventions/lifestyle/exercise]] — resistance training is the primary synergistic partner for protein intake in preserving lean mass
-- [[../../interventions/lifestyle/intermittent-fasting]] — compatible with high protein per eating window; timing interaction not fully characterized
+- [[skeletal-muscle]] — the tissue whose proteostasis this intervention directly supports
+- [[stem-cell-exhaustion]] — satellite cell activation is part of the protein-adequate MPS response
+- [[loss-of-proteostasis]] — muscle protein turnover balance; protein intake counteracts net protein breakdown
+- [[mtor]] — the primary anabolic signalling pathway activated by leucine/EAA
+- [[igf-1-biomarker]] — IGF-1 elevation is the tradeoff signal for high protein intake (Fontana 2008 documented there)
+- [[grip-strength-biomarker]] — grip strength is a validated functional readout of lean mass and sarcopenia risk
+- [[caloric-restriction]] — the opposing dietary strategy on the mTOR/IGF-1 axis
+- [[methionine-restriction]] — a more selective approach to reducing mTOR signalling without reducing total protein
+- [[exercise]] — resistance training is the primary synergistic partner for protein intake in preserving lean mass
+- [[intermittent-fasting]] — compatible with high protein per eating window; timing interaction not fully characterized
 
 ---
 
