@@ -29,7 +29,7 @@ Genomic instability encompasses any form of heritable DNA or chromosomal alterat
 - **Nuclear DNA damage**: DSBs, SSBs, oxidative lesions (8-oxo-dG), crosslinks, mismatches, deletions, insertions
 - **Chromosomal instability**: aneuploidy, large-scale copy-number variation, translocations
 - **Mitochondrial DNA (mtDNA) damage**: point mutations, deletions — distinct repair context from nuclear DNA #gap/unsourced — dedicated mtDNA-damage atomic page not yet seeded
-- **Somatic mosaicism**: the accumulation of distinct somatic mutation profiles across cells of the same tissue — canonical atomic home is [[processes/somatic-mutation-accumulation]] (measured per-tissue rates, the Cagan 2022 cross-species constraint, Martincorena/Moore normal-tissue clonal-selection atlases)
+- **Somatic mosaicism**: the accumulation of distinct somatic mutation profiles across cells of the same tissue — canonical atomic home is [[processes/somatic-mutation-accumulation]] (measured rates and tissue atlases); causal synthesis and the Efimov 2026 mutation-only lifespan model are aggregated at [[hypotheses/somatic-mutation-theory-of-aging]]
 
 SENS correspondence: **OncoSENS** — the SENS framework targets genomic instability primarily through cancerous transformation risk; therapeutic emphasis is on preventing oncogenic mutations rather than on repair restoration.
 

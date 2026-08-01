@@ -8,11 +8,11 @@ selective-variants: []   # CHIP is a phenotype (clonal-expansion readout), not a
 druggability-tier: 4
 caused-by: ["[[genomic-instability]]"]
 causes: ["[[cellular-senescence]]", "[[chronic-inflammation]]", "[[phenotypes/clonal-hematopoiesis]]"]
-literature-checked-through: 2026-05-26
+literature-checked-through: 2026-07-21
 verified: true
-verified-date: 2026-05-26
+verified-date: 2026-07-30
 verified-by: claude
-verified-scope: "Cagan 2022 verified end-to-end against local PDF (all 28 pages). Martincorena 2015 verified end-to-end against local PMC PDF (newly downloaded). Martincorena 2018 verified end-to-end against local PMC PDF (newly downloaded). Albertson 2009 verified end-to-end against local PMC PDF (newly downloaded). Lodato 2018 not re-read — cross-checked against verified neurons.md (verified: true 2026-05-06, verified against PMC5831169); neuronal rates match. Moore 2020 not_oa — claims in tissue-rate table kept with Moore 2020 citation; specific quantitative claims (~29 base substitutions/year) unconfirmed against full text. Coorens 2025 integrated from abstract only (local PDF not available); rate ~28 SNVs/gastric gland/year confirmed from abstract."
+verified-scope: "Prior source-verification scope retained from 2026-05-26 (Cagan 2022, Martincorena 2015/2018, Albertson 2009, and Lodato 2018 cross-check; Moore 2020 full text and Coorens 2025 beyond-abstract details remain unchecked). Efimov 2026 checked end-to-end against the open-access Article-in-Press manuscript and supplement; model-derived claims are explicitly separated from empirical mutation-rate evidence. Aitken 2026 burden, driver-count and background-selection claims cross-checked against the verified study extraction, whose full article, Extended Data, reporting summary and supplements were checked."
 ---
 
 # Somatic Mutation Accumulation
@@ -92,6 +92,12 @@ A striking finding from the Sanger Institute's normal-tissue programme is that a
 
 This pervasive clonal dynamics in normal tissue reframes the cancer-aging relationship: cancer is not the first emergence of mutant cells, but the acquisition of additional mutations (or epigenetic events) enabling invasion and proliferation beyond the tissue boundary in an already heavily mutated field. #gap/no-mechanism — the mechanisms governing whether an expanded driver-mutant clone remains benign vs. acquires malignant properties are not fully understood.
 
+### Experimental separation of mutation burden from oncogenic selection
+
+Aitken et al. 2026 applied the same neonatal diethylnitrosamine exposure across four divergent mouse genetic backgrounds and sequenced 581 independently arising, histologically homogeneous dysplastic liver nodules. Background changed base-substitution burden (median 13.3–17.6 mutations/Mb; ANOVA P = 1.12 × 10⁻¹³), but burden was discordant with the strain-level susceptibility/latency proxy: C3H reached a pilot-defined 100%-macroscopic-incidence collection endpoint earliest despite a lower median burden than BL6 or CAST. These were fixed background-specific harvest ages, not individual time-to-tumour observations. C3H nodules also typically carried one identified driver, whereas the other backgrounds typically carried at least two (P = 1.97 × 10⁻¹³) [^aitken2026].
+
+This controlled result separates three quantities that simple mutation-count models conflate: mutagenesis, selection of a compatible driver and survival of the early mutant lineage. It supports the narrower conclusion that the phenotypic effect of somatic mutations depends on inherited background and tissue context; it does not test whether physiological mutation accumulation causes non-neoplastic aging. See [[hepatocellular-carcinoma]] for the disease-specific synthesis and [[ras-mapk]] for pathway-level convergence. #gap/needs-human-replication
+
 ## Mechanisms of somatic mutation accumulation
 
 ### 1. Replication errors
@@ -145,7 +151,7 @@ Somatic mutation accumulation is **upstream** of several other hallmarks and pat
 
 ## Limitations and knowledge gaps
 
-**Causal vs. correlational status.** The fundamental open question is whether somatic mutation burden causally drives aging phenotypes (beyond cancer) or accumulates as a bystander/consequence of the same processes that cause aging. The Cagan 2022 cross-species constraint is consistent with a causal contribution, but correlation with maximum lifespan does not establish causality [^cagan2022]. Reducing somatic mutation rate specifically (rather than the broader DNA damage load) in a controlled lifespan experiment has **not** been demonstrated in mammals. #gap/needs-replication
+**Causal vs. correlational status.** The fundamental open question is whether somatic mutation burden causally drives aging phenotypes (beyond cancer) or accumulates as a bystander/consequence of the same processes that cause aging. The Cagan 2022 cross-species constraint is consistent with a causal contribution, but correlation with maximum lifespan does not establish causality [^cagan2022]. Efimov et al. 2026 translated human mutation-rate inputs into a counterfactual multi-organ model that predicts median survival of 156 years under independent organ failure (146–194-year pointwise dependence envelope), but the result assumes mutation-driven cell death through an inferred lethality score and is not intervention or observational outcome evidence [^efimov2026]. Reducing somatic mutation rate specifically (rather than the broader DNA damage load) in a controlled lifespan experiment has **not** been demonstrated in mammals. #gap/needs-replication
 
 **Incomplete tissue atlas.** Most precise mutation burden data come from tissues amenable to clonal organoid culture or microdissection (intestine, oesophagus, endometrium, skin). Rates in cardiac muscle, skeletal muscle, adipose, and many CNS regions are poorly characterized. #gap/needs-replication
 
@@ -159,12 +165,16 @@ Somatic mutation accumulation is **upstream** of several other hallmarks and pat
 
 ## Recency literature note
 
-A date-filtered PubMed search (2022–2026, terms: "somatic mutation accumulation aging," "somatic mosaicism aging WGS normal tissue") was conducted on 2026-05-26. High-priority hits triage:
+A date-filtered PubMed search (2022–2026, terms: "somatic mutation accumulation aging," "somatic mosaicism aging WGS normal tissue") was conducted on 2026-05-26. PubMed and Europe PMC were refreshed on 2026-07-21 with a 2021–2026 title/abstract query combining somatic mutation or mosaicism with aging or lifespan. High-priority hits triage:
 
 - Ren 2022 (*Frontiers in Aging*, PMID 36213345) — review of age-related somatic mutation burden using single-cell sequencing; consistent with Cagan 2022 framing; discretionary
 - Bizzotto 2022 (*Nature Reviews Neuroscience*, PMID 35322263) — review of somatic mosaicism as lineage tracer in brain; supports Lodato 2018 neuronal rates; discretionary
 - Coorens 2025 (*Nature*, PMID 40108450) — normal gastric epithelium; WGS of 238 microdissections, 30 individuals; ~28 SNVs/gastric gland/year; extends Sanger normal-tissue programme to stomach. **Integrated into tissue rate table above.**
 - Cagan 2025 / Coorens 2025 (*Nature*, PMID 40044850) — mouse haematopoietic stem/progenitor cell dynamics; ~45 somatic mutations/year in mouse HSPCs, ~threefold higher than human progenitors; extends the cross-species rate-vs-lifespan picture to the blood compartment; consistent with Cagan 2022 intestinal crypt framing
+- Jeffries 2025 (*Nature*, PMID 40903571) — single-cell transcriptomic, genomic, and spatial profiling of the human prefrontal cortex across the lifespan; directly relevant to neuronal mutation-rate parameterization and merits dedicated extraction before numerical propagation
+- Coorens et al. 2025 (*Nature*, PMID 40604182) — Somatic Mosaicism across Human Tissues Network reference-catalog programme spanning 19 tissue sites from 150 non-diseased donors; a high-priority future source for multi-tissue model inputs, but the programme description is not itself an outcome atlas
+- Koch 2026 (*Nature Aging*, PMID 42230995) — indexed abstract links lower DREAM repressive activity to lower mutation rates across mouse tissues and mammalian lifespan, and reports reduced brain mutation accumulation after DREAM knockout; no lifespan endpoint is reported, so this does not yet satisfy the mutation-lowering lifespan test. **Abstract-only recency triage; dedicated full-text extraction pending.** [^koch2026]
+- Efimov 2026 (*npj Aging*, PMID 42350444) — human-parameterized somatic-mutation-only survival model; integrated as a model-derived causal-interpretation result, not as a new empirical mutation-rate estimate
 - No meta-analyses or RCTs exist for this process page (pre-clinical/observational domain only)
 
 No recent high-priority hit contradicts the Cagan 2022 cross-species framing or the Martincorena normal-tissue positive-selection finding.
@@ -186,3 +196,9 @@ No recent high-priority hit contradicts the Cagan 2022 cross-species framing or 
 [^lodato2018]: [[studies/lodato-2018-somatic-mutations-neurons]] · doi:10.1126/science.aao4426 · PMID 29217584 · n=161 neurons (93 PFC + 26 DG normal; 42 DNA-repair-disorder) from 15 normal donors aged 4 months–82 years · observational single-cell WGS · p=0.006 (repair-disorder excess) · model: human neurons · see [[cell-types/neurons]] for full verified detail · archive status: download failed (OA via PMC5831169)
 
 [^albertson2009]: [[studies/albertson-2009-polymerase-proofreading-mice]] · doi:10.1073/pnas.0907147106 · PMID 19805137 · n=not stated for lifespan; survival curves shown for Pol-ε exo⁻ and Pol-δ exo⁻ mice · in-vivo mouse genetics · model: C57BL/6 Pol-ε/Pol-δ proofreading-deficient mice · archive status: pending download (OA)
+
+[^efimov2026]: [[studies/efimov-2026-somatic-mutations-lifespan-bound]] · doi:10.1038/s41514-026-00421-6 · PMID 42350444 · n=16 life-table populations + 229 healthy-control cellular mutation samples from 6 source studies; synthetic cohorts up to 10^6 trajectories/model · in-silico dynamical-systems + reliability modeling · model: human-parameterized brain, heart, liver, and airway cell populations · conditional outputs, not observed lifespans.
+
+[^koch2026]: doi:10.1038/s43587-026-01132-z · PMID 42230995 · Koch Z et al. · *Nature Aging* 2026;6(6):1267–1280 · mouse multi-tissue single-cell atlas + cross-species comparative analysis + mouse knockout · abstract checked via PubMed on 2026-07-21; full text not yet extracted here
+
+[^aitken2026]: [[studies/aitken-2026-genetic-background-cancer-evolution]] · n=215 DEN-treated male mice / 581 independently arising dysplastic liver nodules in the main analysis · in-vivo · ANOVA P=1.12×10⁻¹³ for background-associated substitution burden; P=1.97×10⁻¹³ for C3H versus other backgrounds in driver count · model: four divergent mouse backgrounds exposed once to DEN 20 mg/kg intraperitoneal at postnatal day 15 · doi:10.1038/s41586-026-10821-z · PMID 42486977

@@ -9,9 +9,9 @@ key-strengths: [transgenics, lifespan-tractability, mammalian-physiology, multi-
 key-divergences: [telomere-biology, immune-aging, microbiome, drug-metabolism-CYP]
 itp-validated: true
 verified: true
-verified-date: 2026-05-14
+verified-date: 2026-07-30
 verified-by: claude
-verified-scope: "Primary-source PDFs verified for the original 7 cited DOIs (Harrison 2009, Holzenberger 2003, Martin-Montalvo 2013, MGSC 2002, Prowse & Greider 1995, Strong 2016, Schaum et al. 2020) — read in full with corrections applied. 2026-05-14 first additions verified against full PDFs: Martin/Mattson 2010 (PNAS 'metabolically morbid' — Perspective article; Table 1 confirms obesity/hypertension/insulin resistance claims; framing accurate), Rosshart 2017 (Cell wildling microbiome — disease-resistance claims verified; 'immune competence' wording corrected to 'reduced immunopathological inflammation'; survival figures 92% vs ~17% confirmed from Fig. 5A), Runge 2025 (Nat Comms wildling phenotype — wildling-like phenotype framing confirmed; oral gavage TX system verified), Ivimey-Cook 2025 (Aging Cell vertebrate meta-analysis — 911 effect sizes / 167 papers / 8 vertebrate species; rapamycin + DR significant, metformin not; framing accurate with caveat that rapamycin effect is sensitive to publication-bias adjustment and measure choice). All four PDF-verified. 2026-05-14 second-pass additions now PDF-verified: Richter/Garner 2011 PLoS ONE (heterogenization-improves-reproducibility claim confirmed; F₁,₂₈=4.222 p=0.049; weak-effect caveat added to footnote; body claim directionally accurate); Swallow 1998 Behav Genet (75% increase / 10 generations quantitative claim confirmed verbatim from abstract; rpm-vs-minutes mechanism detail and realized heritability 0.19 added to footnote). All 13 cited DOIs now PDF-verified."
+verified-scope: "The original 13 source set (Harrison 2009, Holzenberger 2003, Martin-Montalvo 2013, MGSC 2002, Prowse & Greider 1995, Strong 2016, Schaum 2020, Martin/Mattson 2010, Rosshart 2017, Runge 2025, Ivimey-Cook 2025, Richter/Garner 2011 and Swallow 1998) was previously checked against primary full texts with the recorded corrections. Aitken 2026 genetic-background and cancer-evolution claims cross-checked against the verified study extraction, whose full article, Extended Data, reporting summary and supplements were checked."
 ---
 
 
@@ -48,9 +48,12 @@ The house mouse is the **dominant vertebrate model in aging biology**, combining
 **Key strain-specific corrections documented in this wiki:**
 - Holzenberger 2003 IGF1R+/− lifespan effect was on **129/Sv background**, not C57BL/6; mean lifespan +26% combined (P<0.02), female-only result +33% (P<0.001); males +15.9% (NS) — see [[insulin-igf1]] page for details [^holzenberger2003].
 - Martin-Montalvo 2013 metformin main result was in **C57BL/6**; a B6C3F1 replication cohort was non-significant — see [[metformin]] page [^martinmontalvo2013].
+- Aitken 2026 standardized a single neonatal liver-carcinogen exposure across C3H/HeOuJ, C57BL/6J, CAST/EiJ and CAROLI/EiJ backgrounds and found background-associated differences in mutation processing, selected RAS–MAPK drivers, inferred whole-genome-duplication propensity and early clonal survival across 581 dysplastic nodules [^aitken2026]. Shared litter and animal environment did not explain those genomic outcomes. This is a direct cancer-model demonstration that one background cannot stand in for “the mouse”; however, CAROLI/EiJ is *Mus caroli*, a separate species, and the male neonatal DEN model does not quantify human ancestry effects. See [[studies/aitken-2026-genetic-background-cancer-evolution]].
 
 [^holzenberger2003]: doi:10.1038/nature01298 · Holzenberger M et al. · n=20 Igf1r+/− ♀ + 17 WT ♀; 12 Igf1r+/− ♂ + 16 WT ♂ (cohort 1) · in-vivo · p<0.02 combined, p<0.001 females · model: 129/Sv mice (Igf1r+/−); mean lifespan +26% combined, +33% ♀, +15.9% ♂ (NS)
 [^martinmontalvo2013]: doi:10.1038/ncomms3192 · Martin-Montalvo A et al. · in-vivo · p=0.02 (Gehan-Breslow) · model: male C57BL/6 mice; 0.1% w/w metformin from ~6 months; B6C3F1 replication cohort NS (p=0.064)
+
+[^aitken2026]: [[studies/aitken-2026-genetic-background-cancer-evolution]] · n=215 DEN-treated male mice / 581 independently arising dysplastic liver nodules in the main analysis · in-vivo · model: C3H/HeOuJ and C57BL/6J *Mus musculus domesticus*, CAST/EiJ *M. musculus castaneus*, and CAROLI/EiJ *Mus caroli*; single DEN 20 mg/kg intraperitoneal at postnatal day 15 · doi:10.1038/s41586-026-10821-z · PMID 42486977
 
 ## NIA Interventions Testing Program
 

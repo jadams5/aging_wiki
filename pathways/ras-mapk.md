@@ -13,9 +13,9 @@ druggability-tier: 1
 caused-by: []
 causes: ["[[cellular-senescence]]"]
 verified: true
-verified-date: 2026-05-06
+verified-date: 2026-07-30
 verified-by: claude
-verified-scope: "Serrano 1997 (doi:10.1016/s0092-8674(00)81902-9), Slack 2015 (doi:10.1016/j.cell.2015.06.023), and Lake 2016 (doi:10.1007/s00018-016-2297-8) verified against local PDFs. Roskoski 2012 (doi:10.1016/j.phrs.2012.04.005) is closed-access (not_oa) — review-level claims attributed to it not independently verified. WikiPathways ID WP4223 confirmed invalid (404); frontmatter updated accordingly. Pharmacology table (FDA approval years, drug names) not independently re-verified against FDA records."
+verified-scope: "Serrano 1997, Slack 2015 and Lake 2016 checked against primary full texts. Aitken 2026 MAPK convergence, driver-frequency and driver-by-background claims cross-checked against the verified study extraction, whose full article, Extended Data, reporting summary and supplements were checked. Roskoski 2012 is closed-access and its review-level claims were not independently checked. WikiPathways ID WP4223 was confirmed invalid; pharmacology-table approval years and drug names were not independently re-verified against regulator records."
 ---
 
 # RAS–RAF–MEK–ERK MAPK signaling pathway
@@ -123,6 +123,12 @@ The Drosophila result has not been replicated in mice or humans. Mechanistic ext
 
 Clonal hematopoiesis of indeterminate potential (CHIP) is enriched for mutations in RAS pathway genes (NRAS, KRAS, CBL, PTPN11/SHP2), suggesting that RAS-MAPK-activating mutations confer a proliferative advantage to hematopoietic stem cells during aging-driven stem cell competition. This connects RAS-MAPK to [[stem-cell-exhaustion|stem cell exhaustion]] via a clonal selection mechanism. #gap/unsourced — dedicated citation needed for CHIP-RAS mutation frequency; link to CHIP literature when a page is seeded.
 
+### Genetic background selects among oncogenic routes into RAS–MAPK
+
+In 581 diethylnitrosamine-induced, histologically homogeneous dysplastic liver nodules from four divergent mouse backgrounds, Aitken et al. 2026 found at least one probable activating MAPK mutation in 550 nodules (94.7%, reported as 95%): *Braf* appeared in 252, *Hras* in 224, *Egfr* in 84 and *Kras* in 21 [^aitken2026]. The gene counts overlap because 31 nodules carried two of these drivers while a different 31 carried none. Pathway-level convergence therefore persisted across backgrounds, but driver-gene frequencies (χ² P = 6.59 × 10⁻¹⁴) and the specific *Hras* Q61 substitution (χ² P = 2.69 × 10⁻⁶) differed. Neither local sequence divergence nor modeled mutation spectra explained the preferences.
+
+The core MAPK transcriptional response was broadly conserved, while driver-by-background interactions altered p53-, TGF-β-, PPAR- and xenobiotic-response programs. Thus, the same pathway activation can be reached through different selected alleles and produce different downstream states depending on the inherited genome. This is cancer-model evidence for somatic–germline epistasis, not evidence that RAS–MAPK inhibition is geroprotective in mammals; all treated animals were male and exposed neonatally to one acute hepatocarcinogen. #gap/needs-human-replication
+
 ## Pharmacology
 
 | Inhibitor class | Examples | Target | FDA status | Aging context |
@@ -175,3 +181,5 @@ No RAS-MAPK inhibitor is currently being evaluated in an aging or geroprotection
 [^lake2016]: doi:10.1007/s00018-016-2297-8 · Lake D, Corrêa SAL, Müller J · *Cell Mol Life Sci* 2016 · review · model: ERK1/2 negative feedback circuits (SOS1, RAF, SPRY, DUSP families) · covers kinetics and molecular mechanisms of each feedback arm; cited >490 times · note: OA hybrid; PDF pending download
 
 [^slack2015]: doi:10.1016/j.cell.2015.06.023 · Slack C, Alic N, Foley A, Cabecinha M, Hoddinott MP, Partridge L · *Cell* 2015 · in-vivo · model: *Drosophila melanogaster* · trametinib at ~1 µM diet concentration extended median lifespan ~8%; effect mediated via RAS-ERK-ETS axis (ETS transcription factor Pointed); did not extend additively with dietary restriction; no mammalian validation · note: OA hybrid; PDF pending download
+
+[^aitken2026]: [[studies/aitken-2026-genetic-background-cancer-evolution]] · n=215 DEN-treated male mice / 581 independently arising dysplastic liver nodules in the main analysis · in-vivo · χ² P=6.59×10⁻¹⁴ for driver-gene frequency by background; χ² P=2.69×10⁻⁶ for *Hras* Q61 substitution by background · model: four divergent mouse backgrounds exposed once to DEN 20 mg/kg intraperitoneal at postnatal day 15 · doi:10.1038/s41586-026-10821-z · PMID 42486977

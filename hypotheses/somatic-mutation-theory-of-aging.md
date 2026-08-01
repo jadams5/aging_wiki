@@ -8,6 +8,7 @@ treatment-mode: evidence-aggregating
 key-evidence-for:
   - "[[processes/somatic-mutation-accumulation]]"
   - "[[studies/cagan-2022-somatic-mutation-rates-mammals]]"
+  - "[[studies/efimov-2026-somatic-mutations-lifespan-bound]]"
   - "[[studies/martincorena-2015-somatic-mutations-normal-skin]]"
   - "[[studies/martincorena-2018-somatic-clones-oesophagus]]"
   - "[[phenotypes/clonal-hematopoiesis]]"
@@ -21,18 +22,18 @@ related-hallmarks:
   - "[[hallmarks/genomic-instability]]"
   - "[[hallmarks/cellular-senescence]]"
   - "[[hallmarks/stem-cell-exhaustion]]"
-literature-checked-through: 2026-05-26
+literature-checked-through: 2026-07-21
 verified: true
-verified-date: 2026-05-26
+verified-date: 2026-07-21
 verified-by: claude
-verified-scope: "Szilard 1959 verified against local PDF (PMC222509 — Poisson hit model description confirmed accurate). Failla 1958 not_oa (closed access) — historical framing claims remain scoped to secondary review [^vijg2021]. Yang 2023 ICE verified against local PDF (pages 1-10): ~50% faster epigenetic aging and up to 57% reversal by OSK confirmed. Lawson 2025 verified against local PDF: n=1,042 oral + 371 blood confirmed; 46 genes under positive selection confirmed from abstract (body text cites 49 by a different analysis). Albertson 2009 verified against local PDF: cancer-not-aging phenotype confirmed. Bujarrabal 2025 PDF download failed (0 candidate URLs after PMC filtering); abstract verified via PubMed efetch: 'DNA damage to the somatic genome is a major causal mechanism of ageing' confirmed. Cagan 2022 rate/burden numerics cross-checked against verified [[processes/somatic-mutation-accumulation]] (verified: true 2026-05-26) — all numbers consistent, not re-read from PDF."
+verified-scope: "Prior source-verification scope retained from 2026-05-26 (Szilard 1959, Yang 2023 ICE, Lawson 2025, Albertson 2009, Bujarrabal 2025 abstract, and Cagan 2022 cross-check; Failla 1958 and Curtis 1966 historical framing remain secondary-source-limited). Efimov 2026 checked end-to-end against the open-access Article-in-Press manuscript and supplement; model inputs, outputs, assumptions, and limitations propagated here."
 ---
 
 # Somatic Mutation Theory of Aging
 
 ## TL;DR
 
-The somatic mutation theory of aging holds that **the lifelong accumulation of heritable DNA sequence changes in somatic cells — fixed mutations propagated through cell division — progressively degrades tissue function and causes aging**. The theory's signature predictions are (1) somatic mutation rate should inversely correlate with species lifespan, (2) genotypes that increase mutation rate ("mutator phenotypes") should accelerate aging, and (3) reducing the mutation rate should extend healthspan or lifespan. Proposed independently by Giovanni Failla (1958) and Leo Szilard (1959), this is one of the oldest mechanistic theories of aging; it has been substantially updated and revived by modern single-cell and cross-species sequencing. Its current status is **contested**: the rate-versus-lifespan prediction is supported with remarkable quantitative precision across mammals (Cagan 2022), but whether mutations are causally limiting versus merely accumulating in parallel with aging remains unproven in humans.
+The somatic mutation theory of aging holds that **the lifelong accumulation of heritable DNA sequence changes in somatic cells — fixed mutations propagated through cell division — progressively degrades tissue function and causes aging**. The theory's signature predictions are (1) somatic mutation rate should inversely correlate with species lifespan, (2) genotypes that increase mutation rate ("mutator phenotypes") should accelerate aging, and (3) reducing the mutation rate should extend healthspan or lifespan. Proposed independently by Giovanni Failla (1958) and Leo Szilard (1959), this is one of the oldest mechanistic theories of aging; it has been substantially updated and revived by modern single-cell and cross-species sequencing. Its current status is **contested**: the rate-versus-lifespan prediction is supported with remarkable quantitative precision across mammals (Cagan 2022), and a new human-parameterized model estimates a large but incomplete mutation-only lifespan constraint (Efimov 2026), but whether mutations are causally limiting versus merely accumulating in parallel with aging remains unproven in humans [^efimov2026].
 
 ---
 
@@ -105,7 +106,11 @@ Martincorena et al. demonstrated that aged normal tissues harbor not just passiv
 
 ### 2022: Cagan — the cross-species rate constraint
 
-The most precise quantitative test of Prediction 1 to date: Cagan et al. 2022 (*Nature*) measured somatic mutation rates in intestinal crypts across 16 mammalian species and found that mutation rate per year inversely correlates with species maximum lifespan (log-log LME regression FVE = 0.85, P = 1×10⁻⁶) [^cagan2022]. Crucially, the **end-of-life somatic mutation burden** varied only ~3-fold across species with a ~30-fold lifespan range — consistent with a ceiling model where a common mutation burden threshold is reached near species-specific end of life. For rate/burden data and the full statistical picture, see [[processes/somatic-mutation-accumulation]] (verified 2026-05-26).
+The most precise quantitative test of Prediction 1 to date: Cagan et al. 2022 (*Nature*) measured somatic mutation rates in intestinal crypts across 16 mammalian species and found that mutation rate per year inversely correlates with species maximum lifespan (log-log LME regression FVE = 0.85, P = 1×10⁻⁶) [^cagan2022]. Crucially, the **end-of-life somatic mutation burden** varied only ~3-fold across species with a ~30-fold lifespan range — consistent with a ceiling model where a common mutation burden threshold is reached near species-specific end of life. For rate/burden data and the full statistical picture, see [[processes/somatic-mutation-accumulation]] (verified 2026-07-21).
+
+### 2026: Efimov — a mutation-only human lifespan model
+
+Efimov et al. converted human life tables and mutation-burden data from neurons, cardiomyocytes, hepatocytes, liver progenitor cells, and bronchial basal cells into an incremental cell-loss and multi-organ reliability model. Under the model's independence assumption, fixed age-30 background mortality plus mutation-driven failure of the four organ components produced median survival of 156 years and an operational 10^-5-survival time of 470 years; pointwise Fréchet envelopes were 146–194 and 210–557 years, respectively [^efimov2026]. These are conditional simulation outputs, not observed lifespans. The paper explicitly states that the complete counterfactual cannot be conventionally falsified because no organism ages through somatic mutations alone.
 
 ---
 
@@ -144,6 +149,12 @@ Clonal hematopoiesis of indeterminate potential ([[phenotypes/clonal-hematopoies
 ### Population-scale normal-tissue somatic mutation data
 
 Lawson et al. 2025 (*Nature*) profiled somatic mutations across 1,042 oral epithelium and 371 blood samples using ultra-sensitive targeted NanoSeq, identified 46 genes under positive selection (abstract; 49 by a secondary dNdScv analysis in the body), documented oral epithelium mutation rate ~18 SNVs/diploid genome/year, and showed that tobacco and alcohol exposures accelerate clonal dynamics in normal tissue [^lawson2025]. This extends the Martincorena 2015/2018 programme to a population scale, confirming pervasive driver-mutant clonal dynamics in aged normal tissue as a generalizable phenomenon across tissues and individuals.
+
+### Quantitative upper-bound modeling: substantial but incomplete contribution
+
+Efimov 2026 asks how long a counterfactual human population would survive if all age-progressive processes except somatic mutations were removed. The model estimates a 156-year median under independent organ failure and a 146–194-year dependence envelope, compared with a 1,759-year median under the same fixed background hazard without age-progressive biology [^efimov2026]. Post-mitotic neurons and cardiomyocytes dominate the predicted constraint; modeled liver and airway cell replacement delays mutation-only failure by millennia.
+
+This is useful **quantitative hypothesis generation**, not direct causal confirmation. Per-mutation cell lethality is constructed from essential-gene overlap, deleteriousness predictions, and haploinsufficiency rather than measured; organ failure thresholds are proxies; and the model excludes sublethal dysfunction, cancer, clonal expansion, most organs, and systemic coupling. Its strongest result is the testable tissue-ordering prediction, not the exact ages. #gap/needs-replication
 
 ---
 
@@ -185,7 +196,7 @@ However, three important counterweights prevent a higher confidence assignment:
 
 3. **Mutator models cause cancer, not accelerated aging.** The phenotypic divergence in mutator animals is the most direct empirical test of the strong causal claim; it gives ambiguous results.
 
-The theory is best understood as **partially corroborated**: Prediction 1 is strongly supported; Prediction 2 is supported with major caveats; Prediction 3 has never been directly tested in a mammal. **The field's current consensus leans toward a multi-mechanism model** where somatic mutations, epigenetic drift, and signaling dysregulation operate in parallel as partially interacting aging drivers — none is rate-limiting alone.
+The theory is best understood as **partially corroborated**: Prediction 1 is strongly supported; Prediction 2 is supported with major caveats; Prediction 3 has never been directly tested in a mammal. Efimov 2026 makes the proposed contribution quantitatively explicit, but it assumes rather than demonstrates mutation-driven cell death and therefore does not close the causal gap [^efimov2026]. **The field's current consensus leans toward a multi-mechanism model** where somatic mutations, epigenetic drift, and signaling dysregulation operate in parallel as partially interacting aging drivers — none is rate-limiting alone.
 
 Compare [[hypotheses/dna-damage-theory-of-aging]] (status: **active**) — the DDT is assessed more favorably because it encompasses epigenetic disruption downstream of DNA lesions (not just mutations), giving it a broader evidentiary substrate. The somatic-mutation theory is the more specific, and therefore more falsifiable, claim.
 
@@ -202,6 +213,7 @@ Compare [[hypotheses/dna-damage-theory-of-aging]] (status: **active**) — the D
 | Cross-species somatic mutation rate scaling extends to non-intestinal tissues and invertebrate organisms | Positive (generalizability) |
 | A mammal with genuinely elevated somatic mutation rate that nonetheless lives longer than its body-mass predicts | Would substantially complicate or falsify Prediction 1 if confirmed |
 | Functional impairment of aged neurons or cardiomyocytes specifically attributable to coding-region mutations (not DSBs or epigenetic drift) | Positive — would directly demonstrate mechanism in post-mitotic cells |
+| Directly measured mutation-specific death/dysfunction probabilities and organ reserve curves reproduce the Efimov model's post-mitotic-versus-proliferative ordering | Positive for the model-derived tissue prediction; would not by itself prove organism-level causal primacy |
 
 ---
 
@@ -232,7 +244,7 @@ A secondary experiment: **Mendelian randomization in humans using population-sca
 
 ## Related processes
 
-- [[processes/somatic-mutation-accumulation]] (verified 2026-05-26) — **canonical home for all rate and burden data**; measured rates across tissues and species; Cagan 2022 cross-species constraint; Martincorena normal-tissue driver clones; mechanisms of accumulation; detection methods. This hypothesis page aggregates and cites from that process page; do NOT duplicate rate numerics here.
+- [[processes/somatic-mutation-accumulation]] (verified 2026-07-21) — **canonical home for all rate and burden data**; measured rates across tissues and species; Cagan 2022 cross-species constraint; Martincorena normal-tissue driver clones; mechanisms of accumulation; detection methods. This hypothesis page aggregates and cites from that process page; do NOT duplicate rate numerics here.
 
 ---
 
@@ -255,6 +267,7 @@ A secondary experiment: **Mendelian randomization in humans using population-sca
 - `#gap/unsourced` — Failla 1958 (doi:10.1111/j.1749-6632.1958.tb46828.x) is closed-access (not_oa); historical framing claims remain scoped to secondary review [^vijg2021]. Szilard 1959 is now locally downloaded and verified.
 - `#gap/unsourced` — Curtis 1966 primary source not in a local paper archive; cited from secondary reviews.
 - `#gap/needs-replication` — Population-scale somatic mutation–aging MR (Mendelian randomization using somatic burden as exposure): feasible with Lawson 2025 data but not yet performed.
+- `#gap/needs-replication` — Efimov 2026's exact lifespan outputs depend on inferred per-mutation lethality, proxy organ-failure thresholds, and a four-margin lower Fréchet envelope that is not guaranteed to be jointly attainable; independently reproduce the model and validate its tissue-level parameters before treating the year estimates as stable.
 
 ---
 
@@ -281,3 +294,5 @@ A secondary experiment: **Mendelian randomization in humans using population-sca
 [^bujarrabal2025]: doi:10.1038/s41573-025-01212-6 · Bujarrabal-Dueso A, Garinis GA, Robbins PD, Vijg J, Schumacher B · *Nat Rev Drug Discov* 2025 · PMID 40506534 · review · 10 citations · FWCI 24.1 · 99th citation percentile · OA via PMC (PMC12825315) · PDF download failed (0 candidate URLs after filtering); abstract verified via PubMed efetch · "Targeting DNA damage in ageing: towards supercharging DNA repair" — states "DNA damage to the somatic genome is a major causal mechanism of ageing"; reviews pharmacological strategies to enhance repair capacity; consensus statement from leading DDT/somatic-mutation-theory proponents. #gap/no-fulltext-access (PMC URL identified but local download pipeline returned 0 candidate URLs — retry on next verification pass).
 
 [^lawson2025]: doi:10.1038/s41586-025-09584-w · Lawson ARJ et al. · *Nature* 2025 · PMID 41062696 · n=1,042 oral epithelium + 371 blood samples · observational, population-scale, ultra-sensitive nanorate sequencing (targeted NanoSeq) · 14 citations · FWCI 89.0 · 100th citation percentile · local PDF available · verified against full PDF · "Somatic mutation and selection at population scale" — abstract states 46 genes under positive selection; body text (p. 3) reports 49 genes under positive selection by dNdScv (the difference reflects distinct sub-analyses); mutation rate in oral epithelium ~18 SNVs/diploid genome/year (slope 18.0, 95% CI 16.7–19.4); tobacco and alcohol exposures accelerate clonal dynamics; extends Martincorena programme to population scale across 1,042 individuals.
+
+[^efimov2026]: [[studies/efimov-2026-somatic-mutations-lifespan-bound]] · doi:10.1038/s41514-026-00421-6 · PMID 42350444 · n=16 life-table populations + 229 healthy-control cellular mutation samples from 6 source studies; synthetic cohorts up to 10^6 trajectories/model · in-silico dynamical-systems + reliability modeling · model: human-parameterized brain, heart, liver, and airway cell populations · conditional outputs, not observed lifespans · open access, unedited Article in Press.

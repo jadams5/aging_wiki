@@ -14,9 +14,9 @@ typical-onset: "Peak incidence 60–70 years; risk rises steeply after age 50; m
 prevalence-65plus: "Incidence in adults 65+ is disproportionately high; globally ~661,000 new HCC cases in 2018 (age-standardized rate 7.3/100,000); rates in males over 65 are 3–4× higher than population average [^rumgay2022]; see body for age-stratified details"
 literature-checked-through: 2026-06-05
 verified: true
-verified-date: 2026-06-05
+verified-date: 2026-07-30
 verified-by: claude
-verified-scope: "Li 2020 FBP1 (full PDF): model corrected from 'mouse FBP1 KO + human cell lines' to 'hepatocyte-specific Fbp1 deletion (AAV8-TBG-Cre conditional)'; #gap/no-fulltext-access tag removed; inflachromene/senolytic detail (dasatinib/quercetin, ABT-263) added to footnote; FBP1 silencing in human HCC noted. Rumgay 2022: 826,000 total / 661,000 HCC / ASR 7.3 confirmed via abstract. Ningarhari 2021: n=1,502 (978 HCC) confirmed; independent determinants of telomere attrition confirmed. Mu 2015: hepatocyte origin + dedifferentiation model confirmed; 'all models tested' framing confirmed. ICD-11 code not resolvable via live WHO browser (API requires authentication); #gap/needs-canonical-id retained. McGlynn 2021, Kalligeros 2024, Macias 2021, Holczbauer 2022: review/closed-access; qualitative claims not independently verified against full text — recency framing treated as editorially plausible."
+verified-scope: "Li 2020 FBP1 primary full text: model corrected from 'mouse FBP1 KO + human cell lines' to 'hepatocyte-specific Fbp1 deletion (AAV8-TBG-Cre conditional)'; inflachromene/senolytic detail added and FBP1 silencing in human HCC noted. Rumgay 2022, Ningarhari 2021 and Mu 2015 claims checked at the scope previously recorded. Aitken 2026 genetic-background, mutation-burden and driver-selection claims cross-checked against the verified study extraction, whose full article, Extended Data, reporting summary and supplements were checked. ICD-11 remains unresolved; McGlynn 2021, Kalligeros 2024, Macias 2021 and Holczbauer 2022 qualitative claims were not independently checked against full text."
 ---
 
 
@@ -66,6 +66,12 @@ Decades of hepatocyte replication, exposure to genotoxic metabolites (ROS from l
 | Genomic instability mechanism conserved in humans? | yes — somatic mutation data from human HCC WGS |
 | Phenotype conserved in model organisms? | yes — mouse hepatocarcinogenesis models recapitulate core mutations |
 | Replicated across independent cohorts? | yes (TCGA-LIHC + multiple international sequencing consortia) |
+
+### Genetic background changes the route from damage to tumour
+
+Aitken et al. 2026 held sex, husbandry and carcinogen exposure constant while inducing liver tumours with a single 20 mg/kg intraperitoneal dose of diethylnitrosamine (DEN) at postnatal day 15 in male C3H/HeOuJ, C57BL/6J, CAST/EiJ and CAROLI/EiJ mice. Across 215 animals, the main analysis included 581 independently arising, histologically homogeneous dysplastic nodules; 16 sequenced DEN-induced HCCs were released but excluded. Inherited background was associated with mutation burden and spectrum, driver identity, inferred whole-genome-duplication propensity and the survival of the earliest post-mutagenesis lineages. Crucially, C3H reached the pilot-defined 100%-macroscopic-incidence collection endpoint earliest despite a lower median base-substitution burden than BL6 or CAST: 13.5 mutations/Mb in C3H versus 16.6 in BL6 and 17.6 in CAST [^aitken2026]. Mutation count alone was therefore insufficient to explain this strain-level susceptibility/latency proxy.
+
+The nodules nevertheless converged at pathway level: 550/581 (94.7%, reported as 95%) carried at least one probable activating mutation in *Braf*, *Hras*, *Egfr* or *Kras*, while the selected gene, allele and number of drivers varied strongly by background. This supports a germline–somatic epistasis model in which inherited variation changes the fitness consequence of an acquired mutation rather than merely changing how many mutations occur. The result is directly relevant to [[ras-mapk]] and [[processes/somatic-mutation-accumulation]], but translation is limited: the experiment used only males, neonatal exposure, one acute hepatocarcinogen and background-specific collection ages rather than individual time-to-tumour measurements; it did not test normal human aging or directly estimate ancestry effects in human HCC. #gap/needs-human-replication
 
 ### Telomere attrition — the critical HCC-initiating event
 
@@ -218,3 +224,5 @@ This page focuses on the aging biology of HCC, not clinical oncology. Key practi
 [^mu2015]: doi:10.1172/JCI77995 · Mu X, Español-Suñer R, Mederacke I et al. (Schwabe RF last author) · "Hepatocellular carcinoma originates from hepatocytes and not from the progenitor/biliary compartment" · J Clin Invest 125(10):3891-3903 · 2015 · in-vivo (genetic fate-tracing) · model: multiple mouse HCC models (DEN-chemical, oncogene-driven, HFD metabolic) · key finding: HCCs arose exclusively from hepatocytes in all models tested; tumors with progenitor markers (EpCAM+, AFP+) reflected hepatocyte dedifferentiation, not progenitor origin; progenitor/biliary compartment did not contribute to HCC
 
 [^holczbauer2022]: doi:10.1016/j.jhepr.2021.100416 · Holczbauer Á, Wangensteen KJ, Shin S · "Cellular origins of regenerating liver and hepatocellular carcinoma" · JHEP Reports 4(4):100416 · 2022 · review · key content: reviews evidence for hepatocyte vs. progenitor HCC cell of origin; notes progenitor-marker HCC subtypes (cHCC-CCA, stem-like HCC); favors hepatocyte dedifferentiation as dominant route while acknowledging progenitor-origin subset; implications for clinical taxonomy and prevention
+
+[^aitken2026]: [[studies/aitken-2026-genetic-background-cancer-evolution]] · n=215 DEN-treated male mice / 581 independently arising dysplastic liver nodules in the main analysis; 16 sequenced HCCs excluded · in-vivo · model: C3H/HeOuJ and C57BL/6J *Mus musculus domesticus*, CAST/EiJ *M. musculus castaneus*, and CAROLI/EiJ *Mus caroli*; single DEN 20 mg/kg intraperitoneal at postnatal day 15 · doi:10.1038/s41586-026-10821-z · PMID 42486977
