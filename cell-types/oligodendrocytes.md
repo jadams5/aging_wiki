@@ -14,9 +14,9 @@ typical-niche: "Distributed throughout CNS white matter (and grey matter); OPCs 
 niche-signaling: ["[[pdgf-signaling]]", "[[notch-pathway]]", "[[wnt-beta-catenin]]"]
 single-cell-aging-signature: null   # #gap/needs-singlecell-characterization — Tabula Muris Senis coverage for OL lineage not yet reviewed
 verified: true
-verified-date: 2026-05-06
+verified-date: 2026-08-02
 verified-by: claude
-verified-scope: "Sim 2002, Nicaise 2019, and Neumann 2019 PDFs verified end-to-end from local archive. Franklin 2017 (NRN review), Bartzokis 2011 (Neurobiol Aging), and Green 2017 (Lancet ReBUILD trial) verified via Europe PMC/PubMed abstract and Crossref metadata (PDFs failed to download: franklin2017 status=failed OA=green; bartzokis2011 status=failed OA=green; green2017 status=failed OA=bronze). Green 2017 p-value corrected against PubMed abstract. Canonical-DB identity fields (cell-ontology-id) not independently re-verified against OBO Foundry."
+verified-scope: "Sim 2002, Nicaise 2019, and Neumann 2019 verified end-to-end. Franklin 2017, Bartzokis 2011, and Green 2017 remain abstract/metadata-verified only; Green 2017 p-value was corrected against PubMed. Lombardo 2026 main 10-page article verified end-to-end on 2026-08-02 for the D+Q regimen, displayed sample sizes/statistical units, myelin and cell-death endpoints, culture phenotypes, and UPR-association limits; supporting information was unavailable, so sex/blinding, RNA-seq replicate detail, and other supplement-only information remain unresolved. Cell Ontology identity fields were not independently re-verified."
 ---
 
 # Oligodendrocytes and Oligodendrocyte Precursor Cells (OPCs)
@@ -101,9 +101,17 @@ Neumann et al. 2019 (Cell Stem Cell) showed that aged OPCs (isolated from ≥18-
 
 Clemastine (an H1/muscarinic antagonist), identified in a high-throughput screen for pro-myelinating compounds, promotes OPC differentiation by blocking M1/M3 muscarinic receptor-mediated inhibition of OPC maturation. The Phase 2 ReBUILD trial (n=50, 25 per group, randomized double-blind crossover) in patients with relapsing MS and chronic demyelinating optic neuropathy showed clemastine fumarate (5.36 mg orally twice daily) reduced visual-evoked potential P100 latency delay by 1.7 ms/eye (95% CI 0.5–2.9; p=0.0048), the first randomized controlled evidence of pharmacological remyelination in humans [^green2017]. Whether clemastine is beneficial in age-related (non-MS) white matter decline is not tested. #gap/needs-human-replication — age-related white matter application is purely extrapolative from MS data.
 
-### Senolytics
+### D+Q safety signal in the oligodendrocyte lineage
 
-Clearing senescent OPCs with senolytic agents (e.g., dasatinib + quercetin, navitoclax) is a plausible strategy given that OPC senescence impairs remyelination [^nicaise2019]. No dedicated preclinical studies of OL-specific senolytics in aged CNS have been published as of the wiki's last update. See [[senolytics]] for the compound class. #gap/needs-replication — no OL-specific senolytic preclinical data available.
+Lombardo et al. tested oral [[dasatinib]] 5 mg/kg plus [[quercetin]] 50 mg/kg in healthy young (3–4 months) and aged (22 months) C57BL/6J mice, with six doses across a four-week schedule. The displayed TEM experiment (`n = 3` mice/group) found higher axonal g-ratio distributions in both age groups, consistent with thinner myelin; representative Luxol-fast-blue images in aged mice were interpreted as myelin loss confined to the rostral corpus callosum, but were not quantified. Olig2+ cell counts, TUNEL, and cleaved-caspase-3 assays did not detect oligodendrocyte loss, pointing to dysfunction rather than acute lineage ablation [^lombardo2026].
+
+In primary rat cultures, D+Q impaired OPC differentiation into MBP+ cells, while dasatinib, quercetin, and the combination each rapidly retracted mature-oligodendrocyte processes. Transcriptomics plus aged-mouse ATF4/XBP1 staining associated the phenotype with an [[unfolded-protein-response]]-related signature, but no pathway blockade or rescue established causality. Crucially, the study did not measure brain senescent-cell burden or target engagement; it therefore identifies off-target toxicity of this D+Q regimen, not injury caused by senolysis and not a class effect of all [[interventions/pharmacological/senolytics|senolytics]]. The primary in-vivo statistics also treated thousands of axons nested within three mice/group as observations, without a mouse-level effect estimate. #gap/needs-replication #gap/no-mechanism #gap/needs-human-replication
+
+| Dimension | Status |
+|---|---|
+| Pathway conserved in humans? | yes — oligodendrocyte myelination and UPR machinery are conserved |
+| Phenotype conserved in humans? | partial — corpus-callosum demyelination occurs in human disease, but D+Q causation has not been shown |
+| Replicated in humans? | no — no imaging, CSF myelin-marker, neuropathology, or clinical demyelination endpoint has tested this signal |
 
 ## Limitations and gaps
 
@@ -112,6 +120,7 @@ Clearing senescent OPCs with senolytic agents (e.g., dasatinib + quercetin, navi
 - `#gap/no-mechanism` — The specific proteostasis failure mode in aged OLs (UPR, proteasomal, or autophagic) is not established in vivo.
 - `#gap/needs-singlecell-characterization` — Tabula Muris Senis and CellxGene-based OPC/OL aging signatures have not been reviewed for this page; `single-cell-aging-signature` frontmatter is null.
 - `#gap/long-term-unknown` — Both alternate-day fasting and metformin's long-term CNS effects on OPC differentiation in non-diabetic individuals are unknown; the Neumann 2019 in vivo data tests a single 50-day remyelination window following 6 months of ADF.
+- `#gap/needs-replication` — The D+Q myelin result is from one laboratory, with three mice/group in the displayed TEM experiment and no animal-level effect estimate; regional selectivity and reversibility remain unexplained.
 - `#gap/unsourced` — The claim that each OL myelinates 30–60 internodes is widely cited but the primary source has not been verified on this page.
 
 ## See also
@@ -139,3 +148,5 @@ Clearing senescent OPCs with senolytic agents (e.g., dasatinib + quercetin, navi
 [^bartzokis2011]: [[studies/bartzokis-2011-myelin-aging-alzheimers]] · review · model: human neuroimaging + post-mortem · doi:10.1016/j.neurobiolaging.2009.08.007
 
 [^green2017]: [[studies/green-2017-clemastine-rebuild-trial]] · n=50 (25/group) · rct (double-blind crossover, 150-day) · p=0.0048 (primary endpoint: P100 VEP latency reduction 1.7 ms/eye, 95% CI 0.5–2.9) · model: human relapsing MS with chronic demyelinating optic neuropathy · doi:10.1016/s0140-6736(17)32346-2
+
+[^lombardo2026]: [[studies/lombardo-2026-senolytic-demyelination]] · displayed TEM n=3 mice/age/treatment group; 1,500–2,000 nested axons/group · in-vivo (young and aged C57BL/6J mouse) + in-vitro (primary rat oligodendrocyte lineage) · D 5 mg/kg + Q 50 mg/kg oral gavage, six doses over four weeks · regional myelin thinning/loss and nonlethal oligodendrocyte dysfunction; UPR mechanism associative · doi:10.1073/pnas.2524897123

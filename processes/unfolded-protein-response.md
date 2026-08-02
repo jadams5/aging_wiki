@@ -26,12 +26,12 @@ causes:
   - "[[integrated-stress-response]]"
   - "[[cellular-senescence]]"
 verified: true
-verified-date: 2026-05-07
+verified-date: 2026-08-02
 verified-by: claude
-verified-scope: "Hetz 2012 (nrm3270) three-arm architecture, GRP78 sensor model, PERK/IRE1α/ATF6 mechanism descriptions, adaptive-vs-terminal framework, and cell-type heterogeneity claims verified against full PDF. Krukowski 2020 (eLife 62048) ISRIB claims verified via OA web fetch. Taylor/Dillin 2013 (Cell, paywalled, not in archive) XBP-1s ~15% lifespan claim and cell-nonautonomous mechanism NOT independently verified — retained as drafted; tag per seeder note. Brown 2012, Han/Kaufman 2013 (not_oa), Estebanez 2018, Mercado 2018 — archive pending or not_oa; those claims not verified against primary source."
+verified-scope: "Hetz 2012 three-arm architecture, GRP78 sensor model, PERK/IRE1α/ATF6 mechanisms, adaptive-vs-terminal framework, and cell-type heterogeneity verified against full text; Krukowski 2020 ISRIB claims verified via OA full text. Taylor/Dillin 2013 XBP-1s lifespan claim and Brown 2012, Han/Kaufman 2013, Estebanez 2018, and Mercado 2018 claims remain not independently full-text verified. Lombardo 2026 main article verified end-to-end on 2026-08-02 for oligodendrocyte UPR-associated transcripts and ATF4/XBP1 staining; supporting information was unavailable, and the study did not test UPR causality or directly measure PERK/eIF2α activation."
 ---
 
-> Partially verified 2026-05-07. Hetz 2012 mechanism claims and Krukowski 2020 ISRIB claims verified against source. **Unverified claims (pending PDF access):** Taylor/Dillin 2013 XBP-1s lifespan numbers (`#gap/no-fulltext-access` — Cell paywalled); Brown 2012 GRP78 aging data (archive pending); Han/Kaufman 2013 ATF4-CHOP oxidative death mechanism (`not_oa`); Estebanez 2018 aging UPR review (archive pending); Mercado 2018 GSK2606414 data (archive pending). Do not rely on those specific claims without primary-source cross-check.
+> Partially verified through 2026-08-02. Hetz 2012 mechanism claims, Krukowski 2020 ISRIB claims, and the Lombardo 2026 oligodendrocyte-stress example were checked against their full main sources. **Unverified claims:** Taylor/Dillin 2013 XBP-1s lifespan numbers (`#gap/no-fulltext-access`), Brown 2012 GRP78 aging data, Han/Kaufman 2013 ATF4-CHOP oxidative-death mechanism, Estebanez 2018 aging-UPR synthesis, and Mercado 2018 GSK2606414 data were not independently checked against full primary text. Do not rely on those specific claims without a source cross-check.
 
 # Unfolded Protein Response (UPR)
 
@@ -129,6 +129,8 @@ Chronic, unresolved ER stress contributes mechanistically to several age-related
 - **Inflammaging**: IRE1α-TRAF2 complex activates NF-κB, contributing to the low-grade chronic inflammation characteristic of aging (see [[chronic-inflammation]], [[nf-kb]]).
 - **Cellular senescence**: sustained ER stress can induce [[cellular-senescence]] via CHOP and p21 upregulation, connecting UPR to the [[cellular-senescence]] hallmark.
 
+**Pharmacological oligodendrocyte-stress example.** In primary rat oligodendrocytes, dasatinib, quercetin, and their combination produced broad UPR/ER-stress-associated transcriptional changes, including increased *Hspa5/Bip*, *Xbp1*, *Atf4*, and *Ddit3/Chop*. Aged mice given D+Q also had more ATF4+/Olig2+ and XBP1+/Olig2+ cells in the rostral corpus callosum, alongside regional myelin loss [^lombardo2026]. This supports the UPR as a candidate mediator of nonlethal oligodendrocyte dysfunction, but does not establish the causal edge: no pathway blockade/rescue was performed, and PERK or eIF2α phosphorylation was not directly measured. It should therefore not be treated as direct evidence for a PERK–ISR mechanism. #gap/no-mechanism #gap/needs-replication
+
 ---
 
 ## Druggability — UPR modulators
@@ -191,3 +193,5 @@ Chronic, unresolved ER stress contributes mechanistically to several age-related
 [^mercado2018]: doi:10.1016/j.nbd.2018.01.004 · Mercado G et al. · *Neurobiol Dis* 2018 · in-vivo · model: Parkinson's mouse model · GSK2606414 protected dopaminergic neurons; secondary pancreatic toxicity observed · archive: pending
 
 [^autophagy-regulation]: see [[autophagy]] regulation table — ER stress (UPR) listed as upstream activator of ULK1 complex via PERK+ATF4; primary source not separately verified on this page
+
+[^lombardo2026]: [[studies/lombardo-2026-senolytic-demyelination]] · displayed TEM n=3 mice/age/treatment group · in-vivo (young and aged C57BL/6J mouse) + in-vitro (primary rat oligodendrocyte lineage) · UPR-associated transcription and ATF4/XBP1 staining; no rescue or direct PERK/eIF2α measurement · doi:10.1073/pnas.2524897123

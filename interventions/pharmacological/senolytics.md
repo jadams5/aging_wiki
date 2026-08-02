@@ -13,9 +13,9 @@ next-experiment: "Hard-endpoint Phase 3 of D+Q or fisetin in IPF or osteoarthrit
 clinical-trials-active: 14
 literature-checked-through: 2026-05-08
 verified: true
-verified-date: 2026-05-08
+verified-date: 2026-08-02
 verified-by: claude
-verified-scope: "Zhu 2015, Zhu 2016 (navitoclax), Justice 2019, Hickson 2019, Baker 2016 PDFs verified against primary sources. Chang 2016 (nm.4010) unverifiable — DOI lookup failed (green OA, 0 candidate URLs); claims limited to title-confirmable HSC rejuvenation framing. Baker 2011 unverifiable — DOI lookup failed; claims carried from p21 verification round. Amor 2020 Nature DOI confirmed (10.1038/s41586-020-2403-9); PDF not read. NCT numbers verified against ClinicalTrials.gov API. R34 recency refresh 2026-05-08: added Klier 2025 (UBX1325 NEJM Evidence Phase 2 RCT — first positive BCL-xL-axis senolytic human trial), Zhang 2026 NPJ Aging (next-generation senotherapy review), trial roster updated against ClinicalTrials.gov 2026-05-08; PDFs of new sources not independently end-to-end verified — abstracts only. 2026-06-12: Farr 2024 (doi:10.1038/s41591-024-03096-2) PDF read end-to-end — corrected dosing schedule (D 2 days / Q 3 days per cycle, not 3 days / 6 cycles), confirmed open-label design (not double-blind), confirmed 5 cycles over 20 wk, confirmed SASP-factor measurement (36 factors, no significant change), confirmed T-cell p16 measured at baseline only. 2026-06-13: Hickson 2019 cells-vs-mRNA reconciliation — confirmed this page's Hickson 2019 claims use correct 'p16 −35%' / 'p21 −17%' / 'SA-βgal+' notation without mRNA mislabeling; no corrections needed on this page. The IHC-cell-count nature of those values (% p16INK4A+ cells per 100 adipocytes; % p21CIP1+ cells per 100 adipocytes; % SA-βgal+ cells per nucleus) confirmed against Hickson 2019 PDF (Fig. 1a/b/c and methods IHC protocol)."
+verified-scope: "Zhu 2015, Zhu 2016, Justice 2019, Hickson 2019, Baker 2016, and Farr 2024 verified against full primary sources; Farr dosing/design/SASP and Hickson IHC-cell-count labeling were corrected in prior passes. Chang 2016 and Baker 2011 remain without full-text verification; Amor 2020 DOI is confirmed but full text was not read. NCT numbers were checked against ClinicalTrials.gov on 2026-05-08; Klier 2025 and Zhang 2026 remain abstract/review-level additions. Lombardo 2026 main article was verified end-to-end on 2026-08-02 for the D+Q regimen, oligodendrocyte/myelin endpoints, sample/statistical-unit caveat, and absent senolytic target engagement; supporting information was unavailable."
 ---
 
 # Senolytics
@@ -178,6 +178,7 @@ A distinct and somewhat counterintuitive axis from the static "senescent cells a
 - **Trial enrollment biomarkers** — no validated way to identify patients with high senescent-cell burden a priori. Trials enroll on disease state. #gap/needs-replication for biomarker validation
 - **Senolytic vs senomorphic comparative efficacy** — head-to-head clinical comparisons are scarce.
 - **Off-target toxicity at therapeutic doses** — D+Q dosing is short and intermittent partly to minimize TKI cardiotoxicity (D) and bioavailability concerns (Q).
+- **D+Q-specific CNS safety signal** — In healthy young and aged mice, D 5 mg/kg + Q 50 mg/kg (six oral doses over four weeks) produced thinner myelin in the rostral corpus callosum without detected oligodendrocyte loss [^lombardo2026]. The displayed TEM result used three mice/group and an axon-level Kolmogorov–Smirnov test, so pseudoreplication and the absence of an animal-level effect estimate limit precision. Individual D and Q each retracted processes in cultured rat oligodendrocytes, but neither was tested alone in vivo. Because brain senescent-cell burden and target engagement were not measured, this is an off-target D+Q-regimen signal—not evidence that senolysis caused the injury or that all senolytics share it. No human CNS endpoint or recovery experiment is available. #gap/needs-replication #gap/needs-human-replication #gap/no-mechanism
 - **Cardiac-glycoside senolytic activity** — promising preclinical signal but interpretation complicated by their narrow therapeutic index and existing clinical use in heart failure.
 - **UBX0101 failure interpretation** — was the failure due to wrong cell-type targeting? Wrong indication? Wrong mechanism (UBX0101 may not act as a senolytic at all)? The post-mortem is incomplete and matters for the next generation of senolytic trials.
 
@@ -205,6 +206,8 @@ The 2024–2026 senolytic literature has shifted from generic "BH3-mimetic monot
 - [[sens-damage-categories]] — ApoptoSENS section is the SENS-framing of this drug class
 
 ## Footnotes
+
+[^lombardo2026]: [[studies/lombardo-2026-senolytic-demyelination]] · displayed TEM n=3 mice/age/treatment group; 1,500–2,000 nested axons/group · in-vivo (young and aged C57BL/6J mouse) + in-vitro (primary rat oligodendrocyte lineage) · D 5 mg/kg + Q 50 mg/kg oral gavage, six doses over four weeks · regional myelin thinning/loss and nonlethal oligodendrocyte dysfunction; UPR mechanism associative · doi:10.1073/pnas.2524897123
 
 [^zhu2015]: doi:10.1111/acel.12344 · in-vitro + in-vivo (mouse) · transcriptomic SCAP identification + first senolytic combination · model: human cells (HUVECs, IMR90, preadipocytes) + Ercc1-/Δ progeroid mice · *Aging Cell* — the foundational senolytic paper
 [^justice2019]: doi:10.1016/j.ebiom.2018.12.052 · open-label Phase 1 pilot · n=14 IPF · D 100 mg + Q 1250 mg/day, 3 consec days/week × 3 weeks (9 dosing days) · primary endpoints feasibility; secondary 6MWT +21.5 m (p=0.012), gait speed +0.12 m/s (p=0.024), chair-stands −2.2 s (p=0.013) · model: humans
