@@ -97,6 +97,6 @@ Navigational overlays that re-slice the atomic layer — they link to entity pag
 ## Project & maintenance
 
 - **Knowledge gaps** — [[gaps/README]] aggregates open questions by category; [[gaps/planned-coverage]] holds proactive coverage intent.
-- **Personal-application layer** — apply the research to one person (baseline, plans, labs, tracking). Real data lives in a **private**, git-ignored `protocols/` repo; [[protocols-template/README|protocols-template]] is a fake-data skeleton + onboarding guide. Privacy model in [[CLAUDE]] § "Privacy posture".
+- **Personal-application layer** — apply the research to one person (baseline, plans, labs, tracking). Real data lives in a **private**, git-ignored `protocols/` repo; [[protocols-template/README|protocols-template]] is a fake-data skeleton + onboarding guide. Start with the vendor-neutral [[sops/personal-tracking|personal-tracking SOP]]; [[sops/personal-tracking-oura-example|the Oura example]] is optional for people who already use that device. Privacy model in [[CLAUDE]] § "Privacy posture".
 - **Schema & operations** — [[CLAUDE]] (schema + operating manual) · [[lint-pass]] (periodic health check) · [[acronyms]] (glossary) · [[log]] (change history).
 - **SOP playbooks** (data-source how-tos) — full set in **[sops/](https://jadams5.github.io/aging_wiki/sops/)**; e.g. [[retrieving-papers]], [[extracting-evidence]], [[finding-pathway-data]], [[finding-protein-data]], [[finding-compound-data]], [[finding-aging-specific]], [[adding-a-claim]].

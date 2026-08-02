@@ -13,7 +13,7 @@ This SOP is the **device-agnostic guidance** for *what* applied-health data to t
 - When standing up a new individual's tracking from scratch — apply these patterns first, *then* let the device-specific sync plumbing follow.
 - When reviewing or refactoring an existing tracking setup — these are the principles to refactor *toward*.
 
-**What this SOP is NOT:** it is not device- or vendor-specific. The structures below assume nothing about which wearable, lab vendor, or continuous-glucose monitor is used — those are pluggable `Source` values, never load-bearing. Hardware-specific sync mechanics belong in a per-individual operations manual inside that individual's private tracking area, not here.
+**What this SOP is NOT:** it is not device- or vendor-specific. The structures below assume nothing about which wearable, lab vendor, or continuous-glucose monitor is used — those are pluggable `Source` values, never load-bearing. Hardware-specific sync mechanics belong in a per-individual operations manual inside that individual's private tracking area. Public vendor examples may document a privacy-safe implementation pattern to accelerate setup, but they are optional examples rather than canonical dependencies; see [[sops/personal-tracking-oura-example]] for one such example.
 
 > **Privacy note.** This is a public SOP. It must stay generic: no individual's name, no per-person values, no links into any private personal-data tree. The personal-application content it describes lives in a **private** area (git-ignored from the public repo) — see [[CLAUDE]] § *Privacy posture*. When you instantiate these patterns for a real person, the resulting pages and CSVs go in that private area, never in the public wiki.
 
@@ -113,3 +113,4 @@ Until that area exists, this SOP *is* the guidance — apply the principles dire
 
 - [[CLAUDE]] § *Protocols directory (personal application content)* — full page-type schemas and privacy posture
 - [[lint-pass]] — the public-repo privacy invariant that keeps personal data out of the research wiki
+- [[sops/personal-tracking-oura-example]] — optional Oura API V2 worked example; ignore when no wearable is used and adapt rather than copy when the source is another vendor

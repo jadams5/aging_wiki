@@ -26,6 +26,8 @@ Every file here uses the handle **`example-person`** and invented numbers. Nothi
 
 4. **Fill in your real data**, deleting the fake values. Start with `people/<handle>.md` (baseline) and one `plans/<handle>-*.md`.
 
+5. **Choose tracking sources only when they answer a protocol question.** A wearable is optional. If you already use an Oura Ring and want an API-backed example, see [`sops/personal-tracking-oura-example.md`](../sops/personal-tracking-oura-example.md). If you use another device, retain the privacy, units, validation, and review patterns while replacing the vendor-specific plumbing.
+
 The single working tree means your Obsidian vault sees both layers at once, so links from your private protocol pages into the public research pages keep resolving — while your data stays out of the public repo.
 
 ---
@@ -43,6 +45,15 @@ The single working tree means your Obsidian vault sees both layers at once, so l
 | `log.md` | — | private personal-protocol log (parallel to the public `log.md`) |
 
 **Discrete events → markdown pages. Continuous streams → CSV.** Rule of thumb: if you'd write a sentence about each data point ("post-COVID, fasting"), it's a markdown event; if you wouldn't, it's a CSV row.
+
+### Optional device examples
+
+The template does not assume that a person owns a wearable, continuous-glucose monitor, connected scale, or any other consumer device. The files under `tracking/` demonstrate containers, not required purchases or measurements.
+
+- [`../sops/personal-tracking.md`](../sops/personal-tracking.md) is the canonical, vendor-neutral design guidance.
+- [`../sops/personal-tracking-oura-example.md`](../sops/personal-tracking-oura-example.md) is an optional worked Oura API example with authentication, endpoint mapping, suggested schemas, validation, and an agent handoff checklist.
+
+Vendor examples must never contain real account details, credentials, handles, paths, or measurements. Their deployed copies and generated data belong only in the private `protocols/` repository; credentials stay outside both repositories.
 
 ---
 
