@@ -12,9 +12,9 @@ human-evidence-level: strong
 mendelian-randomization: partial
 intervention-responsive: partial
 verified: true
-verified-date: 2026-05-08
+verified-date: 2026-08-04
 verified-by: claude
-verified-scope: "Lu 2019 primary source PDF and Lu 2022 GrimAge2 PDF both verified end-to-end; Waziry 2023 CALERIE-2 claims cross-checked against caloric-restriction.md footnote (no local PDF re-read — study page not yet present); Schooling 2025 MR claim and canonical-DB identity fields not independently re-verified. R34 recency refresh 2026-05-08: METFORAGING (Marcelo-Calvo 2026), SLIM LIVER (Corley 2026), RAPA-EX-01 (Stanfield 2026), DO-HEALTH cancer follow-up (Rösler 2026), and TCGA-BRCA prognostic (Tan 2026) integrated from abstracts only — full PDFs not re-verified."
+verified-scope: "Lu 2019 primary source PDF and Lu 2022 GrimAge2 PDF both verified end-to-end; DO-HEALTH Bio-Age article, Extended Data, and Reporting Summary re-adjudicated 2026-08-04 via the verified atomic study page. Waziry 2023 CALERIE-2 claims cross-checked against the verified study page; Schooling 2025 MR claim not independently re-verified. R34 recency refresh 2026-05-08: METFORAGING, SLIM LIVER, RAPA-EX-01, DO-HEALTH cancer follow-up, and TCGA-BRCA prognostic integrated from abstracts only — full PDFs not re-verified."
 literature-checked-through: 2026-05-08
 ---
 
@@ -97,6 +97,10 @@ In Waziry 2023 (n=197, CALERIE-2 RCT, 2-year ~12% CR), **GrimAge showed no signi
 
 #gap/contradictory-evidence — the most mortality-predictive clock does not respond to the most validated human geroprotector; resolution required.
 
+### Version-specific signal: DO-HEALTH omega-3
+
+In the post-hoc Swiss DO-HEALTH Bio-Age analysis (n=777; 3 years), the factorial marginal omega-3 effect on **PC-GrimAge version 1 was null** (d=−0.10, 95% CI −0.23 to 0.04), while the literal omega-3-only arm favored **original GrimAge2** versus placebo (d=−0.32, −0.59 to −0.06) [^dohealth2025]. GrimAge2 treatment interactions required arm-by-arm comparisons; omega-3-containing combination arms were inconclusive. This is a small, uncorrected multi-endpoint surrogate result and does not establish clinical aging benefit. #gap/needs-replication
+
 ### Partial positive signal: exercise and other lifestyle interventions
 
 Observational studies and some small interventional trials report GrimAge acceleration associations with exercise levels, sleep quality, and chronic stress — but RCT evidence for exercise-driven GrimAge reduction is not robustly established as of 2026-05-05. #gap/unsourced — specific citations needed for exercise-GrimAge intervention claims.
@@ -133,7 +137,7 @@ GrimAge was trained and validated exclusively in blood. The protein-surrogate ar
 
 3. **Blood specificity** — Not validated in other tissues; cannot be applied to brain, muscle, or adipose biopsies.
 
-4. **CALERIE-2 null** — The single best-powered human aging intervention RCT did not move GrimAge. This limits its current utility as a primary endpoint for intervention trials. See [[biomarkers/dunedinpace-2022]] for the clock that did respond.
+4. **Intervention inconsistency** — CALERIE-2 did not move GrimAge; DO-HEALTH left PC-GrimAge v1 null but produced a favorable original-GrimAge2 omega-3-only-arm estimate. Clock version, intervention, contrast and multiplicity must be explicit.
 
 5. **Batch effects and technical noise** — Subject to the same technical noise issues as all DNAm clocks; PC-GrimAge versions (from Higgins-Chen 2022) improve reliability.
 
@@ -148,6 +152,7 @@ GrimAge was trained and validated exclusively in blood. The protein-surrogate ar
 - [[hypotheses/information-theory-of-aging]] (verified) — MR null result discussion
 - [[interventions/lifestyle/caloric-restriction]] (verified) — CALERIE-2 null result
 - [[frameworks/biological-age-measurement]] — cross-clock comparison MOC
+- [[studies/bischoff-ferrari-2025-do-health-biological-aging]] — verified DO-HEALTH Bio-Age extraction
 
 ## Footnotes
 
@@ -156,6 +161,8 @@ GrimAge was trained and validated exclusively in blood. The protein-surrogate ar
 [^lu2022]: doi:10.18632/aging.204434 · GrimAge version 2 · training n=1,833 (FHS, mean age 66.1±9.06 yr); adds DNAm logCRP and DNAm logA1C surrogates to the original 7 plasma proteins + pack-years · validation n=13,399 blood samples from 10,065 individuals across 9 cohorts (FHS test, WHI BA23, WHI EMPC, JHS, InCHIANTI, BLSA, LBC21, LBC36, NAS) · AgeAccelGrim2 HR=1.10/yr, meta-analysis P=3.6E-167 vs AgeAccelGrim P=2.0E-144 (same HR, higher significance) · Aging 2022 · local PDF available
 
 [^waziry2023]: [[studies/waziry-2023-calerie-epigenetic-clock]] · n=197 (128 CR, 69 AL) · rct · model: healthy non-obese human adults (CALERIE Phase 2, 2-year ~12% achieved CR) · doi:10.1038/s43587-022-00357-y · local PDF available · GrimAge: NS; PhenoAge: NS; Horvath 2013: NS; DunedinPACE: d=−0.25 p<0.003
+
+[^dohealth2025]: [[studies/bischoff-ferrari-2025-do-health-biological-aging]] · n=777 Swiss subset · rct, post-hoc 2×2×2 factorial biomarker analysis · PC-GrimAge v1 omega-3 marginal d=−0.10 (95% CI −0.23, 0.04); original GrimAge2 omega-3-only arm d=−0.32 (−0.59, −0.06) · model: adults aged ≥70 years · DOI:10.1038/s43587-024-00793-y
 
 [^stanfield2026]: [[studies/stanfield-2026-rapa-ex-01]] · rct (RAPA-EX-01: rapamycin + exercise vs exercise-alone) · J Cachexia Sarcopenia Muscle 2026 · doi:10.1002/jcsm.70274 · PCGrimAge and DunedinPACE both used as secondary outcomes; no significant treatment effect on either; consistent with GrimAge non-responsiveness to pharmacological/lifestyle interventions at trial-feasible durations
 

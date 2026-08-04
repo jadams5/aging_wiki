@@ -12,16 +12,16 @@ human-evidence-level: strong
 mendelian-randomization: not-tested
 intervention-responsive: yes
 verified: true
-verified-date: 2026-05-08
+verified-date: 2026-08-04
 verified-by: claude
-verified-scope: "Belsky 2022 (eLife) and Waziry 2023 (Nature Aging) primary PDFs read end-to-end; all quantitative claims cross-checked. Canonical-database identity fields (no PubChem/UniProt applicable for a biomarker page) not applicable. The Waziry 2023 pre-registration status was carefully verified: the CALERIE trial is pre-registered (NCT00427193) but the DNAm analysis is described in the paper's abstract as a 'post hoc analysis'; the DunedinPACE endpoint was primary within that sub-study but the sub-study itself was not independently pre-registered. R34 recency refresh 2026-05-08: METFORAGING (Marcelo-Calvo 2026), SLIM LIVER (Corley 2026), RAPA-EX-01 (Stanfield 2026), and Beydoun 2026 frailty-mortality mediation integrated from abstracts only — full PDFs not re-verified."
+verified-scope: "Belsky 2022 and Waziry 2023 primary PDFs read end-to-end; DO-HEALTH Bio-Age article, Extended Data, and Reporting Summary re-adjudicated 2026-08-04 via the verified atomic study page. The CALERIE and DO-HEALTH parent trials were registered, but both clock analyses were post hoc and not independently preregistered. R34 recency refresh 2026-05-08: METFORAGING, SLIM LIVER, RAPA-EX-01, and Beydoun 2026 integrated from abstracts only — full PDFs not re-verified."
 literature-checked-through: 2026-05-08
 ---
 
 
 # DunedinPACE (2022)
 
-The only DNA methylation clock trained to measure **rate of biological aging** rather than absolute biological age. DunedinPACE (Pace of Aging Computed from the Epigenome) outputs a dimensionless rate — "biological years per calendar year" — where 1.0 indicates aging at an average rate, >1.0 faster, and <1.0 slower than the training cohort mean. It is trained on 20-year longitudinal physiological data from a single birth cohort (the Dunedin Study) and is currently the **only DNAm clock that has shown a statistically significant response to a caloric-restriction intervention in a Phase 2 RCT** (CALERIE-2 post hoc DNAm analysis, Waziry 2023) [^waziry2023]. This makes it the preferred endpoint for aging-intervention trials as of 2026.
+The only DNA methylation clock trained to measure **rate of biological aging** rather than absolute biological age. DunedinPACE (Pace of Aging Computed from the Epigenome) outputs a dimensionless rate — "biological years per calendar year" — where 1.0 indicates aging at an average rate, >1.0 faster, and <1.0 slower than the training cohort mean. It is trained on 20-year longitudinal physiological data from a single birth cohort (the Dunedin Study). Favorable post-hoc randomized signals have been reported for caloric restriction in CALERIE-2 and omega-3 assignment in DO-HEALTH, but neither establishes DunedinPACE as a validated surrogate for clinical healthspan [^waziry2023] [^dohealth2025].
 
 ## Identity and Origin
 
@@ -122,6 +122,10 @@ This is the single most important result in the intervention-clock literature as
 
 #gap/needs-replication — single trial. The CALERIE-2 finding has not yet been independently replicated in a second CR cohort.
 
+### Positive signal: DO-HEALTH omega-3 assignment
+
+In the post-hoc Swiss DO-HEALTH Bio-Age analysis (n=777 adults aged ≥70 years), the factorial marginal effect of 1 g/day algal omega-3 assignment over three years favored original DunedinPACE (d=−0.17, 95% CI −0.31 to −0.04); the authors described this as approximately a 1% pace reduction [^dohealth2025]. This compares all four omega-3-containing arms with all four non-omega-3 arms under the factorial model—it is not the literal omega-3-only arm. Model-implied omega-3 combination sums had confidence intervals crossing zero. The analysis was post hoc, not multiplicity-corrected, and did not link clock change to morbidity, disability or survival. #gap/needs-replication
+
 ### Null/negative signal: interpretation of DunedinPACE-only response
 
 The clock-selective result raises an interpretive challenge: if CR genuinely slows biological aging, why didn't GrimAge and PhenoAge also respond? Three main hypotheses:
@@ -164,7 +168,7 @@ MR analysis using DunedinPACE-specific genetic instruments has not been publishe
 
 5. **No lifespan connection** — The rate-slowing with CR has not been connected to any lifespan or healthspan endpoint in humans. It is an intermediate biomarker signal, not a clinical outcome.
 
-6. **Single-clock dependency** — The CALERIE-2 finding depends on one clock responding; it does not establish that CR "slows aging" in the broader sense. The field needs cross-clock concordance and mechanistic explanation.
+6. **Intervention-specific cross-clock discordance** — CALERIE-2 moved DunedinPACE but not the other tested clocks; DO-HEALTH moved DunedinPACE, PC-PhenoAge and one original-GrimAge2 arm while leaving PC-GrimAge v1 null. A clock response does not establish that an intervention slows organismal aging.
 
 ## Cross-references
 
@@ -177,12 +181,15 @@ MR analysis using DunedinPACE-specific genetic instruments has not been publishe
 - [[hypotheses/information-theory-of-aging]] (verified) — CALERIE-2 DunedinPACE result discussed as key evidence
 - [[frameworks/biological-age-measurement]] — cross-clock comparison MOC
 - [[studies/waziry-2023-calerie-epigenetic-clock]] — primary CALERIE-2 clock study page (verified R27)
+- [[studies/bischoff-ferrari-2025-do-health-biological-aging]] — verified DO-HEALTH Bio-Age extraction
 
 ## Footnotes
 
 [^belsky2022]: doi:10.7554/eLife.73420 · Dunedin Study: N=1037 total cohort (born 1972–73, New Zealand); n=817 analysis subsample with Pace of Aging measured at age 45 · longitudinal observational (20-year multi-biomarker follow-up across 4 timepoints: ages 26, 32, 38, 45; DNAm at age 45) · 173 CpGs selected by elastic-net · test-retest ICC 0.96 (95% CI 0.93–0.98; Lehne replicate dataset) · pace output: biological years per calendar year · eLife 2022 · archive: local PDF available (gold OA)
 
 [^waziry2023]: [[studies/waziry-2023-calerie-epigenetic-clock]] · n=197 analysis sample (128 CR, 69 AL; from 220 randomized) · post hoc DNAm analysis of CALERIE Phase 2 RCT (NCT00427193; pre-registered trial; 2-year 25% CR target; ~12% achieved) · doi:10.1038/s43587-022-00357-y · local PDF available · DunedinPACE: 12-mo d=−0.29 (95% CI −0.45, −0.13); 24-mo d=−0.25 (95% CI −0.41, −0.09) p<0.003; Horvath 2013: NS; PhenoAge: NS; GrimAge: NS · Nature Aging 2023
+
+[^dohealth2025]: [[studies/bischoff-ferrari-2025-do-health-biological-aging]] · n=777 Swiss subset · rct, post-hoc 2×2×2 factorial biomarker analysis · original DunedinPACE omega-3 marginal d=−0.17 (95% CI −0.31, −0.04) · 1 g/day algal omega-3 · 3 years · model: adults aged ≥70 years · DOI:10.1038/s43587-024-00793-y
 
 [^stanfield2026]: [[studies/stanfield-2026-rapa-ex-01]] · rct (RAPA-EX-01: rapamycin + exercise vs exercise-alone in older adults) · J Cachexia Sarcopenia Muscle 2026 · doi:10.1002/jcsm.70274 · DunedinPACE and PCGrimAge both used as secondary outcomes; no significant treatment effect on either; first powered RCT testing rapamycin-class geroprotector against DunedinPACE
 

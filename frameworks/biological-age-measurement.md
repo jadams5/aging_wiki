@@ -56,7 +56,8 @@ Trained to measure **how fast** someone is aging, not where they are on the agin
 | [[biomarkers/dunedinpace-2022]] | DNAm | 173 CpGs | Longitudinal pace across 19 biomarkers over 20 yr | 0.96 (95% CI 0.93–0.98) |
 
 **What it answers:** "Is this person aging faster or slower than average right now?"  
-**Key advantage:** DunedinPACE is the only clock that has responded to a well-powered human RCT (CALERIE-2; slowed by CR d=−0.25, p<0.003).  
+**Key advantage:** DunedinPACE has favorable post-hoc randomized signals in two distinct interventions: CALERIE-2 caloric restriction (d=−0.25 at 24 months) and DO-HEALTH omega-3 assignment (d=−0.17 over 3 years) [^dohealth2025].
+
 **Key limitation:** Training cohort was young (age 26–45); validation in elderly populations is incomplete.
 
 ### Other modalities
@@ -94,9 +95,9 @@ With four independent skin methylation clocks now seeded as standalone biomarker
 |---|---|---|---|
 | Horvath 2013 | Cross-tissue comparison; most-studied | Insensitive to interventions; not mortality-optimized | Low (null in multiple RCTs) |
 | Hannum 2013 | Blood-specific precision; historical epidemiology | Blood-only; smaller cohort; not mortality-optimized | Low |
-| PhenoAge 2018 | Mortality prediction; clinically interpretable components | Null in CALERIE-2; MR evidence null | Low-moderate |
-| GrimAge 2019 | Strongest mortality HR; includes disease-biology signals | Null in CALERIE-2; circularity; smoking confound | Low (null in CALERIE-2) |
-| DunedinPACE 2022 | Intervention responsiveness; best test-retest ICC; rate-sensitive | Young training cohort; single RCT data only | High (CALERIE-2 positive) |
+| PhenoAge 2018 | Mortality prediction; clinically interpretable components | Original/PC implementation distinctions; MR evidence null | Moderate: PC-PhenoAge favorable in post-hoc DO-HEALTH, null in CALERIE-2 |
+| GrimAge 2019 | Strongest mortality HR; includes disease-biology signals | Version sensitivity; circularity; smoking confound | Mixed: PC-GrimAge v1 null but original GrimAge2 omega-3-only arm favorable in post-hoc DO-HEALTH |
+| DunedinPACE 2022 | Intervention responsiveness; best test-retest ICC; rate-sensitive | Young training cohort; no validated clinical-surrogate status | High relative to other clocks; favorable post-hoc CALERIE-2 and DO-HEALTH signals |
 | LTL | Mechanistically interpretable; disease-specific (CAD causal; longer LTL raises cancer risk) | Poor reliability; no direct MR of all-cause mortality — life expectancy modeling shows ~2.5-yr reduction for LTL >1 s.d. below mean; IPF attribution requires separate citation | Low |
 | Frailty Index | Clinical accessibility; cross-species (mouse); direct interpretability | Insensitive in younger/healthier adults; standardization issues | Moderate (exercise RCTs) |
 | Lehallier proteomics | Non-DNA modality; non-monotonic waves; mechanistic proteins | Expensive platform; no RCT data | Unknown |
@@ -148,19 +149,22 @@ An 8-week multi-modal intervention in n=43 men reduced Horvath age by a mean 3.2
 
 ### DO-HEALTH partial signals
 
-The DO-HEALTH trial (omega-3, vitamin D, exercise, 3 years, n=2,157 elderly adults) showed partial signals on some clock endpoints in secondary analyses. Specific clock responses and effect sizes require verification. #gap/unsourced
+The post-hoc DO-HEALTH Bio-Age analysis used paired baseline and 3-year blood samples from 777 Swiss participants in the 2,157-person parent RCT. The factorial marginal omega-3 assignment favored PC-PhenoAge (d=−0.16, 95% CI −0.30 to −0.02) and original DunedinPACE (d=−0.17, −0.31 to −0.04); PC-GrimAge version 1 was null. Because treatment interactions were present for original GrimAge2, its favorable result is instead a literal omega-3-only-arm comparison with placebo (d=−0.32, −0.59 to −0.06) [^dohealth2025].
+
+The clock analysis was not separately preregistered, had no formal multiplicity correction, and did not establish that clock movement mediated morbidity, disability or survival. Its model-implied PC-PhenoAge combination estimates are sums of factorial effects, not observed combination-arm contrasts or synergy. The paper's 2.9–3.8-month headline is descriptive rather than a direct conversion of randomized effect magnitude. #gap/needs-replication
 
 ---
 
 ## What Clock Should You Trust for What?
 
 **For mortality prediction:** GrimAge (strongest HR); PhenoAge (runner up; more interpretable components).  
-**For intervention trials:** DunedinPACE (only clock with pre-registered RCT positive result as of 2026); also consider PC-corrected clocks for reliability.  
+**For intervention trials:** DunedinPACE currently has the broadest controlled-intervention responsiveness, but the positive CALERIE-2 and DO-HEALTH clock analyses were post hoc; use multiple technically reliable clocks and clinical endpoints rather than one clock alone.
+
 **For cross-tissue aging (multi-biopsy studies):** Horvath 2013 (sole validated pan-tissue clock).  
 **For clinical accessibility:** Frailty Index (no lab required; validated mouse cross-species).  
 **For early-life aging signals:** LTL or proteomics (both detect earlier molecular changes than clinical FI).
 
-**Honest summary:** No single clock is clearly superior for all purposes. GrimAge has the strongest mortality association but was trained in mortality, making it somewhat circular as a "true biological age" claim. DunedinPACE is the only clock that responded to a Phase 2-grade RCT, but its training cohort was young and the CR response may partly reflect metabolic confounding. Horvath 2013 remains the most-studied but has not demonstrated intervention responsiveness. The field has not converged on a single standard. #gap/contradictory-evidence
+**Honest summary:** No single clock is clearly superior for all purposes. GrimAge has the strongest mortality association but was trained on mortality-linked signals, making it partly circular as a "true biological age" claim. DunedinPACE has responded in post-hoc analyses of two randomized trials, while DO-HEALTH also moved PC-PhenoAge and one original-GrimAge2 arm. That cross-clock pattern is not concordant enough to validate any clock as a surrogate for clinical aging. Horvath 2013 remains the most-studied but has not demonstrated reliable intervention responsiveness. #gap/contradictory-evidence
 
 ---
 
@@ -204,3 +208,5 @@ The DO-HEALTH trial (omega-3, vitamin D, exercise, 3 years, n=2,157 elderly adul
 [^higginsChen2022]: doi:10.1038/s43587-022-00248-2 · n=large (multiple array datasets) · computational / observational · Nat Aging 2022 · PC-clock versions substantially improve test-retest ICC vs conventional clocks · archive: download pending
 
 [^fitzgerald2021]: [[studies/fitzgerald-2021-diet-lifestyle-epigenetic-clock]] · n=43 healthy males (38 completers) · rct (small pilot; unblinded) · Horvath age reduced 3.23 yr (p<0.001) in 8-week diet+exercise+sleep+supplement intervention · doi:10.18632/aging.202913 · local PDF available · contested: small n, short duration, not independently replicated
+
+[^dohealth2025]: [[studies/bischoff-ferrari-2025-do-health-biological-aging]] · n=777 paired baseline/36-month DNAm samples · rct, post-hoc biomarker analysis · 1 g/day algal omega-3 within 2×2×2 factorial DO-HEALTH · model: generally healthy adults aged ≥70 years · DOI:10.1038/s43587-024-00793-y

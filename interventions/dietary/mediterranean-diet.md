@@ -137,7 +137,7 @@ Oleic acid (C18:1, the dominant fatty acid in EVOO and most Mediterranean nuts) 
 
 ### Omega-3 PUFA (EPA, DHA, ALA) — resolvin/protectin synthesis and LDL clearance
 
-Long-chain n-3 PUFAs from fatty fish (EPA C20:5, DHA C22:6) and the plant precursor ALA (C18:3, from walnuts) engage multiple aging-relevant mechanisms:
+Long-chain [[omega-3-fatty-acids|n-3 PUFAs]] from fatty fish (EPA C20:5, DHA C22:6) and the plant precursor ALA (C18:3, from walnuts) engage multiple aging-relevant mechanisms:
 
 - **Specialized pro-resolving mediators (SPMs):** EPA and DHA are precursors for resolvins (Rv), protectins (PD), and maresins (MaR) via 5-LOX and 12/15-LOX pathways. SPMs actively resolve inflammation by programming macrophage efferocytosis and reducing neutrophil recruitment without broad immunosuppression. See [[spm-pathway]].
 - **PPAR-α activation:** EPA/DHA bind and activate peroxisome proliferator-activated receptor alpha (PPAR-α) in the liver, promoting fatty acid β-oxidation and upregulating apolipoprotein A-I (ApoA-I) synthesis — the primary structural protein of HDL.

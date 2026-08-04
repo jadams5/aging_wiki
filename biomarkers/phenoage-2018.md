@@ -12,9 +12,9 @@ human-evidence-level: strong
 mendelian-randomization: partial
 intervention-responsive: partial
 verified: true
-verified-date: 2026-05-08
+verified-date: 2026-08-04
 verified-by: claude
-verified-scope: "Levine 2018 primary source PDF verified end-to-end; Waziry 2023 CALERIE-2 PDF verified; Bischoff-Ferrari 2025 DO-HEALTH Bio-Age PDF verified. Canonical-DB identity fields not applicable (no PubChem/UniProt for this page type). R34 recency refresh 2026-05-08: METFORAGING (Marcelo-Calvo 2026; primary endpoint), DO-HEALTH cancer follow-up (Rösler 2026), and TCGA-BRCA prognostic (Tan 2026) integrated from abstracts only — full PDFs not re-verified."
+verified-scope: "Levine 2018 primary source PDF verified end-to-end; Waziry 2023 CALERIE-2 PDF verified; Bischoff-Ferrari 2025 DO-HEALTH Bio-Age article, Extended Data, and Reporting Summary re-adjudicated 2026-08-04 via the verified atomic study page. Canonical-DB identity fields not applicable. R34 recency refresh 2026-05-08: METFORAGING (Marcelo-Calvo 2026; primary endpoint), DO-HEALTH cancer follow-up (Rösler 2026), and TCGA-BRCA prognostic (Tan 2026) integrated from abstracts only — full PDFs not re-verified."
 literature-checked-through: 2026-05-08
 ---
 
@@ -83,27 +83,27 @@ PhenoAge acceleration is associated with [^levine2018]:
 | Tissue | Blood (trained in InCHIANTI; validated in blood cohorts) | Pan-tissue (51 types) |
 | CpG count | 513 | 353 |
 | Intervention-responsive (CR) | No (Waziry 2023) | No (Waziry 2023) |
-| Intervention-responsive (omega-3) | Yes (Bischoff-Ferrari 2025, DO-HEALTH) | Not assessed in DO-HEALTH |
+| Intervention-responsive (omega-3) | PC-PhenoAge: favorable post-hoc RCT signal (DO-HEALTH) | Not assessed in DO-HEALTH |
 
 ## Intervention-Responsive Evidence
 
 ### Null signal: CALERIE-2 caloric restriction
 
-In Waziry 2023 (randomized N=220; DNAm analysis sample n=197 [128 CR, 69 AL]; 2-year ~12% achieved CR) **PhenoAge showed no significant slowing**: 12-month d=−0.03 (95% CI −0.19, 0.12), 24-month d=0.05 (95% CI −0.11, 0.20), P>0.50 for both [^waziry2023]. GrimAge was similarly null. PhenoAge and GrimAge were the pre-registered primary clock endpoints for the CALERIE-2 epigenetic analysis. The null result on PhenoAge — despite a significant effect on DunedinPACE (24-month d=−0.25 [−0.41, −0.09], P<0.003) — is one of the most important findings in the intervention-clock literature. See [[biomarkers/dunedinpace-2022]] for the positive DunedinPACE signal and [[frameworks/biological-age-measurement]] for interpretation of the discordance.
+In Waziry 2023 (randomized N=220; DNAm analysis sample n=197 [128 CR, 69 AL]; 2-year ~12% achieved CR) **PhenoAge showed no significant slowing**: 12-month d=−0.03 (95% CI −0.19, 0.12), 24-month d=0.05 (95% CI −0.11, 0.20), P>0.50 for both [^waziry2023]. GrimAge was similarly null. PhenoAge and GrimAge were designated primary clock endpoints within the post-hoc CALERIE-2 epigenetic analysis, but that DNAm substudy was not independently preregistered. The null result on PhenoAge — despite a significant effect on DunedinPACE (24-month d=−0.25 [−0.41, −0.09], P<0.003) — is one of the most important findings in the intervention-clock literature. See [[biomarkers/dunedinpace-2022]] for the positive DunedinPACE signal and [[frameworks/biological-age-measurement]] for interpretation of the discordance.
 
-Interpretation is contested: the CALERIE-2 null on PhenoAge could mean (a) CR does not slow the biological aging processes captured by PhenoAge's 9 clinical biomarkers, (b) 12% CR for 2 years is insufficient to move mortality-associated biomarkers, or (c) PhenoAge is less sensitive to the acute metabolic effects of CR than DunedinPACE. The DO-HEALTH finding (omega-3 significantly moved PhenoAge) adds a fourth possibility: (d) PhenoAge is responsive to specific nutritional interventions (omega-3) but not caloric restriction per se, suggesting the 9-biomarker composition of clinical PhenoAge is sensitive to inflammatory/nutritional status rather than caloric or metabolic load. None of these interpretations has been ruled out. #gap/contradictory-evidence
+Interpretation is contested: the CALERIE-2 null on PhenoAge could mean (a) CR does not slow the biological aging processes captured by PhenoAge, (b) 12% CR for 2 years is insufficient to move it, or (c) PhenoAge is less sensitive to caloric restriction than DunedinPACE. DO-HEALTH adds a fourth possibility: the more technically reliable PC-PhenoAge implementation may respond to a specific nutritional intervention even when it did not respond to CR. Whether this reflects omega-3 biology, intervention context, clock implementation, or chance in a post-hoc multi-endpoint analysis is unresolved. #gap/contradictory-evidence
 
 ### Positive signal: DO-HEALTH Bio-Age trial (omega-3, vitamin D, exercise)
 
-The DO-HEALTH Bio-Age trial (Bischoff-Ferrari et al. 2025, *Nature Aging*; n=777 Swiss subset of the 2,157-participant DO-HEALTH RCT; adults aged 70+; 3-year follow-up) found [^bischoffferrari2025]:
+The DO-HEALTH Bio-Age analysis (Bischoff-Ferrari et al. 2025, *Nature Aging*; n=777 Swiss subset of the 2,157-participant DO-HEALTH RCT; adults aged 70+; 3-year follow-up) found [^bischoffferrari2025]:
 
-- **Omega-3 alone** (1 g/day) significantly slowed DNAm PhenoAge: d=−0.16 (95% CI −0.02 to −0.30), corresponding to ~2.9–3.8 months of age retardation over 3 years.
-- **All three treatments combined** (omega-3 + vitamin D + SHEP exercise) showed **additive PhenoAge benefits** with d ranging from −0.24 to −0.32.
-- Vitamin D alone and SHEP exercise alone were not significantly associated with PhenoAge changes individually.
-- **No significant effect on GrimAge** from any intervention arm.
-- DunedinPACE: omega-3 alone d=−0.17 (−0.04 to −0.31).
+- The **factorial marginal effect of omega-3 assignment** across all omega-3-containing arms favored PC-PhenoAge: d=−0.16 (95% CI −0.30 to −0.02). This was not a literal omega-3-only-arm contrast.
+- Model-implied vitamin D+omega-3 and omega-3+exercise sums were each d=−0.24 (−0.44 to −0.04); the all-three factorial-model sum was d=−0.32 (−0.56 to −0.08). These are additive sums under the no-interaction model, not observed combined-arm contrasts or evidence of synergy.
+- Vitamin D and the exercise assignment had no individual PC-PhenoAge estimates with confidence intervals excluding zero.
+- PC-GrimAge version 1 was null, but the literal omega-3-only arm favored original GrimAge2 (d=−0.32, −0.59 to −0.06).
+- The factorial marginal omega-3 effect also favored original DunedinPACE (d=−0.17, −0.31 to −0.04).
 
-This is a positive signal specifically for PhenoAge (not GrimAge), driven by omega-3, with additive effects from the combined intervention. It contrasts with the CALERIE-2 null result (CR had no effect on PhenoAge), suggesting PhenoAge may respond to nutritional but not caloric-restriction interventions in this timeframe. #gap/needs-replication — DO-HEALTH was a post-hoc analysis in the Swiss subsample; generalizability to other populations and longer follow-up is unknown.
+The paper's headline 2.9–3.8-month description is not a confidence interval and is not a direct conversion of the randomized between-group effects: it adds the overall PC-PhenoAge mean change and reuses that clock's scale for descriptive examples. Standardized estimates should remain primary. This is therefore a small, post-hoc, multi-clock surrogate signal—not evidence of months of life gained. #gap/needs-replication
 
 ### Null signal: METFORAGING metformin pilot (2026)
 
@@ -156,7 +156,7 @@ Schooling 2025 (see [[biomarkers/horvath-clock-2013]] footnotes) included PhenoA
 - [[interventions/lifestyle/caloric-restriction]] (verified) — CALERIE-2 null result on PhenoAge
 - [[frameworks/biological-age-measurement]] — cross-clock comparison MOC
 - [[studies/waziry-2023-calerie-epigenetic-clock]] — primary CALERIE-2 clock study page (verified R27)
-- Bischoff-Ferrari 2025 doi:10.1038/s43587-024-00793-y — DO-HEALTH Bio-Age primary source (omega-3 PhenoAge positive signal); no dedicated study page yet
+- [[studies/bischoff-ferrari-2025-do-health-biological-aging]] — verified DO-HEALTH Bio-Age extraction
 
 ## Footnotes
 
@@ -164,7 +164,7 @@ Schooling 2025 (see [[biomarkers/horvath-clock-2013]] footnotes) included PhenoA
 
 [^waziry2023]: [[studies/waziry-2023-calerie-epigenetic-clock]] · randomized N=220 (145 CR, 75 AL); DNAm analysis sample n=197 (128 CR, 69 AL) · rct · model: healthy non-obese human adults (CALERIE Phase 2, 2-year ~12% achieved CR, mean 11.9%) · doi:10.1038/s43587-022-00357-y · local PDF available · PhenoAge: d=−0.03 at 12-mo, d=0.05 at 24-mo (both P>0.40); GrimAge: d=−0.04 at 12-mo, d=0.05 at 24-mo (both P>0.40); DunedinPACE: d=−0.29 at 12-mo, d=−0.25 [95% CI −0.41, −0.09] at 24-mo, P<0.003
 
-[^bischoffferrari2025]: doi:10.1038/s43587-024-00793-y · n=777 (Swiss DO-HEALTH Bio-Age subsample of 2,157-participant DO-HEALTH RCT; adults ≥70 yr, 5 European countries) · rct (2×2×2 factorial: vitamin D 2,000 IU/d vs placebo; omega-3 1 g/d vs placebo; SHEP home exercise vs no exercise; 3-year follow-up) · Omega-3 alone: PhenoAge d=−0.16 (95% CI −0.02 to −0.30); all three treatments: additive PhenoAge d=−0.24 to −0.32; GrimAge: NS for all arms · Nature Aging 2025 · local PDF:  (local PDF)
+[^bischoffferrari2025]: [[studies/bischoff-ferrari-2025-do-health-biological-aging]] · n=777 paired baseline/36-month DNAm samples (Swiss subset of 2,157-person parent trial) · rct, post-hoc biomarker analysis · PC-PhenoAge omega-3 factorial marginal d=−0.16 (95% CI −0.30, −0.02) · model: generally healthy, active adults aged ≥70 years · DOI:10.1038/s43587-024-00793-y
 
 [^metforaging2026]: doi:10.1016/j.eclinm.2026.103874 · METFORAGING · Marcelo-Calvo C et al. · EClinicalMedicine 2026 (May) · n=40 randomized (n=35 per-protocol; 17 metformin, 18 placebo); rct, double-blind, 96-week 850 mg metformin BID vs placebo · model: non-diabetic PLWH ≥50 yr, virologically suppressed · primary endpoint: PhenoAge EAA change at 96 wk = −1.02 yr (95% CI −5.30, 3.26; P=0.627); GrimAge V2 + 4 PC variants + Horvath + Hannum + DunedinPACE + DNAmTL all NS · trial closed at 40/60 due to slow recruitment · EudraCT 2021-003299-15
 

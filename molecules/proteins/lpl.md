@@ -105,7 +105,7 @@ Fibrates (gemfibrozil, fenofibrate, bezafibrate) are **PPARα agonists** that tr
 
 ### 2. Omega-3 fatty acids — LPL activation + VLDL suppression
 
-High-dose omega-3 FAs (EPA, DHA) work via multiple mechanisms: activating PPARα → LPL upregulation; reducing hepatic VLDL secretion; activating LPL directly. The **EPA-vs-DHA controversy** is unresolved:
+High-dose [[omega-3-fatty-acids|omega-3 FAs]] (EPA, DHA) work via multiple mechanisms: activating PPARα → LPL upregulation; reducing hepatic VLDL secretion; activating LPL directly. The **EPA-vs-DHA controversy** is unresolved:
 
 - **REDUCE-IT** (n=8,179; icosapent ethyl [EPA-only] 4 g/d vs mineral-oil placebo; statin-background; TG inclusion range 135–499 mg/dL; median baseline TG ~216 mg/dL per full paper — not confirmable from abstract alone): **25% relative reduction in MACE** (CV death, MI, stroke, revascularization, unstable angina); HR 0.75 (95% CI 0.68–0.83); p<0.001 [^bhatt2019]. However, the mineral-oil placebo control is contested — some argue the control raised LDL-C in the placebo arm, inflating apparent benefit [^strength-controversy]. #gap/contradictory-evidence
 - **STRENGTH** (n=13,078; omega-3 carboxylic acid [EPA+DHA] 4 g/d vs corn oil placebo; similar statin-background; median baseline TG ~240 mg/dL): **no MACE benefit** (HR 0.99 [95% CI 0.90–1.09]); p=0.84; trial terminated early for futility [^strength2021]. Corn oil placebo considered "active" by some due to minor LDL-raising. The EPA vs mixed-ω3 mechanistic discordance remains unresolved. #gap/contradictory-evidence
