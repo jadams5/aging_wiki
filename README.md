@@ -6,6 +6,8 @@ Most wikis are written for people and occasionally read by machines. This one is
 
 **Just want to read?** The **live wiki site** lives at [🧬 Aging Wiki](https://jadams5.github.io/aging_wiki/).
 
+**Join the community:** [r/aging_wiki](https://www.reddit.com/r/aging_wiki/) is the official subreddit for discussion and questions.
+
 ---
 
 ## The idea
