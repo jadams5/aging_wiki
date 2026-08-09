@@ -9,10 +9,14 @@ upstream: ["cytokine receptors (IFN, IL-6 family, GH, EPO, prolactin, leptin)", 
 downstream: ["[[chronic-inflammation]]", "[[immunosenescence]]"]
 hallmarks: ["[[chronic-inflammation]]", "[[altered-intercellular-communication]]"]
 sens-categories: []
+druggability-tier: 2
+caused-by: ["[[altered-intercellular-communication]]", "[[chronic-inflammation]]"]
+causes: ["[[chronic-inflammation]]", "[[immunosenescence]]"]
+literature-checked-through: 2026-08-09
 verified: true
-verified-date: 2026-05-04
+verified-date: 2026-08-09
 verified-by: claude
-verified-scope: "Xu 2015 (PNAS), James 2005 (Nature), and Levy 2002 (NRM) verified against local PDFs. KEGG/Reactome IDs verified against DOI lookup. Darnell 1994 (closed-access) and Ridker 2017 unverified against PDF — retained with existing gap markers. WikiPathways null retained (gap tag present)."
+verified-scope: "Prior verification scope retained for Xu 2015, James 2005, Levy 2002, Darnell 1994 and Ridker 2017. Added an IL-11 branch qualification from the fully checked Schafer 2017, Widjaja 2024 and Wu 2026 full texts; canonical STAT3 signaling is distinguished from the ERK-centered fibroblast and aging mechanisms."
 ---
 
 
@@ -81,6 +85,10 @@ In aging, SOCS3 expression may decline in some tissues, contributing to chronic 
 ## Aging relevance
 
 JAK-STAT intersects the aging biology in three mechanistically distinct arms:
+
+### IL-11 is not only a STAT3 story
+
+[[il-11-signaling]] uses [[gp130]] and can activate JAK/STAT3, but recent fibroblast and aging studies emphasize a parallel non-canonical [[ras-mapk|ERK]] branch. In primary fibroblasts and mouse tissues, IL-11-dependent ERK–p90RSK signaling was linked to collagen production, inhibitory LKB1 phosphorylation, lower AMPK activity and higher mTORC1 output [^widjaja2024-il11]. The relative STAT3 and ERK contributions differ by tissue and were not fully decomposed. This qualification prevents the IL-6-family row above from being read as evidence that all IL-11 phenotypes are STAT3-mediated.
 
 ### 1. IL-6/STAT3 axis and inflammaging
 
@@ -161,3 +169,5 @@ Clonal hematopoiesis of indeterminate potential (CHIP), in which somatic mutatio
 [^james2005]: doi:10.1038/nature03546 · observational (human cohort) · n=45 PV patients + 15 controls + 35 secondary erythrocytosis + 21 ET + 7 idiopathic MF (discovery series) · model: human myeloproliferative neoplasm patients; mouse bone-marrow transplant model (n=5/group for haematocrit; p=0.003 V617F vs control, p=0.0002 V617F vs WT JAK2) · archive: local PDF available at 
 
 [^ridker2017]: doi:10.1056/NEJMoa1707914 · rct · n=10,061 · model: humans (prior MI + elevated hsCRP) · primary endpoint: non-fatal MI + non-fatal stroke + CV death; canakinumab (anti-IL-1β) 150 mg q3m HR 0.85 (95% CI 0.74–0.98), p=0.021 · archive: local PDF available at 
+
+[^widjaja2024-il11]: [[studies/widjaja-2024-il11-healthspan-lifespan]] · doi:10.1038/s41586-024-07701-9 · Widjaja AA et al. · *Nature* 2024;632:157–165 · interpreted with foundational fibroblast evidence in [[studies/schafer-2017-il11-cardiovascular-fibrosis]] and ovarian evidence in [[studies/wu-2026-il11-ovarian-stiffness]]

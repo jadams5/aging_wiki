@@ -15,11 +15,11 @@ human-evidence-level: limited
 half-life: "62 h (healthy adults, oral)"
 translation-gap: phase-3-rct-needed
 next-experiment: "PEARL-style mortality RCT in healthy adults 50+ powered for >=5% all-cause mortality reduction at 5 yr; n>=10K, weekly intermittent dosing 5–10 mg. Open question after RAPA-EX-01 (Stanfield 2026, null/negative on chair-stand): whether 6 mg/week is too high for cycling-hypothesis pharmacology in ageing adults — lower doses (1–3 mg/week) or biweekly schedules may be needed for an on-off mTORC1 pulse compatible with exercise adaptation."
-literature-checked-through: 2026-05-08
+literature-checked-through: 2026-08-09
 verified: true
-verified-date: 2026-05-08
+verified-date: 2026-08-09
 verified-by: claude
-verified-scope: "Harrison 2009 (nature08221), Miller 2014 (acel.12194), PEARL 2025 (aging.206235), Arriola Apelo 2016 (acel.12405) verified against local PDFs. Stanfield 2026 RAPA-EX-01 (jcsm.70274) verified via PMC OA full text (PMC13082878) — primary endpoint, sensitivity analyses, all secondary outcomes (incl. four epigenetic clocks: PCGrimAge / SystemsAge / OMICmAge / DunedinPACE), AE summary, and SAE pneumonia case extracted from PMC HTML rendering; local PDF not yet downloaded. Johnson 2013 review (nature11861) and Mannick 2014 (scitranslmed.3009892) are not_oa — mechanism/immune claims from those sources remain unverified against full text. Lamming 2012 (science.1215135) download failed — mTORC2 mechanism claims attributed to that source carry #gap/no-fulltext-access. Canonical-database identity fields (PubChem CID, InChIKey, CAS) not independently re-verified against databases."
+verified-scope: "Prior verification scope retained for Harrison 2009, Miller 2014, PEARL 2025, Arriola Apelo 2016 and Stanfield 2026; limitations on Johnson 2013, Mannick 2014 and Lamming 2012 remain. Added Li 2025 after full-text checking of the 1 mg/day pre-retrieval IVF trial, including its null mature-oocyte outcome, embryo counts, borderline pregnancy estimate, incomplete live-birth follow-up and reporting limitations. Canonical identity fields were not rechecked in this pass."
 ---
 
 # Rapamycin (Sirolimus)
@@ -132,6 +132,18 @@ The first trial designed to test the **rapamycin "cycling hypothesis"** — that
 
 **Pattern note (R34, 2026-05-08):** The two recent dedicated aging-rejuvenation rapamycin RCTs (PEARL on body composition, RAPA-EX-01 on functional capacity) both reported null/negative on their prespecified primary endpoints at 5–10 mg/week. The earlier positive trial (Mannick 2014) used everolimus, not sirolimus, with a different mechanism endpoint (immunosenescence reversal in vaccine response). The mouse ITP signal at 14–42 ppm continuous in chow is unaltered — but the **human aging-rejuvenation thesis** at the n=1 biohacker dose range now has two negative high-quality data points and one positive (everolimus, immune-aging only). #gap/contradictory-evidence — the discrepancy between mouse continuous-feeding lifespan extension and human weekly-pulse rejuvenation null results is unresolved.
 
+### Li 2025 — short pre-retrieval IVF trial [^li2025-rapamycin]
+
+- **Design:** single-center randomized study, ChiCTR2300069828; 100 women with prior IVF failure randomized 1:1 to standard care with or without oral sirolimus.
+- **Intervention:** 1 mg/day for 21–28 days from downregulation through oocyte retrieval.
+- **Primary mature-oocyte outcome:** no significant difference. Eight participants produced no MII oocytes; embryo analyses used 47 controls and 45 sirolimus participants.
+- **Embryology:** reported zygote, embryo, good-quality-embryo and blastocyst counts were higher with sirolimus.
+- **Clinical pregnancy among transferred participants:** 20/40 versus 11/39; reported RR 1.77 (95% CI 0.98–3.19), P=0.047. The confidence interval includes 1 and pregnancy was a secondary outcome among many comparisons.
+- **Live birth:** follow-up was incomplete; among participants who had reached their due date, 10/14 versus 6/8 live births did not differ. This was not an intention-to-treat live-birth analysis.
+- **Limits:** no placebo or clearly reported allocation concealment/outcome blinding, post-randomization transfer-stage imbalance, insufficient adverse-event reporting, and no long-term offspring follow-up.
+
+The trial is limited evidence for short-term embryo-development effects in a selected infertility population. It does **not** establish improved live birth, ovarian-reserve restoration, geroprotection or reproductive safety.
+
 #gap/long-term-unknown — No trial exceeds one year of follow-up in healthy aging adults. The safety profile at aging-relevant (low, intermittent) doses over 5–10 years is not established.
 
 ## Dosing — transplant vs aging
@@ -196,6 +208,8 @@ At **aging-targeted intermittent doses** (5–10 mg/week), PEARL trial found the
 - [[fkbp12]] — direct rapamycin-binding partner (implicit stub)
 - [[everolimus]] — rapalog; aging immune data from Mannick 2014 (implicit stub)
 - [[deregulated-nutrient-sensing]] — primary hallmark targeted
+- [[ribosome-biogenesis]] and [[protein-synthesis]] — synthesis-side processes suppressed by mTORC1 inhibition
+- [[age-related-female-infertility]] — selected clinical context tested by Li 2025
 
 ## Limitations and gaps
 
@@ -205,6 +219,7 @@ At **aging-targeted intermittent doses** (5–10 mg/week), PEARL trial found the
 - **mTORC2 suppression threshold uncertain.** The dose/duration boundary at which intermittent rapamycin begins to suppress mTORC2 in human tissues has not been measured. #gap/dose-response-unclear
 - **Long-term immunosuppression risk at low intermittent doses** has not been quantified in healthy aging cohorts followed for years. #gap/long-term-unknown
 - **Cancer risk:** mTOR inhibition is antiproliferative (reducing some cancers) but also immunosuppressive (raising others). The net cancer-risk balance at aging doses is unresolved. #gap/contradictory-evidence
+- **Reproductive use remains experimental.** One small trial improved embryo counts but not mature-oocyte yield and did not establish live-birth benefit or long-term maternal/offspring safety. #gap/needs-replication #gap/long-term-unknown
 
 ## Footnotes
 
@@ -225,3 +240,5 @@ At **aging-targeted intermittent doses** (5–10 mg/week), PEARL trial found the
 [^lamming2012]: [[studies/lamming-2012-rapamycin-mtorc2-insulin]] · n=~10–20/group · in-vivo + in-vitro · model: mouse, MEFs · doi:10.1126/science.1215135 · download failed (not_oa Science paper) — #gap/no-fulltext-access for primary verification of mTORC2 claims attributed to this source
 
 [^johnson2013review]: doi:10.1038/nature11861 · review · Johnson SC, Rabinovitch PS, Kaeberlein M · Nature 2013 · not_oa — no local PDF
+
+[^li2025-rapamycin]: [[studies/li-2025-ribosome-age-related-infertility]] · doi:10.1016/j.xcrm.2025.102424 · Li J, Wang H, Zhu P et al. · *Cell Reports Medicine* 2025;6:102424 · human multi-omics and randomized IVF sirolimus trial (ChiCTR2300069828)

@@ -9,14 +9,15 @@ lineage-output: []
 self-renewal: no
 aging-relevant: yes
 affected-hallmarks: ["[[genomic-instability]]", "[[mitochondrial-dysfunction]]", "[[loss-of-proteostasis]]"]
-key-aging-phenotypes: ["[[menopause]]"]
+key-aging-phenotypes: ["[[menopause]]", "[[age-related-female-infertility]]"]
 typical-niche: "primordial, primary, secondary, and antral follicle microenvironments; bidirectional gap-junction communication with [[granulosa-cells]] via transzonal projections; follicular fluid provides oxidative and paracrine milieu"
 niche-signaling: ["[[tgf-beta]]", "[[pi3k-akt-pathway]]"]
 single-cell-aging-signature: "Decline in cohesin subunit transcripts (REC8, SMC1B, STAG3) with advancing maternal age demonstrated in human granulosa and oocyte populations; mitochondrial gene expression dysregulation; progressive transcriptomic noise accumulation with age #gap/needs-replication"
 verified: true
-verified-date: 2026-06-03
+verified-date: 2026-08-09
 verified-by: claude
-verified-scope: "Tsutsumi 2014 (doi:10.1371/journal.pone.0096710), Chiang 2010 (doi:10.1016/j.cub.2010.06.069), Zielinska 2019 (doi:10.1016/j.cub.2019.09.006), and Shang 2024 (doi:10.1016/j.advnut.2024.100273) verified against full PDFs — quantitative corrections applied throughout. Cell Ontology CL:0000023 = oocyte confirmed via OLS4. Pasquariello 2019 (doi:10.1093/biolre/ioy248) is closed-access: claims tagged #gap/no-fulltext-access; body-level quantitative detail unverified. Secondary sources (Titus 2013, Turan 2020, Revenkova 2010, Buratini 2022, Van Blerkom 2011, Herbert 2015, Mikwar 2020, Mihajlovic 2023, Voros 2026, Zarate-Garcia 2016, Grieve 2015) not re-read against PDFs; qualitative claim framing reviewed for plausibility against verified primary-source context."
+verified-scope: "Prior verification scope retained for Tsutsumi 2014, Chiang 2010, Zielinska 2019, Shang 2024, CL:0000023 and the listed secondary sources. Added Li 2025 after full-text checking; oocyte ribosomal-transcript findings are distinguished from the stronger cumulus-cell aggregate/translation evidence and from ex-vivo mouse maturation."
+literature-checked-through: 2026-08-09
 ---
 
 
@@ -156,9 +157,11 @@ Because oocytes are arrested for decades without substantial protein turnover at
 
 - Accumulation of protein aggregates in aged oocytes (detected by aggresome staining in mouse studies). #gap/needs-human-replication
 - Declining proteasome activity in oocytes from aged mice; impaired clearance of meiotic regulatory proteins.
-- Translational fidelity decline with age — a recently proposed mechanism involving ribosomal integrity loss that may generate error-prone proteins during the rapid burst of translation accompanying meiotic resumption [^voros2026].
+- Age-associated ribosome/translation dysregulation — human oocyte RNA-seq showed enrichment of cytosolic and mitochondrial ribosomal transcripts in older donors, while meiosis, cohesion, cytoskeletal and DNA-repair programs declined [^li2025-oocyte]. This is transcriptional association, not direct proof of reduced translation fidelity.
 
 [^voros2026]: doi:10.3390/ijms27051996 · Voros C et al. (16 authors) · International Journal of Molecular Sciences 2026 · review · translational fidelity as underrecognized driver of reproductive aging; ribosomal integrity and protein synthesis precision during oocyte maturation
+
+Li et al. reported only a slight protein-aggregate difference in human oocytes themselves; the stronger evidence for increased translation, weaker lysosome/proteasome programs and aggregate accumulation came from surrounding cumulus cells. In aged mouse cumulus–oocyte complexes, 0.5 μM rapamycin during in-vitro maturation reduced pS6, ROS and spindle/chromosome abnormalities and increased maturation [^li2025-oocyte]. This was an ex-vivo maturation experiment, not systemic treatment that delayed ovarian aging in living mice.
 
 ## Hallmark connections
 
@@ -203,6 +206,8 @@ Systems to mature primordial follicles in vitro are in development; if the primo
 - [[genomic-instability]] — hallmark page; cohesin loss is an oocyte-specific variant
 - [[mitochondrial-dysfunction]] — hallmark page; mtDNA and ATP in oocyte aging
 - [[loss-of-proteostasis]] — hallmark page; long-lived proteins and translational fidelity
+- [[ribosome-biogenesis]] and [[protein-synthesis]] — synthesis-side processes implicated by human oocyte/cumulus data
+- [[studies/li-2025-ribosome-age-related-infertility]] — primary ribosome/translation and intervention study
 - [[cellular-senescence]] — relevant at the level of the follicular microenvironment
 - [[granulosa-cells]] — essential bidirectional signaling partner (implicit stub — no page yet)
 - [[ovary]] — tissue-of-origin (implicit stub — no page yet)
@@ -217,6 +222,8 @@ Systems to mature primordial follicles in vitro are in development; if the primo
 [^herbertetal2015]: doi:10.1101/cshperspect.a017970 · Herbert M, Kalleas D, Cooney D, Lamb M, Lister L · Cold Spring Harbor Perspectives in Biology 2015 · review · comprehensive synthesis of cohesin loss, recombination failure, and maternal age effect on trisomy births · archive status: pending
 [^mikwar2020]: doi:10.1016/j.mrrev.2020.108320 · Mikwar M, MacFarlane AJ, Marchetti F · Mutation Research/Reviews in Mutation Research 2020;785:108320 · review · model: mouse + human · identifies cohesin deterioration, SAC disregulation, mitochondrial dysfunction as leading mechanisms of maternal-age aneuploidy · archive status: not_oa
 [^zielinska2019]: doi:10.1016/j.cub.2019.09.006 · Zielinska AP, Bellou E, Sharma N et al. · Current Biology 2019;29(23):3749–3765 · in-vivo + super-resolution imaging (AiryScan, STED) · n=35,700 kinetochores across mouse (14 young 8-wk, 29 old 60–64-wk FVB/N), pig, and human (17 younger ≤33 y, 32 older >34 y) MII eggs · centromeric CENP-A decompacts with age; inner and outer kinetochore regions fragment into multiple lobes in >30% of MII kinetochores of aged women and mice (mouse 60+ weeks: ~60% fragmented; human >34 y: ~40% fragmented vs ~25% in ≤33 y, p < 0.01); acute cohesin depletion in young eggs recapitulates the phenotype; fragmented kinetochores show increased merotelic microtubule attachment · archive status: downloaded
-[^buratini2022]: doi:10.1093/humupd/dmab044 · Buratini J et al. · Human Reproduction Update 2022 · review · cumulus-oocyte communication decline with age; FSH/AMH axis · archive status: pending
+[^buratini2022]: doi:10.1093/humupd/dmab044 · Buratini J et al. · Human Reproduction Update 2022 · review · cumulus–oocyte communication decline with age; FSH/AMH axis · archive status: pending
+
+[^li2025-oocyte]: [[studies/li-2025-ribosome-age-related-infertility]] · doi:10.1016/j.xcrm.2025.102424 · Li J, Wang H, Zhu P et al. · *Cell Reports Medicine* 2025;6:102424 · human oocyte/cumulus multi-omics, culture perturbations, ex-vivo mouse maturation and a small randomized IVF trial
 [^vanBlerkom2011]: doi:10.1016/j.mito.2010.09.012 · Van Blerkom J · Mitochondrion 2011 · review · mitochondrial ATP and mtDNA in oocyte competence · archive status: pending
 [^beverley2021]: doi:10.3389/fcell.2021.710033 · Beverley R, Snook ML, Brieño-Enríquez MA · Frontiers in Cell and Developmental Biology 2021 · review · meiotic cohesin variants, STAG3/RAD21L mutations, human reproductive aging and disease · archive status: pending

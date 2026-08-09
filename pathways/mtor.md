@@ -10,9 +10,10 @@ downstream: ["[[autophagy]]", "[[protein-synthesis]]", "[[lipogenesis]]", "[[rib
 hallmarks: ["[[deregulated-nutrient-sensing]]", "[[disabled-macroautophagy]]"]
 sens-categories: []
 verified: true
-verified-date: 2026-05-04
+verified-date: 2026-08-09
 verified-by: claude
-verified-scope: "Bjedov 2010 and Harrison 2009 claims verified against primary-source PDFs. Mannick 2014 (doi:10.1126/scitranslmed.3009892) is closed-access (not_oa per a local paper archive) — n=218 and seroconversion endpoint claims unverified. Yeast/worm lifespan rows (~20–40%, ~30–50%) are not cited to primary sources and were not verified. KEGG/Reactome/WikiPathways identifiers in frontmatter not independently re-checked. 2026-05-04: SIRT3-FAO-NAD+ cross-talk note added from Li et al. 2023 (bioRxiv preprint; PMC9882180); flagged as preliminary."
+verified-scope: "Prior verification scope retained for Bjedov 2010, Harrison 2009, Mannick 2014, the uncited yeast/worm rows and the preliminary Li 2023 cross-talk note. Added Li 2025 after full-text checking of human cumulus/oocyte data, ex-vivo mouse maturation and the clinical trial. Pathway identifiers were not rechecked in this pass."
+literature-checked-through: 2026-08-09
 ---
 
 # mTOR signaling pathway
@@ -82,6 +83,12 @@ Two mTORC1-attributable actions are most-cited:
 - **[[caloric-restriction]]** — reduces mTOR signaling via reduced amino acid + growth factor input. In *Drosophila*, rapamycin extends median and maximum lifespan **beyond** the maximum achieved by dietary restriction, and extends lifespan at all food concentrations tested — indicating rapamycin captures DR mechanisms but also engages additional longevity pathways [^bjedov2010]. The relationship between CR and TOR varies by organism: in yeast and worms, DR does not further extend lifespan when TOR is already reduced, suggesting convergence; in flies the data indicate partial independence. #gap/needs-replication — the epistasis picture is organism-specific and not fully resolved. #gap/unsourced — a citation for the yeast/worm convergence claim is needed before asserting it as a general rule.
 - **[[sirtuin|NAD+/Sirtuin axis]] (SIRT3/FAO intersection)** — *(preprint, not peer-reviewed)* A 2023 bioRxiv preprint used genome-wide CRISPRa screening in K562 cells to argue that **fatty acid oxidation (FAO)** is a convergence point of the mTOR/insulin and NAD+ pathways. The proposed mechanism: mTORC1 targets **LPIN1** (a phosphatidate phosphatase controlling lipid flux toward FAO vs. lipid synthesis), while the NAD+-dependent mitochondrial deacetylase **SIRT3** regulates FAO enzyme activity. SIRT3 was the top validated genetic hit for a dual-pathway compound (BIOIO-1001); LPIN1 was directionally consistent but sub-threshold in the screen [^li2023preprint]. The paper does not establish direct mTOR regulation of NAD+ pools or vice versa — the cross-talk is inferred from shared lipid-metabolic targets. **Not yet replicated; mechanistic directionality not established.** #gap/needs-replication
 
+### Reproductive aging and brief mTOR inhibition
+
+In older human cumulus cells, Li et al. reported higher mTOR target phosphorylation and nascent protein synthesis together with ribosomal upregulation, weaker lysosome/proteasome programs and more aggregates [^li2025-mtor]. Rapamycin reduced these readouts in culture, and 0.5 μM rapamycin during ex-vivo maturation of aged mouse cumulus–oocyte complexes reduced pS6, ROS and spindle/chromosome abnormalities while increasing maturation. These experiments link mTOR to a local synthesis/clearance imbalance but do not isolate [[ribosome-biogenesis]] from autophagy and other mTOR outputs.
+
+A small randomized IVF study used oral sirolimus 1 mg/day for 21–28 days. Mature-oocyte yield was unchanged; embryo counts improved and clinical pregnancy was borderline, while live-birth follow-up was incomplete. See [[rapamycin]] and [[age-related-female-infertility]]. This does not establish mTOR inhibition as an ovarian-aging therapy.
+
 ## Pharmacology
 
 | Class | Examples | Target | Notes |
@@ -106,3 +113,5 @@ Two mTORC1-attributable actions are most-cited:
 [^harrison2009]: doi:10.1038/nature08221 · in-vivo (mouse) · multi-site interventional (NIA ITP, 3 sites: TJL, UM, UT); total cohort 1,960 mice (674 controls + 317–328 per treatment arm) · model: genetically heterogeneous UM-HET3 mice (CB6F1♀ × C3D2F1♂); both sexes; rapamycin started 600 days of age · maximal lifespan (90th percentile): ♀ +14%, ♂ +9% pooled; mean lifespan: ♀ +13%, ♂ +9%; p<0.0001 (log-rank) · note: pre-600-day diet differences between sites complicate male interpretation at UT/UM
 [^mannick2014]: doi:10.1126/scitranslmed.3009892 · randomized, double-blind, placebo-controlled · n=218 elderly volunteers · model: humans · primary endpoint: influenza vaccine seroconversion
 [^li2023preprint]: [[studies/li-2023-dual-mtor-nad-gerotherapy]] · doi:10.1101/2023.01.16.523975 · PMC9882180 · in-vivo + in-vitro + in-silico · **preprint — not peer-reviewed** · n=6–13/group (NASH models); ALS SOD1-G93A mice (n not stated) · model: K562 cells (CRISPRa screen); C57BL/6J mice; human iPSC-derived motor neurons; SOD1-G93A transgenic mice · SIRT3 top validated CRISPRa hit; LPIN1 directionally consistent but sub-threshold; mTOR-NAD+ cross-talk inferred via shared FAO regulation, not direct molecular epistasis demonstrated · #gap/needs-replication
+
+[^li2025-mtor]: [[studies/li-2025-ribosome-age-related-infertility]] · doi:10.1016/j.xcrm.2025.102424 · Li J, Wang H, Zhu P et al. · *Cell Reports Medicine* 2025;6:102424

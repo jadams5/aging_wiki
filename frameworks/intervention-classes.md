@@ -226,6 +226,24 @@ WHERE contains(mechanisms, "il-6-receptor-antagonism")
 
 ---
 
+### IL-11 ligand/receptor inhibitor
+
+**Definition:** A biologic or other targeted agent that inhibits [[il-11-signaling]] by neutralizing the [[il-11]] ligand or blocking [[il-11-receptor-alpha-1|IL11RA]]. These are tracked as two pharmacologically distinct submechanisms because ligand neutralization and receptor blockade can differ in tissue exposure and target engagement. The aging evidence currently comes from mouse genetics and research antibodies; human clinical development is confined to non-aging fibroinflammatory indications. See [[anti-il-11-antibodies]].
+
+**Aliases in use:** `il11-neutralization`, `il11ra-blockade`
+
+**Hallmarks primarily targeted:** [[chronic-inflammation]], [[altered-intercellular-communication]], [[cellular-senescence]]
+
+**Constituent compounds and interventions (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "il11-neutralization")
+  OR contains(mechanisms, "il11ra-blockade")
+```
+
+---
+
 ### antioxidant
 
 **Definition:** Scavenges reactive oxygen/nitrogen species (ROS/RNS) or upregulates endogenous antioxidant defences (e.g., via NRF2 activation). Distinct from mitochondria-targeted antioxidants (MitoQ, SkQ1). Translation-gap caveat: broad antioxidants have repeatedly failed or shown harm in human cardiovascular and cancer prevention trials; NRF2-pathway activation is more nuanced. See [[hypotheses/free-radical-theory]] for the contested status of this mechanistic frame.

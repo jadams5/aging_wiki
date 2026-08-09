@@ -1,21 +1,21 @@
 ---
 type: cell-type
-aliases: [granulosa cell, follicular cells, cumulus cells, cumulus granulosa]
+aliases: [granulosa cell, follicular cells]
 cell-ontology-id: CL:0000501
 tissue-of-origin: ["[[ovary]]"]
 key-markers-mouse: [Fshr+, Cyp19a1+, Amh+ (preantral/small antral), Foxl2+, Inha+, Inhbb+, Kitlg+]
 key-markers-human: [FSHR+, CYP19A1+, AMH+ (preantral/small antral), FOXL2+, INHA+, INHBB+, KITLG+]
 self-renewal: "no (proliferate during follicle growth; terminally differentiate or undergo atresia after ovulation or follicle demise)"
 aging-relevant: yes
-affected-hallmarks: ["[[cellular-senescence]]", "[[mitochondrial-dysfunction]]", "[[altered-intercellular-communication]]"]
-key-aging-phenotypes: ["[[menopause]]", "declining-ovarian-reserve"]
+affected-hallmarks: ["[[cellular-senescence]]", "[[mitochondrial-dysfunction]]", "[[loss-of-proteostasis]]", "[[altered-intercellular-communication]]"]
+key-aging-phenotypes: ["[[menopause]]", "[[age-related-female-infertility]]", "declining-ovarian-reserve"]
 typical-niche: "ovarian follicle — surrounding the oocyte within the follicular antrum; mural granulosa cells line the follicle wall; cumulus granulosa cells form the cumulus oophorus directly surrounding the oocyte"
 niche-signaling: ["[[tgf-beta]]", "[[bmp-signaling]]", "[[notch-pathway]]"]
 verified: true
-verified-date: 2026-06-03
+verified-date: 2026-08-09
 verified-by: claude
-verified-scope: "Shah 2009 (FOXL2 C134W) and Camaioni 2022 PDFs read in full; van Rooij 2002 and Robertson & Burger 2002 verified via PubMed abstract + Crossref metadata; Zeng 2026 verified via PubMed abstract (DOI confirmed in Crossref, paper not yet in local archive); Liu & Hsueh 1986 DOI confirmed via Crossref; CL:0000501 confirmed via OLS4. Corrections: FOXL2 prevalence figures standardised to 97% (86/89); Camaioni 2022 volume/issue/pages corrected 39(5):1003-1020 → 39(4):783-792; Robertson 2002 pages corrected 612-621 → 612-616; van Rooij 2002 n corrected from 120 → 119 analysed (130 enrolled). Shah 2009 footnote added for FOXL2 claim. Camaioni 2022 attribution qualified: review covers mitochondria/ECM/immune compartment; mural/cumulus distinction and GC senescence claims re-attributed."
-literature-checked-through: 2026-06-03
+verified-scope: "Prior verification scope retained for Shah 2009, Camaioni 2022, van Rooij 2002, Robertson & Burger 2002, Zeng 2026, Liu & Hsueh 1986 and CL:0000501. Added Li 2025 after full-text checking of human cumulus-cell omics/culture results, mouse ex-vivo maturation and the clinical trial, including null and incomplete outcomes."
+literature-checked-through: 2026-08-09
 ---
 
 # Granulosa Cells
@@ -36,6 +36,8 @@ The master transcription factor of granulosa cell identity is **FOXL2** (forkhea
 | AMH | Amh+ (preantral/small antral only) | AMH+ (preantral/small antral only) | Declines in large antral follicles; absent in atretic follicles |
 | INHA / INHBB | Inha+, Inhbb+ | INHA+, INHBB+ | Inhibin alpha and beta B subunits; inhibin B is the main FSH-suppressive inhibin in the follicular phase |
 | KITLG (SCF) | Kitlg+ | KITLG+ | Kit ligand produced by GCs signals to oocyte KIT receptor; required for follicle growth |
+
+These are broad granulosa-lineage and stage-dependent markers, not a classifier for cumulus versus mural compartments. The verified [[cumulus-cells]] page documents the compartment-enriched and periovulatory-state marker boundaries.
 
 ## Anatomy and the two-population model
 
@@ -97,6 +99,12 @@ The bidirectional metabolic coupling between cumulus GCs and the oocyte deterior
 | Phenotype conserved in humans? | yes (cumulus–oocyte coupling defects with age are documented in human IVF material) |
 | Replicated in humans? | partial (mechanistic detail primarily from mouse; clinical correlates from IVF cohort studies) |
 
+### Ribosome, translation and clearance imbalance
+
+Li et al. found that cumulus cells from older IVF patients had higher ribosomal programs, 18S/28S rRNA, nucleolar area, nascent-protein synthesis and mTOR activity, while lysosomal/proteasomal programs and LysoTracker signal were lower and protein aggregates were higher [^li2025-cumulus]. Rapamycin (0.5 μM) or cycloheximide reduced translation and selected senescence/aggregate readouts in cultured cells. The evidence supports an imbalance between [[ribosome-biogenesis]]/[[protein-synthesis]] and clearance capacity, but rapamycin is pleiotropic and does not prove that ribosomal transcription alone is causal.
+
+The age-associated transcriptomic shift near 34 years was inferred from a modest IVF-derived sample, not a validated clinical threshold. Oocyte methylomes used two pooled libraries per age group; cumulus methylomes used two younger and four nominally older donors; H3K9me3 CUT&Tag used two donors per age group. These epigenomic results need independent replication.
+
 ### Declining inhibin B and FSH rise
 
 As the granulosa cell mass contracts with the shrinking follicle cohort, inhibin B production falls. This represents the primary endocrine signal of declining ovarian reserve and is the mechanism driving the characteristic perimenopausal FSH elevation [^robertson2002]. The FSH rise in turn drives accelerated follicle recruitment, shortening the follicular phase and producing the first sign of menstrual cycle irregularity. Ultimately follicle depletion and granulosa-derived estradiol production drop below the threshold required to sustain regular ovulatory cycles — the physiologic basis of menopause.
@@ -107,6 +115,7 @@ As the granulosa cell mass contracts with the shrinking follicle cohort, inhibin
 |---|---|
 | [[cellular-senescence]] | Accumulation of p16/p21/SA-β-gal+ GCs with age; SASP may impair neighboring GC and oocyte function; possible causal role in follicle atresia acceleration |
 | [[mitochondrial-dysfunction]] | Declining PINK1-mediated mitophagy allows damaged mitochondria to accumulate; impairs ATP production, steroidogenesis, and ROS clearance; key determinant of GC and oocyte quality with age |
+| [[loss-of-proteostasis]] | Cumulus cells show age-associated excess ribosome/translation activity alongside weaker lysosomal/proteasomal programs and more aggregates; causal direction remains incomplete |
 | [[altered-intercellular-communication]] | Deteriorating gap-junction coupling with the oocyte reduces pyruvate/amino-acid transfer; reduced GDF9/BMP15 responsiveness; falling inhibin B alters hypothalamic–pituitary feedback |
 
 ## Granulosa-cell tumors (brief note)
@@ -118,7 +127,7 @@ Granulosa cell tumors (GCTs) are the most common ovarian sex-cord stromal tumors
 - **Senescence causality vs. correlation**: It remains unclear whether granulosa cell senescence drives follicular atresia, is a consequence of atresia, or occurs only in non-atretic GCs as a separate aging trajectory. Lineage-tracing and single-cell approaches in aged human ovaries are needed. #gap/no-mechanism
 - **Human–mouse translation**: Most mechanistic studies of GC mitophagy, senescence, and oocyte coupling use mouse models. Human studies are largely confined to IVF cohort material (no control for stimulation protocols, cohort heterogeneity). #gap/needs-human-replication
 - **Cumulus vs. mural GC aging**: Most aging studies do not segregate mural from cumulus populations. Single-cell RNA-seq of aged human follicles would resolve this. #gap/needs-replication
-- **Therapeutic targets**: No clinical-stage senolytic or mitochondria-targeted intervention has been validated specifically in human GCs or in ovarian reserve preservation. Preclinical evidence (e.g., NAD+ precursors improving oocyte quality in aged mice via restored GC–oocyte metabolic coupling) has not progressed to randomized trials in reproductive-aged women. #gap/needs-human-replication #gap/long-term-unknown
+- **Therapeutic targets**: Brief sirolimus exposure has one small IVF RCT with embryo and borderline pregnancy signals but no mature-oocyte or established live-birth benefit; no senolytic or mitochondria-targeted intervention has been validated specifically in human GCs or ovarian-reserve preservation. #gap/needs-human-replication #gap/long-term-unknown
 - **Ovarian reserve and [[cellular-senescence]] link in humans**: The SASP → paracrine damage mechanism is well-documented for other cell types (satellite cells, HSCs) but has not been rigorously demonstrated for GCs in vivo in humans. #gap/needs-human-replication
 
 ## See also
@@ -132,6 +141,10 @@ Granulosa cell tumors (GCTs) are the most common ovarian sex-cord stromal tumors
 - [[cellular-senescence]] — hallmark mechanistically active in aging GCs
 - [[mitochondrial-dysfunction]] — hallmark central to GC aging and oocyte quality
 - [[altered-intercellular-communication]] — hallmark manifest in deteriorating GC–oocyte coupling and HPG axis dysregulation
+- [[ribosome-biogenesis]] and [[protein-synthesis]] — age-associated cumulus-cell synthesis/clearance imbalance
+- [[cumulus-cells]] — specialized oocyte-adjacent granulosa population in which the Li 2025 proteostasis findings were measured
+- [[rapamycin]] — mTOR inhibitor tested briefly before oocyte retrieval in one small RCT
+- [[studies/li-2025-ribosome-age-related-infertility]] — primary human, mouse and clinical evidence
 - [[tgf-beta]] — pathway encompassing GDF9/BMP15 oocyte-to-GC signaling
 - [[bmp-signaling]] — BMP15 arm of oocyte–GC paracrine signaling
 - [[apoptosis]] — the process driving follicular atresia via GC death
@@ -157,6 +170,8 @@ Granulosa cell tumors (GCTs) are the most common ovarian sex-cord stromal tumors
 [^duan2024]: [[studies/duan-2024-gdf9-granulosa-follicle]] · doi:10.1186/s12964-024-01616-8 · Duan et al. · clinical/genetic · Cell Communication and Signaling 2024;22 · bi-allelic GDF9 variants caused female subfertility with defective follicle enlargement; oocyte-derived GDF9 regulates granulosa cell proliferation via paracrine signaling; defective GDF9 reduced GC proliferation in large follicles and altered steroidogenesis · archive status: not in archive
 
 [^ferreira2023]: [[studies/ferreira-2023-aging-oocyte-competence]] · doi:10.1002/wsbm.1613 · Ferreira AF, Soares M, Almeida-Santos T, Ramalho-Santos J, Sousa AP · review · WIREs Mechanisms of Disease 2023 · comprehensive review of oocyte aging emphasizing cumulus–oocyte metabolic coupling as key determinant of developmental competence; documents mitochondrial dysfunction, gap-junction deterioration, and reduced pyruvate transfer in aged cumulus cells; establishes ATP-dependent spindle assembly and cohesion maintenance as downstream consequences of GC–oocyte coupling failure · archive status: pending
+
+[^li2025-cumulus]: [[studies/li-2025-ribosome-age-related-infertility]] · doi:10.1016/j.xcrm.2025.102424 · Li J, Wang H, Zhu P et al. · *Cell Reports Medicine* 2025;6:102424 · human oocyte/cumulus multi-omics and culture, ex-vivo mouse oocyte maturation, and randomized human IVF sirolimus study
 
 [^shah2009]: [[studies/shah-2009-foxl2-granulosa-cell-tumor]] · doi:10.1056/NEJMoa0902542 · Shah SP, Köbel M, Senz J et al. · genomics/pathology · N Engl J Med 2009;360(26):2719–2729 · PMID:19516027 · n=4 index GCTs (RNA-seq discovery) + 74 + 95 additional SCSTs (two validation series) · somatic FOXL2 402C→G (C134W) missense mutation found in 86/89 adult-type GCTs (97%) across both validation series; absent in 49 non-GCT SCSTs, 149 epithelial ovarian tumors, and 180 breast cancers; present in 1/10 juvenile-type GCTs (10%) and 3/14 thecomas (21%) · model: human tumor samples · archive status: downloaded (local PDF read in full, 2026-06-03)
 

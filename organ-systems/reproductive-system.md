@@ -3,9 +3,9 @@ type: organ-system
 aliases: [reproductive system, genital system, gonadal system]
 key-organs: ["[[ovary]]", "[[testis]]", "[[uterus]]", "[[breast]]", "[[prostate]]"]
 key-tissues: ["[[ovary]]", "[[testis]]", "[[uterus]]", "[[breast]]", "[[prostate]]"]
-key-cell-types: ["[[oocytes]]", "[[granulosa-cells]]", "[[theca-cells]]", "[[leydig-cells]]", "[[sertoli-cells]]", "[[spermatogonial-stem-cells]]"]
-key-aging-phenotypes: ["[[menopause]]", "[[andropause]]", "[[vasomotor-symptoms]]", "[[genitourinary-syndrome-menopause]]", "[[premature-ovarian-insufficiency]]", "[[polycystic-ovary-syndrome]]", "[[endometriosis]]", "[[turner-syndrome]]"]
-related-hallmarks: ["[[altered-intercellular-communication]]", "[[stem-cell-exhaustion]]", "[[genomic-instability]]"]
+key-cell-types: ["[[oocytes]]", "[[granulosa-cells]]", "[[cumulus-cells]]", "[[ovarian-stromal-fibroblasts]]", "[[theca-cells]]", "[[leydig-cells]]", "[[sertoli-cells]]", "[[spermatogonial-stem-cells]]"]
+key-aging-phenotypes: ["[[age-related-female-infertility]]", "[[menopause]]", "[[andropause]]", "[[vasomotor-symptoms]]", "[[genitourinary-syndrome-menopause]]", "[[premature-ovarian-insufficiency]]", "[[polycystic-ovary-syndrome]]", "[[endometriosis]]", "[[turner-syndrome]]"]
+related-hallmarks: ["[[altered-intercellular-communication]]", "[[stem-cell-exhaustion]]", "[[genomic-instability]]", "[[loss-of-proteostasis]]", "[[chronic-inflammation]]"]
 parent-system: null
 ---
 
@@ -15,7 +15,7 @@ Navigational overlay for the gonads and reproductive organs. Reproductive aging 
 
 ## Key aging themes
 
-- **Ovarian aging:** declining follicle reserve and oocyte quality; the [[ovary]] is the fastest-aging human organ, completing functional senescence ([[menopause]]) decades before other systems. Driven by depletion of a fixed [[oocytes|oocyte]] pool and [[granulosa-cells|granulosa-cell]] dysfunction.
+- **Ovarian aging:** declining follicle reserve and oocyte quality; the [[ovary]] is the fastest-aging human organ, completing functional senescence ([[menopause]]) decades before other systems. Linked atomic pages now cover depletion of the [[oocytes|oocyte]] pool, [[granulosa-cells|granulosa-cell]] ribosome dysregulation, and [[ovarian-stromal-fibroblasts|stromal-fibroblast]] / matrix remodeling.
 - **Female hormone withdrawal:** [[estradiol]] and [[progesterone]] decline at menopause → systemic downstream aging (bone, cardiovascular, skin, brain, genitourinary).
 - **Andropause:** gradual testosterone decline; effects on muscle ([[sarcopenia]]) and bone *(pending dedicated pages)*.
 - **Systemic hormone-withdrawal effects:** estrogen loss → osteoclast disinhibition → [[osteoporosis]] (see [[parathyroid]], [[osteoclasts]]); links to [[endocrine-system]]
@@ -34,8 +34,8 @@ SORT file.name
 
 **Female axis**
 - Tissues/organs: [[ovary]], [[uterus]], [[breast]]
-- Cell types: [[oocytes]], [[granulosa-cells]], [[theca-cells]]
-- Phenotypes: [[menopause]], [[vasomotor-symptoms]], [[genitourinary-syndrome-menopause]], [[premature-ovarian-insufficiency]], [[polycystic-ovary-syndrome]], [[endometriosis]], [[turner-syndrome]]
+- Cell types: [[oocytes]], [[granulosa-cells]], [[cumulus-cells]], [[ovarian-stromal-fibroblasts]], [[theca-cells]]
+- Phenotypes: [[age-related-female-infertility]], [[menopause]], [[vasomotor-symptoms]], [[genitourinary-syndrome-menopause]], [[premature-ovarian-insufficiency]], [[polycystic-ovary-syndrome]], [[endometriosis]], [[turner-syndrome]]
 - Hormones: [[estradiol]], [[progesterone]]
 - Estrogen-signaling proteins: [[esr1]] (ERα), [[esr2]] (ERβ), [[gper]] (membrane ER), [[cyp19a1]] (aromatase)
 - Ovarian-reserve marker: [[amh]]

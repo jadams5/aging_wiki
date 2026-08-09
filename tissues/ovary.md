@@ -2,14 +2,14 @@
 type: tissue
 aliases: [ovaries, ovarian tissue, female gonad]
 parent-system: reproductive-system
-key-cell-types: ["[[oocytes]]", "[[granulosa-cells]]", "[[theca-cells]]", "[[ovarian-stromal-fibroblasts]]"]
-key-aging-phenotypes: ["[[menopause]]", "[[premature-ovarian-insufficiency]]", "[[osteoporosis]]"]
+key-cell-types: ["[[oocytes]]", "[[granulosa-cells]]", "[[cumulus-cells]]", "[[theca-cells]]", "[[ovarian-stromal-fibroblasts]]"]
+key-aging-phenotypes: ["[[menopause]]", "[[age-related-female-infertility]]", "[[premature-ovarian-insufficiency]]", "[[osteoporosis]]"]
 related-hallmarks: ["[[genomic-instability]]", "[[mitochondrial-dysfunction]]", "[[cellular-senescence]]", "[[stem-cell-exhaustion]]", "[[loss-of-proteostasis]]", "[[chronic-inflammation]]"]
 verified: true
-verified-date: 2026-06-03
+verified-date: 2026-08-09
 verified-by: claude
-verified-scope: "Wallace & Kelsey 2010 and Tsutsumi 2014 verified against local PDFs (full read). Titus 2013 verified from PubMed abstract + Crossref metadata only (full text unavailable locally; local full text unavailable — tagged #gap/no-fulltext-access). Faddy 1992 verified from Crossref metadata + secondary citation in Wallace & Kelsey 2010 PDF (closed-access; #gap/no-fulltext-access). Harlow 2012 STRAW+10 verified from PMC full text (PMC3319184; local full text unavailable). Dewailly 2014 DOI confirmed correct via Crossref (dmt062). Wang 2020, Long 2024, Shen 2023, Kawamura 2013 not re-verified this pass — seeder-stated claims not yet cross-checked against PDFs."
-literature-checked-through: 2026-06-03
+verified-scope: "Prior scope retained for Wallace & Kelsey 2010, Tsutsumi 2014, Titus 2013, Faddy 1992, Harlow 2012 and Dewailly 2014. Added Wu 2026 after an end-to-end publisher full-text and source-data check, including human cohorts, rodent interventions, recalculation of nonsignificant siRNA pregnancy contrasts, null results, data-loss disclosure and methodological limitations. Wang 2020, Long 2024, Shen 2023 and Kawamura 2013 were not re-verified in this pass."
+literature-checked-through: 2026-08-09
 ---
 
 # Ovary
@@ -126,6 +126,10 @@ Shen et al. 2023 reviewed evidence that aging ovarian stroma exhibits increased 
 
 These microenvironmental changes create a paracrine SASP-like milieu that may accelerate oocyte attrition and impair folliculogenesis in remaining follicles — paralleling senescent niche effects on stem cell function documented in other tissues (e.g., aged satellite cell niche in [[skeletal-muscle]]).
 
+Wu et al. 2026 supplied direct mechanical and intervention evidence for one stromal axis [^wu2026-matrix]. Human ovarian cortical Young's modulus and collagen-I-rich matrix increased across age groups (18–28 years, n=30; 35–42, n=37; 47–52, n=40) and in age-matched chemotherapy-associated POI, PCOS and ovarian endometriosis samples. IL-11 increased with age and pathology, correlated inversely with AMH, and activated ERK-linked collagen/myofibroblast programs in primary human [[ovarian-stromal-fibroblasts]]. Stiff matrices directly impaired mouse-follicle growth and granulosa-cell proliferation/steroidogenesis in culture.
+
+The human comparisons were cross-sectional and do not establish that IL-11 causes ovarian aging. Causality came from rodents: recombinant IL-11 worsened stiffness and selected reproductive measures, while *Il11ra1* loss, systemic siIl11 nanoparticles or local ovarian shIl11ra1 improved selected matrix, follicle, ovulation or litter outcomes. Systemic RNA delivery was not ovary-specific, siRNA dose/control sequence and core AAV reagent details were omitted, investigators were not blinded, and the experiments primarily tested prevention/attenuation rather than reversal of advanced human ovarian fibrosis [^wu2026-matrix].
+
 ---
 
 ## Hallmark connections
@@ -136,7 +140,7 @@ These microenvironmental changes create a paracrine SASP-like milieu that may ac
 | [[mitochondrial-dysfunction]] | High oocyte mtDNA demand; age-related mtDNA deletion accumulation; ROS elevation; reduced ATP for meiotic spindle assembly |
 | [[cellular-senescence]] | Senescent cells in ovarian stroma and theca; SASP drives stromal fibrosis and local inflammaging; senescent granulosa cells may impair oocyte maturation |
 | [[stem-cell-exhaustion]] | Primordial follicle pool depletion (though primordial follicle oocytes are post-mitotic, not stem cells *per se*; the analogy holds functionally as non-renewing tissue progenitors); disputed adult ovarian stem cells (oogonial stem cells) have not been confirmed as physiologically relevant |
-| [[loss-of-proteostasis]] | Oocyte protein quality control declines with age; spindle assembly checkpoint (SAC) proteins decline; proteasome and autophagy function implicated in maintaining oocyte quality |
+| [[loss-of-proteostasis]] | Oocyte and cumulus-cell protein quality control declines with age; human IVF material shows age-associated ribosome/translation dysregulation, while proteasome, lysosome and autophagy capacity constrain aggregate burden |
 | [[chronic-inflammation]] | Intra-ovarian immune cell accumulation; macrophage pyroptosis; IL-1α/β, TNF-α, NLRP3 inflammasome activation correlate with follicle depletion rate in murine aging models |
 
 ---
@@ -157,6 +161,10 @@ PRP contains growth factors (IGF-1, PDGF, VEGF, EGF) hypothesized to support gra
 
 Injection of mitochondria from donor oocytes or autologous somatic cells (AUGMENT approach) into aged oocytes has been explored as a strategy to supplement bioenergetic capacity. Evidence for efficacy from controlled human trials is lacking; the regulatory status varies by country. #gap/needs-replication #gap/long-term-unknown
 
+### IL-11 and matrix-targeting approaches
+
+Adult siIl11 or shIl11ra1 delivery reduced ovarian stiffness and improved selected reproductive endpoints in middle-aged rodents [^wu2026-matrix]. The siIl11 pregnancy proportions favored treatment but were nonsignificant when recalculated from the source counts (mouse P≈0.315; rat P≈0.370), despite much smaller printed P values. These are target-validation experiments, not clinical evidence. The in-vivo studies used RNA/gene silencing rather than [[anti-il-11-antibodies]], and complete developmental IL-11-pathway loss can itself impair reproduction. A human intervention would need to show that partial, time-limited matrix modulation adds benefit while follicles remain; it cannot regenerate a depleted primordial pool.
+
 **Summary framing:** These interventions target the downstream consequences of follicle depletion and oocyte quality decline rather than the root molecular causes. None has achieved the evidentiary standard required for standard-of-care recommendation. The field lacks large, well-designed RCTs with standardized endpoints (live birth rate, ovarian reserve biomarkers) and long-term safety data.
 
 ---
@@ -170,6 +178,7 @@ Injection of mitochondria from donor oocytes or autologous somatic cells (AUGMEN
 - **Mitochondrial DNA and oocyte aging** — Long et al. 2024 [^long2024]: causal role of mtDNA copy number in ROS-mediated oocyte decline; local PDF confirmed.
 - **Primate single-cell atlas** — Wang et al. 2020 [^wang2020]: seven ovarian cell types; antioxidant pathway disturbance in early oocytes and granulosa cells as dominant aging signature (*Cell* 180:585–600).
 - **STRAW+10 staging** — Harlow et al. 2012 [^harlow2012]: definitive staging criteria for reproductive aging; PMC open access; 1,576 citations.
+- **IL-11-dependent matrix stiffness** — Wu et al. 2026 [^wu2026-matrix]: cross-sectional human stiffness/IL-11 observations plus primary human fibroblast, matrix-culture, mouse and rat interventions; supports a TGF-β–IL-11–ERK–collagen axis, with human causality and efficacy still untested.
 
 ---
 
@@ -180,6 +189,7 @@ Injection of mitochondria from donor oocytes or autologous somatic cells (AUGMEN
 - `#gap/no-mechanism` — the mechanism driving the biphasic acceleration of follicle loss after age 37 is not established; hypotheses include reduced inhibin-B feedback enabling higher FSH, intrinsic follicle pool signaling threshold effects, and accumulated granulosa cell damage
 - `#gap/contradictory-evidence` — **adult ovarian stem cells (oogonial stem cells / OSCs)**: Johnson/Tilly laboratory reported functional germline stem cells in adult mouse and human ovaries (~2004–2012); subsequent groups (Zhang et al., others) have challenged reproducibility and whether isolated OSCs represent genuine oocyte progenitors vs contaminating somatic cells. The consensus view — that the mammalian primordial follicle pool is fixed and non-renewable — remains dominant, but the controversy is not fully resolved
 - `#gap/long-term-unknown` — long-term safety and efficacy of ovarian rejuvenation interventions (IVA, PRP)
+- `#gap/needs-human-replication` — IL-11 suppression and matrix softening improved rodent ovarian outcomes, but no human intervention or established-fibrosis reversal trial exists
 - `#gap/unsourced` — the precise hormonal thresholds in the STRAW+10 staging (e.g., FSH >10 IU/L for stage -2) are drawn from the cited Harlow 2012 review but individual quantitative claims should be verified against the full source
 - `#stub` — cell-type pages [[oocytes]], [[granulosa-cells]], and compound pages [[estradiol]], [[progesterone]], [[amh]], [[fsh]] are implicit stubs; seeding those pages will allow this tissue page to delegate primary mechanistic claims
 
@@ -187,8 +197,12 @@ Injection of mitochondria from donor oocytes or autologous somatic cells (AUGMEN
 
 ## Cross-references
 
-- [[oocytes]] (implicit stub) — the germ cell; cohesin, mtDNA, and DNA repair biology
-- [[granulosa-cells]] (implicit stub) — steroidogenesis, AMH/inhibin B secretion, folliculogenesis
+- [[oocytes]] — the germ cell; cohesin, mtDNA, DNA repair and ribosome/translation biology
+- [[granulosa-cells]] — steroidogenesis, AMH/inhibin B secretion and folliculogenesis
+- [[cumulus-cells]] — oocyte-adjacent metabolic support and age-associated synthesis/clearance imbalance
+- [[ovarian-stromal-fibroblasts]] — IL-11-responsive matrix-producing niche cells
+- [[age-related-female-infertility]] — clinical phenotype integrating reserve and gamete-quality decline
+- [[il-11-signaling]] — TGF-β-linked ERK/fibroblast pathway implicated in ovarian matrix stiffening
 - [[menopause]] (implicit stub) — the clinical phenotype of follicle pool exhaustion; vasomotor symptoms, hormonal criteria, STRAW staging
 - [[premature-ovarian-insufficiency]] (implicit stub) — POI: menopause before age 40; target population for IVA and PRP
 - [[estradiol]] (implicit stub) — primary ovarian estrogen; endocrine output of granulosa cells
@@ -230,3 +244,5 @@ Injection of mitochondria from donor oocytes or autologous somatic cells (AUGMEN
 [^shen2023]: doi:10.1186/s13048-023-01300-4 · Shen L, Liu J, Luo A, Wang S · "The stromal microenvironment and ovarian aging: mechanisms and therapeutic opportunities" · *Journal of Ovarian Research* 16:209 · 2023 · review · 42 citations (FWCI 19.9 — citation percentile 100) · key finding: aging ovarian stroma shows increased cellular senescence, stromal fibrosis, dysregulated angiogenesis, and inflammatory signaling; stromal SASP-like milieu may accelerate follicle attrition · gold OA · local PDF available (archive confirmed)
 
 [^kawamura2013]: doi:10.1073/pnas.1318081110 · Kawamura K, Cheng Y, Suzuki N, Deguchi M, Sato Y, Takae S, Ho CH, Kawamura N, Tamura M, Hashimoto S et al. · "Hippo signaling disruption and Akt stimulation of ovarian follicles for infertility treatment" · *PNAS* 110(43):17474–17479 · 2013 · case series (POI patients) + in-vivo (mouse) · key finding: ovarian cortex fragmentation disrupts Hippo signaling → follicle activation; combined with Akt-stimulating drug + autotransplantation → mature oocyte retrieval + live births in POI patients; proof-of-concept for IVA · archive: no local entry
+
+[^wu2026-matrix]: [[studies/wu-2026-il11-ovarian-stiffness]] · doi:10.1038/s43587-026-01159-2 · Wu M, Zhu Q, Xiong J et al. · *Nature Aging* 2026;6:1395–1416 · cross-sectional human ovary cohorts, primary human ovarian fibroblasts, stiffness culture systems and rodent genetic/RNA interventions · no human IL-11 intervention

@@ -92,7 +92,7 @@ WHERE contains(hallmarks, [[chronic-inflammation]])
 SORT clinical-stage DESC
 ```
 
-**Class-level synthesis:** This hallmark has the highest-quality human evidence of any inflammaging-targeted class — CANTOS (canakinumab, n=10,061, Phase 3 RCT) demonstrated MACE reduction via IL-1β blockade. The primary translation gap is cost (`translation-blocked-cost` for canakinumab). The anti-inflammatory convergence of multiple compound classes here (metformin, egcg, quercetin, taurine, rapamycin, urolithin-a, senolytics, senomorphics, caloric restriction) reflects the integrative nature of inflammaging: upstream damage signals from multiple hallmarks funnel into this node. See [[chronic-inflammation]], [[interventions/pharmacological/senomorphics]].
+**Class-level synthesis:** This hallmark has the highest-quality human evidence of any inflammaging-targeted class — CANTOS (canakinumab, n=10,061, Phase 3 RCT) demonstrated MACE reduction via IL-1β blockade. The primary translation gap is cost (`translation-blocked-cost` for canakinumab). The anti-inflammatory convergence of multiple compound classes here (metformin, egcg, quercetin, taurine, rapamycin, urolithin-a, senolytics, senomorphics, caloric restriction) reflects the integrative nature of inflammaging: upstream damage signals from multiple hallmarks funnel into this node. [[anti-il-11-antibodies]] add a preclinical ligand/receptor-targeted class with late-life mouse healthspan and survival evidence but no human aging trial. See [[chronic-inflammation]], [[interventions/pharmacological/senomorphics]].
 
 ---
 
@@ -172,7 +172,7 @@ WHERE contains(hallmarks, [[loss-of-proteostasis]])
 SORT clinical-stage DESC
 ```
 
-**Class-level synthesis:** Only one compound currently links here (egcg, via autophagy and proteasome enhancement). Spermidine and rapamycin operate strongly here (autophagy-mediated proteostasis) but are tagged to [[disabled-macroautophagy]] rather than this hallmark — a tagging gap. Chaperone enhancers (HSP-inducing drugs, CMA activators CA77.1/AR.7), proteostasis-specific targets, and LAMP-2A stabilisers are on the roadmap but unseeded. This hallmark has the largest compound-page gap relative to therapeutic relevance. #gap/needs-seeding: chaperone-enhancer compound pages; review whether spermidine + rapamycin should cross-link here.
+**Class-level synthesis:** Direct intervention coverage remains sparse. EGCG links through autophagy/proteasome effects, while [[il-11-gene-silencing]] now contributes a preclinical ovarian-matrix example in which limiting collagen deposition changes a long-lived extracellular proteome. Spermidine and rapamycin operate strongly through autophagy but are tagged primarily to [[disabled-macroautophagy]] rather than this hallmark. Chaperone enhancers, proteostasis-specific targets and LAMP-2A stabilisers remain major unseeded gaps. #gap/needs-seeding
 
 ---
 
@@ -204,7 +204,7 @@ WHERE contains(hallmarks, [[altered-intercellular-communication]])
 SORT clinical-stage DESC
 ```
 
-**Class-level synthesis:** Zero compound/intervention pages currently link to this hallmark — the largest gap in the matrix. The hallmark page cites heterochronic plasma strategies, senolytics (via SASP reduction), and anti-inflammatory compounds as relevant, but none are tagged here in their frontmatter. Canakinumab, senolytics, and senomorphics all act on the intercellular communication axis but are tagged only to [[chronic-inflammation]] and [[cellular-senescence]]. Resolution: a propagation pass should add [[altered-intercellular-communication]] to target-hallmarks/hallmarks for canakinumab, senolytics, senomorphics, and potentially rapamycin. #gap/needs-tagging: see propagation candidates below.
+**Class-level synthesis:** [[anti-il-11-antibodies]] and [[il-11-gene-silencing]] now provide explicit cytokine-ligand/receptor examples on this axis, but their aging evidence remains preclinical. Broader coverage is still incomplete: canakinumab, senolytics and senomorphics act on intercellular inflammatory signaling but are not consistently tagged to this hallmark. #gap/needs-tagging
 
 ---
 
@@ -268,7 +268,7 @@ SORT clinical-stage DESC
 | [[epigenetic-alterations]] | 3 (partial) | moderate | Partial reprogramming unseeded |
 | [[loss-of-proteostasis]] | 1 (egcg only) | moderate | Multiple compound pages missing |
 | [[stem-cell-exhaustion]] | 1 (creatine only) | low | Multiple compounds need re-tagging |
-| [[altered-intercellular-communication]] | 0 | moderate | Propagation pass needed: tag senolytics, senomorphics, canakinumab |
+| [[altered-intercellular-communication]] | 2 intervention classes | moderate | IL-11 ligand/receptor targeting is preclinical for aging; broader tagging remains incomplete |
 | [[dysbiosis]] | 1 (metformin only via gut-microbiome-modulation) | moderate | Urolithin-a re-tagging + FMT seeding needed |
 | [[genomic-instability]] | 1 ([[uv-protection]]) | low | UV-protection added R42 — first direct-mechanism intervention (UVB → AP-1/NF-κB → MMP / CPD photoaging axis); coverage gap partially resolved |
 | [[telomere-attrition]] | 0 | low | TA-65 and AAV-TERT pages unseeded |

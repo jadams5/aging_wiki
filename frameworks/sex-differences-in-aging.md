@@ -37,9 +37,12 @@ Women outlive men in virtually every human population and historical period — 
 - [[breast]] — lobular involution; age + estrogen exposure as the dominant cancer risk
 - [[oocytes]] — meiotic-arrest longevity; cohesin-loss aneuploidy with maternal age
 - [[granulosa-cells]] — follicular endocrine cells; aromatase, AMH, inhibin source
+- [[cumulus-cells]] — oocyte-adjacent granulosa subset; metabolic support and age-associated synthesis/clearance imbalance
+- [[ovarian-stromal-fibroblasts]] — matrix-producing niche cells; TGF-β–IL-11–ERK activation and ovarian stiffness
 - [[theca-cells]] — ovarian androgen source (LH-driven); two-cell model; PCOS hyperandrogenism
 
 **Phenotypes**
+- [[age-related-female-infertility]] — declining conception/live-birth probability from reserve, oocyte and somatic-niche aging
 - [[menopause]] — the earliest, most abrupt organ-system aging event in humans; STRAW+10 staging + systemic downstream cascade
 - [[vasomotor-symptoms]] — hot flashes; KNDy-neuron / NK3R mechanism
 - [[genitourinary-syndrome-menopause]] — chronic, progressive urogenital atrophy
@@ -60,6 +63,8 @@ Women outlive men in virtually every human population and historical period — 
 - [[topical-estrogens]] — local estrogen for skin & genitourinary atrophy
 - [[aromatase-inhibitors]] — estrogen-deprivation therapy (breast cancer); a "pro-aging" estrogen-withdrawal model
 - [[selective-estrogen-receptor-modulators]] — tissue-selective ER ligands (raloxifene, tamoxifen, ospemifene)
+- [[rapamycin]] — brief pre-retrieval sirolimus tested in one small IVF RCT; mature-oocyte and established live-birth benefit absent
+- [[il-11-gene-silencing]] — preclinical ovarian-matrix intervention in middle-aged mice and rats
 
 ---
 

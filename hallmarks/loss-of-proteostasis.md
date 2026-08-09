@@ -8,12 +8,13 @@ caused-by: ["[[disabled-macroautophagy]]", "[[mitochondrial-dysfunction]]", "[[d
 causes: ["[[neurodegeneration]]"]
 introduced: 2013
 sens-correspondence: ["[[sens-damage-categories|LysoSENS]]", "[[sens-damage-categories|AmyloSENS]]"]
-key-pathways: ["[[autophagy]]", "[[chaperone-mediated-autophagy]]", "[[ubiquitin-proteasome-system]]", "[[unfolded-protein-response]]"]
+key-pathways: ["[[autophagy]]", "[[chaperone-mediated-autophagy]]", "[[ubiquitin-proteasome-system]]", "[[unfolded-protein-response]]", "[[ribosome-biogenesis]]", "[[protein-synthesis]]"]
 key-phenotypes: ["[[neurodegeneration]]", "[[alzheimers-disease]]", "[[parkinsons-disease]]"]
 verified: true
-verified-date: 2026-05-04
+verified-date: 2026-08-09
 verified-by: claude
-verified-scope: "Komatsu 2006 (ATG7 KO), Hara 2006 (ATG5 KO), Pyo 2013 (ATG5 OE lifespan), and Fernández 2018 (Beclin-1 F121A lifespan) verified against primary-source PDFs. Cuervo & Dice 2000 (JBC) not locally available (failed download) — the page's qualitative CMA decline claim was confirmed consistent with the PubMed abstract; the '>30% decline' figure is absent from this page (correctly omitted). Anckar & Sistonen 2011 and López-Otín 2013 review citations not independently re-read end-to-end this pass; López-Otín 2023 closed-access (not_oa). Zhang & Cuervo 2008 available locally but framing cross-checked against verified [[chaperone-mediated-autophagy]] rather than re-read in full. UPS decline claims cited to López-Otín 2013 review only — no independent primary source verified."
+verified-scope: "Prior verification scope retained for Komatsu 2006, Hara 2006, Pyo 2013, Fernández 2018, Cuervo & Dice 2000, Anckar & Sistonen 2011, López-Otín 2013/2023 and Zhang & Cuervo 2008. Added Li 2025 after full-text checking, with reproductive evidence constrained to human IVF material, cell culture and ex-vivo mouse maturation and with the small epigenomic subsets flagged."
+literature-checked-through: 2026-08-09
 ---
 
 # Loss of proteostasis
@@ -83,6 +84,12 @@ The three routes are not fully redundant: when both CMA and macroautophagy decli
 | Macroautophagy flux | Declines across tissues and organisms | See [[autophagy]] (verified) |
 | 26S proteasome activity | Chymotrypsin-like + other activities decline | [^lopezotitn2013]; multi-organism |
 | Lysosomal function | Lipofuscin accumulation; reduced hydrolase activity | Cross-link to [[chaperone-mediated-autophagy]] (verified-partial) |
+
+### Reproductive cells: synthesis can exceed clearance
+
+Li et al. add a tissue-specific human example in which proteostasis loss is not simply reduced synthesis. Older cumulus cells showed higher ribosome/translation and mTOR programs alongside lower lysosomal/proteasomal programs, reduced LysoTracker signal and more aggregates [^li2025-proteostasis]. Rapamycin or cycloheximide reduced translation and selected senescence/aggregate proxies in culture. Older oocytes showed ribosomal-transcript enrichment, but only a slight aggregate difference; the stronger flux/aggregate evidence belongs to cumulus cells.
+
+This supports a **balance model**: proteostasis fails when [[protein-synthesis]] demand outruns folding and clearance capacity. It does not establish a universal age-related increase in translation or prove that ribosomal transcription is the causal lesion. The methylome and H3K9me3/CUT&Tag subsets were very small and remain preliminary.
 
 ## Genetic proof: autophagy is required for neuronal proteostasis
 
@@ -204,6 +211,8 @@ Only one compound currently links to this hallmark (egcg). Spermidine and rapamy
 - [[alzheimers-disease]] — Aβ + tau proteinopathy (verified-partial)
 - [[parkinsons-disease]] — α-synuclein proteinopathy (verified-partial)
 - [[rapamycin]] — mTOR inhibitor / autophagy inducer (verified)
+- [[ribosome-biogenesis]] and [[protein-synthesis]] — synthesis-side load on the proteostasis network
+- [[granulosa-cells]] and [[oocytes]] — reproductive cell contexts from Li 2025
 - [[spermidine]] — autophagy inducer; HAT inhibitor mechanism (verified)
 - [[hallmarks-of-aging]] — parent MOC
 - [[hypotheses/information-theory-of-aging]] — epigenetic → proteostasis cross-link
@@ -243,3 +252,5 @@ Edge evidence is in [[frameworks/causal-graph-data]].
 [^fernandez2018]: doi:10.1038/s41586-018-0162-7 · Fernández ÁF, Sebti S, Wei Y, et al. · Nature 2018;558:136-140 · in-vivo · model: Becn1^F121A/F121A knock-in mice (C57BL/6J, >12 backcross generations) · n=68 WT + 102 KI; median WT=26 mo, KI=29 mo (combined); p<0.0001 log-rank · delayed renal/cardiac aging; reduced spontaneous tumors · local PDF available
 
 [^kaushik2018]: doi:10.1038/s41580-018-0001-6 · Kaushik S, Cuervo AM · Nat Rev Mol Cell Biol 2018 · review · CMA mechanism, aging, disease, pharmacology; CMA-macroautophagy compensation; stated ~40% of mammalian proteome contains KFERQ-like motif · 1,278 citations · PDF download failed #gap/no-fulltext-access
+
+[^li2025-proteostasis]: [[studies/li-2025-ribosome-age-related-infertility]] · doi:10.1016/j.xcrm.2025.102424 · Li J, Wang H, Zhu P et al. · *Cell Reports Medicine* 2025;6:102424 · human oocyte/cumulus omics and culture, ex-vivo mouse maturation and a small randomized IVF trial
