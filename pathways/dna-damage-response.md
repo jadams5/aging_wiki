@@ -9,10 +9,11 @@ upstream: ["[[genomic-instability]]", "[[replication-stress]]", "[[oxidative-str
 downstream: ["[[p53-pathway]]", "[[cell-cycle-arrest]]", "[[cellular-senescence]]", "[[apoptosis-pathway]]", "[[dna-repair]]"]
 hallmarks: ["[[genomic-instability]]", "[[cellular-senescence]]"]
 sens-categories: []
+literature-checked-through: 2026-08-02
 verified: true
-verified-date: 2026-05-04
+verified-date: 2026-08-02
 verified-by: claude
-verified-scope: "ncb1909 (Rodier 2009) and ncb2170 (Di Micco 2011) verified against local PDFs; Jackson & Bartek 2009 and Ciccia & Elledge 2010 verified against downloaded PMC/OA PDFs; Rogakou 1998 JBC verified against downloaded PDF; Hoeijmakers 2009 NEJM not verifiable (download failed — green OA but PDF fetch failed; claims attributed to it are consistent with Jackson & Bartek 2009 which cover the same ground); Shiloh & Ziv 2013, Zou & Elledge 2003, San Filippo 2008, Lieber 2010 not_oa — claims attributed to them are mechanistically consistent with verified sources; 2026-05-12 supplement: Chen 2025 Science (doi:10.1126/science.adp5056) nuclear-cGAS HR-regulation section added from abstract only — #gap/no-fulltext-access; Liu 2018 Nature cited from secondary framing in Chen 2025 abstract"
+verified-scope: "ncb1909 (Rodier 2009) and ncb2170 (Di Micco 2011) verified against full-text PDFs; Jackson & Bartek 2009 and Ciccia & Elledge 2010 verified against PMC/OA full text; Rogakou 1998 JBC verified against the full article. Hoeijmakers 2009 NEJM not verifiable (PDF retrieval failed; claims attributed to it are consistent with Jackson & Bartek 2009 which covers the same ground); Shiloh & Ziv 2013, Zou & Elledge 2003, San Filippo 2008, Lieber 2010 not_oa — claims attributed to them are mechanistically consistent with verified sources. 2026-05-12 supplement: Chen 2025 Science (doi:10.1126/science.adp5056) nuclear-cGAS HR-regulation section added from abstract only — #gap/no-fulltext-access; Liu 2018 Nature cited from secondary framing in Chen 2025 abstract. Oppezzo 2026 was verified end-to-end on 2026-08-02 for telomeric-RNA-dependent DDR suppression, preserved acute irradiation response, hematopoietic outcomes, and safety limits."
 ---
 
 
@@ -267,6 +268,12 @@ These two arms are mechanistically separable: p16INK4a-overexpressing cells unde
 - ATM depletion (80–90% knockdown) prevented the X-ray–induced IL-6 increase and abolished pre-existing SASP in already-senescent cells; NBS1 or CHK2 depletion similarly abolished the cytokine response — placing ATM → NBS1 → CHK2 as the required signalling axis [^rodier2009]
 - The SASP is proposed to amplify damage signals to neighbouring cells; paracrine cytokine effects on invasion and cancer cell behaviour are demonstrated, but a direct feed-forward ROS loop amplifying DDR in neighbours is not established in Rodier 2009 #gap/needs-replication
 
+### Telomeric RNA-dependent DDR assemblies are locally modifiable
+
+Persistent telomeric DDR is not simply a scaled version of a transient, repairable DSB response. Dysfunctional telomeres transcribe both strands into telomeric noncoding RNAs that help sustain local damage-response assemblies. [[telomeric-antisense-oligonucleotides]] sterically block these RNAs. In G3 *Terc*−/− mice, tASO reduced telomere-dysfunction-induced foci and ATM-associated readouts without elongating telomeres, alongside improved hematopoietic function [^oppezzo2026]. The same study found lower HSPC DDR signals and improved colony formation in physiologically aged wild-type mice.
+
+Selectivity evidence is narrower than a general claim that DNA surveillance is preserved: after 15 mg/kg tASO twice weekly for five weeks, marrow and spleen still mounted γH2AX/pKAP1 responses one hour after 4.5-Gy total-body irradiation. Other lesion types, tissues, time courses, chromosome fusions, mutation burden, and clonal evolution were not tested. Because persistent telomeric DDR is also a tumor-suppressive checkpoint, the therapeutic window between suppressing maladaptive chronic signaling and permitting unstable clones remains unresolved. #gap/long-term-unknown
+
 ### 3. Progeroid syndromes: DDR defects accelerate aging
 
 Every major progeroid syndrome is caused by a defect in a DDR component:
@@ -308,6 +315,7 @@ The fact that DDR deficiency phenocopies aging — at the tissue, cellular, and 
 | CHK1 inhibitors | Prexasertib (LY2606368) | CHK1 | Oncology; ablates S-phase checkpoint |
 | NAD+ precursors | NMN, NR | Indirect: replenish PARP1 substrate | Hypothesised to restore PARP activity and DDR fidelity in aged tissues #gap/needs-human-replication |
 | Senolytics | Dasatinib + quercetin, navitoclax | Downstream: clear DDR-senescent cells | Active human trials; address *outcome* of DDR, not the DDR machinery |
+| Telomeric antisense oligonucleotides | anti-TeloG, anti-TeloC | Telomeric noncoding RNA-dependent DDR assemblies | Preclinical; suppress persistent tDDR without elongating telomeres; genomic-surveillance window unresolved |
 
 The NAD+/PARP connection is particularly relevant: PARP1 consumes NAD+ during SSB repair; excessive PARP activity depletes NAD+ (a metabolic cofactor for sirtuins and mitochondria); NAD+ repletion via NMN/NR may restore PARP's protective role without the PARP-depletion cost. Mechanistic evidence is strong in model organisms; human DDR restoration data lacking. #gap/needs-human-replication
 
@@ -320,6 +328,7 @@ The NAD+/PARP connection is particularly relevant: PARP1 consumes NAD+ during SS
 - #gap/no-mechanism — The quantitative rules governing repair pathway choice (HR vs NHEJ ratio as a function of cell cycle, damage dose, chromatin context) are partially known but not fully predictive.
 - #gap/contradictory-evidence — Whether chronic low-level ATM/ATR activation (as in aged tissues) is beneficial (triggering repair/clearance) or harmful (driving senescence and inflammation) is context-dependent and not resolved at the tissue level.
 - #gap/needs-human-replication — NAD+/PARP axis as a therapeutic target for restoring DDR fidelity in aging humans: only indirect evidence from model organisms.
+- #gap/long-term-unknown — Telomeric DDR suppression improved hematopoietic endpoints in one mouse study, but long-term chromosome stability, mutation burden, clonal hematopoiesis, and tumor incidence under chronic or repeated treatment are unknown.
 - DDR pathway pages for individual repair sub-pathways (BER, NER, HR, NHEJ) do not yet exist as atomic pages; this page covers them briefly. #stub candidates for future seeding.
 
 ---
@@ -328,6 +337,7 @@ The NAD+/PARP connection is particularly relevant: PARP1 consumes NAD+ during SS
 
 [^jackson2009]: doi:10.1038/nature08467 · Jackson SP & Bartek J · review · Nature 2009 · n=N/A · model: human/mammalian · 5862 citations · comprehensive DDR overview covering sensors, transducers, effectors, and disease
 [^ciccia2010]: doi:10.1016/j.molcel.2010.09.019 · Ciccia A & Elledge SJ · review · Molecular Cell 2010 · n=N/A · model: human/mammalian · 4224 citations · detailed mechanistic coverage of DDR modules and repair pathways
+[^oppezzo2026]: [[studies/oppezzo-2026-telomeric-ddr-hematopoiesis]] · Oppezzo A et al. · doi:10.1038/s43587-026-01136-9 · randomized in-vivo mouse study plus human CD34+ HSPCs ex vivo · tASO suppressed telomeric DDR without telomere elongation; acute irradiation-response assay preserved γH2AX/pKAP1 at one hour · *Nature Aging* 2026
 [^rodier2009]: doi:10.1038/ncb1909 · Rodier F et al. · in-vitro / in-vivo · Nature Cell Biology 2009 · model: human fibroblasts + mouse · 2096 citations · demonstrates persistent DDR foci trigger SASP independently of cell-cycle arrest; foundational for DDR → senescence mechanism (downloaded PDF available)
 [^hoeijmakers2009]: doi:10.1056/nejmra0804615 · Hoeijmakers JHJ · review · New England Journal of Medicine 2009 · n=N/A · model: human (progeroid syndromes) · 2146 citations · covers DDR in aging, cancer, and progeroid syndromes — #gap/no-fulltext-access (green OA but PDF download failed; claims attributed here are corroborated by Jackson & Bartek 2009 which covers overlapping material)
 [^shiloh2013]: doi:10.1038/nrm3546 · Shiloh Y & Ziv Y · review · Nature Reviews Molecular Cell Biology 2013 · n=N/A · 1582 citations · comprehensive ATM kinase review including substrate network and A-T phenotype

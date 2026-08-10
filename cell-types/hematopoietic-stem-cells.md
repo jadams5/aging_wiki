@@ -12,9 +12,9 @@ key-aging-phenotypes: ["[[immunosenescence]]", "[[anemia-of-aging]]", "[[clonal-
 typical-niche: "endosteal + perivascular bone marrow niches"
 niche-signaling: ["[[notch-pathway]]", "[[wnt-beta-catenin]]", "[[bmp-signaling]]", "[[tgf-beta]]"]
 verified: true
-verified-date: 2026-05-04
+verified-date: 2026-08-02
 verified-by: claude
-verified-scope: "Rossi 2007, Beerman 2010, Sudo 2000, Pang 2011, and Jaiswal 2014 verified against primary source PDFs (Jaiswal 2014 prevalence CIs added 2026-05-06 R26e from body Results § p.2490; CHD/stroke HRs use body Results § values 1.2–3.5 / 1.3–4.8, which differ from abstract 1.2–3.4 / 1.4–4.8 by ±0.1 due to abstract rounding — body is canonical. Cluster-wide consistency confirmed against [[clonal-hematopoiesis]], [[dnmt3a]], [[asxl1]] verified pages all using body values). Genovese 2014 verified against PubMed abstract (PDF blocked by Cloudflare; abstract sufficient to confirm n, gene list, and HR). Pinho & Frenette 2019 (Nature Rev MCB) and Akunuru & Geiger 2016 (Trends Mol Med) not verified against full PDFs — both closed-access or download-failed; niche claims tagged #gap/no-fulltext-access. CD49f marker in human frontmatter not sourced to a paper verified here."
+verified-scope: "Rossi 2007, Beerman 2010, Sudo 2000, Pang 2011, and Jaiswal 2014 verified against primary source PDFs (Jaiswal 2014 prevalence CIs added 2026-05-06 R26e from body Results § p.2490; CHD/stroke HRs use body Results § values 1.2–3.5 / 1.3–4.8, which differ from abstract 1.2–3.4 / 1.4–4.8 by ±0.1 due to abstract rounding — body is canonical. Cluster-wide consistency confirmed against [[clonal-hematopoiesis]], [[dnmt3a]], [[asxl1]] verified pages all using body values). Genovese 2014 verified against PubMed abstract (PDF blocked by Cloudflare; abstract sufficient to confirm n, gene list, and HR). Pinho & Frenette 2019 (Nature Rev MCB) and Akunuru & Geiger 2016 (Trends Mol Med) not verified against full PDFs — both closed-access or download-failed; niche claims tagged #gap/no-fulltext-access. CD49f marker in human frontmatter not sourced to a paper verified here. Oppezzo 2026 was verified end-to-end on 2026-08-02 for G3 Terc−/− and aged-WT HSPC phenotypes, competitive transplantation, colony assays, human ex-vivo results, and safety limits."
 ---
 
 
@@ -120,7 +120,7 @@ HSCs from aged mice with deficiencies in specific DNA repair pathways (HR, NHEJ,
 | Phenotype conserved in humans? | yes |
 | Replicated in humans? | in-progress — CHIP studies are the functional readout |
 
-[^rossi2007]: [[studies/rossi-2007-dna-damage-hsc-aging]] · n=multiple cohorts · in-vivo · model: repair-deficient aged C57BL/6 mice · local PDF available · doi:10.1038/nature05862
+[^rossi2007]: [[studies/rossi-2007-dna-damage-hsc-aging]] · n=multiple cohorts · in-vivo · model: repair-deficient aged C57BL/6 mice · full text verified · doi:10.1038/nature05862
 
 ### 4. Clonal Hematopoiesis of Indeterminate Potential (CHIP)
 
@@ -184,6 +184,7 @@ Ex vivo lentiviral or CRISPR modification of autologous HSCs (e.g., correction o
 - **Epigenetic reprogramming** — partial OSK(M) reprogramming of aged HSCs restores some youthful gene expression in vitro; in-vivo efficacy not established. #gap/needs-replication
 - **Targeting the niche** — CXCL12 manipulation, anti-inflammatory niche conditioning. Preclinical.
 - **Senolytics** ([[senolytics]]) — aged BM contains senescent stromal cells (not HSCs themselves, which rarely senesce given their quiescence) that may degrade the niche; clearing these could improve HSC function indirectly. #gap/no-mechanism
+- **Telomeric DDR suppression** — [[telomeric-antisense-oligonucleotides]] reduced persistent telomeric DDR and p16-associated readouts in HSPCs without elongating telomeres. In G3 *Terc*−/− mice, total LSK abundance stayed unchanged while colony output and HSC quiescence improved; anti-TeloG, but not anti-TeloC, significantly rescued long-term competitive repopulation when tested separately. Aged wild-type mice showed lower LSK γH2AX-associated fractions and better colony output. Human evidence is limited to descriptive CFU increases in CD34+ marrow cells from two male donors ex vivo [^oppezzo2026]. #gap/needs-replication #gap/needs-human-replication
 
 ## Limitations and gaps
 
@@ -191,6 +192,7 @@ Ex vivo lentiviral or CRISPR modification of autologous HSCs (e.g., correction o
 - `#gap/needs-replication` — Many mouse-to-mouse heterochronic niche results require validation in independently-derived aged cohorts.
 - `#gap/no-mechanism` — The molecular switch that determines whether an age-associated somatic mutation becomes CHIP vs. remains neutral is not understood; VAF thresholds used clinically (>2%) are arbitrary.
 - `#gap/long-term-unknown` — CHIP natural history studies have median follow-up <10 years; the proportion of CHIP cases that eventually progress to MDS/AML over a lifetime is unknown.
+- `#gap/long-term-unknown` — Suppressing telomeric DDR could preserve HSPC function while weakening checkpoint control over unstable clones; tASO studies have not yet measured chromosome fusions, mutation burden, CHIP-like clonal expansion, or long-term tumor incidence.
 - `#gap/unsourced` — Exact magnitude of per-cell reconstitution decline with age in inbred mouse strains needs strain-specific citation; current claim is directional only.
 
 ## See also
@@ -206,8 +208,10 @@ Ex vivo lentiviral or CRISPR modification of autologous HSCs (e.g., correction o
 - [[epigenetic-alterations]] — hallmark page; methylation drift in HSCs
 - [[chronic-inflammation]] — hallmark connected via CHIP macrophage phenotype
 - [[senolytics]] — potential niche-targeting intervention
+- [[telomeric-antisense-oligonucleotides]] — preclinical suppression of persistent telomeric DDR in HSPCs
 
 ## Footnotes
 
 [^sudo2000]: [[studies/sudo-2000-hsc-age-characteristics]] · n=6–11 mice per age group · in-vivo · model: C57BL/6 (B6-Ly5.1), age cohorts 2, 6, 12, 18 months · doi:10.1084/jem.192.9.1273
 [^pang2011]: [[studies/pang-2011-human-hsc-myeloid-bias-age]] · n=13 young (20–35 y) + 11 elderly (65+ y) BM donors; 5 midaged (42–61 y) for gene expression · observational · model: human bone marrow · doi:10.1073/pnas.1116110108
+[^oppezzo2026]: [[studies/oppezzo-2026-telomeric-ddr-hematopoiesis]] · Oppezzo A et al. · doi:10.1038/s43587-026-01136-9 · randomized in-vivo mouse study plus human CD34+ HSPCs ex vivo · G3 *Terc*−/− and aged C57BL/6J mice; human n=2 male donors · anti-TeloG alone rescued competitive repopulation · *Nature Aging* 2026

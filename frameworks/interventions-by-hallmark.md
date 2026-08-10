@@ -27,7 +27,7 @@ GROUP BY h
 SORT length(rows) ASC
 ```
 
-> If any hallmark shows zero linked interventions, it must be flagged as a gap. As of R16, the following hallmarks have no compound or intervention page pointing to them: [[genomic-instability]], [[telomere-attrition]], [[epigenetic-alterations]] (partial — caloric restriction + NMN/NR point here), [[stem-cell-exhaustion]] (partial), [[altered-intercellular-communication]] (no compound page directly linked), [[dysbiosis]] (urolithin-a linked; no dedicated modulator page). See gaps section at bottom of this page.
+> If any hallmark shows zero linked interventions, it must be flagged as a gap. The Dataview result is canonical because hard-coded counts can drift. As of 2026-08-02, [[telomere-attrition]] and [[stem-cell-exhaustion]] both have linked intervention pages; the tASO ingest added a new direct preclinical class to each.
 
 ### Watchdog 2 — Stale clinical-stage entries
 
@@ -188,7 +188,7 @@ WHERE contains(hallmarks, [[stem-cell-exhaustion]])
 SORT clinical-stage DESC
 ```
 
-**Class-level synthesis:** Only creatine (via satellite-cell activation) currently links here. This under-represents the real intervention landscape: heterochronic plasma strategies, senolytics (clearing senescent niche cells), rapamycin (HSC function preservation), and caloric restriction all have preclinical evidence but are not tagged to this hallmark in their frontmatter. Stem cell transplantation and gene therapy approaches are not yet seeded. `low` tractability reflects the absence of any clinically validated approach to restore stem cell function in aged humans. #gap/needs-tagging: rapamycin, senolytics, caloric-restriction should add [[stem-cell-exhaustion]] to their hallmarks/target-hallmarks fields.
+**Class-level synthesis:** The matrix now links multiple intervention families: heterochronic blood-product approaches, senolytics, mTOR inhibition, caloric restriction, stem-cell replacement, partial reprogramming, telomerase strategies, and [[telomeric-antisense-oligonucleotides]]. The Oppezzo 2026 tASO study is notable because HSPC function improved without increasing LSK abundance or elongating telomeres, but it remains a single preclinical program with only two human donors ex vivo. `low` tractability remains appropriate because no intervention is clinically validated to restore stem-cell function in normal human aging.
 
 ---
 
@@ -252,7 +252,7 @@ WHERE contains(hallmarks, [[telomere-attrition]])
 SORT clinical-stage DESC
 ```
 
-**Class-level synthesis:** Zero compound/intervention pages link here. The hallmark page documents TA-65 (commercially available but contested; observational data only) and AAV-TERT gene therapy (preclinical mouse, 24% median lifespan extension in 1-year-old mice). Neither has a seeded compound page. Gene therapy for TERT delivery is the highest-potential intervention with zero Phase 1 human safety data. `low` tractability is appropriate. #gap/needs-seeding: TA-65 compound page (with strong #gap/needs-replication caveat); AAV-TERT intervention page.
+**Class-level synthesis:** Three intervention pages link here: [[telomerase-activators]], [[interventions/gene-therapy/aav-tert]], and [[telomeric-antisense-oligonucleotides]]. They cover telomerase activation, TERT delivery/telomere recapping, and suppression of persistent telomeric DDR without elongation, respectively. AAV-modTERT has reached an early human trial in dilated cardiomyopathy; tASOs remain preclinical and their human evidence is two donors ex vivo. `low` tractability remains appropriate because no approach has demonstrated clinical benefit for normal human aging or resolved long-term cancer/genomic-surveillance risk.
 
 ---
 
@@ -267,11 +267,11 @@ SORT clinical-stage DESC
 | [[mitochondrial-dysfunction]] | 5+ (broad coverage) | moderate | NAD+ precursor null in humans; exercise unseeded |
 | [[epigenetic-alterations]] | 3 (partial) | moderate | Partial reprogramming unseeded |
 | [[loss-of-proteostasis]] | 1 (egcg only) | moderate | Multiple compound pages missing |
-| [[stem-cell-exhaustion]] | 1 (creatine only) | low | Multiple compounds need re-tagging |
+| [[stem-cell-exhaustion]] | 10+ intervention classes | low | No validated restoration of aged human stem-cell function; tASO remains preclinical |
 | [[altered-intercellular-communication]] | 2 intervention classes | moderate | IL-11 ligand/receptor targeting is preclinical for aging; broader tagging remains incomplete |
 | [[dysbiosis]] | 1 (metformin only via gut-microbiome-modulation) | moderate | Urolithin-a re-tagging + FMT seeding needed |
 | [[genomic-instability]] | 1 ([[uv-protection]]) | low | UV-protection added R42 — first direct-mechanism intervention (UVB → AP-1/NF-κB → MMP / CPD photoaging axis); coverage gap partially resolved |
-| [[telomere-attrition]] | 0 | low | TA-65 and AAV-TERT pages unseeded |
+| [[telomere-attrition]] | 3 intervention classes | low | Human efficacy and long-term genomic/cancer safety unresolved |
 
 **Priority propagation candidates** (frontmatter changes needed on existing pages, not new pages):
 1. [[rapamycin]] — add `[[stem-cell-exhaustion]]` to `hallmarks:`
@@ -329,7 +329,7 @@ The following checks have been added to the R16 lint protocol:
 
 1. **Every `type: compound` and `type: intervention` page must have `translation-gap:` and `next-experiment:` populated.** (Already enforced by R14 lint check; repeated here for emphasis.)
 2. **Every `mechanisms:` value on a compound page must match a class on `frameworks/intervention-classes.md`.** Flagged as `#gap/class-normalisation-needed`. After normalisation pass, lint should verify no orphan mechanism values remain.
-3. **Every hallmark must have at least one intervention linked** — verified against this matrix's Gaps Summary table. Hallmarks with zero links (genomic-instability, telomere-attrition, altered-intercellular-communication as of R16) must be acknowledged as true therapeutic-landscape gaps (not wiki gaps) or as tagging gaps that need propagation passes.
+3. **Every hallmark should be checked for linked interventions** — use the live Dataview rather than the hard-coded Gaps Summary. Any zero must be classified as a true therapeutic-landscape gap or a tagging/coverage gap. Telomere attrition is no longer zero after seeding telomerase activation, AAV-TERT, and tASO pages.
 4. **Watchdog 1 (intervention count per hallmark) must be reviewed** at every seeding batch to catch newly zero-linked hallmarks.
 5. **Watchdog 2 (stale clinical-stage entries) must be resolved** within 180 days — trigger ClinicalTrials.gov re-check per `sops/finding-aging-specific.md`.
 

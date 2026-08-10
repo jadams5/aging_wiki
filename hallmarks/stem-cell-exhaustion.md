@@ -11,9 +11,9 @@ sens-correspondence: ["[[sens-damage-categories|RepleniSENS]]"]
 key-pathways: ["[[insulin-igf1]]", "[[mtor]]", "[[autophagy]]", "[[notch-pathway]]", "[[p16-rb-pathway]]"]
 key-phenotypes: ["[[anemia-of-aging]]", "[[sarcopenia]]", "[[immunosenescence]]", "[[frailty]]"]
 verified: true
-verified-date: 2026-05-04
+verified-date: 2026-08-02
 verified-by: claude
-verified-scope: "Synthesis-MOC over verified atomic pages. All inherited quantitative claims cross-checked against verified atomic pages (hematopoietic-stem-cells, satellite-cells, microglia, cardiomyocytes, anemia-of-aging). Primary sources (Sudo 2000, Beerman 2010, Jaiswal 2014, Genovese 2014, Conboy 2005, Hammond 2019, Lewis-McDougall 2019, Guralnik 2004) not re-read from PDF — verification is MOC-to-atomic-page, not MOC-to-primary-source. Lopez-Otin 2013 review page verified. Two corrections made: Pang 2011 n (young/elderly swapped); Lewis-McDougall 2019 SASP factor list (PAI-1, IL-8, IL-6 only → full 6-factor list). Conflict flagged: hematopoietic-stem-cells.md body text says Pang 2011 n=11 young/13 elderly but its own footnote says 13 young/11 elderly — MOC now matches body text (the PDF-verified claim); hematopoietic-stem-cells.md footnote inconsistency requires main-agent resolution."
+verified-scope: "Synthesis-MOC over verified atomic pages. All inherited quantitative claims cross-checked against verified atomic pages (hematopoietic-stem-cells, satellite-cells, microglia, cardiomyocytes, anemia-of-aging). Primary sources (Sudo 2000, Beerman 2010, Jaiswal 2014, Genovese 2014, Conboy 2005, Hammond 2019, Lewis-McDougall 2019, Guralnik 2004) not re-read from PDF — verification is MOC-to-atomic-page, not MOC-to-primary-source. Lopez-Otin 2013 review page verified. Two corrections made: Pang 2011 n (young/elderly swapped); Lewis-McDougall 2019 SASP factor list (PAI-1, IL-8, IL-6 only → full 6-factor list). Conflict flagged: hematopoietic-stem-cells.md body text says Pang 2011 n=11 young/13 elderly but its own footnote says 13 young/11 elderly — MOC now matches body text (the PDF-verified claim); hematopoietic-stem-cells.md footnote inconsistency requires main-agent resolution. Oppezzo 2026 was verified end-to-end on 2026-08-02 and propagated through the HSC atomic page for tASO-mediated functional rescue and its evidence limits."
 ---
 
 # Stem Cell Exhaustion
@@ -175,6 +175,10 @@ The Conboy 2005 parabiosis paradigm established that young systemic factors can 
 
 Caloric restriction preserves HSC function and reduces myeloid bias in aged mice; the mechanism is partly mTOR-dependent (see [[mtor]]). Rapamycin in aged mice (Harrison 2009 NIA ITP; Anisimov; multiple labs) extends lifespan and improves HSC function. See [[deregulated-nutrient-sensing]] for the full evidence table. Human evidence is limited — [[rapamycin]] in humans at immunosuppressant doses carries unacceptable side effects; rapalogs at lower doses are in clinical investigation.
 
+### Suppressing persistent telomeric DDR
+
+[[telomeric-antisense-oligonucleotides]] provide a preclinical example in which stem-cell function improved without increasing the phenotypic HSPC pool or elongating telomeres. In G3 *Terc*−/− mice, tASO improved HSC quiescence and colony formation; anti-TeloG, but not anti-TeloC, significantly rescued competitive repopulation when tested separately. Aged wild-type mice showed improved colony output, while the human arm was limited to two donors ex vivo [^oppezzo2026]. This supports persistent telomeric DDR as one reversible component of HSC exhaustion, not reversal of the integrative hallmark as a whole. Long-term clonal and cancer surveillance is unresolved. #gap/needs-replication #gap/needs-human-replication #gap/long-term-unknown
+
 ### Senolytics — clearing senescent niche cells
 
 Senescent stromal cells in aged HSC niches and muscle niches can be cleared with senolytic agents ([[fisetin]], dasatinib+quercetin, navitoclax). In bone marrow, clearing senescent stromal cells preclinically improves HSC engraftment efficiency; in aged muscle, senolytics reduce SASP burden. The Lewis-McDougall 2019 CPC data (human donors, n=35) provides direct human evidence that senescent progenitors are present in aged hearts — see [[cardiomyocytes]] (verified). Human RCT evidence for stem cell function restoration via senolytics is absent as of 2026-05-04. #gap/needs-human-replication
@@ -199,7 +203,7 @@ WHERE contains(hallmarks, [[stem-cell-exhaustion]])
 SORT clinical-stage DESC
 ```
 
-Only creatine currently links here via `hallmarks:`. Rapamycin, senolytics, and caloric-restriction all have preclinical stem-cell evidence but are not tagged to this hallmark in their frontmatter — a propagation gap. See [[frameworks/interventions-by-hallmark]] § Stem cell exhaustion. Intervention tractability: `low`.
+The intervention matrix now includes multiple linked classes, including rapamycin/mTOR inhibition, caloric restriction, senolytics, stem-cell replacement, partial reprogramming, telomerase approaches, and [[telomeric-antisense-oligonucleotides]]. None is clinically validated to restore stem-cell function in normal human aging. Intervention tractability remains `low`.
 
 ---
 
@@ -265,4 +269,6 @@ Edge evidence is in [[frameworks/causal-graph-data]].
 
 ## Footnotes
 
-[^lopezOtin2013]: [[studies/lopez-otin-2013-hallmarks-of-aging]] · doi:10.1016/j.cell.2013.05.039 · López-Otín C, Blasco MA, Partridge L, Serrano M, Kroemer G · 2013 · Cell 153(6):1194–1217 · review · local PDF available · defining framework for stem cell exhaustion as an integrative hallmark downstream of primary and antagonistic hallmarks
+[^oppezzo2026]: [[studies/oppezzo-2026-telomeric-ddr-hematopoiesis]] · Oppezzo A et al. · doi:10.1038/s43587-026-01136-9 · randomized in-vivo mouse study plus human CD34+ HSPCs ex vivo · G3 *Terc*−/− and aged C57BL/6J mice; human n=2 male donors · anti-TeloG alone rescued competitive repopulation · *Nature Aging* 2026
+
+[^lopezOtin2013]: [[studies/lopez-otin-2013-hallmarks-of-aging]] · doi:10.1016/j.cell.2013.05.039 · López-Otín C, Blasco MA, Partridge L, Serrano M, Kroemer G · 2013 · Cell 153(6):1194–1217 · review · full text verified · defining framework for stem cell exhaustion as an integrative hallmark downstream of primary and antagonistic hallmarks

@@ -102,7 +102,7 @@ The full edge table with evidence strength is in [[frameworks/causal-graph-data]
 **Strongest causal chains (all with verified atomic-page evidence):**
 
 1. [[genomic-instability]] → [[cellular-senescence]] (DDR-senescence induction; Tyner 2002, Rodier 2009 — verified on [[hallmarks/genomic-instability]])
-2. [[telomere-attrition]] → [[cellular-senescence]] (TAFs → replicative senescence; Bernardes de Jesus 2012 reversal — verified on [[hallmarks/telomere-attrition]])
+2. [[telomere-attrition]] → [[cellular-senescence]] / [[stem-cell-exhaustion]] (TAFs → persistent DDR; Bernardes de Jesus 2012 telomerase restoration and Oppezzo 2026 tASO suppression without elongation — verified on [[hallmarks/telomere-attrition]] and [[studies/oppezzo-2026-telomeric-ddr-hematopoiesis]])
 3. [[deregulated-nutrient-sensing]] → [[disabled-macroautophagy]] (mTORC1 → ULK1 inhibition; epistasis in 4 organisms — verified on [[hallmarks/disabled-macroautophagy]])
 4. [[disabled-macroautophagy]] → [[loss-of-proteostasis]] (Atg5/Atg7 KO → neurodegeneration; Hara 2006, Komatsu 2006 — verified on [[hallmarks/loss-of-proteostasis]])
 5. [[cellular-senescence]] → [[chronic-inflammation]] (SASP → inflammaging; CANTOS reverse; Hickson 2019 — verified on [[hallmarks/chronic-inflammation]])

@@ -743,6 +743,28 @@ WHERE contains(mechanisms, "allele-selective-degradation")
 
 ---
 
+### telomeric-rna-steric-blockade / telomeric-ddr-inhibition
+
+**Added:** 2026-08-02 — first intervention page: [[interventions/pharmacological/telomeric-antisense-oligonucleotides]].
+
+**Definition:** Sequence-specific LNA-mixmer oligonucleotides hybridize to telomeric noncoding RNAs and sterically block their contribution to persistent DNA-damage-response assemblies at dysfunctional telomeres. `telomeric-rna-steric-blockade` is the proximal molecular mechanism; `telomeric-ddr-inhibition` is the downstream pathway effect.
+
+**Class boundary:** This is not `rnase-h-recruitment`, `rna-interference`, `splice-modulation`, `allele-selective-degradation`, or `telomerase-activation`. The anchor tASOs were designed as steric blockers, did not target [[terc]], and did not elongate telomeres. They act between the dysfunctional telomere and its persistent DDR output. See [[studies/oppezzo-2026-telomeric-ddr-hematopoiesis]] for the verified efficacy and safety limits.
+
+**Canonical values in use:** `telomeric-rna-steric-blockade`, `telomeric-ddr-inhibition`
+
+**Hallmarks primarily targeted:** [[telomere-attrition]] (downstream signaling rather than lesion removal), [[cellular-senescence]], [[stem-cell-exhaustion]]
+
+**Constituent intervention pages (auto):**
+
+```dataview
+LIST FROM "molecules/compounds" OR "interventions"
+WHERE contains(mechanisms, "telomeric-rna-steric-blockade")
+  OR contains(mechanisms, "telomeric-ddr-inhibition")
+```
+
+---
+
 ### ppara-agonism / cr-mimetic
 
 **Added:** 2026-05-14 — first intervention page: [[interventions/pharmacological/ppara-agonists]]
