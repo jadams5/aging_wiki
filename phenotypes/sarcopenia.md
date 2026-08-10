@@ -130,6 +130,12 @@ See [[protein-intake]] for the canonical evidence base; key points:
 - Replete (25-OH-D > 30 ng/mL) if deficient
 - Supplementation in non-deficient individuals: evidence weaker
 
+### Omega-3 fatty acids — weak, mass-null
+
+The larger recent syntheses find **no consistent average effect on muscle or lean mass** (SMD 0.07, 95% CI −0.02 to 0.17 across 14 studies; SMD 0.09, 95% CI −0.10 to 0.28 across 16 studies) [^santoandre2023-omega3][^cornish2022-omega3], though an earlier smaller meta-analysis found +0.33 kg (95% CI 0.05–0.62), rising to +0.67 kg above 2 g/day [^huang2020-omega3]. Muscle strength shows a very small pooled effect (SMD 0.12, 95% CI 0.006–0.24) against high risk of bias; lower-body strength and chair-rise/timed-up-and-go fare better than grip strength or gait speed [^santoandre2023-omega3][^cornish2022-omega3]. No significant dose or resistance-training interaction was *detected* in the largest synthesis, but that is a null moderator test on underpowered subgroups, not evidence of equivalence [^santoandre2023-omega3].
+
+The commonly cited mechanism — stimulation of muscle protein synthesis — is **unconfirmed rather than refuted**. The 2025 meta-analysis reporting a null (SMD 0.03, 95% CI −0.35 to 0.40, k=6) pooled *basal* synthesis rates, which is where the underlying trials also found nothing; its stimulated-state analyses, which actually test the sensitization hypothesis, were positive in direction but non-significant and imprecise (SMD 0.52, 95% CI −0.64 to 1.67, k=4) [^therdyothin2025-omega3]. Omega-3 enhancing the response to amino acids and insulin is mechanistically apt for **anabolic resistance**, but has neither been replicated nor translated into pooled clinical benefit. See [[omega-3-fatty-acids]] for the full evidence treatment. #gap/contradictory-evidence #gap/needs-replication
+
 ### Pharmacological (investigational)
 
 | Agent | Class | Status |
@@ -191,3 +197,11 @@ Sarcopenia is a **convergent integrative phenotype** — multiple [[hallmarks-of
 [^dungan2022-seno]: [[studies/dungan-2022-senolytic-muscle-hypertrophy]] · doi:10.1007/s11357-022-00542-2 · Dungan CM et al. · *GeroScience* 2022;44(4):1925-1940 · in-vivo (mouse) + human IHC · adult (5–6 mo) vs old (23–24 mo) C57BL/6J, synergist-ablation mechanical overload; senolytic D+Q 5/50 mg/kg days 7+10 of 14-day MOV · load-induced senescent cells emerge ~2 wk post-resistance-exercise in humans; old mice over-accumulate them and have blunted hypertrophy; D+Q gave old mice larger muscles/fibers · #gap/needs-human-replication
 
 [^moiseeva2023-seno]: [[studies/moiseeva-2023-senescence-atlas-muscle-regeneration]] · doi:10.1038/s41586-022-05535-x · Moiseeva V et al. · *Nature* 2023;613(7942):169-178 · scRNA-seq + senescent-cell enrichment · young + old mice · senescent cells repress muscle regeneration at all ages via an inflamed niche; clearance or CD36 neutralization accelerates regeneration in young AND old; transplant delays it; senescent cells also accumulate in human muscle
+
+[^santoandre2023-omega3]: [[studies/santo-andre-2023-n3pufa-muscle-meta-analysis]] · doi:10.1016/j.advnut.2022.11.005 · PMID 36811583 · Santo André HC et al. · *Advances in Nutrition* 2023;14(1):115-127 · 14 studies · n=1,443 · systematic review and meta-analysis · high risk of bias across included studies; moderate NutriGrade certainty · model: healthy young and older adults
+
+[^cornish2022-omega3]: doi:10.3390/nu14112221 · PMID 35684018 · Cornish SM et al. · *Nutrients* 2022;14(11):2221 · 16 studies · n=2,438 · systematic review and meta-analysis · lower-body strength SMD 0.54 (95% CI 0.33-0.75); lean mass, walking performance, and upper-body strength all null · model: adults aged ≥55 without disease
+
+[^therdyothin2025-omega3]: [[studies/therdyothin-2025-omega3-protein-synthesis-meta-analysis]] · n=188 across 6 trials · meta-analysis · ns (P=0.89, I²=30%) for basal muscle protein synthesis · model: healthy adults and clinical populations · doi:10.1093/nutrit/nuae055 · PMID 38777807 · PMC11723138 · Therdyothin A et al. · *Nutrition Reviews* 2025;83(2):e131-e143 · main pool used **basal** FSR; separate stimulated-state pools ns and imprecise (SMD 0.41, 95% CI −0.16 to 0.98, k=3; SMD 0.52, 95% CI −0.64 to 1.67, k=4)
+
+[^huang2020-omega3]: doi:10.3390/nu12123739 · PMID 33291698 · PMC7761957 · Huang YH et al. · *Nutrients* 2020;12(12):3739 · 10 RCTs · meta-analysis · p<0.05 for muscle mass · model: older adults · earlier/smaller than the syntheses above; +0.33 kg muscle mass (95% CI 0.05–0.62), +0.67 kg in the >2 g/day subgroup (95% CI 0.16–1.18)
