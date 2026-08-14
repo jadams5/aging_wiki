@@ -14,9 +14,9 @@ next-experiment: "Preregistered 12-month RCT in adults ≥65 with frailty risk (
 clinical-trials-active: 4
 literature-checked-through: 2026-05-07
 verified: true
-verified-date: 2026-05-07
+verified-date: 2026-08-13
 verified-by: claude
-verified-scope: "PROMOTe 2024, Yang 2024 JCI, and Buigues 2016 verified against primary source PDFs end-to-end; Gibson 2017 ISAPP definition verified against primary source PDF; Chenhuichen 2022 unverifiable (not_oa) — abstract-level framing confirmed via Crossref; canonical-database identity fields (PubChem, ChEMBL) not applicable (class page)"
+verified-scope: "PROMOTe 2024, Yang 2024 JCI, and Buigues 2016 verified against primary source PDFs end-to-end; Gibson 2017 ISAPP definition verified against primary source PDF; Chenhuichen 2022 unverifiable (not_oa) — abstract-level framing confirmed via Crossref; canonical-database identity fields (PubChem, ChEMBL) not applicable (class page). ADDENDUM 2026-08-13: potato-RS2 taxa, responder heterogeneity, and tolerability corrected from independently full-text-verified Ze 2012, Venkataraman 2016, and Baxter 2019 study pages; older gas-adaptation studies remain scoped to the partially verified resistant-starch page."
 ---
 
 # Prebiotics (dietary intervention class)
@@ -36,7 +36,7 @@ This page covers the **prebiotic class as a whole**. Specific compound-level pag
 | **Inulin and FOS** | Chicory root, Jerusalem artichoke, garlic, onion, leek, banana | *Bifidobacterium* spp. | Most extensively studied in aging RCTs; dose-limiting bloating at >10 g/day |
 | **Galactooligosaccharides (GOS)** | Lactose-derived; infant formula, supplement powders | *Bifidobacterium* spp. | Also used clinically in infants; adult aging RCT evidence emerging (NCT06411964 active) |
 | **Lactulose** | Semi-synthetic disaccharide (galactose + fructose) | *Bifidobacterium*, *Lactobacillus* | FDA-approved for constipation and hepatic encephalopathy; prebiotic activity secondary; not used primarily as a longevity supplement |
-| **Resistant starch (RS1–RS5)** | RS2: unripe banana, raw potato; RS3: cooked-cooled rice/potato | *Faecalibacterium prausnitzii*, *Roseburia* | Produces higher butyrate fraction vs inulin/FOS; subtypes vary in colonic fermentation profile #gap/dose-response-unclear |
+| **[[interventions/dietary/resistant-starch|Resistant starch (RS1–RS5)]]** | RS2: unripe banana, raw potato; RS3: cooked-cooled rice/potato | Potato RS2: primary degraders commonly include *Bifidobacterium adolescentis* and *Ruminococcus bromii*; butyrate output depends on cross-feeders such as *Eubacterium rectale* | Subtypes and individuals vary markedly; increased degradation does not guarantee increased butyrate or symptom tolerance #gap/dose-response-unclear |
 | **Beta-glucans (β-glucan)** | Oat, barley | Mixed SCFA producers | Also modulates immune responses; structure (MW, branching) affects fermentability |
 | **Pectin** | Apple, citrus peel, carrot | *Bifidobacterium*, *Lactobacillus* | High gelling capacity; modulates intestinal transit |
 | **Human milk oligosaccharides (HMOs)** | 2'-fucosyllactose (2'-FL), lacto-N-tetraose (LNT) | *Bifidobacterium infantis* and adult *Bifidobacterium* spp. | Commercial production now available (e.g., Glycom/DSM); emerging adult supplementation trials — neonatal data dominant so far |
@@ -105,7 +105,7 @@ Butyrate and propionate promote differentiation of colonic regulatory T cells (T
 - **Typical doses in elderly RCTs**: 7.5–15 g/day inulin/FOS for 12–13 weeks across the key aging trials: Buigues 2016: 7.5 g/day (inulin 3.375 g + FOS 3.488 g); PROMOTe 2024: 7.5 g/day (inulin + FOS sachets, all participants also received BCAA + resistance exercise); Yang 2024: 15 g/day (inulin + oligofructose 50:50, taken after breakfast)
 - **Dose-limiting adverse effects**: bloating, flatulence, and GI cramping are common at doses >10 g/day inulin in adults, particularly in individuals with irritable bowel syndrome or FODMAP sensitivity. These are fermentation-byproduct effects (CO2, H2) rather than toxicity.
 - **GOS**: generally better tolerated than long-chain inulin at equivalent doses; shorter-chain polymers fermented more proximally, producing less distal gas
-- **Resistant starch**: most tolerable at higher doses; colonic fermentation is slower and more diffuse
+- **Resistant starch**: tolerability is substrate- and person-specific. Raw potato RS2 can produce dose-related gas, and human feeding studies do not establish a universal 2–4-week adaptation period; use a personally tolerable dose rather than assuming that escalation will improve the response. See [[interventions/dietary/resistant-starch]].
 - **No serious adverse events** reported in published aging RCTs with standard doses
 
 #gap/dose-response-unclear — optimal dose, prebiotic class, and duration for aging-specific outcomes are not established. Most trials use 4–13 weeks; long-term effects (>6 months) are unstudied in aging-specific populations.
@@ -130,6 +130,7 @@ Butyrate and propionate promote differentiation of colonic regulatory T cells (T
 | Class | Key distinction | Pages |
 |---|---|---|
 | **Probiotics** | Live microorganisms delivered exogenously (Lactobacillus, Bifidobacterium strains) | [[interventions/dietary/probiotics]]; genus pages [[lactobacillus]], [[bifidobacterium]] |
+| **Fermented foods** | Whole foods transformed by microbial fermentation; may deliver live cells, metabolites, and an altered matrix | [[interventions/dietary/fermented-foods]] |
 | **Postbiotics** | Cell-free preparations: SCFAs, cell walls, metabolites — bypass microbiome variability | [[postbiotics]] (parallel seed) |
 | **Synbiotics** | Pre + probiotic combination (additive or synergistic effects) | No dedicated page yet — #stub |
 | **FMT** | Full community transplant; replaces host microbiome; preclinical lifespan extension in killifish | [[fmt]] (parallel seed) |
@@ -151,7 +152,7 @@ Prebiotics are mechanistically upstream of postbiotics: prebiotics act by feedin
 
 - **Class heterogeneity.** "Prebiotics" spans chemically and functionally diverse molecules (inulin, GOS, RS, beta-glucan, pectin, HMOs). Effect sizes, enriched taxa, and tolerability differ substantially between classes. Pooling across trials obscures class-specific effects. #gap/contradictory-evidence
 - **Short trial durations.** Existing aging RCTs are 4–13 weeks. Whether *Bifidobacterium* enrichment persists during supplementation, and whether stopping supplementation causes rebound, is unknown. #gap/long-term-unknown
-- **Microbiome heterogeneity as confounder.** Baseline microbiome composition strongly predicts prebiotic response — individuals with low baseline SCFA producers show larger enrichment effects. Trials rarely stratify by baseline microbiome; per-protocol analyses may overestimate mean effects. #gap/needs-replication
+- **Microbiome heterogeneity as confounder.** Baseline community structure can influence prebiotic response, but no general species panel reliably predicts response across substrates. In potato-RS2 studies, baseline-detectable *R. bromii* was probabilistically informative in one cohort while another found no strongly predictive baseline OTU. Trials rarely stratify or validate prediction rules. See [[interventions/dietary/resistant-starch]]. #gap/needs-replication
 - **No hard-endpoint data.** No prebiotic RCT has mortality, time-to-disability, or frailty incidence as a primary endpoint with adequate power. All aging-specific claims rest on surrogate (microbiome composition, inflammatory markers) or intermediate (frailty scores, handgrip) endpoints.
 - **Causal direction not confirmed.** Is enrichment of *Bifidobacterium* the cause of the observed functional improvements, or a correlated but non-causal marker? Mechanistic trials with SCFA quantification and barrier-function biomarkers are needed.
 - **Human milk oligosaccharides (HMOs).** Commercial adult supplementation is emerging but aging-specific RCT data do not yet exist. HMOs may enrich adult *Bifidobacterium* differently from inulin/FOS — this remains to be established in elderly populations.

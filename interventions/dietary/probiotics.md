@@ -14,9 +14,9 @@ next-experiment: "Preregistered 12-week RCT of homofermentative Lactobacillus ac
 clinical-trials-active: 401
 literature-checked-through: 2026-05-22
 verified: true
-verified-date: 2026-05-22
+verified-date: 2026-08-13
 verified-by: claude
-verified-scope: "Whorwell 2006, Hutchinson 2021, Ducrotté 2012, Goodoory 2023, Hill 2014, Zeng 2025 verified against locally-available PDFs (all downloaded during this pass); Su 2020 AGA guideline verified abstract-only (closed-access, not_oa); Anwar 2025 PDF not available (pending download) — body claims (MD -5.62 bloating, MD -43.66 IBS-SSS) not independently verified against full PDF; gap-flagged DOIs confirmed via PubMed efetch (Hidayat 2025, Nordström 2021, Winham 2011, Yuan 2017, Cochrane CDiff); clinical-trials-active count re-confirmed via ClinicalTrials.gov v2 API (401); canonical-database identity fields and reclassification table not independently re-checked against Zheng 2020 PDF (cross-checked via verified microbiome/lactobacillus.md)"
+verified-scope: "Whorwell 2006, Hutchinson 2021, Ducrotté 2012, Goodoory 2023, Hill 2014, and Zeng 2025 verified against primary full texts; Su 2020 AGA guideline verified abstract-only (closed-access, not_oa); Anwar 2025 body claims (MD -5.62 bloating, MD -43.66 IBS-SSS) not independently verified against full text; gap-flagged DOIs confirmed via PubMed efetch (Hidayat 2025, Nordström 2021, Winham 2011, Yuan 2017, Cochrane CDiff); clinical-trials-active count re-confirmed via ClinicalTrials.gov v2 API (401); canonical-database identity fields and reclassification table not independently re-checked against Zheng 2020 full text (cross-checked via verified microbiome/lactobacillus.md). ADDENDUM 2026-08-13: removed personalized content and qualified the universal fiber-gas adaptation/guild-shift claims; no direct probiotic RCT for fiber-associated gas was found, and resistant-starch-specific context links to the partially verified intervention page."
 ---
 
 # Probiotics (dietary intervention class)
@@ -27,7 +27,7 @@ In the aging context, probiotics are primarily discussed as modulators of [[hall
 
 **Key practical framing:** the American Gastroenterological Association's 2020 clinical practice guidelines recommend probiotics for only a narrow set of indications (CDI prevention in high-risk patients, pouchitis, necrotizing enterocolitis prevention) and explicitly recommend **against** probiotics for most adult GI conditions including IBS, Crohn's disease, and ulcerative colitis, on grounds of inadequate strain-standardized evidence [^su2020aga].
 
-**User clinical context (fiber-adaptation gas):** this page was seeded in response to a specific clinical question about whether probiotics can reduce acute adaptation-phase gas in a high-fiber Mediterranean diet context. That question is addressed in detail in the dedicated section below. The short answer is: no RCT directly tests this scenario; the dominant mechanism of fiber-induced gas is the substrate-driven fermentation of the fiber itself by resident colonic flora, which probiotics do not immediately suppress; and the relevant intervention is patient education about the well-characterized 2–4 week adaptation window rather than probiotic selection.
+**Fiber-associated gas:** no RCT directly tests whether probiotics reduce gas during adaptation to a high-fiber diet. Substrate fermentation by resident colonic flora is the dominant immediate mechanism, and adaptation is not guaranteed or known to follow a universal timetable. Raw potato RS2 has direct evidence of persistent dose-related gas responses; see [[interventions/dietary/resistant-starch]].
 
 ---
 
@@ -192,21 +192,19 @@ High-dose multistrain containing *Bifidobacterium* spp. (multiple), *Lactobacill
 
 The Gibson group (University of Reading, UK) has historically published in vitro batch-culture and continuous-fermentation studies measuring gas production per substrate and per inoculum community. These allow head-to-head gas-output comparisons. **No curated summary of strain-level in vitro gas-output comparisons across commercial probiotic strains is available for citation in this page.** #gap/needs-invitro-gas-data — a systematic in vitro screening comparing homofermentative vs heterofermentative strains for gas output per gram of inulin/FOS substrate would be directly useful for this clinical question.
 
-### 3.5 Fiber-adaptation-phase gas: the user's actual scenario
-
-**The clinical scenario:** a Mediterranean-pattern eater on approximately 61 g functional fiber per day (lentils + cruciferous + supplemental fiber) is experiencing acute gas during adaptation to the high-fiber-load step-up.
+### 3.5 Fiber-associated gas
 
 **No RCT directly tests probiotic use to mitigate fiber-adaptation-phase gas.** This is a `#gap/no-direct-evidence`.
 
-**Closest relevant evidence — Winham and Hutchins 2011** (*Nutrition Journal*; PMID 22104320) [^winhamhutchins2011] — three feeding studies (beans, ½ cup/day): fewer than 50% of subjects reported increased flatulence from pinto or baked beans in week 1, and only 19% reported it from black-eyed peas. Tolerance improved over the study period. The key practical finding: concerns about bean-related gas are overstated, symptoms are typically transient (2–4 weeks of continued exposure), and individual variation is large. The recommendation was patient education rather than intervention.
+**Closest evidence for legumes — Winham and Hutchins 2011** (*Nutrition Journal*; PMID 22104320) [^winhamhutchins2011] — three feeding studies (beans, ½ cup/day): fewer than 50% of subjects reported increased flatulence from pinto or baked beans in week 1, and only 19% reported it from black-eyed peas. Many participants improved over subsequent weeks, but individual variation remained. This bean-feeding result should not be generalized into a universal adaptation window for resistant starch or other fibers.
 
 **Mechanistic logic for probiotic choice in this context:**
 
 1. The fiber substrate (lentil oligosaccharides, galactans, resistant starch; cruciferous GOS and soluble fiber) is the dominant fermentation substrate. Colonic resident flora — particularly *Roseburia*, *Eubacterium hallii*, *Ruminococcus champanellensis* — are the primary gas producers for these substrates.
 2. A homofermentative *Lactobacillus* or *Bifidobacterium* probiotic **will not directly suppress these resident-flora fermenters** in the short term.
-3. Over weeks of supplementation, the introduced strains might shift the guild toward acetate/lactate producers and reduce H2-producing Firmicutes relative abundance — but this is a weeks-scale effect, not a same-week effect.
+3. Introduced strains might shift resident metabolic guilds over time, but no human trial has established that this reduces fiber-associated gas or specified a reliable timetable.
 4. **Alpha-galactosidase enzyme supplements** (e.g., Beano® — fungal alpha-galactosidase, FDA-regulated as a dietary supplement) have more direct mechanism for legume-specific gas: they pre-cleave the alpha-galactosidic linkages in raffinose-family oligosaccharides (stachyose, raffinose, verbascose) **before** the substrate reaches the colon, reducing fermentable substrate reaching resident flora. This is a more mechanistically direct anti-gas approach for the legume-specific component than probiotics.
-5. **Practical recommendation (mechanistically grounded):** for the user's scenario, the most evidence-consistent approach is (a) continued exposure with 2–4 week expectation of natural adaptation per Winham and Hutchins 2011, (b) if symptoms are acutely limiting, consider alpha-galactosidase enzyme before legume-heavy meals (not a probiotic; different mechanism), and (c) if adding a probiotic, choose a homofermentative strain (*L. acidophilus* NCFM or *Lactiplantibacillus plantarum* 299v at the Ducrotté 2012 dose) rather than a heterofermentative one. The probiotic will not produce immediate gas relief; benefit, if any, operates through guild-composition shift over 4–12 weeks.
+5. **Practical recommendation:** hold or reduce the causative substrate at a tolerable level rather than forcing escalation. Alpha-galactosidase can be considered for legume oligosaccharides (not raw potato starch), but current evidence does not support choosing a probiotic to prevent fiber-associated gas. If a probiotic is used for another indication, its strain-specific evidence should drive selection; gas reduction from guild remodeling remains unproven. #gap/no-direct-evidence
 
 **Gap flag:** `#gap/no-direct-evidence` — no RCT tests probiotics specifically for fiber-adaptation-phase gas in healthy high-fiber dietary contexts.
 
@@ -312,7 +310,7 @@ Probiotics occupy an unusual regulatory category:
 
 ## Limitations and gaps
 
-- `#gap/no-direct-evidence` — no RCT tests probiotic supplementation for fiber-adaptation-phase gas in healthy high-fiber dietary contexts. The user's specific scenario is untested.
+- `#gap/no-direct-evidence` — no RCT tests probiotic supplementation for fiber-associated gas in healthy high-fiber dietary contexts, and bean-feeding adaptation data do not establish a universal response for resistant starch.
 - `#gap/contradictory-evidence` — AGA 2020 guideline "against" IBS vs. positive single-strain trials (LP299v, *B. infantis* 35624). Discordance is methodological; the aggregate reviews apply stricter risk-of-bias weighting.
 - `#gap/no-approved-hydrogenotrophic-probiotic` — no marketed probiotic is formulated with *Blautia hydrogenotrophica* or other reductive acetogens for H2 cross-feeding gas reduction. This is a theoretically compelling but commercially unexplored class.
 - `#gap/needs-invitro-gas-data` — no comprehensive head-to-head in vitro gas-output comparison across commercial probiotic strains per gram of fermentable substrate.

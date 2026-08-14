@@ -2,6 +2,8 @@
 
 Thin chronological index. Full entry content lives in `log/` sub-files; this file holds pointers only.
 
+- **2026-08-13** ingest+correction — fermented foods (including kimchi) and resistant starch evidence cluster; corrected potato-RS2 taxa/tolerability and removed the universal fiber-gas adaptation claim → [[log/2026-08-13]]
+
 **Sub-file structure:**
 - `log/R<N>.md` — numbered campaign-round entries (round-close summary + verifier + propagation entries for that round)
 - `log/YYYY-MM-DD.md` — ad-hoc daily entries (one-off user-requested ingests/verifies not part of a numbered round)
