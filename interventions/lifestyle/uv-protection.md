@@ -139,7 +139,7 @@ Sun avoidance and clothing are additive to topical sunscreen and recommended as 
 
 - **Shade-seeking:** UV index peaks 10 am–4 pm in temperate latitudes (adjusting for time zone and longitude). Shade under a tree or umbrella reduces direct UV by ~50–75% but scattered/reflected UV persists (reflected UV from sand/water/snow can be 10–80%).
 - **UPF clothing:** Ultraviolet Protection Factor (UPF) fabric ratings. UPF 50+ transmits <2% UV (analogous to SPF 50). Tightly woven, dark-colored fabrics provide better protection. Wet cotton provides minimal UV protection (UPF ~3). Wide-brimmed hats (>7.5 cm brim) protect face, ears, and neck — areas not reliably covered by sunscreen.
-- **UV-protective eyewear:** Reduces periocular UV (eyelid squamous cell carcinoma, cataract formation, and periocular photoaging). Broad wraparound frames for full coverage. Look for UV400 designation (blocks UV up to 400 nm, covering UVA-I).
+- **UV-protective eyewear:** Reduces periocular UV (eyelid squamous cell carcinoma, [[age-related-cataract|cataract formation]], and periocular photoaging). Broad wraparound frames for full coverage. Look for UV400 designation (blocks UV up to 400 nm, covering UVA-I).
 - **Window glass:** Standard glass transmits UVA-I (340–400 nm) while blocking UVB and UVA-II. Daily indoor/car exposure to UVA-I is biologically significant for photoaging. UV-blocking window film resolves this for high-exposure windows.
 
 ## Implementation and dosing

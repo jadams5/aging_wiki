@@ -2,9 +2,9 @@
 type: organ-system
 aliases: [nervous system, neural system]
 key-organs: ["[[brain]]"]
-key-tissues: ["[[brain]]"]
+key-tissues: ["[[brain]]", "[[lens]]"]
 key-cell-types: ["[[neurons]]", "[[astrocytes]]", "[[microglia]]", "[[oligodendrocytes]]", "[[neural-stem-cells]]"]
-key-aging-phenotypes: ["[[neurodegeneration]]", "[[alzheimers-disease]]", "[[parkinsons-disease]]"]
+key-aging-phenotypes: ["[[neurodegeneration]]", "[[alzheimers-disease]]", "[[parkinsons-disease]]", "[[age-related-cataract]]"]
 related-hallmarks: ["[[cellular-senescence]]", "[[loss-of-proteostasis]]", "[[chronic-inflammation]]", "[[mitochondrial-dysfunction]]"]
 parent-system: null
 ---
@@ -18,6 +18,7 @@ The system is conventionally divided into the **central nervous system** (brain 
 ## Tissues & organs
 
 - [[brain]] — the central organ; regional atrophy, white-matter changes, and aggregate pathology with age
+- [[lens]] — avascular optical tissue with lifelong growth and exceptionally long-lived crystallins; linked here as the current parent-system overlay
 - [[tissues/vagus-nerve]] — cranial nerve X; principal parasympathetic output and substrate of the [[pathways/cholinergic-anti-inflammatory-pathway]] (first seeded peripheral-nerve page)
 
 ## Cell types
@@ -34,6 +35,7 @@ The system is conventionally divided into the **central nervous system** (brain 
 - [[neurodegeneration]] — the umbrella phenotype
 - [[alzheimers-disease]] — amyloid-β / tau pathology
 - [[parkinsons-disease]] — α-synuclein / dopaminergic loss
+- [[age-related-cataract]] — lens-opacity phenotype driven proximally by long-lived-protein damage and aggregation
 
 ## Key molecular axes
 
