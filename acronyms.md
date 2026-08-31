@@ -344,6 +344,7 @@ When in doubt about a term, search this page first, then the relevant atomic pag
 - **p53** — Tumor protein 53 (TP53)
 - **PAMP** — Pathogen-Associated Molecular Pattern
 - **PAD** — Peptidylarginine Deiminase (arginine/citrulline-modifying enzyme family)
+- **PAI-1** — Plasminogen Activator Inhibitor-1 (SERPINE1 protein) → [[pai-1]]
 - **PARP** — Poly(ADP-Ribose) Polymerase (PARP1)
 - **PBS** — Phosphate-Buffered Saline
 - **PCSK9** — Proprotein Convertase Subtilisin/Kexin type 9

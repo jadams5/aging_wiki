@@ -1,7 +1,7 @@
 ---
 type: process
 aliases: [SASP, senescence-associated secretory phenotype, senescent secretome, paracrine senescence]
-key-proteins: ["[[il-6]]", "[[il-8]]", "[[il-1a]]", "[[il-1b]]", "[[cxcl1]]", "[[ccl2]]", "[[mmp1]]", "[[mmp3]]", "[[hmgb1]]", "[[inhba]]"]
+key-proteins: ["[[il-6]]", "[[il-8]]", "[[il-1a]]", "[[il-1b]]", "[[cxcl1]]", "[[ccl2]]", "[[mmp1]]", "[[mmp3]]", "[[hmgb1]]", "[[inhba]]", "[[pai-1]]"]
 pathways: ["[[nf-kb]]", "[[mtor]]", "[[cgas-sting]]", "[[jak-stat]]"]
 hallmarks: ["[[cellular-senescence]]", "[[chronic-inflammation]]", "[[altered-intercellular-communication]]"]
 selective-variants: ["[[midas]]"]
@@ -26,7 +26,7 @@ SASP is not a fixed list. Composition is highly cell-type-dependent, inducer-dep
 | **Chemokines** | CXCL1, CXCL2, CXCL10, CCL2, CCL20 | Immune cell recruitment (neutrophils, macrophages, NK cells) |
 | **Growth factors** | HGF, FGF2/7, VEGF, GM-CSF, GDF15 | Proliferative signals to neighboring cells; tumor microenvironment remodeling |
 | **Matrix metalloproteinases** | MMP-1, MMP-3, MMP-10, MMP-13 | ECM degradation; tissue remodeling; invasion-permissive microenvironment |
-| **Serine proteases / TIMPs** | PAI-1, IGFBP3, IGFBP7 | Coagulation, growth factor sequestration |
+| **Serine proteases / TIMPs** | [[pai-1|PAI-1]], IGFBP3, IGFBP7 | Coagulation, growth factor sequestration |
 | **Extracellular vesicles** | Exosomes / microvesicles carrying miRNAs, proteins, mtDNA | Non-secreted cargo transfer; long-range SASP propagation |
 
 **Core SASP** refers to the subset shared broadly across cell types and inducers (prominently IL-6, IL-8, IL-1α, MMP-3); cell-type-specific factors extend this core substantially. For example, astrocyte SASP is enriched in complement proteins, whereas fibroblast SASP is enriched in MMPs. #gap/needs-replication (systematic cross-cell-type core mapping at single-cell resolution is incomplete)
@@ -165,14 +165,14 @@ Senomorphics suppress SASP secretion without killing senescent cells, which avoi
 - **Multiplex cytokine arrays (Luminex, Olink)** — measure 10–100+ SASP factors simultaneously in conditioned medium or plasma; limited by antibody cross-reactivity and calibrator-dependent quantification.
 - **Conditioned medium (CM) paracrine assays** — CM from senescent cells applied to reporter cells; readouts include β-galactosidase, p21 induction, or growth arrest. Gold standard for demonstrating bystander effect.
 - **Single-cell RNA-seq / single-cell proteomics** — capture SASP heterogeneity at the individual-cell level; expensive but increasingly feasible for in-vivo senescent populations. #gap/needs-replication (whole-tissue single-cell SASP atlases in human aging are nascent)
-- **Plasma biomarkers** — IL-6, GDF15, PAI-1, p16 in circulating cells as proxy SASP measures in humans. None is specific to SASP vs. other inflammatory sources. #gap/unsourced (no validated SASP-specific blood test)
+- **Plasma biomarkers** — IL-6, GDF15, [[pai-1|PAI-1]], p16 in circulating cells as proxy SASP measures in humans. None is specific to SASP vs. other inflammatory sources. #gap/unsourced (no validated SASP-specific blood test)
 - **Proximity extension assays (PEA)** — ultra-sensitive plasma proteomics (Olink); increasingly used in cohort studies to link SASP markers to aging phenotypes.
 
 ## Limitations and gaps
 
 - **SASP heterogeneity is under-mapped.** Cell-type- and inducer-specific SASP compositions are described for fibroblasts and epithelial cells but are incomplete for neurons, cardiomyocytes, and tissue-resident immune cells. #gap/needs-replication The NIH SenNet Consortium Perspective (Suryadevara et al. 2026 [^suryadevara2026_sasp]) frames this heterogeneity — including microenvironmental context within a tissue — as a systematic "senotype" problem best addressed by single-cell and spatial multi-omics; see [[cellular-senescence]] § *Senescent-cell heterogeneity and the senotype concept* and [[studies/suryadevara-2026-senotypes]].
 - **Causal evidence in humans is indirect.** Clearance of senescent cells (senolytics) reducing SASP markers in humans has been demonstrated only in small trials (n < 30 for most). The link from SASP reduction to clinical outcomes has not been established. #gap/needs-human-replication
-- **No validated blood-based SASP biomarker.** Plasma IL-6 is confounded by infection, autoimmunity, and adiposity; GDF15 by hypoxia and cancer. Composite SASP scores (p16 + GDF15 + PAI-1) show promise but need prospective validation. #gap/needs-replication
+- **No validated blood-based SASP biomarker.** Plasma IL-6 is confounded by infection, autoimmunity, and adiposity; GDF15 by hypoxia and cancer. Composite SASP scores (p16 + GDF15 + [[pai-1|PAI-1]]) show promise but need prospective validation. #gap/needs-replication
 - **Beneficial SASP roles** (wound healing, embryonic development, tumor suppression) mean blanket SASP suppression may carry costs. The therapeutic window for senomorphic strategies is not established. #gap/dose-response-unclear
 - **MiDAS SASP is understudied.** The mitochondrial dysfunction-driven subtype may dominate in metabolic disease contexts, but dedicated therapeutic approaches targeting MiDAS-SASP are nascent. #gap/no-mechanism
 

@@ -12,9 +12,9 @@ human-evidence-level: strong
 mendelian-randomization: partial
 intervention-responsive: partial
 verified: true
-verified-date: 2026-08-04
+verified-date: 2026-08-31
 verified-by: claude
-verified-scope: "Lu 2019 primary source PDF and Lu 2022 GrimAge2 PDF both verified end-to-end; DO-HEALTH Bio-Age article, Extended Data, and Reporting Summary re-adjudicated 2026-08-04 via the verified atomic study page. Waziry 2023 CALERIE-2 claims cross-checked against the verified study page; Schooling 2025 MR claim not independently re-verified. R34 recency refresh 2026-05-08: METFORAGING, SLIM LIVER, RAPA-EX-01, DO-HEALTH cancer follow-up, and TCGA-BRCA prognostic integrated from abstracts only — full PDFs not re-verified."
+verified-scope: "Lu 2019 primary source PDF and Lu 2022 GrimAge2 PDF both verified end-to-end; Lu 2019 DNAm PAI-1 composition/ranking rechecked on 2026-08-31 to distinguish the protein surrogate from plasma PAI-1 and from the stronger DNAm pack-years/final-composite signals. DO-HEALTH Bio-Age article, Extended Data, and Reporting Summary re-adjudicated 2026-08-04 via the verified atomic study page. Waziry 2023 CALERIE-2 claims cross-checked against the verified study page; Schooling 2025 MR claim not independently re-verified. R34 recency refresh 2026-05-08: METFORAGING, SLIM LIVER, RAPA-EX-01, DO-HEALTH cancer follow-up, and TCGA-BRCA prognostic integrated from abstracts only — full PDFs not re-verified."
 literature-checked-through: 2026-05-08
 ---
 
@@ -49,11 +49,13 @@ The seven plasma protein surrogates included in GrimAge v1 (confirmed from Lu 20
 | cystatin C | Kidney function, GFR marker |
 | GDF-15 (growth differentiation factor 15) | Stress response, cancer cachexia, inflammation |
 | leptin | Adiposity, metabolic state |
-| PAI-1 (plasminogen activator inhibitor-1) | Thrombosis, cardiovascular disease; strongest individual mortality predictor in the model |
+| [[pai-1|PAI-1 (plasminogen activator inhibitor-1)]] | Thrombosis, cardiovascular disease; strongest individual **protein-surrogate** lifespan signal, but not stronger than DNAm pack-years or the final composite |
 | TIMP-1 (tissue inhibitor of metalloproteinases 1) | Anti-apoptotic function, extracellular matrix remodeling |
 | packYears (DNAm smoking predictor) | Tobacco exposure (8th component alongside the 7 plasma proteins) |
 
 Note: tissue plasminogen activator (tPA) is NOT a component of GrimAge. The elastic net Cox regression in Stage 2 selected the 7 proteins above plus DNAm pack-years from the 12 candidate surrogate biomarkers (only 12 of 88 assayed plasma proteins met the r>0.35 correlation threshold in both training and test FHS data).
+
+DNAm PAI-1 is a 211-CpG methylation surrogate for measured plasma PAI-1, not a direct protein assay. Its lifespan association was the strongest among the selected protein surrogates, while DNAm pack-years was stronger among individual components and GrimAge was stronger as the composite. This distinction prevents a predictive methylation feature from being read as direct evidence that circulating PAI-1 is the best overall mortality predictor or a validated treatment target [^lu2019].
 
 The composite architecture means GrimAge is not simply a methylation predictor — it captures multi-system biological information through the lens of protein levels and tobacco exposure. This explains why it outperforms purely methylation-based clocks for mortality prediction.
 

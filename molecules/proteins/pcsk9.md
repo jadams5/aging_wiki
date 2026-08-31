@@ -14,12 +14,12 @@ is-noncoding-rna: false
 druggability-tier: 1
 gtex-aging-correlation: "liver-dominant tissue (28.3 TPM, top tissue across GTEx); hepatic mRNA ρ=+0.08 (n=262, not significant; weak positive trend with age); whole blood ρ=−0.17 (n=803, weak negative — opposite direction); subQ adipose ρ=+0.15; VAT ρ=+0.10; SM ρ=+0.15. Direct hepatic transcript signal is weak in bulk RNA-seq, but post-translational regulation dominates plasma PCSK9 protein levels and is not captured by transcript data. Yang 2024 snRNA-seq ([[studies/yang-2023-primate-liver-aging-snrna-srebp2]]) implies per-hepatocyte SREBP-2 hyperactivation → SREBP-2-driven PCSK9 transcription up — bulk is the wrong instrument. GTEx v10 query 2026-05-21 via attributeSubset=ageBracket."
 mr-causal-evidence: yes
-caused-by: []
+caused-by: ["[[pai-1]]"]
 causes: ["[[chronic-inflammation]]"]
 verified: true
-verified-date: 2026-05-06
+verified-date: 2026-08-31
 verified-by: claude
-verified-scope: "Seidah 2003 and Lagace/Kwon 2008 verified against full PDFs (PMC open access); Cohen 2006, Sabatine 2017, Robinson 2015 verified against full PDFs (camoufox download). Abifadel 2003 PDF path broken in archive (symlink (stale local path) not present); claims verified via Crossref metadata + PubMed abstract; mutation names (S127R, F216L) and family count (2 French FH pedigrees) are consistent with secondary literature but not independently confirmed from full text — recommend re-check on next lint pass once PDF is accessible. Canonical-database identity fields (UniProt Q8NBP7, NCBI Gene 255738, HGNC 20001, Ensembl ENSG00000169174) not independently re-verified against databases this pass."
+verified-scope: "Seidah 2003 and Lagace/Kwon 2008 verified against full PDFs (PMC open access); Cohen 2006, Sabatine 2017, Robinson 2015 verified against full PDFs (camoufox download). Levine 2021 PAI-1 upstream interaction checked against full primary text and propagated on 2026-08-31. Abifadel 2003 PDF path broken in archive (symlink (stale local path) not present); claims verified via Crossref metadata + PubMed abstract; mutation names (S127R, F216L) and family count (2 French FH pedigrees) are consistent with secondary literature but not independently confirmed from full text — recommend re-check on next lint pass once PDF is accessible. Canonical-database identity fields (UniProt Q8NBP7, NCBI Gene 255738, HGNC 20001, Ensembl ENSG00000169174) not independently re-verified against databases this pass."
 ---
 
 # PCSK9
@@ -106,6 +106,10 @@ Atherosclerosis progression accelerates with age and is a primary driver of card
 
 The wiki's claim that "plasma PCSK9 protein rises with age" is anchored to pre-2015 cohorts (Cui 2010 Chinese cohort n≈479; Lakoski 2009 Dallas Heart Study n≈3138) — no 2019+ healthy-cohort age-stratified replication has been published as of 2026-05-21. GTEx v10 hepatic *transcript* data shows only a weak positive trend (ρ=+0.08, n=262, not significant) — and whole-blood transcript is even weakly negative (ρ=−0.17, n=803). This dissociation reflects that PCSK9 plasma protein level integrates: (a) hepatic transcription (SREBP-2-driven; Yang 2024 implies up per-hepatocyte), (b) hepatocyte secretion efficiency, (c) extrahepatic contributions (small intestine ileum/jejunum, kidney, Schwann cells per Seidah 2003), and (d) plasma clearance. Transcript abundance is a poor surrogate for activity; the load-bearing signal is plasma protein. #gap/needs-replication — direct measurement of plasma PCSK9 by age decile in a large (n>5000) modern healthy-cohort proteomic survey (UK Biobank Olink PCSK9 panel, or ARIC proteomic re-analysis) would resolve this against modern lab standardization.
 
+### PAI-1 as an upstream metabolic regulator
+
+Genetic and pharmacological PAI-1 reduction lowered hepatic *Pcsk9* expression and circulating PCSK9 in mouse experiments. In a small human founder-kindred comparison, 16 [[pai-1|SERPINE1/PAI-1]] heterozygotes also had lower plasma PCSK9 than 17 noncarriers (*P*=0.02). This supports a PAI-1→PCSK9 edge, but the human arm was cross-sectional and small, while the mechanistic and lipid-flux evidence is predominantly mouse-based; it does not establish that PAI-1 inhibition improves human cardiovascular outcomes through PCSK9.[^levine2021-pai1]
+
 ## Therapeutic targeting
 
 ### Monoclonal antibodies (FDA-approved 2015)
@@ -140,6 +144,7 @@ For the integrated lipoprotein-flux pathway view (chylomicron, VLDL→IDL→LDL 
 - SORT1/sortilin — intracellular trafficking partner; independently associated with LDL-C via GWAS
 - ANXA2 (annexin A2) — endogenous inhibitor of extracellular PCSK9-LDLR interaction
 - APOB — PCSK9 may also bind ApoB on LDL particles directly (contested; lower physiological relevance)
+- **[[pai-1]]** — upstream association supported by mouse genetic/pharmacological experiments and a small human founder-kindred plasma comparison
 
 ## Limitations and gaps
 
@@ -164,3 +169,5 @@ For the integrated lipoprotein-flux pathway view (chylomicron, VLDL→IDL→LDL 
 [^robinson2015]: doi:10.1056/NEJMoa1501031 · Robinson JG et al. (ODYSSEY LONG TERM) · *NEJM* 2015 · rct · n=2,341 (1,553 alirocumab, 788 placebo) · model: human · primary endpoint: −61.0% LDL-C at week 24 (P<0.001); post hoc MACE analysis: 1.7% alirocumab vs 3.3% placebo (HR 0.52, 95% CI 0.31–0.90, nominal P=0.02); 78 weeks treatment · PDF-verified 2026-05-06
 
 [^vafai2026]: [[studies/vafai-2026-verve-102-pcsk9]] · doi:10.1056/NEJMoa2601283 · Vafai SB, …, Kathiresan S · *N Engl J Med* 2026 · PMID 42187087 · n=35 · in-vivo (human Phase 1, single-ascending-dose) · single IV VERVE-102 (ABE v8.8 mRNA + PCSK9 gRNA, GalNAc-LNP), 0.3–1.0 mg/kg; PCSK9 −51%→−88%, LDL-C −9%→−62% across dose; durable ≥12 mo; no dose-limiting toxicity. Closed-access (NEJM) — verified against article PDF (ad-hoc ingest 2026-06-08; mirrors the queued [[studies/vafai-2026-verve-102-pcsk9]]).
+
+[^levine2021-pai1]: doi:10.1038/s41598-020-79948-x · Levine JA et al. · *Scientific Reports* 2021;11:430 · in-vivo mouse pharmacology/genetics + human observational comparison · human plasma n=16 heterozygotes and 17 controls, *P*=0.02 for PCSK9 comparison · model: male C57BL/6J mice and adult Old Order Amish founder-kindred participants · most mechanistic evidence mouse-derived; relevant patent/employment conflicts disclosed

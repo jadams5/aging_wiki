@@ -12,9 +12,9 @@ human-evidence-level: limited
 mendelian-randomization: partial
 intervention-responsive: partial
 verified: true
-verified-date: 2026-05-08
+verified-date: 2026-08-31
 verified-by: claude
-verified-scope: "Codd 2021 (10.1038/s41588-021-00944-6) verified against local PDF — all MR findings, locus counts, sample size, life-expectancy estimate, and cancer directionality cross-checked. Cawthon 2003 (10.1016/S0140-6736(03)12384-7) unverifiable — closed access (not_oa); top-line n=143 and HR estimates consistent with published abstract (PMID 12573379) but full methods/adjustment details not verified. Test-retest reliability claims (qPCR CV ~5–15%) not independently sourced to a primary measurement-reliability paper — tag retained. Canonical-database identity fields not applicable (biomarker page, not protein/compound). R34 recency refresh 2026-05-08: Nakao 2026 (Nat Genet All of Us LTL GWAS) integrated from abstract only — full PDF not re-verified."
+verified-scope: "Codd 2021 (10.1038/s41588-021-00944-6) verified against complete primary text — all MR findings, locus counts, sample size, life-expectancy estimate, and cancer directionality cross-checked. Cawthon 2003 (10.1016/S0140-6736(03)12384-7) unverifiable — closed access (not_oa); top-line n=143 and HR estimates consistent with published abstract (PMID 12573379) but full methods/adjustment details not verified. Khan 2017 SERPINE1 natural-experiment claim verified end-to-end via the verified atomic study page on 2026-08-31. Test-retest reliability claims (qPCR CV ~5–15%) not independently sourced to a primary measurement-reliability paper — tag retained. Canonical-database identity fields not applicable (biomarker page, not protein/compound). R34 recency refresh 2026-05-08: Nakao 2026 (Nat Genet All of Us LTL GWAS) integrated from abstract only — complete text not re-verified."
 literature-checked-through: 2026-05-08
 ---
 
@@ -50,6 +50,10 @@ Meta-analyses of observational data confirm shorter LTL is associated with all-c
 ### Age-associated attrition rate
 
 Population-mean LTL decreases approximately 20–40 bp/year in adults, with marked inter-individual variability. The large variability is partly genetic: ~70% of LTL variation at population level appears heritable (twin studies), and a substantial polygenic component has been identified (Codd 2021 GWAS identified 197 independent sentinel variants at 138 genomic loci, 108 of which were new).
+
+### SERPINE1 natural experiment: longer level, not slower measured attrition
+
+In a related Old Order Amish founder cohort, 43 heterozygous carriers of a loss-of-function [[pai-1|SERPINE1/PAI-1]] allele had approximately **10% longer age-adjusted LTL** than 127 noncarriers (*P*=0.007). The age-by-genotype slopes did not differ, so the cross-sectional data support an LTL offset but do **not** show that telomere attrition was slower. The same study reported favorable metabolic and pedigree-survival associations, but shared founder background and directly/obligately ascertained genotype in only 56 of 221 relatives limit causal and population-wide extrapolation.[^khan2017-serpine1]
 
 ## Mendelian Randomization Evidence (Causal Status)
 
@@ -146,6 +150,8 @@ Higher physical activity levels, better sleep quality, and lower oxidative stres
 - [[biomarkers/grimage-2019]] — mortality-trained clock; compare MR evidence
 - [[frameworks/biological-age-measurement]] — clock comparison MOC
 - [[processes/cellular-senescence]] — telomere dysfunction triggers p21/p53-mediated senescence
+- [[pai-1]] — partial-deficiency human natural experiment linked to longer age-adjusted LTL
+- [[studies/khan-2017-serpine1-longevity]] — verified primary extraction
 
 ## Footnotes
 
@@ -154,3 +160,5 @@ Higher physical activity levels, better sleep quality, and lower oxidative stres
 [^codd2021]: doi:10.1038/s41588-021-00944-6 · n=472,174 UK Biobank participants (qPCR LTL; data-freeze December 2020) · GWAS + mendelian-randomization (single-sample MR; 130 non-pleiotropic instruments from 197 sentinel variants at 138 loci; inverse-variance-weighted + MR-Egger + weighted-median + contamination-mixture methods) · Key MR findings: shorter LTL causal for CAD (OR 0.87, 95% CI 0.81–0.92 per s.d. longer LTL); longer LTL causal for prostate cancer, melanoma, thyroid cancer, kidney cancer, sarcoma, multiple sclerosis; no direct all-cause mortality MR — instead, life-expectancy modeling shows LTL >1 s.d. below mean associated with ~2.47-yr shorter life expectancy (95% CI 1.99–2.96) in men at age 40; IPF not an MR outcome in this paper · model: UK Biobank (predominantly European ancestry) · Nat Genet 2021 53:1425–1433 · local PDF available (verified 2026-05-05)
 
 [^nakao2026]: doi:10.1038/s41588-026-02567-1 · Nakao T et al. · Nat Genet 2026 (Apr) · All of Us (n=242,494; multi-ancestry US) + UK Biobank (n=679,972) meta-analysis · WGS-derived LTL · 234 nonoverlapping loci (37 novel vs Codd 2021); 6 novel loci unique to non-European-like populations; 1 novel locus specific to women; rare-variant analysis identified 9 novel genes; geographic clustering of LTL by US region (West Coast/Midwest = longer; Southeast = shorter) · model: humans, multi-ancestry · pmid:41896353
+
+[^khan2017-serpine1]: [[studies/khan-2017-serpine1-longevity]] · doi:10.1126/sciadv.aao1617 · n=177 enrolled (43 heterozygotes and 127 noncarriers in the primary LTL comparison; 7 young homozygotes excluded) · cross-sectional observational + extended-pedigree survival analysis · approximately 10% longer age-adjusted LTL in heterozygotes, *P*=0.007; age-associated slopes did not differ · model: Berne Old Order Amish founder kindred

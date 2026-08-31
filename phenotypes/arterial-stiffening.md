@@ -8,9 +8,9 @@ underlying-hallmarks: ["[[altered-intercellular-communication]]", "[[cellular-se
 typical-onset: "Begins ~30-40s subclinically; clinically significant in 50s-60s; major contributor to isolated systolic hypertension after 60"
 prevalence-65plus: "Pulse-wave velocity >10 m/s prevalence ~30-50% in adults 65+ (varies by population and cutoff)"
 verified: true
-verified-date: 2026-05-19
+verified-date: 2026-08-31
 verified-by: claude
-verified-scope: "All 7 primary-source claims verified against PDF or PMC full text (Reference Values 2010, Mitchell 2010 via PMC, Sun 2015 PDF, Jennings 2019 PDF, Clayton 2023 via PMC abstract); Laurent 2006 and Boutouyrie 2021 abstract-only (paywalled/download-failed). Multiple corrections applied — see verified-scope log. Canonical-DB identity fields (ICD codes) not independently re-checked against WHO ICD browser."
+verified-scope: "All 7 original primary-source claims verified against PDF or PMC full text (Reference Values 2010, Mitchell 2010 via PMC, Sun 2015 PDF, Jennings 2019 PDF, Clayton 2023 via PMC abstract); Laurent 2006 and Boutouyrie 2021 abstract-only (paywalled/download-failed). Khoddam 2025 human-genetic and mouse-intervention claims verified end-to-end against the article, supplement, and supporting-data workbook via the verified atomic study page on 2026-08-31. Canonical-DB identity fields (ICD codes) not independently re-checked against WHO ICD browser."
 literature-checked-through: 2026-05-19
 ---
 
@@ -63,6 +63,12 @@ Hydroxyapatite crystals deposit in the medial elastic layer of large arteries wi
 ### Endothelial dysfunction and NO signaling
 
 Endothelial nitric oxide (eNO) contributes to dynamic vascular tone via VSMC relaxation. Reduced NO bioavailability with age (from increased ROS scavenging and reduced eNOS activity) increases VSMC resting tone and reduces the dynamic functional component of arterial compliance. This is distinct from the structural mechanisms above and is, in principle, more reversible. Pharmacological NO augmentation (e.g., dietary nitrate from vegetables, L-arginine supplementation) has modest cfPWV-lowering effects in older adults.
+
+### PAI-1 dosage and vascular remodeling
+
+A 2025 study provides convergent but still bounded evidence that [[pai-1|PAI-1/SERPINE1]] dosage affects arterial stiffness. In 33 heterozygous carriers of a rare loss-of-function allele and 33 age- and sex-matched noncarriers from one founder population, adjusted cfPWV was **1.182 m/s lower** in carriers (95% CI −1.784 to −0.580; *P*=0.0002). A CRISPR mouse analog produced about 50% lower circulating PAI-1, lower PWV in naturally aged mice, and a reported **17% increase in median survival** (875 versus 749 days). Heterozygous mice were also protected in an l-NAME vascular-stress model, while stabilized PAI-1 overexpression worsened PWV and related physiology.[^khoddam2025]
+
+Oral TM5614 restored **PWV**, but not systolic or diastolic pressure, to baseline during continued l-NAME exposure. This is mouse evidence in a nitric-oxide-synthase-inhibition model, not proof that PAI-1 inhibition reverses natural human vascular aging. The human comparison is cross-sectional and limited to a single related founder population; the study's transcriptomic CCN1/ITGB1 mechanism remains unproven. Complete PAI-1 deficiency also carries bleeding and cardiac-fibrosis risks, so the evidence supports a dose window rather than unrestricted suppression.
 
 ## Clinical relevance and downstream consequences
 
@@ -119,6 +125,7 @@ Arterial stiffening is mechanistically downstream of multiple [[hallmarks-of-agi
 | Pathway conserved in rodents? | Yes — mice show age-related cfPWV increase and similar elastin/collagen shifts, but on a compressed timescale; medial calcification less prominent |
 | Senolytic reversal of stiffness? | Yes in aged mice (Clayton 2023): ~20% PWV reduction with navitoclax, PWV restored to young levels with GCV — not yet tested in humans #gap/needs-human-replication |
 | AGE crosslink mechanism? | Yes — glucosepane accumulates in mice, but dominant crosslinks may differ; human glucosepane burden is higher relative to other species |
+| Partial PAI-1 reduction? | Lower cfPWV in one human founder-kindred comparison plus concordant CRISPR-mouse physiology; inhibitor reversal remains mouse-only and model-specific #gap/needs-replication |
 
 ## Limitations and gaps
 
@@ -145,3 +152,5 @@ Arterial stiffening is mechanistically downstream of multiple [[hallmarks-of-agi
 [^clayton2023]: doi:10.1161/HYPERTENSIONAHA.123.21392 · PMID:37593877 · PMCID:PMC10530538 · Clayton ZS, Rossman MJ, Mahoney SA, et al. · *Hypertension* 2023;80(10):2072-2087 · in-vivo senolytic intervention · two arms: (1) p16-3MR transgenic mice + ganciclovir (GCV; genetic senescent-cell clearance), aged 27-29 mo, n≈10-16/group; (2) old C57BL/6N mice + navitoclax/ABT-263 50 mg/kg/day oral gavage (1-wk-on/2-wk-off/1-wk-on), n=14-16/group · ABT-263: aortic PWV 446±9 → 356±11 cm/s (~20% reduction; p<0.05); EDD improved (96±1% vs 82±3%; p<0.05); GCV arm: PWV 477±10 → 382±7 cm/s (to young-mouse levels); plasma proteomics of GCV arm implicated circulating SASP glycolysis factors in stiffening · young (6-8 mo) controls used for GCV arm comparison · model: mus-musculus #gap/needs-human-replication
 
 [^jennings2019]: doi:10.1161/HYPERTENSIONAHA.118.12259 · PMCID:PMC6380440 · Jennings A et al. (NU-AGE trial) · *Hypertension* 2019;73(3):578-586 · rct · n=1,294 randomized (aged 65-79; 5 European centres); n=225 in arterial-stiffness sub-cohort (UK site only) · Mediterranean-style diet vs habitual diet control · 1 year · **no significant change in cfPWV** (P=0.60 in the sub-cohort); AIx@75 significantly improved (between-group difference −12.4; 95% CI −24.4 to −0.5; p=0.04) · SBP reduced −5.5 mmHg (95% CI −10.7 to −0.4; p=0.03) overall · model: homo-sapiens #gap/needs-replication
+
+[^khoddam2025]: [[studies/khoddam-2025-pai1-aortic-aging]] · doi:10.1172/JCI196714 · human n=66 cross-sectional founder-kindred cohort (33 heterozygotes, 33 matched noncarriers) + multiple in-vivo mouse cohorts · adjusted human cfPWV coefficient −1.182 m/s (95% CI −1.784 to −0.580; *P*=0.0002) · CRISPR heterozygous-mouse median survival 875 versus 749 days (reported +17%) · TM5614 20 mg/kg/day restored PWV but not blood pressure to baseline during continued l-NAME · model: humans and mice

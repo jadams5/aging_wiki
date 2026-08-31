@@ -135,7 +135,7 @@ Senescent cells upregulate a network of **Senescent-Cell Anti-Apoptotic Pathways
 - **PI3K delta (PI3KCD)** — catalytic subunit δ specifically implicated; siRNA knockdown selectively kills senescent preadipocytes.
 - **p21 (CDKN1A)** — senolytic siRNA target in preadipocytes; anti-apoptotic role beyond canonical cell-cycle arrest.
 - **Plasminogen-activated inhibitor-2 (PAI-2 / SERPINB2)** — senolytic siRNA target; anti-apoptotic serpin.
-- **PAI-1 (SERPINE1)** — also senolytic in preadipocytes; serine protease inhibitor with anti-apoptotic function.
+- **[[pai-1|PAI-1 (SERPINE1)]]** — also senolytic in preadipocytes; serine protease inhibitor with anti-apoptotic function.
 
 The siRNA screen and transcriptome analysis (primary cell type: human preadipocytes, with validation in HUVECs) identified these SCAPs via STRING network analysis of 39 anti-apoptotic candidates. BCL-xL was identified as a key survival factor in HUVECs specifically, but is not the dominant factor in all senescent cell types — preadipocytes are instead more dependent on ephrin/PI3K/serpin pathways. This finding motivated the hypothesis that targeting anti-apoptotic networks — including BCL-2 family inhibitors — could selectively clear senescent cells [^zhu2015_achilles].
 
